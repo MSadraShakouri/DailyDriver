@@ -11,6 +11,7 @@ from view import view_entries
 from birthday import add_birthday
 from hygiene import manage_hygiene
 from intention import add_intention
+from stats import show_stats
 
 def clear():
     os.system('clear')
@@ -189,6 +190,9 @@ def repl():
             input("Press Enter to continue.")
         elif first == 't':
             add_intention(line)
+            input("Press Enter to continue.")
+        elif first == 'stats':
+            show_stats()
             input("Press Enter to continue.")
         else:
             # free text – single line
