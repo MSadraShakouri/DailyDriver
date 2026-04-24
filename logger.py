@@ -165,6 +165,25 @@ def learn_keywords(text, category_paths):
     conn.commit()
     conn.close()
 
+def get_last_end_time():
+    """Return Unix timestamp of the end of the most recent entry, or None."""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute('''
+        SELECT started_at, duration_minutes
+        FROM entries
+        ORDER BY created_at DESC
+        LIMIT 1
+    ''')
+    row = cur.fetchone()
+    conn.close()
+    if not row or not row['started_at']:
+        return None
+    end = row['started_at']
+    if row['duration_minutes']:
+        end += row['duration_minutes'] * 60
+    return end
+
 def log_free_text(cmd):
     import time
     from datetime import datetime
@@ -172,12 +191,26 @@ def log_free_text(cmd):
     conn = get_connection()
     cur = conn.cursor()
     selected_paths = []
-    result = ""                 # will build a short summary with line breaks
+    result = ""
+
+    # ---------- step 0a – “l” prefix: chain from last entry ----------
+    is_chain = False
+    if cmd.lower().startswith('l '):
+        is_chain = True
+        cmd = cmd[2:].strip()
+        if not cmd:
+            print("Nothing to log after 'l'.")
+            return None
 
     # ---------- step 0 – time extraction and confirmation ----------
-    started_at, duration = extract_time(cmd)
-    if started_at is not None:
-        # time was found → confirm
+    if is_chain:
+        last_end = get_last_end_time()
+        if last_end is not None:
+            started_at = last_end
+        else:
+            started_at = int(time.time())
+        _, duration = extract_time(cmd)
+
         start_dt = datetime.fromtimestamp(started_at)
         start_str = start_dt.strftime('%H:%M')
         dur_str = ""
@@ -187,7 +220,7 @@ def log_free_text(cmd):
             dur_str = f"{h}h {m}m" if h else f"{m}m"
 
         print()
-        print(f"Time:   {start_str}")
+        print(f"Time:   {start_str} (chained)")
         if dur_str:
             print(f"Duration: {dur_str}")
         print("(Enter=yes, n=cancel)")
@@ -195,10 +228,28 @@ def log_free_text(cmd):
         if confirm == 'n':
             conn.close()
             return None
-        # keep the parsed times
     else:
-        # no time found – default to now
-        started_at = int(time.time())
+        started_at, duration = extract_time(cmd)
+        if started_at is not None:
+            start_dt = datetime.fromtimestamp(started_at)
+            start_str = start_dt.strftime('%H:%M')
+            dur_str = ""
+            if duration is not None:
+                h = duration // 60
+                m = duration % 60
+                dur_str = f"{h}h {m}m" if h else f"{m}m"
+
+            print()
+            print(f"Time:   {start_str}")
+            if dur_str:
+                print(f"Duration: {dur_str}")
+            print("(Enter=yes, n=cancel)")
+            confirm = input("> ").strip().lower()
+            if confirm == 'n':
+                conn.close()
+                return None
+        else:
+            started_at = int(time.time())
 
     # ---------- step 1 – category suggestion ----------
     matches = find_matching_categories(cmd)
