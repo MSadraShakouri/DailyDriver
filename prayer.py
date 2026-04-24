@@ -27,28 +27,56 @@ def log_prayer(cmd: str):
     cur = conn.cursor()
     today = today_jalali()
 
+    # Parse arguments: optional offset/time and flags j/s
     parts = cmd.strip().split()
+    # Remove the 'p' / 'P' itself
+    args = parts[1:] if len(parts) > 1 else []
+
     offset_min = 0
     explicit_time = None
-    if len(parts) > 1:
-        arg = parts[1]
-        if arg.startswith('-'):
+    jamaat_location = None
+    shak_count = 0
+
+    i = 0
+    while i < len(args):
+        a = args[i]
+        if a.startswith('-'):
             try:
-                offset_min = int(arg[1:])
+                offset_min = int(a[1:])
             except ValueError:
                 print("Invalid offset.")
                 conn.close()
                 return None
+            i += 1
+        elif a.lower() == 'j':
+            # next argument is the location (optional)
+            if i+1 < len(args) and not args[i+1].startswith('-') and args[i+1].lower() not in ('j','s'):
+                jamaat_location = args[i+1]
+                i += 2
+            else:
+                jamaat_location = ''   # just 'j' means congregation, location empty
+                i += 1
+        elif a.lower() == 's':
+            if i+1 < len(args):
+                try:
+                    shak_count = int(args[i+1])
+                    i += 2
+                except ValueError:
+                    shak_count = 0
+                    i += 1
+            else:
+                shak_count = 0
+                i += 1
         else:
+            # assume time
             try:
-                t = datetime.strptime(arg, '%H:%M')
+                t = datetime.strptime(a, '%H:%M')
                 explicit_time = t.hour * 60 + t.minute
             except ValueError:
-                print("Time not understood. Use HH:MM or -15 offset.")
-                conn.close()
-                return None
+                pass
+            i += 1
 
-    # ---------- Determine slot ----------
+    # Determine slot
     if explicit_time:
         hour = explicit_time / 60
         if hour < 10:
@@ -60,9 +88,8 @@ def log_prayer(cmd: str):
     else:
         slot = current_slot()
 
-    # ---------- Compute actual prayer datetime ----------
+    # Compute prayer datetime
     from datetime import timedelta
-
     if explicit_time:
         prayer_dt = datetime.now().replace(hour=explicit_time // 60,
                                            minute=explicit_time % 60,
@@ -70,25 +97,42 @@ def log_prayer(cmd: str):
     elif offset_min:
         prayer_dt = datetime.now() - timedelta(minutes=offset_min)
     else:
-        prayer_dt = datetime.now()      # <-- plain "P" uses current time
+        prayer_dt = datetime.now()
 
     time_str = prayer_dt.strftime('%H:%M')
     slot_display = slot.replace('_', ' & ').title()
 
-    print(f"\n{slot_display} at {time_str}? (Enter=yes, n=cancel)")
+    # Show confirmation
+    flag_parts = []
+    if jamaat_location is not None:
+        loc_display = jamaat_location if jamaat_location else 'yes'
+        flag_parts.append(f"Jamaat ({loc_display})")
+    if shak_count > 0:
+        flag_parts.append(f"Shak ({shak_count})")
+    extra = ", ".join(flag_parts)
+    if extra:
+        print(f"\n{slot_display} at {time_str} [{extra}]? (Enter=yes, n=cancel)")
+    else:
+        print(f"\n{slot_display} at {time_str}? (Enter=yes, n=cancel)")
+
     confirm = input("> ").strip().lower()
     if confirm != '' and confirm != 'y':
         conn.close()
         return None
 
+    # Save
     cur.execute(
-        "INSERT OR REPLACE INTO prayer_logs (prayer_slot, jalali_date, status, logged_at, prayer_time) VALUES (?,?,?,?,?)",
-        (slot, today, 'on_time', int(time.time()), int(prayer_dt.timestamp()))
+        "INSERT OR REPLACE INTO prayer_logs (prayer_slot, jalali_date, status, logged_at, prayer_time, jamaat_location, shak_count) VALUES (?,?,?,?,?,?,?)",
+        (slot, today, 'on_time', int(time.time()), int(prayer_dt.timestamp()), jamaat_location, shak_count)
     )
     conn.commit()
     conn.close()
 
     result = f"Logged: {slot_display}\nTime:   {time_str}"
+    if jamaat_location is not None:
+        result += f"\nJamaat: {jamaat_location if jamaat_location else 'yes'}"
+    if shak_count:
+        result += f"\nShak:   {shak_count}"
     return result
 
 def time_offset(minutes):
