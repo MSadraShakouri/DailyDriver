@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import os
 from database import init_db
 from header_data import build_header_data
