@@ -13,6 +13,7 @@ from hygiene import manage_hygiene
 from intention import add_intention
 from stats import show_stats
 from today import show_today
+import display
 
 def clear():
     os.system('clear')
@@ -102,15 +103,16 @@ def draw_header():
     hygiene_str = "   ".join(nudge_lines[:2])
 
     # --- assemble header ---
-    header = f"════════ {formatted} ════════\n"
-    header += f"{prayer_str}\n"
-    header += f"{sleep_str}\n"
+    header_lines = []
+    header_lines.append(f"════════ {formatted} ════════")
+    header_lines.append(prayer_str)
+    header_lines.append(sleep_str)
     if bday_str:
-        header += f"{bday_str}\n"
+        header_lines.append(bday_str)
     if hygiene_str:
-        header += f"{hygiene_str}\n"
-    header += "────────────────────────────────────\n"
-    print(header, end='')
+        header_lines.append(hygiene_str)
+    header_lines.append("────────────────────────────────────")
+    display.print_header_block(header_lines)
     conn.close()
 
 def repl():
