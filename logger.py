@@ -3,6 +3,24 @@ from datetime import datetime
 from database import get_connection
 from parser import extract_time
 
+# put this near the top, after imports
+STOP_WORDS = set([
+    'a','an','the','and','or','but','if','in','on','at','to','for',
+    'of','with','by','from','up','down','about','into','through',
+    'is','was','are','were','been','be','have','has','had','do',
+    'does','did','i','me','my','mine','myself','we','our','ours','you','your',
+    'he','him','his','she','her','it','its','they','them','this','that',
+    'these','those','not','no','nor','just','only','very','too','so',
+    'then','now','here','there','all','some','any','each','every',
+    'few','more','most','other','such','own','same','can','will',
+    'shall','would','could','should','may','might','must','need',
+    'dare','ought','used','also','like','well','how',
+    'than','even','still','already','yet','ago',
+    'because','until','while','during','before','after','since',
+    'm','s',   # flags
+    'due','last','day','days','week','weeks','month','months',
+])
+
 def tokenize(text: str):
     """Return lowercased list of words (simple split)."""
     return text.lower().split()
@@ -52,10 +70,32 @@ def suggest_flags(category_path: str, text: str):
             flagged.append(f['token'])
     return flagged
 
-def log_free_text(cmd: str):
-    """Handle a free-text entry (single line or multi-line already assembled)."""
+def learn_keywords(text, category_paths):
+    if not text or not category_paths:
+        return
+    words = tokenize(text)
+    cleaned = [w for w in words if w not in STOP_WORDS and len(w) > 1]
+    if not cleaned:
+        return
     conn = get_connection()
     cur = conn.cursor()
+    for path in category_paths:
+        cur.execute("SELECT id FROM categories WHERE path=?", (path,))
+        row = cur.fetchone()
+        if not row:
+            continue
+        cat_id = row['id']
+        for word in cleaned:
+            cur.execute("SELECT id FROM keywords WHERE word=? AND category_id=?", (word, cat_id))
+            if not cur.fetchone():
+                cur.execute("INSERT INTO keywords (word, category_id) VALUES (?,?)", (word, cat_id))
+    conn.commit()
+    conn.close()
+
+def log_free_text(cmd):
+    conn = get_connection()
+    cur = conn.cursor()
+    selected_paths = []
 
     # extract time
     started_at, duration = extract_time(cmd)
@@ -71,13 +111,11 @@ def log_free_text(cmd: str):
             print(f"  [{i}] {path} (matches: {cnt})")
         print("  [Enter] first  [e] edit  [space-separated numbers for multiple]")
         choice = input("> ").strip().lower()
-        selected_paths = []
         if choice == '':
             selected_paths = [matches[0][0]]
         elif choice == 'e':
             custom = input("Enter category path (e.g., hygiene/shower): ").strip()
             if custom:
-                # insert new category if not exists
                 cur.execute("INSERT OR IGNORE INTO categories (path) VALUES (?)", (custom,))
                 conn.commit()
                 selected_paths = [custom]
@@ -91,7 +129,7 @@ def log_free_text(cmd: str):
                 except:
                     pass
 
-        # save entry_categories
+        # save entry and categories
         cur.execute("INSERT INTO entries (created_at, started_at, duration_minutes, description) VALUES (?,?,?,?)",
                     (now_ts, started_at, duration, cmd))
         entry_id = cur.lastrowid
@@ -106,7 +144,7 @@ def log_free_text(cmd: str):
         all_flags = []
         for path in selected_paths:
             all_flags.extend(suggest_flags(path, cmd))
-        all_flags = list(set(all_flags))  # unique
+        all_flags = list(set(all_flags))
 
         if all_flags:
             print(f"\nFlags found: {', '.join(all_flags)}")
@@ -120,23 +158,24 @@ def log_free_text(cmd: str):
                 if custom_flags:
                     to_attach = [f.strip() for f in custom_flags.split(',')]
             else:
-                # toggle from list
-                to_attach = flag_choice.split()  # naive: just attach what they typed
+                to_attach = flag_choice.split()
             for token in to_attach:
-                # get flag id
                 cur.execute("SELECT id FROM flags WHERE token=?", (token,))
                 row = cur.fetchone()
                 if row:
                     cur.execute("INSERT INTO entry_flags (entry_id, flag_id) VALUES (?,?)",
                                 (entry_id, row['id']))
                 else:
-                    # create new flag on the fly (global)
                     cur.execute("INSERT INTO flags (token, label, scope_category_id) VALUES (?,?,NULL)",
                                 (token, token))
                     cur.execute("INSERT INTO entry_flags (entry_id, flag_id) VALUES (?,?)",
                                 (entry_id, cur.lastrowid))
+
         conn.commit()
+        # learn keywords from this text for the selected categories
+        learn_keywords(cmd, selected_paths)
         print("Entry logged.")
+
     else:
         # no category matches – prompt manual category
         cat_choice = input("No category suggestions. Enter category path (or Enter to skip): ").strip()
@@ -149,10 +188,11 @@ def log_free_text(cmd: str):
             cur.execute("SELECT id FROM categories WHERE path=?", (cat_choice,))
             cat_id = cur.fetchone()['id']
             cur.execute("INSERT INTO entry_categories (entry_id, category_id) VALUES (?,?)", (entry_id, cat_id))
+            selected_paths = [cat_choice]
             conn.commit()
+            learn_keywords(cmd, selected_paths)
             print("Entry logged.")
         else:
-            # log with no category
             cur.execute("INSERT INTO entries (created_at, started_at, duration_minutes, description) VALUES (?,?,?,?)",
                         (now_ts, started_at, duration, cmd))
             conn.commit()
