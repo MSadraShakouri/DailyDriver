@@ -49,8 +49,7 @@ def init_db():
             created_at INTEGER NOT NULL,
             started_at INTEGER,
             duration_minutes INTEGER,
-            description TEXT,
-            is_multiline BOOLEAN DEFAULT 0
+            description TEXT
         )
     ''')
 
