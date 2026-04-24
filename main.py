@@ -5,7 +5,7 @@ from header_data import build_header_data
 from display import print_header
 from prayer import log_prayer, log_rq, log_mp
 from sleep import log_sleep
-from logger import log_free_text
+from logger import log_free_text, save_pending_start
 from view import view_entries
 from birthday import add_birthday
 from hygiene import manage_hygiene
@@ -38,6 +38,7 @@ def repl():
         'stats': lambda _: show_stats(),
         'today': lambda _: show_today(),
         'flags': lambda _: manage_flags(),
+        'c': lambda _: save_pending_start(),
         # free‑text logging is handled in the else case
     }
 

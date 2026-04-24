@@ -1,8 +1,12 @@
 import time
+import re
+import os
 from datetime import datetime
 from database import get_connection
 from parser import extract_time
-import re
+
+PENDING_FILE = os.path.expanduser('~/.daily_pending')
+
 
 STOP_WORDS = set([
     # articles, conjunctions, prepositions
@@ -184,6 +188,25 @@ def get_last_end_time():
         end += row['duration_minutes'] * 60
     return end
 
+def save_pending_start():
+    """Save the current timestamp as a pending start."""
+    import time
+    with open(PENDING_FILE, 'w') as f:
+        f.write(str(int(time.time())))
+    print("Timestamp saved.")
+
+def get_pending_start():
+    """Return the saved timestamp, or None if the file doesn't exist."""
+    if not os.path.exists(PENDING_FILE):
+        return None
+    with open(PENDING_FILE, 'r') as f:
+        return int(f.read().strip())
+
+def clear_pending_start():
+    """Remove the pending start file."""
+    if os.path.exists(PENDING_FILE):
+        os.remove(PENDING_FILE)
+
 def log_free_text(cmd):
     import time
     from datetime import datetime
@@ -221,52 +244,60 @@ def log_free_text(cmd):
             print("Nothing to log after 'l'.")
             return None
 
-    # ---------- step 0 – time extraction and confirmation ----------
-    if is_chain:
-        last_end = get_last_end_time()
-        if last_end is not None:
-            started_at = last_end
-        else:
-            started_at = int(time.time())
-
-        # If chain_to_now, duration = now - started_at
-        if chain_to_now:
-            duration = (int(time.time()) - started_at) // 60
-        else:
-            # still try to extract a duration from the remaining text
+    # ---------- step 0b – pending start (only if NOT chaining) ----------
+    is_pending = False
+    if not is_chain:
+        pending_start = get_pending_start()
+        if pending_start is not None:
+            is_pending = True
+            started_at = pending_start
+            # try to extract a duration from the text (optional)
             _, duration = extract_time(cmd)
+            if duration is None:
+                duration = (int(time.time()) - started_at) // 60
 
-        start_dt = datetime.fromtimestamp(started_at)
-        start_str = start_dt.strftime('%H:%M')
-        dur_str = ""
-        if duration is not None and duration > 0:
-            h = duration // 60
-            m = duration % 60
-            dur_str = f"{h}h {m}m" if h else f"{m}m"
-
-        print()
-        print(f"Time:   {start_str} (chained{' to now' if chain_to_now else ''})")
-        if dur_str:
-            print(f"Duration: {dur_str}")
-        print("(Enter=yes, n=cancel)")
-        confirm = input("> ").strip().lower()
-        if confirm == 'n':
-            conn.close()
-            return None
-    else:
-        started_at, duration = extract_time(cmd)
-        if started_at is not None:
-            # time was found → confirm
             start_dt = datetime.fromtimestamp(started_at)
             start_str = start_dt.strftime('%H:%M')
             dur_str = ""
-            if duration is not None:
+            if duration is not None and duration > 0:
                 h = duration // 60
                 m = duration % 60
                 dur_str = f"{h}h {m}m" if h else f"{m}m"
 
             print()
-            print(f"Time:   {start_str}")
+            print(f"Time:   {start_str} (from saved start)")
+            if dur_str:
+                print(f"Duration: {dur_str}")
+            print("(Enter=yes, n=cancel)")
+            confirm = input("> ").strip().lower()
+            if confirm == 'n':
+                conn.close()
+                return None
+
+    # ---------- step 0c – normal / chain time handling ----------
+    if not is_pending:
+        if is_chain:
+            last_end = get_last_end_time()
+            if last_end is not None:
+                started_at = last_end
+            else:
+                started_at = int(time.time())
+
+            if chain_to_now:
+                duration = (int(time.time()) - started_at) // 60
+            else:
+                _, duration = extract_time(cmd)
+
+            start_dt = datetime.fromtimestamp(started_at)
+            start_str = start_dt.strftime('%H:%M')
+            dur_str = ""
+            if duration is not None and duration > 0:
+                h = duration // 60
+                m = duration % 60
+                dur_str = f"{h}h {m}m" if h else f"{m}m"
+
+            print()
+            print(f"Time:   {start_str} (chained{' to now' if chain_to_now else ''})")
             if dur_str:
                 print(f"Duration: {dur_str}")
             print("(Enter=yes, n=cancel)")
@@ -275,8 +306,28 @@ def log_free_text(cmd):
                 conn.close()
                 return None
         else:
-            # no time found – default to now
-            started_at = int(time.time())
+            # normal entry (no chain, no pending)
+            started_at, duration = extract_time(cmd)
+            if started_at is not None:
+                start_dt = datetime.fromtimestamp(started_at)
+                start_str = start_dt.strftime('%H:%M')
+                dur_str = ""
+                if duration is not None:
+                    h = duration // 60
+                    m = duration % 60
+                    dur_str = f"{h}h {m}m" if h else f"{m}m"
+
+                print()
+                print(f"Time:   {start_str}")
+                if dur_str:
+                    print(f"Duration: {dur_str}")
+                print("(Enter=yes, n=cancel)")
+                confirm = input("> ").strip().lower()
+                if confirm == 'n':
+                    conn.close()
+                    return None
+            else:
+                started_at = int(time.time())
 
     # ---------- step 1 – category suggestion ----------
     matches = find_matching_categories(cmd)
@@ -292,7 +343,6 @@ def log_free_text(cmd):
         else:
             for token in choice.split():
                 if token.isdigit():
-                    # selection by number
                     try:
                         idx = int(token) - 1
                         if 0 <= idx < len(matches):
@@ -300,14 +350,12 @@ def log_free_text(cmd):
                     except ValueError:
                         pass
                 else:
-                    # new category path – as typed, no autocorrect
                     cur.execute("INSERT OR IGNORE INTO categories (path) VALUES (?)", (token,))
                     conn.commit()
                     selected_paths.append(token)
     else:
         cat_choice = input("No suggestions. Enter category path (or Enter to skip): ").strip().lower()
         if cat_choice:
-            # same space‑is‑separator rule here
             for token in cat_choice.split():
                 if token:
                     cur.execute("INSERT OR IGNORE INTO categories (path) VALUES (?)", (token,))
@@ -342,7 +390,6 @@ def log_free_text(cmd):
                             (entry_id, frow['id']))
                 attached_flags.append(token)
             else:
-                # create new global flag on the fly
                 cur.execute("INSERT INTO flags (token, label, scope_category_id) VALUES (?,?,NULL)",
                             (token, token))
                 cur.execute("INSERT INTO entry_flags (entry_id, flag_id) VALUES (?,?)",
@@ -355,7 +402,11 @@ def log_free_text(cmd):
     learn_keywords(cmd, selected_paths)
     conn.close()
 
-    # ---------- build result string (short lines) ----------
+    # ---------- clear pending start if used ----------
+    if is_pending:
+        clear_pending_start()
+
+    # ---------- build result string ----------
     if selected_paths:
         result += "Logged:\n"
         for p in selected_paths:
@@ -363,7 +414,7 @@ def log_free_text(cmd):
     if started_at:
         start_dt = datetime.fromtimestamp(started_at)
         result += f"Time:   {start_dt.strftime('%H:%M')}\n"
-    if duration is not None:
+    if duration is not None and duration > 0:
         h = duration // 60
         m = duration % 60
         result += f"Duration: {h}h {m}m\n" if h else f"Duration: {m}m\n"
