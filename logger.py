@@ -36,7 +36,6 @@ STOP_WORDS = set([
     # conversational filler / common journal words
     'today','yesterday','tomorrow',
     'morning','evening','night','afternoon',
-    'went','got','get','go','going','goes',
     'did','done','doing',
     'come','came','coming',
     'say','said','saying',
