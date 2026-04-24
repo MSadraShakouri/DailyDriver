@@ -23,9 +23,6 @@ def current_slot() -> str:
         return 'maghrib_isha'
 
 def log_prayer(cmd: str):
-    """
-    Parse a 'P' command, ask for slot/time confirmation, then log.
-    """
     conn = get_connection()
     cur = conn.cursor()
     today = today_jalali()
@@ -41,7 +38,7 @@ def log_prayer(cmd: str):
             except ValueError:
                 print("Invalid offset.")
                 conn.close()
-                return
+                return None
         else:
             try:
                 t = datetime.strptime(arg, '%H:%M')
@@ -49,9 +46,8 @@ def log_prayer(cmd: str):
             except ValueError:
                 print("Time not understood. Use HH:MM or -15 offset.")
                 conn.close()
-                return
+                return None
 
-    # Determine slot
     if explicit_time:
         hour = explicit_time / 60
         if hour < 10:
@@ -63,7 +59,6 @@ def log_prayer(cmd: str):
     else:
         slot = current_slot()
 
-    # Compute prayer time (approx)
     base_time = PRAYER_TIMES.get(slot, 0)
     from datetime import timedelta
     prayer_dt = datetime.now().replace(hour=int(base_time), minute=int((base_time % 1) * 60), second=0, microsecond=0)
@@ -75,21 +70,21 @@ def log_prayer(cmd: str):
     time_str = prayer_dt.strftime('%H:%M')
     slot_display = slot.replace('_', ' & ').title()
 
-    # Single confirmation line
     print(f"\n{slot_display} at {time_str}? (Enter=yes, n=cancel)")
     confirm = input("> ").strip().lower()
     if confirm != '' and confirm != 'y':
         conn.close()
-        return
+        return None
 
-    # Insert
     cur.execute(
         "INSERT OR REPLACE INTO prayer_logs (prayer_slot, jalali_date, status, logged_at, prayer_time) VALUES (?,?,?,?,?)",
         (slot, today, 'on_time', int(time.time()), int(prayer_dt.timestamp()))
     )
     conn.commit()
-    print(f"Logged: {slot_display}")
     conn.close()
+
+    result = f"Logged: {slot_display}\nTime:   {time_str}"
+    return result
 
 def time_offset(minutes):
     from datetime import timedelta

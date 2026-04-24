@@ -172,6 +172,13 @@ def repl():
             print("Goodbye.")
             break
         elif first == 'p':
+            result = log_prayer(line)
+            if result is not None:
+                clear()
+                draw_header()
+                print(result)
+            input("Press Enter to continue.")
+        elif first == 'p':
             log_prayer(line)
             input("Press Enter to continue.")
         elif first == 'rq':
