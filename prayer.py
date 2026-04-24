@@ -48,6 +48,7 @@ def log_prayer(cmd: str):
                 conn.close()
                 return None
 
+    # ---------- Determine slot ----------
     if explicit_time:
         hour = explicit_time / 60
         if hour < 10:
@@ -59,13 +60,17 @@ def log_prayer(cmd: str):
     else:
         slot = current_slot()
 
-    base_time = PRAYER_TIMES.get(slot, 0)
+    # ---------- Compute actual prayer datetime ----------
     from datetime import timedelta
-    prayer_dt = datetime.now().replace(hour=int(base_time), minute=int((base_time % 1) * 60), second=0, microsecond=0)
-    if offset_min:
-        prayer_dt = prayer_dt - timedelta(minutes=offset_min)
+
     if explicit_time:
-        prayer_dt = datetime.now().replace(hour=explicit_time // 60, minute=explicit_time % 60, second=0, microsecond=0)
+        prayer_dt = datetime.now().replace(hour=explicit_time // 60,
+                                           minute=explicit_time % 60,
+                                           second=0, microsecond=0)
+    elif offset_min:
+        prayer_dt = datetime.now() - timedelta(minutes=offset_min)
+    else:
+        prayer_dt = datetime.now()      # <-- plain "P" uses current time
 
     time_str = prayer_dt.strftime('%H:%M')
     slot_display = slot.replace('_', ' & ').title()
