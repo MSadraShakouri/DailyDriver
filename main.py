@@ -12,6 +12,7 @@ from birthday import add_birthday
 from hygiene import manage_hygiene
 from intention import add_intention
 from stats import show_stats
+from today import show_today
 
 def clear():
     os.system('clear')
@@ -196,6 +197,9 @@ def repl():
             input("Press Enter to continue.")
         elif first == 'stats':
             show_stats()
+            input("Press Enter to continue.")
+        elif first == 'today':
+            show_today()
             input("Press Enter to continue.")
         else:
             # free text – single line
