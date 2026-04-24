@@ -181,7 +181,11 @@ def repl():
             log_mp()
             input("Press Enter to continue.")
         elif first == 's':
-            log_sleep(line)
+            result = log_sleep(line)
+            if result is not None:
+                clear()
+                draw_header()
+                print(result)
             input("Press Enter to continue.")
         elif first == 'view':
             if len(parts) > 1:

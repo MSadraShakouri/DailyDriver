@@ -5,39 +5,57 @@ from utils import today_jalali
 
 def log_sleep(cmd: str):
     """
-    Parse 'S <sleep_time> <wake_time>'
-    sleep_time: HH:MM, or integer hour, or 'n' (now)
-    wake_time: HH:MM, or 'n' (now), or '-30' (minutes ago), or integer hour
+    Parse 'S' command:
+      S <sleep_time> <wake_time>        e.g., S 2 8:30
+      S <sleep_time>-<wake_time>        e.g., S 2-8:30
+    Returns a result string (or None if cancelled/error).
     """
     parts = cmd.strip().split()
-    if len(parts) < 3:
-        print("Usage: S <sleep_time> <wake_time>  e.g., S 2 8:30")
-        return
+    if len(parts) < 2:
+        print("Usage: S <sleep> <wake>   or   S <sleep>-<wake>")
+        return None
 
-    sleep_str = parts[1]
-    wake_str = parts[2]
+    # Check for compact form: second token contains '-'
+    if len(parts) == 2 and '-' in parts[1]:
+        compact_parts = parts[1].split('-')
+        if len(compact_parts) != 2:
+            print("Invalid format. Use S <sleep>-<wake> (e.g., S 2-8:30)")
+            return None
+        sleep_str, wake_str = compact_parts[0], compact_parts[1]
+    elif len(parts) >= 3:
+        sleep_str = parts[1]
+        wake_str = parts[2]
+    else:
+        print("Usage: S <sleep> <wake>   or   S <sleep>-<wake>")
+        return None
 
     now = datetime.now()
 
-    # Parse sleep time
     sleep_dt = parse_time(sleep_str, now, is_sleep=True)
     if sleep_dt is None:
         print("Could not parse sleep time.")
-        return
+        return None
 
-    # Parse wake time
     wake_dt = parse_time(wake_str, now, is_sleep=False)
     if wake_dt is None:
         print("Could not parse wake time.")
-        return
+        return None
 
-    # If wake is before sleep, assume next day
     if wake_dt <= sleep_dt:
         wake_dt += timedelta(days=1)
 
     duration = int((wake_dt - sleep_dt).total_seconds() / 60)
 
-    # Save to sleep_logs (and maybe an entry)
+    # Confirm
+    print(f"\nSleep:  {sleep_dt.strftime('%H:%M')}")
+    print(f"Wake:   {wake_dt.strftime('%H:%M')}")
+    print(f"Duration: {duration//60}h {duration%60}m")
+    print("(Enter=yes, n=cancel)")
+    confirm = input("> ").strip().lower()
+    if confirm == 'n':
+        return None
+
+    # Save
     conn = get_connection()
     cur = conn.cursor()
     today = today_jalali()
@@ -46,8 +64,13 @@ def log_sleep(cmd: str):
         (today, int(sleep_dt.timestamp()), int(wake_dt.timestamp()), duration)
     )
     conn.commit()
-    print(f"Sleep logged: {sleep_dt.strftime('%H:%M')} → {wake_dt.strftime('%H:%M')} ({duration//60}h {duration%60}m)")
     conn.close()
+
+    # Build result
+    result = "Sleep logged:\n"
+    result += f"  {sleep_dt.strftime('%H:%M')} → {wake_dt.strftime('%H:%M')}\n"
+    result += f"  {duration//60}h {duration%60}m"
+    return result
 
 def parse_time(s: str, now: datetime, is_sleep: bool):
     """Parse a time string into a datetime object."""
