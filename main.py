@@ -81,21 +81,29 @@ def repl():
 
         handler = dispatch.get(first)
         if handler:
-            result = handler(line) if first in ('p','s','bd','t') else handler(parts)
-            if result:
-                clear()
-                data = build_header_data()
-                print_header(data)
-                print(result)
+            try:
+                result = handler(line) if first in ('p','s','bd','t') else handler(parts)
+                if result:
+                    clear()
+                    data = build_header_data()
+                    print_header(data)
+                    print(result)
+            except KeyboardInterrupt:
+                print("\nCancelled.")
+                result = None
             input("Press Enter to continue.")
         else:
-            # Fall back to free‑text logging (no command matched)
-            result = log_free_text(line)
-            if result:
-                clear()
-                data = build_header_data()
-                print_header(data)
-                print(result)
+            # Fall back to free‑text logging
+            try:
+                result = log_free_text(line)
+                if result:
+                    clear()
+                    data = build_header_data()
+                    print_header(data)
+                    print(result)
+            except KeyboardInterrupt:
+                print("\nCancelled.")
+                result = None
                 input("Press Enter to continue.")
 
 if __name__ == "__main__":
