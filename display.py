@@ -11,7 +11,7 @@ def get_width():
 def char_width(c: str) -> int:
     """Return the display width of a single character (handles emojis)."""
     eaw = unicodedata.east_asian_width(c)
-    if eaw in ('W', 'F'):      # Wide or Fullwidth
+    if eaw in ('W', 'F'):
         return 2
     return 1
 
@@ -25,20 +25,57 @@ def pline(s: str):
     if display_width(s) <= tw:
         print(s)
         return
-    # truncate character‑wise until it fits, add '…'
     result = []
     current_width = 0
     for ch in s:
         w = char_width(ch)
-        if current_width + w + 1 > tw:   # +1 for the '…'
+        if current_width + w + 1 > tw:
             break
         result.append(ch)
         current_width += w
     print(''.join(result) + '…')
 
-def print_header(date_str, prayer_str, sleep_str, bday_str, hygiene_str):
-    """Print the daily header, adapting to terminal width."""
+def spread_line(items, width=None, prefix=""):
+    """Distribute items evenly across the terminal using display widths."""
+    if width is None:
+        width = get_width()
+    if not items:
+        return prefix
+
+    n = len(items)
+    item_widths = [display_width(s) for s in items]
+    total_item_width = sum(item_widths)
+    prefix_w = display_width(prefix)
+    gap_space = width - prefix_w - total_item_width
+
+    if gap_space < 0:
+        return prefix + " ".join(items)
+
+    if n == 1:
+        return prefix + items[0]
+
+    result = prefix + items[0]
+    if n == 2:
+        result += " " * gap_space + items[1]
+    else:
+        gap_each = gap_space // (n - 1)
+        remainder = gap_space % (n - 1)
+        for i in range(1, n):
+            spaces = gap_each + (1 if i <= remainder else 0)
+            result += " " * spaces + items[i]
+    return result
+
+def print_header(data: dict):
+    """Print the daily header from a dictionary built by header_data.build()."""
     w = get_width()
+    date_str = data['date_str']
+
+    # Build the full prayer line using the prefix and parts
+    prayer_str = spread_line(data['prayer_parts'], prefix="🕌 ")
+
+    sleep_str = data['sleep_str']
+    bday_str = data.get('bday_str', '')
+    hygiene_str = data.get('hygiene_str', '')
 
     # Top border with centered date
     text = f" {date_str} "
@@ -55,38 +92,3 @@ def print_header(date_str, prayer_str, sleep_str, bday_str, hygiene_str):
 
     # Bottom separator
     print('─' * w)
-
-def spread_line(items, width=None, prefix=""):
-    """
-    Distribute `items` evenly across the terminal, using **display widths**.
-    Returns a single string.
-    """
-    if width is None:
-        width = get_width()
-    if not items:
-        return prefix
-
-    n = len(items)
-    item_widths = [display_width(s) for s in items]
-    total_item_width = sum(item_widths)
-    prefix_w = display_width(prefix)
-    gap_space = width - prefix_w - total_item_width
-
-    if gap_space < 0:
-        # Fallback: just join and let pline truncate later
-        return prefix + " ".join(items)
-
-    if n == 1:
-        return prefix + items[0]
-
-    # distribute gaps
-    result = prefix + items[0]
-    if n == 2:
-        result += " " * gap_space + items[1]
-    else:
-        gap_each = gap_space // (n - 1)
-        remainder = gap_space % (n - 1)
-        for i in range(1, n):
-            spaces = gap_each + (1 if i <= remainder else 0)
-            result += " " * spaces + items[i]
-    return result
