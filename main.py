@@ -8,6 +8,7 @@ from prayer import log_prayer, log_rq, log_mp
 from sleep import log_sleep
 from logger import log_free_text
 from view import view_entries
+from birthday import add_birthday
 
 def clear():
     os.system('clear')
@@ -18,7 +19,7 @@ def draw_header():
     today = today_jalali()
     formatted = format_jalali(today)
 
-    # prayer statuses
+    # Prayer status (same as before)
     prayer_lines = []
     for slot in PRAYER_SLOTS:
         row = cur.execute(
@@ -26,39 +27,41 @@ def draw_header():
             (slot, today)
         ).fetchone()
         if row:
-            if row['status'] == 'on_time':
-                icon = '✅'
-            elif row['status'] == 'qada':
-                icon = '🕯️'
-            else:
-                icon = '❌'
+            icon = '✅' if row['status']=='on_time' else ('🕯️' if row['status']=='qada' else '❌')
         else:
             icon = '⏳'
         prayer_lines.append(f"{slot.replace('_',' ').title()}: {icon}")
-    # Fajr time displayed
-    fajr_time = "4:30"  # hardcoded for now
+    fajr_time = "4:30"
     prayer_str = f"🕌 Fajr {fajr_time} {prayer_lines[0]}   {prayer_lines[1]}   {prayer_lines[2]}"
 
-    # sleep
+    # Sleep
     sleep_row = cur.execute(
-        "SELECT duration_minutes FROM sleep_logs WHERE jalali_date=?",
-        (today,)
+        "SELECT duration_minutes FROM sleep_logs WHERE jalali_date=?", (today,)
     ).fetchone()
-    if sleep_row:
-        mins = sleep_row['duration_minutes']
-        sleep_str = f"💤 Sleep: {mins//60}h {mins%60}m"
-    else:
-        sleep_str = "💤 Sleep: —"
+    sleep_str = f"💤 Sleep: {sleep_row['duration_minutes']//60}h {sleep_row['duration_minutes']%60}m" if sleep_row else "💤 Sleep: —"
 
-    # birthdays (next 7 days)
-    bday_str = ""
-    # We'll compute Jalali dates and compare; to keep it simple, we'll leave this blank for now.
-    # We'll implement later.
+    # Birthdays (next 7 days)
+    import jdatetime
+    today_j = jdatetime.date.today()
+    bday_lines = []
+    for i in range(7):
+        check_date = today_j + jdatetime.timedelta(days=i)
+        m, d = check_date.month, check_date.day
+        # get all birthdays with that month/day
+        cur.execute("SELECT name, year FROM birthdays WHERE month=? AND day=?", (m, d))
+        for row in cur.fetchall():
+            age = ""
+            if row['year']:
+                age = f" ({check_date.year - row['year']})"
+            days_away = i
+            prefix = "🎂" if days_away == 0 else f"🎈{days_away}d"
+            bday_lines.append(f"{prefix} {row['name']}{age}")
+    bday_str = "   ".join(bday_lines[:3])  # show up to 3
 
-    # hygiene nudges – placeholder
+    # Hygiene nudges (placeholder for now)
     hygiene_str = ""
 
-    # Build header lines
+    # Build header
     header = f"════════ {formatted} ════════\n"
     header += f"{prayer_str}\n"
     header += f"{sleep_str}\n"
@@ -140,8 +143,11 @@ def repl():
             print("Commands: P S RQ MP BD T view :m ? q")
             print(":m starts multi-line entry. Finish with ---.")
             input("Press Enter to continue.")
-        elif first in ('bd', 't'):
-            print(f"{first} not implemented yet.")
+        elif first == 'bd':
+            add_birthday(line)
+            input("Press Enter to continue.")
+        elif first == 't':
+            print("T not implemented yet.")
             input("Press Enter to continue.")
         else:
             # free text – single line
