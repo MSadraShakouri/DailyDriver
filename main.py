@@ -24,10 +24,15 @@ def draw_header():
     today = today_jalali()
     formatted = format_jalali(today)
 
-    # --- prayer status (single line with abbreviations) ---
-    slot_labels = {'fajr': 'F', 'dhuhr_asr': 'DA', 'maghrib_isha': 'MI'}
+    # --- prayer status (emoji per prayer, no check marks) ---
+    # Define emojis: Fajr (dawn), Dhuhr/Asr (sun), Maghrib/Isha (sunset)
+    slot_info = [
+        ('fajr', '🌅', 'F'),
+        ('dhuhr_asr', '☀️', 'DA'),
+        ('maghrib_isha', '🌆', 'MI'),
+    ]
     prayer_parts = []
-    for slot in PRAYER_SLOTS:
+    for slot, emoji, label in slot_info:
         row = cur.execute(
             "SELECT prayer_time FROM prayer_logs WHERE prayer_slot=? AND jalali_date=?",
             (slot, today)
@@ -36,10 +41,11 @@ def draw_header():
             from datetime import datetime
             dt = datetime.fromtimestamp(row['prayer_time'])
             time_str = dt.strftime('%H:%M')
-            prayer_parts.append(f"{slot_labels[slot]} {time_str}")
+            prayer_parts.append(f"{emoji} {time_str}")
         else:
-            prayer_parts.append(f"{slot_labels[slot]} —")
-    prayer_str = "   ".join(prayer_parts)   # single line
+            prayer_parts.append(f"{emoji} —")
+    # Spread across terminal width with a mosque at the very start
+    prayer_str = display.spread_line(prayer_parts, prefix="🕌 ")
 
     # --- sleep ---
     sleep_row = cur.execute(
