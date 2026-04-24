@@ -5,6 +5,7 @@ from database import init_db, get_connection
 from utils import today_jalali, format_jalali
 from prayer import log_prayer, PRAYER_SLOTS
 from sleep import log_sleep
+from logger import log_free_text
 
 def clear():
     os.system('clear')
@@ -72,25 +73,28 @@ def repl():
     while True:
         clear()
         draw_header()
-        cmd = input("> ").strip()
-        if cmd == '':
+        line = input("> ").strip()
+        if line == '':
             continue
-        parts = cmd.split()
+        parts = line.split()
         first = parts[0].lower()
 
         if first == 'q':
             print("Goodbye.")
             break
         elif first == 'p':
-            log_prayer(cmd)
+            log_prayer(line)
         elif first == 's':
-            log_sleep(cmd)
+            log_sleep(line)
         elif first == '?':
-            print("Help: P [offset/time]  S <sleep> <wake>  RQ  MP  BD  T  view  q")
+            print("Commands: P S RQ MP BD T view ? q")
+            print("Free text: just type your entry (single line for now).")
+            input("Press Enter to continue.")
+        elif first in ('rq', 'mp', 'bd', 't', 'view'):
+            print(f"{first} not implemented yet.")
             input("Press Enter to continue.")
         else:
-            # Free text – not implemented yet
-            print("Free text logging coming soon.")
+            log_free_text(line)
             input("Press Enter to continue.")
 
 if __name__ == "__main__":
