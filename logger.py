@@ -134,32 +134,34 @@ def log_free_text(cmd):
         print("Suggested categories:")
         for i, (path, cnt) in enumerate(matches, 1):
             print(f"  [{i}] {path}")
-        print("Enter=1, space‑separated numbers to select, or type a new category path")
+        print("Enter=1, numbers to select, or type new paths (space‑separated)")
         choice = input("> ").strip().lower()
         if choice == '':
             selected_paths = [matches[0][0]]
-        elif choice.replace(' ', '').isdigit():
-            # input is only digits and spaces → select by numbers
-            nums = choice.split()
-            for num in nums:
-                try:
-                    idx = int(num) - 1
-                    if 0 <= idx < len(matches):
-                        selected_paths.append(matches[idx][0])
-                except ValueError:
-                    pass
         else:
-            # input is a new category path (cannot be a single number)
-            custom = choice
-            cur.execute("INSERT OR IGNORE INTO categories (path) VALUES (?)", (custom,))
-            conn.commit()
-            selected_paths = [custom]
+            for token in choice.split():
+                if token.isdigit():
+                    # selection by number
+                    try:
+                        idx = int(token) - 1
+                        if 0 <= idx < len(matches):
+                            selected_paths.append(matches[idx][0])
+                    except ValueError:
+                        pass
+                else:
+                    # new category path – as typed, no autocorrect
+                    cur.execute("INSERT OR IGNORE INTO categories (path) VALUES (?)", (token,))
+                    conn.commit()
+                    selected_paths.append(token)
     else:
         cat_choice = input("No suggestions. Enter category path (or Enter to skip): ").strip().lower()
         if cat_choice:
-            cur.execute("INSERT OR IGNORE INTO categories (path) VALUES (?)", (cat_choice,))
-            conn.commit()
-            selected_paths = [cat_choice]
+            # same space‑is‑separator rule here
+            for token in cat_choice.split():
+                if token:
+                    cur.execute("INSERT OR IGNORE INTO categories (path) VALUES (?)", (token,))
+                    conn.commit()
+                    selected_paths.append(token)
 
     # ---------- step 2 – insert entry ----------
     cur.execute(
