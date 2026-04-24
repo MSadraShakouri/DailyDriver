@@ -1,7 +1,8 @@
 import os
-import time
 import subprocess
+import time
 from database import get_connection
+from logger import log_free_text
 
 def view_entries():
     conn = get_connection()
@@ -52,7 +53,12 @@ def view_entries():
             offset = max(0, offset - page_size)
         elif choice.isdigit():
             entry_id = int(choice)
-            edit_entry(entry_id)
+            result = edit_entry(entry_id)
+            if result is not None:
+                # The entry was edited – re-logged with full prompts
+                conn.close()
+                log_free_text(result)      # will ask for category/flags
+                return                     # exit view to REPL
         else:
             pass
 
@@ -65,28 +71,29 @@ def edit_entry(entry_id):
     row = cur.fetchone()
     if not row:
         print("Entry not found.")
-        return
+        conn.close()
+        return None
 
-    # Write current description to a temp file
     tmp_file = os.path.expanduser('~/.daily_edit.txt')
     with open(tmp_file, 'w') as f:
         f.write(row['description'] or '')
 
-    # Open nano
     subprocess.call(['nano', tmp_file])
 
-    # Read back
     with open(tmp_file, 'r') as f:
         new_desc = f.read().strip()
 
     if new_desc == (row['description'] or '').strip():
         print("No changes.")
-        return
+        conn.close()
+        return None
 
-    # Re‑parse the new text through the logger (but we need the parser functions)
-    # For now, we simply update the description and reset created_at
-    import time
-    cur.execute("UPDATE entries SET description=?, created_at=? WHERE id=?",
-                (new_desc, int(time.time()), entry_id))
+    # Delete child rows first (foreign keys)
+    cur.execute("DELETE FROM entry_categories WHERE entry_id=?", (entry_id,))
+    cur.execute("DELETE FROM entry_flags WHERE entry_id=?", (entry_id,))
+    # Now delete the entry itself
+    cur.execute("DELETE FROM entries WHERE id=?", (entry_id,))
     conn.commit()
-    print("Entry updated. (categories/flags not re‑parsed from edit – simple update for now)")
+    conn.close()
+
+    return new_desc
