@@ -4,22 +4,80 @@ from database import get_connection
 from parser import extract_time
 import re
 
-# put this near the top, after imports
 STOP_WORDS = set([
+    # articles, conjunctions, prepositions
     'a','an','the','and','or','but','if','in','on','at','to','for',
     'of','with','by','from','up','down','about','into','through',
-    'is','was','are','were','been','be','have','has','had','do',
-    'does','did','i','me','my','mine','myself','we','our','ours','you','your',
-    'he','him','his','she','her','it','its','they','them','this','that',
-    'these','those','not','no','nor','just','only','very','too','so',
-    'then','now','here','there','all','some','any','each','every',
-    'few','more','most','other','such','own','same','can','will',
-    'shall','would','could','should','may','might','must','need',
-    'dare','ought','used','also','like','well','how',
+    'before','after','since','until','while','during','because',
     'than','even','still','already','yet','ago',
-    'because','until','while','during','before','after','since',
-    'm','s',   # flags
     'due','last','day','days','week','weeks','month','months',
+
+    # pronouns
+    'i','me','my','mine','myself','we','our','ours','you','your',
+    'he','him','his','she','her','it','its','they','them','this','that',
+    'these','those','which','who','whom','what','whatever','whoever',
+
+    # possessives & reflexive
+    'itself','himself','herself','yourself','ourselves','themselves',
+
+    # common verbs & auxiliaries
+    'is','was','are','were','been','be','have','has','had','do',
+    'does','did','can','could','will','would','shall','should',
+    'may','might','must','need','dare','ought','used',
+    'am','not','no','nor','just','only','very','too','so',
+
+    # adverbs / adverbials
+    'then','now','here','there','all','some','any','each','every',
+    'few','more','most','other','such','own','same',
+    'also','like','well','how',
+    'again','further','once','twice','often','always','never',
+    'ever','hardly','almost','enough','quite','rather','almost',
+
+    # conversational filler / common journal words
+    'today','yesterday','tomorrow',
+    'morning','evening','night','afternoon',
+    'went','got','get','go','going','goes',
+    'did','done','doing',
+    'come','came','coming',
+    'say','said','saying',
+    'think','thinking','thought',
+    'know','knew','known',
+    'take','took','taking',
+    'make','made','making',
+    'see','saw','seeing',
+    'give','gave','giving',
+    'find','found','finding',
+    'tell','told','telling',
+    'ask','asked','asking',
+
+    # numbers (should never be keywords)
+    'one','two','three','four','five','six','seven','eight','nine','ten',
+    'first','second','third','last',
+
+    # time / duration words (already in parser, not useful as keywords)
+    'min','mins','minute','minutes','hour','hours','hr','hrs',
+
+    # flag tokens (keep out of keywords)
+    'm','s',
+
+    # common words that carry no category
+    'thing','things','stuff','lot','bit','part','way',
+    'time','times',
+    'yes','yeah','no','nope',
+    'ok','okay','ah','oh','um','er',
+    'really','pretty','quite','rather','maybe','perhaps',
+    'also','else','anyway','though','although',
+    'still','yet','already',
+    'half','full','many','much','little','big','small',
+    'new','old','good','bad','great','nice','fine','best',
+    'worse','worst','better',
+    'right','wrong','left','front','back','top','bottom',
+    'high','low','short','long','hard','soft',
+    'early','late',
+
+    # standard journal connective words
+    'then','next','finally','first','second','third',
+    'because','since','as','so','hence','thus',
 ])
 
 def tokenize(text: str):
