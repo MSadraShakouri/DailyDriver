@@ -10,6 +10,7 @@ from logger import log_free_text
 from view import view_entries
 from birthday import add_birthday
 from hygiene import manage_hygiene
+from intention import add_intention
 
 def clear():
     os.system('clear')
@@ -187,7 +188,7 @@ def repl():
             manage_hygiene()
             input("Press Enter to continue.")
         elif first == 't':
-            print("T not implemented yet.")
+            add_intention(line)
             input("Press Enter to continue.")
         else:
             # free text – single line
