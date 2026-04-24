@@ -132,21 +132,17 @@ def suggest_flags(category_path: str, text: str):
             flagged.append(f['token'])
     return flagged
 
-def learn_keywords(text, category_paths):
+def learn_keywords(text, category_paths, conn=None):
     if not text or not category_paths:
         return
     words = tokenize(text)
-    # Filter: only keep tokens that are purely alphabetic (or contain hyphens),
-    # at least 3 characters, and are not stop words.
     cleaned = []
     for w in words:
-        # Remove leading/trailing punctuation (commas, periods, etc.)
         w = re.sub(r'^[^a-zA-Z]+|[^a-zA-Z]+$', '', w)
         if w in STOP_WORDS:
             continue
         if len(w) < 3:
             continue
-        # Allow only letters and hyphens
         if not re.fullmatch(r'[a-zA-Z-]+', w):
             continue
         cleaned.append(w)
@@ -154,8 +150,12 @@ def learn_keywords(text, category_paths):
     if not cleaned:
         return
 
-    conn = get_connection()
+    own_conn = False
+    if conn is None:
+        conn = get_connection()
+        own_conn = True
     cur = conn.cursor()
+
     for path in category_paths:
         cur.execute("SELECT id FROM categories WHERE path=?", (path,))
         row = cur.fetchone()
@@ -163,11 +163,18 @@ def learn_keywords(text, category_paths):
             continue
         cat_id = row['id']
         for word in cleaned:
-            cur.execute("SELECT id FROM keywords WHERE word=? AND category_id=?", (word, cat_id))
+            cur.execute(
+                "SELECT id FROM keywords WHERE word=? AND category_id=?",
+                (word, cat_id)
+            )
             if not cur.fetchone():
-                cur.execute("INSERT INTO keywords (word, category_id) VALUES (?,?)", (word, cat_id))
-    conn.commit()
-    conn.close()
+                cur.execute(
+                    "INSERT INTO keywords (word, category_id) VALUES (?,?)",
+                    (word, cat_id)
+                )
+    if own_conn:
+        conn.commit()
+        conn.close()
 
 def get_last_end_time():
     """Return Unix timestamp of the end of the most recent entry, or None."""
@@ -411,7 +418,7 @@ def log_free_text(cmd):
                 # default scope = first selected category (if any)
                 default_scope = selected_paths[0] if selected_paths else None
                 try:
-                    flag_id = create_flag_interactive(token, default_scope_path=default_scope)
+                    flag_id = create_flag_interactive(token, default_scope_path=default_scope, conn=conn)
                 except KeyboardInterrupt:
                     print("Cancelled.")
                     continue
@@ -421,7 +428,7 @@ def log_free_text(cmd):
                     attached_flags.append(token)
 
     # ---------- step 4 – learn keywords ----------
-    learn_keywords(cmd, selected_paths)
+    learn_keywords(cmd, selected_paths, conn=conn)
     conn.close()
 
     # ---------- clear pending start if used ----------

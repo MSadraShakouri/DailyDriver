@@ -1,12 +1,15 @@
 from database import get_connection
 
-def create_flag_interactive(token, default_scope_path=None):
+def create_flag_interactive(token, default_scope_path=None, conn=None):
     """
     Prompt for label and scope, then insert the flag.
-    default_scope_path is offered as the default (Enter = accept).
+    If conn is given, use it; otherwise open our own.
     Returns the new flag id, or None if cancelled.
     """
-    conn = get_connection()
+    own_conn = False
+    if conn is None:
+        conn = get_connection()
+        own_conn = True
     cur = conn.cursor()
 
     print(f"\nNew flag: '{token}'")
@@ -24,13 +27,10 @@ def create_flag_interactive(token, default_scope_path=None):
 
     if scope_path == '':
         if default_scope_path:
-            # default to the given path
             cur.execute("SELECT id FROM categories WHERE path=?", (default_scope_path,))
             row = cur.fetchone()
             if row:
                 scope_id = row['id']
-            # if path not found, fallback to global silently
-        # else leave as None (global)
     elif scope_path == 'global':
         scope_id = None
     else:
@@ -44,10 +44,11 @@ def create_flag_interactive(token, default_scope_path=None):
 
     cur.execute("INSERT INTO flags (token, label, scope_category_id) VALUES (?,?,?)",
                 (token, label, scope_id))
-    conn.commit()
-    flag_id = cur.lastrowid
-    conn.close()
-    return flag_id
+    if own_conn:
+        conn.commit()
+        conn.close()
+
+    return cur.lastrowid
 
 def manage_flags():
     conn = get_connection()
