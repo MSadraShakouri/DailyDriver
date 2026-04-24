@@ -14,6 +14,8 @@ from intention import add_intention
 from stats import show_stats
 from today import show_today
 import display
+from flags_manager import manage_flags
+from help import show_help
 
 def clear():
     os.system('clear')
@@ -198,8 +200,7 @@ def repl():
                 view_entries()
             input("Press Enter to continue.")
         elif first == '?':
-            print("Commands: P S RQ MP BD T hygiene view :m ? q")
-            print(":m starts multi-line entry. Finish with ---.")
+            show_help()
             input("Press Enter to continue.")
         elif first == 'bd':
             result = add_birthday(line)
@@ -223,6 +224,9 @@ def repl():
             input("Press Enter to continue.")
         elif first == 'today':
             show_today()
+            input("Press Enter to continue.")
+        elif first == 'flags':
+            manage_flags()
             input("Press Enter to continue.")
         else:
             result = log_free_text(line)
