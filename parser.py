@@ -167,5 +167,18 @@ def extract_time(text: str):
                 rel_date = rel_date.replace(hour=h, minute=m)
         return int(rel_date.timestamp()), None
 
+    # ---------- "last X mins/hours" → start = now - X, duration = X ----------
+    m = re.search(r'last\s+(\d+)\s*(?:min(?:ute)?s?|m)\b', text_clean)
+    if m:
+        minutes = int(m.group(1))
+        start = now - timedelta(minutes=minutes)
+        return int(start.timestamp()), minutes
+
+    m = re.search(r'last\s+(\d+)\s*(?:hour(?:s)?|h)\b', text_clean)
+    if m:
+        hours = int(m.group(1))
+        start = now - timedelta(hours=hours)
+        return int(start.timestamp()), hours * 60
+
     # ---------- 6. nothing found ----------
     return None, None
