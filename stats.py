@@ -33,11 +33,12 @@ def show_stats():
 
     # --- Sleep: last 14 days ---
     print("\n─── Sleep (last 14 days) ───")
+    cutoff = int((datetime.now() - timedelta(days=14)).timestamp())
     cur.execute("""
         SELECT duration_minutes FROM sleep_logs
-        WHERE jalali_date >= date('now', '-14 days')
+        WHERE sleep_time >= ?
           AND duration_minutes IS NOT NULL
-    """)
+    """, (cutoff,))
     durations = [r['duration_minutes'] for r in cur.fetchall()]
     if durations:
         avg = sum(durations) / len(durations)
@@ -55,7 +56,6 @@ def show_stats():
     for item_row in items:
         item = item_row['item']
         desired = item_row['desired_interval_days']
-        # count logs in last 30 days
         cur.execute("""
             SELECT COUNT(*) as cnt FROM entries e
             JOIN entry_categories ec ON e.id = ec.entry_id
