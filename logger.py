@@ -189,11 +189,25 @@ def get_last_end_time():
     return end
 
 def save_pending_start():
-    """Save the current timestamp as a pending start."""
+    """Save the current timestamp as a pending start and show the time."""
     import time
+    from datetime import datetime
+    ts = int(time.time())
     with open(PENDING_FILE, 'w') as f:
-        f.write(str(int(time.time())))
-    print("Timestamp saved.")
+        f.write(str(ts))
+    time_str = datetime.fromtimestamp(ts).strftime('%H:%M')
+    print(f"Start saved: {time_str}")
+
+def discard_pending_start():
+    """Clear the pending start and show the time that was discarded."""
+    if not os.path.exists(PENDING_FILE):
+        print("No saved start to discard.")
+        return
+    ts = get_pending_start()
+    from datetime import datetime
+    time_str = datetime.fromtimestamp(ts).strftime('%H:%M') if ts else "unknown"
+    clear_pending_start()
+    print(f"Saved start ({time_str}) discarded.")
 
 def get_pending_start():
     """Return the saved timestamp, or None if the file doesn't exist."""
