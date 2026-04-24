@@ -1,44 +1,55 @@
 import shutil
+import unicodedata
 
 def get_width():
-    """Return terminal width (columns), default 80."""
+    """Return terminal width in columns, default 80."""
     try:
         return shutil.get_terminal_size().columns
     except Exception:
         return 80
 
+def char_width(c: str) -> int:
+    """Return the display width of a single character (handles emojis)."""
+    eaw = unicodedata.east_asian_width(c)
+    if eaw in ('W', 'F'):      # Wide or Fullwidth
+        return 2
+    return 1
+
+def display_width(s: str) -> int:
+    """Total display width of a string."""
+    return sum(char_width(ch) for ch in s)
+
+def pline(s: str):
+    """Print a line, truncating to terminal width based on display width."""
+    tw = get_width()
+    if display_width(s) <= tw:
+        print(s)
+        return
+    # truncate character‑wise until it fits, add '…'
+    result = []
+    current_width = 0
+    for ch in s:
+        w = char_width(ch)
+        if current_width + w + 1 > tw:   # +1 for the '…'
+            break
+        result.append(ch)
+        current_width += w
+    print(''.join(result) + '…')
+
 def print_header(date_str, prayer_str, sleep_str, bday_str, hygiene_str):
-    """
-    Print the daily header, adapting to terminal width.
-    All strings are single lines; we truncate or split if needed.
-    """
+    """Print the daily header, adapting to terminal width."""
     w = get_width()
 
-    # --- Top border with centered date ---
-    # We want: ════ 4 Ordibehesht 1405 ════
-    # where the total length equals w.
+    # Top border with centered date
     text = f" {date_str} "
-    left = (w - len(text)) // 2
-    right = w - len(text) - left
+    left = (w - display_width(text)) // 2
+    right = w - display_width(text) - left
     print('═' * left + text + '═' * right)
 
-    # Helper to print a line, truncating to w
-    def pline(s):
-        if len(s) > w:
-            s = s[:w-1] + '…'   # indicate truncation
-        print(s)
-
-    # Prayer line (may be long)
     pline(prayer_str)
-
-    # Sleep line
     pline(sleep_str)
-
-    # Birthdays (if present)
     if bday_str:
         pline(bday_str)
-
-    # Hygiene nudges (if present)
     if hygiene_str:
         pline(hygiene_str)
 
@@ -47,36 +58,35 @@ def print_header(date_str, prayer_str, sleep_str, bday_str, hygiene_str):
 
 def spread_line(items, width=None, prefix=""):
     """
-    Return a string of `items` distributed evenly across `width`.
-    First item at left, last at right, others centred in between.
-    `prefix` is prepended to the line (e.g., a mosque emoji).
+    Distribute `items` evenly across the terminal, using **display widths**.
+    Returns a single string.
     """
     if width is None:
         width = get_width()
     if not items:
         return prefix
+
     n = len(items)
+    item_widths = [display_width(s) for s in items]
+    total_item_width = sum(item_widths)
+    prefix_w = display_width(prefix)
+    gap_space = width - prefix_w - total_item_width
+
+    if gap_space < 0:
+        # Fallback: just join and let pline truncate later
+        return prefix + " ".join(items)
+
     if n == 1:
         return prefix + items[0]
-    # total length of all items
-    total_len = sum(len(s) for s in items)
-    # available gap space (excluding the prefix length)
-    gap_space = width - len(prefix) - total_len
-    if gap_space < 0:
-        # fallback: join with single space, truncate later
-        return prefix + " ".join(items)[:width]
+
+    # distribute gaps
+    result = prefix + items[0]
     if n == 2:
-        # left and right
-        result = prefix + items[0] + " " * gap_space + items[1]
+        result += " " * gap_space + items[1]
     else:
-        # n >= 3
-        result = prefix + items[0]  # leftmost
-        gap_for_others = gap_space // (n - 1)
+        gap_each = gap_space // (n - 1)
         remainder = gap_space % (n - 1)
         for i in range(1, n):
-            spaces = gap_for_others + (1 if i <= remainder else 0)
+            spaces = gap_each + (1 if i <= remainder else 0)
             result += " " * spaces + items[i]
-    # safety truncate
-    if len(result) > width:
-        result = result[:width-1] + "…"
     return result
