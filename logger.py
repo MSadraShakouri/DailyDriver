@@ -93,28 +93,53 @@ def learn_keywords(text, category_paths):
     conn.close()
 
 def log_free_text(cmd):
+    import time
+    from datetime import datetime
+
     conn = get_connection()
     cur = conn.cursor()
     selected_paths = []
+    result = ""                 # will build a short summary with line breaks
 
-    # extract time
+    # ---------- step 0 – time extraction and confirmation ----------
     started_at, duration = extract_time(cmd)
-    if started_at is None:
-        started_at = int(time.time())
-    now_ts = int(time.time())
+    if started_at is not None:
+        # time was found → confirm
+        start_dt = datetime.fromtimestamp(started_at)
+        start_str = start_dt.strftime('%H:%M')
+        dur_str = ""
+        if duration is not None:
+            h = duration // 60
+            m = duration % 60
+            dur_str = f"{h}h {m}m" if h else f"{m}m"
 
-    # find categories
+        print()
+        print(f"Time:   {start_str}")
+        if dur_str:
+            print(f"Duration: {dur_str}")
+        print("(Enter=yes, n=cancel)")
+        confirm = input("> ").strip().lower()
+        if confirm == 'n':
+            conn.close()
+            return None
+        # keep the parsed times
+    else:
+        # no time found – default to now
+        started_at = int(time.time())
+
+    # ---------- step 1 – category suggestion ----------
     matches = find_matching_categories(cmd)
     if matches:
-        print("\nSuggested categories:")
+        print()
+        print("Suggested categories:")
         for i, (path, cnt) in enumerate(matches, 1):
-            print(f"  [{i}] {path} (matches: {cnt})")
-        print("  [Enter] first  [e] edit  [space-separated numbers for multiple]")
+            print(f"  [{i}] {path}")
+        print("Enter=1, or type numbers, or 'e' to edit")
         choice = input("> ").strip().lower()
         if choice == '':
             selected_paths = [matches[0][0]]
         elif choice == 'e':
-            custom = input("Enter category path (e.g., hygiene/shower): ").strip()
+            custom = input("New category path: ").strip()
             if custom:
                 cur.execute("INSERT OR IGNORE INTO categories (path) VALUES (?)", (custom,))
                 conn.commit()
@@ -128,73 +153,66 @@ def log_free_text(cmd):
                         selected_paths.append(matches[idx][0])
                 except:
                     pass
-
-        # save entry and categories
-        cur.execute("INSERT INTO entries (created_at, started_at, duration_minutes, description) VALUES (?,?,?,?)",
-                    (now_ts, started_at, duration, cmd))
-        entry_id = cur.lastrowid
-        for path in selected_paths:
-            cur.execute("SELECT id FROM categories WHERE path=?", (path,))
-            row = cur.fetchone()
-            if row:
-                cur.execute("INSERT INTO entry_categories (entry_id, category_id) VALUES (?,?)",
-                            (entry_id, row['id']))
-
-        # flag suggestion for each selected category
-        all_flags = []
-        for path in selected_paths:
-            all_flags.extend(suggest_flags(path, cmd))
-        all_flags = list(set(all_flags))
-
-        if all_flags:
-            print(f"\nFlags found: {', '.join(all_flags)}")
-            print("  [Enter] attach all  [space-separated letters] toggle  [e] edit")
-            flag_choice = input("> ").strip().lower()
-            to_attach = []
-            if flag_choice == '':
-                to_attach = all_flags
-            elif flag_choice == 'e':
-                custom_flags = input("Enter flags (comma-separated): ").strip()
-                if custom_flags:
-                    to_attach = [f.strip() for f in custom_flags.split(',')]
-            else:
-                to_attach = flag_choice.split()
-            for token in to_attach:
-                cur.execute("SELECT id FROM flags WHERE token=?", (token,))
-                row = cur.fetchone()
-                if row:
-                    cur.execute("INSERT INTO entry_flags (entry_id, flag_id) VALUES (?,?)",
-                                (entry_id, row['id']))
-                else:
-                    cur.execute("INSERT INTO flags (token, label, scope_category_id) VALUES (?,?,NULL)",
-                                (token, token))
-                    cur.execute("INSERT INTO entry_flags (entry_id, flag_id) VALUES (?,?)",
-                                (entry_id, cur.lastrowid))
-
-        conn.commit()
-        # learn keywords from this text for the selected categories
-        learn_keywords(cmd, selected_paths)
-        print("Entry logged.")
-
     else:
-        # no category matches – prompt manual category
-        cat_choice = input("No category suggestions. Enter category path (or Enter to skip): ").strip()
+        cat_choice = input("No suggestions. Enter category path (or Enter to skip): ").strip()
         if cat_choice:
             cur.execute("INSERT OR IGNORE INTO categories (path) VALUES (?)", (cat_choice,))
             conn.commit()
-            cur.execute("INSERT INTO entries (created_at, started_at, duration_minutes, description) VALUES (?,?,?,?)",
-                        (now_ts, started_at, duration, cmd))
-            entry_id = cur.lastrowid
-            cur.execute("SELECT id FROM categories WHERE path=?", (cat_choice,))
-            cat_id = cur.fetchone()['id']
-            cur.execute("INSERT INTO entry_categories (entry_id, category_id) VALUES (?,?)", (entry_id, cat_id))
             selected_paths = [cat_choice]
-            conn.commit()
-            learn_keywords(cmd, selected_paths)
-            print("Entry logged.")
-        else:
-            cur.execute("INSERT INTO entries (created_at, started_at, duration_minutes, description) VALUES (?,?,?,?)",
-                        (now_ts, started_at, duration, cmd))
-            conn.commit()
-            print("Entry logged (no category).")
+
+    # ---------- step 2 – insert entry ----------
+    cur.execute(
+        "INSERT INTO entries (created_at, started_at, duration_minutes, description) VALUES (?,?,?,?)",
+        (int(time.time()), started_at, duration, cmd)
+    )
+    entry_id = cur.lastrowid
+
+    for path in selected_paths:
+        cur.execute("SELECT id FROM categories WHERE path=?", (path,))
+        row = cur.fetchone()
+        if row:
+            cur.execute("INSERT INTO entry_categories (entry_id, category_id) VALUES (?,?)",
+                        (entry_id, row['id']))
+
+    # ---------- step 3 – flags (always prompt) ----------
+    print("\nFlags? (Enter=none, or type tokens)")
+    flag_input = input("> ").strip().lower()
+    attached_flags = []
+    if flag_input:
+        tokens = flag_input.split()
+        for token in tokens:
+            cur.execute("SELECT id FROM flags WHERE token=?", (token,))
+            frow = cur.fetchone()
+            if frow:
+                cur.execute("INSERT INTO entry_flags (entry_id, flag_id) VALUES (?,?)",
+                            (entry_id, frow['id']))
+                attached_flags.append(token)
+            else:
+                # create new global flag on the fly
+                cur.execute("INSERT INTO flags (token, label, scope_category_id) VALUES (?,?,NULL)",
+                            (token, token))
+                cur.execute("INSERT INTO entry_flags (entry_id, flag_id) VALUES (?,?)",
+                            (entry_id, cur.lastrowid))
+                attached_flags.append(token)
+
+    conn.commit()
+
+    # ---------- step 4 – learn keywords ----------
+    learn_keywords(cmd, selected_paths)
     conn.close()
+
+    # ---------- build result string (short lines) ----------
+    if selected_paths:
+        result += "Logged:\n"
+        for p in selected_paths:
+            result += f"  {p}\n"
+    if started_at:
+        start_dt = datetime.fromtimestamp(started_at)
+        result += f"Time:   {start_dt.strftime('%H:%M')}\n"
+    if duration is not None:
+        h = duration // 60
+        m = duration % 60
+        result += f"Duration: {h}h {m}m\n" if h else f"Duration: {m}m\n"
+    if attached_flags:
+        result += f"Flags:  {', '.join(attached_flags)}\n"
+    return result.strip()

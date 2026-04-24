@@ -209,9 +209,12 @@ def repl():
             show_today()
             input("Press Enter to continue.")
         else:
-            # free text – single line
-            log_free_text(line)
-            input("Press Enter to continue.")
+            result = log_free_text(line)
+            if result is not None:
+                clear()
+                draw_header()
+                print(result)
+                input("Press Enter to continue.")
 
 if __name__ == "__main__":
     repl()
