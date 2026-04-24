@@ -6,6 +6,7 @@ from utils import today_jalali, format_jalali
 from prayer import log_prayer, PRAYER_SLOTS
 from sleep import log_sleep
 from logger import log_free_text
+from view import view_entries
 
 def clear():
     os.system('clear')
@@ -70,12 +71,49 @@ def draw_header():
 
 def repl():
     init_db()
+    multi_buf = []          # holds lines if in multi-line mode
+    collecting = False      # True when we are inside a :m block
+
     while True:
         clear()
         draw_header()
-        line = input("> ").strip()
+
+        if collecting:
+            # show what we have so far
+            for line in multi_buf:
+                print(f"... {line}")
+            line = input("... ").strip()
+        else:
+            line = input("> ").strip()
+
         if line == '':
             continue
+
+        # --- multi-line sentinel ---
+        if line == '---':
+            if collecting:
+                full_text = '\n'.join(multi_buf)
+                log_free_text(full_text)
+                multi_buf = []
+                collecting = False
+                input("Press Enter to continue.")
+            else:
+                # '---' alone in normal mode does nothing (ignored)
+                pass
+            continue
+
+        # --- start multi-line ---
+        if line.lower() == ':m':
+            collecting = True
+            multi_buf = []
+            continue
+
+        # --- while collecting, just append lines ---
+        if collecting:
+            multi_buf.append(line)
+            continue
+
+        # --- normal single-line commands ---
         parts = line.split()
         first = parts[0].lower()
 
@@ -84,16 +122,22 @@ def repl():
             break
         elif first == 'p':
             log_prayer(line)
+            input("Press Enter to continue.")
         elif first == 's':
             log_sleep(line)
-        elif first == '?':
-            print("Commands: P S RQ MP BD T view ? q")
-            print("Free text: just type your entry (single line for now).")
             input("Press Enter to continue.")
-        elif first in ('rq', 'mp', 'bd', 't', 'view'):
+        elif first == 'view':
+            view_entries()   # we'll create this next
+            input("Press Enter to continue.")
+        elif first == '?':
+            print("Commands: P S RQ MP BD T view :m ? q")
+            print(":m starts multi-line entry. Finish with ---.")
+            input("Press Enter to continue.")
+        elif first in ('rq', 'mp', 'bd', 't'):
             print(f"{first} not implemented yet.")
             input("Press Enter to continue.")
         else:
+            # free text – single line
             log_free_text(line)
             input("Press Enter to continue.")
 
