@@ -74,12 +74,16 @@ def manage_flags():
         elif choice == 'd':
             token = input("Token to delete: ").strip()
             cur.execute("SELECT id FROM flags WHERE token=?", (token,))
-            if not cur.fetchone():
+            frow = cur.fetchone()
+            if not frow:
                 print("Flag not found.")
                 continue
+            flag_id = frow['id']
             confirm = input(f"Delete flag '{token}'? (Enter=yes, n=no): ").strip().lower()
             if confirm == '' or confirm == 'y':
-                cur.execute("DELETE FROM flags WHERE token=?", (token,))
+                # Remove the flag from all entries first
+                cur.execute("DELETE FROM entry_flags WHERE flag_id=?", (flag_id,))
+                cur.execute("DELETE FROM flags WHERE id=?", (flag_id,))
                 conn.commit()
                 print("Flag deleted.")
     conn.close()
