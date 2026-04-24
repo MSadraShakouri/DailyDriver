@@ -24,13 +24,12 @@ def current_slot() -> str:
 
 def log_prayer(cmd: str):
     """
-    Parse a 'P' command, ask for slot if needed, and log.
+    Parse a 'P' command, ask for slot/time confirmation, then log.
     """
     conn = get_connection()
     cur = conn.cursor()
     today = today_jalali()
 
-    # Strip 'p' and optional offset/time
     parts = cmd.strip().split()
     offset_min = 0
     explicit_time = None
@@ -44,7 +43,6 @@ def log_prayer(cmd: str):
                 conn.close()
                 return
         else:
-            # Try to parse as time like 4:30 or 14:00
             try:
                 t = datetime.strptime(arg, '%H:%M')
                 explicit_time = t.hour * 60 + t.minute
@@ -55,7 +53,6 @@ def log_prayer(cmd: str):
 
     # Determine slot
     if explicit_time:
-        # crude guess: <10 -> fajr, <17 -> dhuhr_asr, else maghrib_isha
         hour = explicit_time / 60
         if hour < 10:
             slot = 'fajr'
@@ -65,33 +62,33 @@ def log_prayer(cmd: str):
             slot = 'maghrib_isha'
     else:
         slot = current_slot()
-        if offset_min:
-            # adjust? just logging offset from current slot time.
-            pass
 
-    # Confirm with user
-    print(f"Slot: {slot}")
-    confirm = input("Log as on_time? (y/n): ").strip().lower()
-    if confirm != 'y':
+    # Compute prayer time (approx)
+    base_time = PRAYER_TIMES.get(slot, 0)
+    from datetime import timedelta
+    prayer_dt = datetime.now().replace(hour=int(base_time), minute=int((base_time % 1) * 60), second=0, microsecond=0)
+    if offset_min:
+        prayer_dt = prayer_dt - timedelta(minutes=offset_min)
+    if explicit_time:
+        prayer_dt = datetime.now().replace(hour=explicit_time // 60, minute=explicit_time % 60, second=0, microsecond=0)
+
+    time_str = prayer_dt.strftime('%H:%M')
+    slot_display = slot.replace('_', ' & ').title()
+
+    # Single confirmation line
+    print(f"\n{slot_display} at {time_str}? (Enter=yes, n=cancel)")
+    confirm = input("> ").strip().lower()
+    if confirm != '' and confirm != 'y':
         conn.close()
         return
 
-    # Determine prayer time (approx)
-    base_time = PRAYER_TIMES.get(slot, 0)
-    prayer_dt = datetime.now().replace(hour=int(base_time), minute=int((base_time % 1) * 60), second=0, microsecond=0)
-    if offset_min:
-        prayer_dt = prayer_dt - time_offset(offset_min)
-    if explicit_time:
-        prayer_dt = datetime.now().replace(hour=explicit_time//60, minute=explicit_time%60, second=0, microsecond=0)
-
-    # Insert into prayer_logs
-    prayer_ts = int(prayer_dt.timestamp())
+    # Insert
     cur.execute(
         "INSERT OR REPLACE INTO prayer_logs (prayer_slot, jalali_date, status, logged_at, prayer_time) VALUES (?,?,?,?,?)",
-        (slot, today, 'on_time', int(time.time()), prayer_ts)
+        (slot, today, 'on_time', int(time.time()), int(prayer_dt.timestamp()))
     )
     conn.commit()
-    print(f"Logged {slot} on_time.")
+    print(f"Logged: {slot_display}")
     conn.close()
 
 def time_offset(minutes):
