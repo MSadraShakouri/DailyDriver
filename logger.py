@@ -404,13 +404,21 @@ def log_free_text(cmd):
                             (entry_id, frow['id']))
                 attached_flags.append(token)
             else:
-                cur.execute("INSERT INTO flags (token, label, scope_category_id) VALUES (?,?,NULL)",
-                            (token, token))
-                cur.execute("INSERT INTO entry_flags (entry_id, flag_id) VALUES (?,?)",
-                            (entry_id, cur.lastrowid))
-                attached_flags.append(token)
-
-    conn.commit()
+                # unknown token → interactive creation
+                # (import inside function to avoid circular dependency)
+                from flags_manager import create_flag_interactive
+                print("\n(Press Ctrl+C to cancel flag creation)")
+                # default scope = first selected category (if any)
+                default_scope = selected_paths[0] if selected_paths else None
+                try:
+                    flag_id = create_flag_interactive(token, default_scope_path=default_scope)
+                except KeyboardInterrupt:
+                    print("Cancelled.")
+                    continue
+                if flag_id is not None:
+                    cur.execute("INSERT INTO entry_flags (entry_id, flag_id) VALUES (?,?)",
+                                (entry_id, flag_id))
+                    attached_flags.append(token)
 
     # ---------- step 4 – learn keywords ----------
     learn_keywords(cmd, selected_paths)

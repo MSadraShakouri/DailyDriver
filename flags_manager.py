@@ -1,5 +1,54 @@
 from database import get_connection
 
+def create_flag_interactive(token, default_scope_path=None):
+    """
+    Prompt for label and scope, then insert the flag.
+    default_scope_path is offered as the default (Enter = accept).
+    Returns the new flag id, or None if cancelled.
+    """
+    conn = get_connection()
+    cur = conn.cursor()
+
+    print(f"\nNew flag: '{token}'")
+    label = input("Label (Enter=use token): ").strip()
+    if not label:
+        label = token
+
+    if default_scope_path:
+        prompt = f"Scope category path (Enter={default_scope_path}, 'global' for global): "
+    else:
+        prompt = "Scope category path (Enter=global): "
+
+    scope_path = input(prompt).strip().lower()
+    scope_id = None
+
+    if scope_path == '':
+        if default_scope_path:
+            # default to the given path
+            cur.execute("SELECT id FROM categories WHERE path=?", (default_scope_path,))
+            row = cur.fetchone()
+            if row:
+                scope_id = row['id']
+            # if path not found, fallback to global silently
+        # else leave as None (global)
+    elif scope_path == 'global':
+        scope_id = None
+    else:
+        cur.execute("SELECT id FROM categories WHERE path=?", (scope_path,))
+        row = cur.fetchone()
+        if row:
+            scope_id = row['id']
+        else:
+            print("Category not found – making global.")
+            scope_id = None
+
+    cur.execute("INSERT INTO flags (token, label, scope_category_id) VALUES (?,?,?)",
+                (token, label, scope_id))
+    conn.commit()
+    flag_id = cur.lastrowid
+    conn.close()
+    return flag_id
+
 def manage_flags():
     conn = get_connection()
     cur = conn.cursor()
