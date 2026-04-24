@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from database import init_db, get_connection
 from utils import today_jalali, format_jalali
 from prayer import log_prayer, PRAYER_SLOTS
+from prayer import log_prayer, log_rq, log_mp
 from sleep import log_sleep
 from logger import log_free_text
 from view import view_entries
@@ -123,6 +124,12 @@ def repl():
         elif first == 'p':
             log_prayer(line)
             input("Press Enter to continue.")
+        elif first == 'rq':
+            log_rq()
+            input("Press Enter to continue.")
+        elif first == 'mp':
+            log_mp()
+            input("Press Enter to continue.")
         elif first == 's':
             log_sleep(line)
             input("Press Enter to continue.")
@@ -133,7 +140,7 @@ def repl():
             print("Commands: P S RQ MP BD T view :m ? q")
             print(":m starts multi-line entry. Finish with ---.")
             input("Press Enter to continue.")
-        elif first in ('rq', 'mp', 'bd', 't'):
+        elif first in ('bd', 't'):
             print(f"{first} not implemented yet.")
             input("Press Enter to continue.")
         else:
