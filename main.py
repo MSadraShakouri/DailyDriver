@@ -24,20 +24,22 @@ def draw_header():
     today = today_jalali()
     formatted = format_jalali(today)
 
-    # --- prayer status ---
-    prayer_lines = []
+    # --- prayer status (single line with abbreviations) ---
+    slot_labels = {'fajr': 'F', 'dhuhr_asr': 'DA', 'maghrib_isha': 'MI'}
+    prayer_parts = []
     for slot in PRAYER_SLOTS:
         row = cur.execute(
-            "SELECT status FROM prayer_logs WHERE prayer_slot=? AND jalali_date=?",
+            "SELECT prayer_time FROM prayer_logs WHERE prayer_slot=? AND jalali_date=?",
             (slot, today)
         ).fetchone()
-        if row:
-            icon = '✅' if row['status']=='on_time' else ('🕯️' if row['status']=='qada' else '❌')
+        if row and row['prayer_time']:
+            from datetime import datetime
+            dt = datetime.fromtimestamp(row['prayer_time'])
+            time_str = dt.strftime('%H:%M')
+            prayer_parts.append(f"{slot_labels[slot]} {time_str}")
         else:
-            icon = '⏳'
-        prayer_lines.append(f"{slot.replace('_',' ').title()}: {icon}")
-    fajr_time = "4:30"
-    prayer_str = f"🕌 Fajr {fajr_time} {prayer_lines[0]}   {prayer_lines[1]}   {prayer_lines[2]}"
+            prayer_parts.append(f"{slot_labels[slot]} —")
+    prayer_str = "   ".join(prayer_parts)   # single line
 
     # --- sleep ---
     sleep_row = cur.execute(

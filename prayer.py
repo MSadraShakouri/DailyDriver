@@ -85,9 +85,10 @@ def log_prayer(cmd: str):
         prayer_dt = datetime.now().replace(hour=explicit_time//60, minute=explicit_time%60, second=0, microsecond=0)
 
     # Insert into prayer_logs
+    prayer_ts = int(prayer_dt.timestamp())
     cur.execute(
-        "INSERT OR REPLACE INTO prayer_logs (prayer_slot, jalali_date, status, logged_at) VALUES (?,?,?,?)",
-        (slot, today, 'on_time', int(time.time()))
+        "INSERT OR REPLACE INTO prayer_logs (prayer_slot, jalali_date, status, logged_at, prayer_time) VALUES (?,?,?,?,?)",
+        (slot, today, 'on_time', int(time.time()), prayer_ts)
     )
     conn.commit()
     print(f"Logged {slot} on_time.")

@@ -83,6 +83,7 @@ def init_db():
             jalali_date TEXT NOT NULL,
             status TEXT NOT NULL CHECK(status IN ('on_time','qada','missed')),
             logged_at INTEGER,
+            prayer_time INTEGER,   -- Unix timestamp of the actual prayer (nullable)
             UNIQUE(prayer_slot, jalali_date)
         )
     ''')
