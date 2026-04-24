@@ -102,17 +102,14 @@ def draw_header():
                 nudge_lines.append(f"⚠️ {item}: overdue! (last {days_since}d ago)")
     hygiene_str = "   ".join(nudge_lines[:2])
 
-    # --- assemble header ---
-    header_lines = []
-    header_lines.append(f"════════ {formatted} ════════")
-    header_lines.append(prayer_str)
-    header_lines.append(sleep_str)
-    if bday_str:
-        header_lines.append(bday_str)
-    if hygiene_str:
-        header_lines.append(hygiene_str)
-    header_lines.append("────────────────────────────────────")
-    display.print_header_block(header_lines)
+    # --- assemble header data ---
+    display.print_header(
+        date_str=formatted,
+        prayer_str=prayer_str,
+        sleep_str=sleep_str,
+        bday_str=bday_str,
+        hygiene_str=hygiene_str
+    )
     conn.close()
 
 def repl():
