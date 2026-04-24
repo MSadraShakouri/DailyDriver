@@ -4,32 +4,53 @@ import time
 from database import get_connection
 from logger import log_free_text
 
-def view_entries():
+def view_entries(category_filter=None):
     conn = get_connection()
     cur = conn.cursor()
     page_size = 20
     offset = 0
 
+    # Base query (without LIMIT, for counting later)
+    base_sql = '''
+        SELECT e.id, e.created_at, e.duration_minutes, e.description,
+               GROUP_CONCAT(c.path, ', ') AS categories
+        FROM entries e
+        LEFT JOIN entry_categories ec ON e.id = ec.entry_id
+        LEFT JOIN categories c ON ec.category_id = c.id
+    '''
+    count_sql = '''
+        SELECT COUNT(DISTINCT e.id)
+        FROM entries e
+        LEFT JOIN entry_categories ec ON e.id = ec.entry_id
+        LEFT JOIN categories c ON ec.category_id = c.id
+    '''
+    where_clause = ''
+    params = []
+
+    if category_filter:
+        where_clause = " WHERE LOWER(c.path) LIKE ?"
+        params.append('%' + category_filter.lower() + '%')
+        # For count, we need to filter at entry level
+        # We'll use a subquery
+
+    query_sql = base_sql + where_clause + '''
+        GROUP BY e.id
+        ORDER BY e.created_at DESC
+        LIMIT ? OFFSET ?
+    '''
+
     while True:
-        cur.execute('''
-            SELECT e.id, e.created_at, e.duration_minutes, e.description,
-                   GROUP_CONCAT(c.path, ', ') AS categories
-            FROM entries e
-            LEFT JOIN entry_categories ec ON e.id = ec.entry_id
-            LEFT JOIN categories c ON ec.category_id = c.id
-            GROUP BY e.id
-            ORDER BY e.created_at DESC
-            LIMIT ? OFFSET ?
-        ''', (page_size, offset))
+        cur.execute(query_sql, params + [page_size, offset])
         rows = cur.fetchall()
 
         if not rows and offset == 0:
-            print("No entries yet.")
+            print("No entries found.")
             conn.close()
             return
 
         os.system('clear')
-        print("─────── Journal Entries ───────")
+        filter_str = f" [filter: {category_filter}]" if category_filter else ""
+        print(f"─────── Journal Entries{filter_str} ───────")
         for row in rows:
             from datetime import datetime
             dt = datetime.fromtimestamp(row['created_at'])
@@ -38,7 +59,7 @@ def view_entries():
             print(f"[{row['id']}] {dt.strftime('%Y-%m-%d %H:%M')}  {cat_str}")
             print(f"    {desc_snippet}")
 
-        print("\n(n)ext page  (p)rev page  [id] edit  (q)uit view")
+        print("\n(n)ext  (p)rev  (q)uit  [id] edit")
         choice = input("> ").strip().lower()
 
         if choice == 'q':
@@ -55,10 +76,9 @@ def view_entries():
             entry_id = int(choice)
             result = edit_entry(entry_id)
             if result is not None:
-                # The entry was edited – re-logged with full prompts
                 conn.close()
-                log_free_text(result)      # will ask for category/flags
-                return                     # exit view to REPL
+                log_free_text(result)
+                return
         else:
             pass
 

@@ -176,7 +176,10 @@ def repl():
             log_sleep(line)
             input("Press Enter to continue.")
         elif first == 'view':
-            view_entries()   # we'll create this next
+            if len(parts) > 1:
+                view_entries(category_filter=parts[1])
+            else:
+                view_entries()
             input("Press Enter to continue.")
         elif first == '?':
             print("Commands: P S RQ MP BD T hygiene view :m ? q")
