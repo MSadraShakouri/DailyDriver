@@ -1,6 +1,7 @@
 import sqlite3
+import os
 
-DB_NAME = "daily.db"
+DB_NAME = os.path.expanduser("~/DailyDriver/daily.db")
 
 def get_connection():
     conn = sqlite3.connect(DB_NAME)
