@@ -114,6 +114,18 @@ def extract_time(text: str):
         except:
             pass
 
+    # ---------- 2b. Time to now: 13-n, 4:30-n ----------
+    m = re.search(r'(\d{1,2})(?::(\d{2}))?\s*-\s*n\b', text_clean)
+    if m:
+        h1 = int(m.group(1))
+        m1 = int(m.group(2)) if m.group(2) else 0
+        if 0 <= h1 <= 23 and 0 <= m1 <= 59:
+            start = now.replace(hour=h1, minute=m1, second=0, microsecond=0)
+            if start > now:
+                start -= timedelta(days=1)      # start is earlier same day (yesterday if future)
+            duration = int((now - start).total_seconds() / 60)
+            return int(start.timestamp()), duration
+
     # ---------- 3. HH:MM (or HH:MM-HH:MM) ----------
     time_matches = re.findall(r'(\d{1,2}):(\d{2})', text_clean)
     if len(time_matches) == 1:
