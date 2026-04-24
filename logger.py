@@ -2,6 +2,7 @@ import time
 from datetime import datetime
 from database import get_connection
 from parser import extract_time
+import re
 
 # put this near the top, after imports
 STOP_WORDS = set([
@@ -74,9 +75,24 @@ def learn_keywords(text, category_paths):
     if not text or not category_paths:
         return
     words = tokenize(text)
-    cleaned = [w for w in words if w not in STOP_WORDS and len(w) > 1]
+    # Filter: only keep tokens that are purely alphabetic (or contain hyphens),
+    # at least 3 characters, and are not stop words.
+    cleaned = []
+    for w in words:
+        # Remove leading/trailing punctuation (commas, periods, etc.)
+        w = re.sub(r'^[^a-zA-Z]+|[^a-zA-Z]+$', '', w)
+        if w in STOP_WORDS:
+            continue
+        if len(w) < 3:
+            continue
+        # Allow only letters and hyphens
+        if not re.fullmatch(r'[a-zA-Z-]+', w):
+            continue
+        cleaned.append(w)
+
     if not cleaned:
         return
+
     conn = get_connection()
     cur = conn.cursor()
     for path in category_paths:
