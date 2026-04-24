@@ -4,7 +4,8 @@ from database import get_connection
 def add_intention(cmd: str):
     """
     T "description"  → adds intention with description only.
-    T                → interactive prompts for description, deadline, expected duration.
+    T                → interactive prompts.
+    Returns a result string or None.
     """
     parts = cmd.strip().split(maxsplit=1)
     if len(parts) > 1:
@@ -14,11 +15,9 @@ def add_intention(cmd: str):
     else:
         description = input("Description: ").strip()
         if not description:
-            print("Cancelled.")
-            return
-        deadline_str = input("Deadline (Jalali YYYY/MM/DD, or leave empty): ").strip()
+            return None
+        deadline_str = input("Deadline (Jalali YYYY/MM/DD, or Enter=skip): ").strip()
         if deadline_str:
-            # simple conversion to unix timestamp (noon that day)
             try:
                 import jdatetime
                 y, m, d = map(int, deadline_str.split('/'))
@@ -27,12 +26,11 @@ def add_intention(cmd: str):
                 from datetime import datetime
                 deadline = int(datetime(gdate.year, gdate.month, gdate.day, 12, 0).timestamp())
             except:
-                print("Invalid date format. Ignoring deadline.")
+                print("Invalid date. Ignoring deadline.")
                 deadline = None
         else:
             deadline = None
-
-        expected_str = input("Expected duration (minutes, or leave empty): ").strip()
+        expected_str = input("Expected duration (min, Enter=skip): ").strip()
         if expected_str:
             try:
                 expected = int(expected_str)
@@ -50,4 +48,12 @@ def add_intention(cmd: str):
     )
     conn.commit()
     conn.close()
-    print("Intention added.")
+
+    result = "Intention added:\n"
+    result += f"  {description}\n"
+    if deadline:
+        from datetime import datetime
+        result += f"  Deadline: {datetime.fromtimestamp(deadline).strftime('%Y-%m-%d %H:%M')}\n"
+    if expected:
+        result += f"  Expected: {expected} min"
+    return result.strip()

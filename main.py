@@ -178,9 +178,6 @@ def repl():
                 draw_header()
                 print(result)
             input("Press Enter to continue.")
-        elif first == 'p':
-            log_prayer(line)
-            input("Press Enter to continue.")
         elif first == 'rq':
             log_rq()
             input("Press Enter to continue.")
@@ -205,13 +202,21 @@ def repl():
             print(":m starts multi-line entry. Finish with ---.")
             input("Press Enter to continue.")
         elif first == 'bd':
-            add_birthday(line)
+            result = add_birthday(line)
+            if result is not None:
+                clear()
+                draw_header()
+                print(result)
             input("Press Enter to continue.")
         elif first == 'hygiene':
             manage_hygiene()
             input("Press Enter to continue.")
         elif first == 't':
-            add_intention(line)
+            result = add_intention(line)
+            if result is not None:
+                clear()
+                draw_header()
+                print(result)
             input("Press Enter to continue.")
         elif first == 'stats':
             show_stats()
