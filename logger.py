@@ -195,10 +195,29 @@ def log_free_text(cmd):
 
     # ---------- step 0a – “l” prefix: chain from last entry ----------
     is_chain = False
-    if cmd.lower().startswith('l '):
+    chain_to_now = False
+
+    # Check for "ln " prefix (chain to now)
+    if cmd.lower().startswith('ln '):
+        is_chain = True
+        chain_to_now = True
+        cmd = cmd[3:].strip()
+        if not cmd:
+            print("Nothing to log after 'ln'.")
+            return None
+
+    # Check for "l " prefix
+    elif cmd.lower().startswith('l '):
         is_chain = True
         cmd = cmd[2:].strip()
-        if not cmd:
+        # Optional "-n" inside the l command
+        if cmd.lower().startswith('-n'):
+            chain_to_now = True
+            cmd = cmd[2:].strip()
+            if not cmd:
+                print("Nothing to log after 'l -n'.")
+                return None
+        elif not cmd:
             print("Nothing to log after 'l'.")
             return None
 
@@ -209,18 +228,24 @@ def log_free_text(cmd):
             started_at = last_end
         else:
             started_at = int(time.time())
-        _, duration = extract_time(cmd)
+
+        # If chain_to_now, duration = now - started_at
+        if chain_to_now:
+            duration = (int(time.time()) - started_at) // 60
+        else:
+            # still try to extract a duration from the remaining text
+            _, duration = extract_time(cmd)
 
         start_dt = datetime.fromtimestamp(started_at)
         start_str = start_dt.strftime('%H:%M')
         dur_str = ""
-        if duration is not None:
+        if duration is not None and duration > 0:
             h = duration // 60
             m = duration % 60
             dur_str = f"{h}h {m}m" if h else f"{m}m"
 
         print()
-        print(f"Time:   {start_str} (chained)")
+        print(f"Time:   {start_str} (chained{' to now' if chain_to_now else ''})")
         if dur_str:
             print(f"Duration: {dur_str}")
         print("(Enter=yes, n=cancel)")
@@ -231,6 +256,7 @@ def log_free_text(cmd):
     else:
         started_at, duration = extract_time(cmd)
         if started_at is not None:
+            # time was found → confirm
             start_dt = datetime.fromtimestamp(started_at)
             start_str = start_dt.strftime('%H:%M')
             dur_str = ""
@@ -249,6 +275,7 @@ def log_free_text(cmd):
                 conn.close()
                 return None
         else:
+            # no time found – default to now
             started_at = int(time.time())
 
     # ---------- step 1 – category suggestion ----------
