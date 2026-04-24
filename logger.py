@@ -139,7 +139,7 @@ def log_free_text(cmd):
         if choice == '':
             selected_paths = [matches[0][0]]
         elif choice == 'e':
-            custom = input("New category path: ").strip()
+            custom = input("New category path: ").strip().lower()
             if custom:
                 cur.execute("INSERT OR IGNORE INTO categories (path) VALUES (?)", (custom,))
                 conn.commit()
@@ -154,7 +154,7 @@ def log_free_text(cmd):
                 except:
                     pass
     else:
-        cat_choice = input("No suggestions. Enter category path (or Enter to skip): ").strip()
+        cat_choice = input("No suggestions. Enter category path (or Enter to skip): ").strip().lower()
         if cat_choice:
             cur.execute("INSERT OR IGNORE INTO categories (path) VALUES (?)", (cat_choice,))
             conn.commit()

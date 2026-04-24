@@ -17,7 +17,7 @@ def manage_hygiene():
         if choice == 'q':
             break
         elif choice == 'a':
-            item = input("Item name (e.g., shaving, brushing_teeth): ").strip()
+            item = input("Item name (e.g., shaving, brushing_teeth): ").strip().lower()
             if not item:
                 continue
             try:
@@ -38,7 +38,7 @@ def manage_hygiene():
         elif choice == 'e':
             if not items:
                 continue
-            item_name = input("Item name to edit: ").strip()
+            item_name = input("Item name to edit: ").strip().lower()
             cur.execute("SELECT id FROM hygiene_config WHERE item=?", (item_name,))
             if not cur.fetchone():
                 print("Not found.")
@@ -52,7 +52,7 @@ def manage_hygiene():
             conn.commit()
             print("Updated.")
         elif choice == 'd':
-            item_name = input("Item name to delete: ").strip()
+            item_name = input("Item name to delete: ").strip().lower()
             cur.execute("DELETE FROM hygiene_config WHERE item=?", (item_name,))
             conn.commit()
             print("Deleted.")

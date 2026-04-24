@@ -31,7 +31,7 @@ def manage_flags():
             if not token:
                 continue
             label = input("Label (Enter=skip): ").strip() or None
-            scope_path = input("Scope category path (Enter=global): ").strip()
+            scope_path = input("Scope category path (Enter=global): ").strip().lower()
             scope_id = None
             if scope_path:
                 cur.execute("SELECT id FROM categories WHERE path=?", (scope_path,))
@@ -54,7 +54,7 @@ def manage_flags():
             new_label = input(f"New label (Enter=keep '{row['label']}'): ").strip()
             if new_label == '':
                 new_label = row['label']
-            new_scope = input("New scope category path (Enter=keep, 'global' for global): ").strip()
+            new_scope = input("New scope category path (Enter=keep, 'global' for global): ").strip().lower()
             if new_scope == '':
                 new_scope_id = row['scope_category_id']
             elif new_scope.lower() == 'global':
