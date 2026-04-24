@@ -9,6 +9,7 @@ from sleep import log_sleep
 from logger import log_free_text
 from view import view_entries
 from birthday import add_birthday
+from hygiene import manage_hygiene
 
 def clear():
     os.system('clear')
@@ -19,7 +20,7 @@ def draw_header():
     today = today_jalali()
     formatted = format_jalali(today)
 
-    # Prayer status (same as before)
+    # --- prayer status ---
     prayer_lines = []
     for slot in PRAYER_SLOTS:
         row = cur.execute(
@@ -34,20 +35,19 @@ def draw_header():
     fajr_time = "4:30"
     prayer_str = f"🕌 Fajr {fajr_time} {prayer_lines[0]}   {prayer_lines[1]}   {prayer_lines[2]}"
 
-    # Sleep
+    # --- sleep ---
     sleep_row = cur.execute(
         "SELECT duration_minutes FROM sleep_logs WHERE jalali_date=?", (today,)
     ).fetchone()
     sleep_str = f"💤 Sleep: {sleep_row['duration_minutes']//60}h {sleep_row['duration_minutes']%60}m" if sleep_row else "💤 Sleep: —"
 
-    # Birthdays (next 7 days)
+    # --- birthdays (next 7 days) ---
     import jdatetime
     today_j = jdatetime.date.today()
     bday_lines = []
     for i in range(7):
         check_date = today_j + jdatetime.timedelta(days=i)
         m, d = check_date.month, check_date.day
-        # get all birthdays with that month/day
         cur.execute("SELECT name, year FROM birthdays WHERE month=? AND day=?", (m, d))
         for row in cur.fetchall():
             age = ""
@@ -56,12 +56,49 @@ def draw_header():
             days_away = i
             prefix = "🎂" if days_away == 0 else f"🎈{days_away}d"
             bday_lines.append(f"{prefix} {row['name']}{age}")
-    bday_str = "   ".join(bday_lines[:3])  # show up to 3
+    bday_str = "   ".join(bday_lines[:3])
 
-    # Hygiene nudges (placeholder for now)
-    hygiene_str = ""
+    # --- hygiene nudges ---
+    cur.execute("SELECT item, desired_interval_days FROM hygiene_config")
+    hygiene_items = cur.fetchall()
+    nudge_lines = []
+    for item_row in hygiene_items:
+        item = item_row['item']
+        desired = item_row['desired_interval_days']
+        # Look for the last entry whose category ends with /item
+        cur.execute('''
+            SELECT MAX(e.started_at) as last_time
+            FROM entries e
+            JOIN entry_categories ec ON e.id = ec.entry_id
+            JOIN categories c ON ec.category_id = c.id
+            WHERE c.path LIKE ?
+        ''', ('%/' + item,))
+        last = cur.fetchone()
+        if last and last['last_time']:
+            last_ts = last['last_time']
+            days_since = (int(time.time()) - last_ts) // 86400
+        else:
+            days_since = None
 
-    # Build header
+        # Early warning thresholds
+        if desired >= 15:
+            early = 3
+        elif desired >= 7:
+            early = 2
+        elif desired >= 2:
+            early = 1
+        else:
+            early = 0
+
+        if days_since is not None and desired > 0:
+            due_in = desired - days_since
+            if 0 < due_in <= early:
+                nudge_lines.append(f"⚠️ {item}: due in {due_in}d (last {days_since}d ago)")
+            elif days_since >= desired:
+                nudge_lines.append(f"⚠️ {item}: overdue! (last {days_since}d ago)")
+    hygiene_str = "   ".join(nudge_lines[:2])
+
+    # --- assemble header ---
     header = f"════════ {formatted} ════════\n"
     header += f"{prayer_str}\n"
     header += f"{sleep_str}\n"
@@ -140,11 +177,14 @@ def repl():
             view_entries()   # we'll create this next
             input("Press Enter to continue.")
         elif first == '?':
-            print("Commands: P S RQ MP BD T view :m ? q")
+            print("Commands: P S RQ MP BD T hygiene view :m ? q")
             print(":m starts multi-line entry. Finish with ---.")
             input("Press Enter to continue.")
         elif first == 'bd':
             add_birthday(line)
+            input("Press Enter to continue.")
+        elif first == 'hygiene':
+            manage_hygiene()
             input("Press Enter to continue.")
         elif first == 't':
             print("T not implemented yet.")
