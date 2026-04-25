@@ -128,5 +128,11 @@ def init_db():
             desired_interval_days INTEGER
         )
     ''')
+
+    # Performance indexes for long-term use
+    cur.execute('CREATE INDEX IF NOT EXISTS idx_entries_created_at ON entries(created_at)')
+    cur.execute('CREATE INDEX IF NOT EXISTS idx_entries_started_at ON entries(started_at)')
+    cur.execute('CREATE INDEX IF NOT EXISTS idx_entry_categories_category ON entry_categories(category_id)')
+
     conn.commit()
     conn.close()
