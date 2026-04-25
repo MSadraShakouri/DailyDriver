@@ -3,6 +3,7 @@ import jdatetime
 from datetime import datetime
 from database import get_connection
 from utils import today_jalali, format_jalali
+from logger import get_pending_start
 
 def build_header_data():
     """Collect all data needed for the daily header and return a dict."""
@@ -94,6 +95,13 @@ def build_header_data():
                 nudge_lines.append(f"⚠️ {item}: overdue! (last {days_since}d ago)")
     hygiene_str = "   ".join(nudge_lines[:2])
 
+    # ---------- running event indicator ----------
+    event_str = ""
+    ts = get_pending_start()
+    if ts is not None:
+        dt = datetime.fromtimestamp(ts)
+        event_str = f"⏱ Event running since {dt.strftime('%H:%M')}"
+
     conn.close()
 
     return {
@@ -102,4 +110,5 @@ def build_header_data():
         'sleep_str': sleep_str,
         'bday_str': bday_str,
         'hygiene_str': hygiene_str,
+        'event_str': event_str,
     }

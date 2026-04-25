@@ -19,6 +19,30 @@ from help import show_help
 def clear():
     os.system('clear')
 
+def log_event_end(cmd):
+    """End the running event and log a free‑text entry."""
+    from logger import get_pending_start, clear_pending_start, log_free_text
+    started_at = get_pending_start()
+    if started_at is None:
+        print("No running event to end.")
+        return
+
+    # extract description: everything after 'ee' (and optional space)
+    # cmd is the whole line. We can split off the first word.
+    parts = cmd.strip().split(maxsplit=1)
+    text = parts[1] if len(parts) > 1 else ""
+
+    # log the entry, using the saved start time
+    result = log_free_text(text, started_at=started_at)
+    if result is not None:
+        clear_pending_start()
+        clear()
+        data = build_header_data()
+        print_header(data)
+        print(result)
+    # return None so the REPL doesn't double-print
+    return None
+
 def repl():
     init_db()
     cleanup_pending_keywords()   # <-- add this line
@@ -40,10 +64,11 @@ def repl():
         'stats': lambda _: show_stats(),
         'today': lambda _: show_today(),
         'flags': lambda _: manage_flags(),
-        'c': lambda _: save_pending_start(),
-        'cc': lambda _: discard_pending_start(),
+        'se': lambda _: save_pending_start(),
+        'ce': lambda _: discard_pending_start(),
+        'ee': log_event_end,   # we'll define this helper
         # free‑text logging is handled in the else case
-    }
+}
 
     while True:
         clear()
@@ -86,7 +111,7 @@ def repl():
         handler = dispatch.get(first)
         if handler:
             try:
-                result = handler(line) if first in ('p','s','bd','t') else handler(parts)
+                result = handler(line) if first in ('p','s','bd','t','ee') else handler(parts)
                 if result:
                     clear()
                     data = build_header_data()

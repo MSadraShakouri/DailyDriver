@@ -195,7 +195,7 @@ def clear_pending_start():
     if os.path.exists(PENDING_FILE):
         os.remove(PENDING_FILE)
 
-def log_free_text(cmd):
+def log_free_text(cmd, started_at=None):
     import time
     from datetime import datetime
 
@@ -232,60 +232,38 @@ def log_free_text(cmd):
             print("Nothing to log after 'l'.")
             return None
 
-    # ---------- step 0b – pending start (only if NOT chaining) ----------
-    is_pending = False
-    if not is_chain:
-        pending_start = get_pending_start()
-        if pending_start is not None:
-            is_pending = True
-            started_at = pending_start
-            # try to extract a duration from the text (optional)
-            _, duration = extract_time(cmd)
-            if duration is None:
-                duration = (int(time.time()) - started_at) // 60
+    # ---------- step 0b – event start (if started_at is given) ----------
+    if started_at is not None:
+        duration = int(time.time() - started_at) // 60
+        start_dt = datetime.fromtimestamp(started_at)
+        start_str = start_dt.strftime('%H:%M')
+        dur_str = f"{duration // 60}h {duration % 60}m" if duration // 60 else f"{duration}m" if duration > 0 else ""
 
-            start_dt = datetime.fromtimestamp(started_at)
-            start_str = start_dt.strftime('%H:%M')
-            dur_str = ""
-            if duration is not None and duration > 0:
-                h = duration // 60
-                m = duration % 60
-                dur_str = f"{h}h {m}m" if h else f"{m}m"
-
-            print()
-            print(f"Time:   {start_str} (from saved start)")
-            if dur_str:
-                print(f"Duration: {dur_str}")
-            print("(Enter=yes, n=cancel)")
-            confirm = input("> ").strip().lower()
-            if confirm == 'n':
-                conn.close()
-                return None
+        print()
+        print(f"Time:   {start_str} (from running event)")
+        if dur_str:
+            print(f"Duration: {dur_str}")
+        print("(Enter=yes, n=cancel)")
+        confirm = input("> ").strip().lower()
+        if confirm != '' and confirm != 'y':
+            conn.close()
+            return None
 
     # ---------- step 0c – normal / chain time handling ----------
-    if not is_pending:
-        if is_chain:
-            last_end = get_last_end_time()
-            if last_end is not None:
-                started_at = last_end
-            else:
-                started_at = int(time.time())
-
-            if chain_to_now:
-                duration = (int(time.time()) - started_at) // 60
-            else:
-                _, duration = extract_time(cmd)
-
-            start_dt = datetime.fromtimestamp(started_at)
+    elif not is_chain:
+        # normal entry (no chain, no event)
+        started_at_parsed, duration = extract_time(cmd)
+        if started_at_parsed is not None:
+            start_dt = datetime.fromtimestamp(started_at_parsed)
             start_str = start_dt.strftime('%H:%M')
             dur_str = ""
-            if duration is not None and duration > 0:
+            if duration is not None:
                 h = duration // 60
                 m = duration % 60
                 dur_str = f"{h}h {m}m" if h else f"{m}m"
 
             print()
-            print(f"Time:   {start_str} (chained{' to now' if chain_to_now else ''})")
+            print(f"Time:   {start_str}")
             if dur_str:
                 print(f"Duration: {dur_str}")
             print("(Enter=yes, n=cancel)")
@@ -294,28 +272,37 @@ def log_free_text(cmd):
                 conn.close()
                 return None
         else:
-            # normal entry (no chain, no pending)
-            started_at, duration = extract_time(cmd)
-            if started_at is not None:
-                start_dt = datetime.fromtimestamp(started_at)
-                start_str = start_dt.strftime('%H:%M')
-                dur_str = ""
-                if duration is not None:
-                    h = duration // 60
-                    m = duration % 60
-                    dur_str = f"{h}h {m}m" if h else f"{m}m"
+            started_at = int(time.time())
 
-                print()
-                print(f"Time:   {start_str}")
-                if dur_str:
-                    print(f"Duration: {dur_str}")
-                print("(Enter=yes, n=cancel)")
-                confirm = input("> ").strip().lower()
-                if confirm == 'n':
-                    conn.close()
-                    return None
-            else:
-                started_at = int(time.time())
+    else:  # is_chain
+        last_end = get_last_end_time()
+        if last_end is not None:
+            started_at = last_end
+        else:
+            started_at = int(time.time())
+
+        if chain_to_now:
+            duration = (int(time.time()) - started_at) // 60
+        else:
+            _, duration = extract_time(cmd)
+
+        start_dt = datetime.fromtimestamp(started_at)
+        start_str = start_dt.strftime('%H:%M')
+        dur_str = ""
+        if duration is not None and duration > 0:
+            h = duration // 60
+            m = duration % 60
+            dur_str = f"{h}h {m}m" if h else f"{m}m"
+
+        print()
+        print(f"Time:   {start_str} (chained{' to now' if chain_to_now else ''})")
+        if dur_str:
+            print(f"Duration: {dur_str}")
+        print("(Enter=yes, n=cancel)")
+        confirm = input("> ").strip().lower()
+        if confirm == 'n':
+            conn.close()
+            return None
 
     # ---------- step 1 – category suggestion ----------
     matches = find_matching_categories(cmd)
@@ -364,7 +351,7 @@ def log_free_text(cmd):
             cur.execute("INSERT INTO entry_categories (entry_id, category_id) VALUES (?,?)",
                         (entry_id, row['id']))
 
-    # ---------- step 3 – flags (always prompt) ----------
+    # ---------- step 3 – flags ----------
     print("\nFlags? (Enter=none, or type tokens)")
     flag_input = input("> ").strip().lower()
     attached_flags = []
@@ -378,11 +365,8 @@ def log_free_text(cmd):
                             (entry_id, frow['id']))
                 attached_flags.append(token)
             else:
-                # unknown token → interactive creation
-                # (import inside function to avoid circular dependency)
                 from flags_manager import create_flag_interactive
                 print("\n(Press Ctrl+C to cancel flag creation)")
-                # default scope = first selected category (if any)
                 default_scope = selected_paths[0] if selected_paths else None
                 try:
                     flag_id = create_flag_interactive(token, default_scope_path=default_scope, conn=conn)
@@ -398,10 +382,6 @@ def log_free_text(cmd):
     learn_keywords(cmd, selected_paths, conn=conn)
     conn.commit()
     conn.close()
-
-    # ---------- clear pending start if used ----------
-    if is_pending:
-        clear_pending_start()
 
     # ---------- build result string ----------
     if selected_paths:
