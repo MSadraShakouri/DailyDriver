@@ -7,100 +7,23 @@ from parser import extract_time
 
 PENDING_FILE = os.path.expanduser('~/.daily_pending')
 
+def load_stopwords():
+    """Load stop words from stopwords.txt (located next to this file)."""
+    stopwords_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'stopwords.txt')
+    stop_set = set()
+    try:
+        with open(stopwords_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                word = line.strip()
+                if word and not word.startswith('#'):
+                    stop_set.add(word.lower())
+    except FileNotFoundError:
+        # Fallback to a minimal built-in set if file is missing
+        stop_set = {'the', 'and', 'for', 'not', 'you', 'but', 'are'}
+    return stop_set
 
-STOP_WORDS = set([
-    # articles, conjunctions, prepositions
-    'with','from','down','about','into','through',
-    'before','after','since','until','while','during','because',
-    'than','even','still','already',
-    'last','days','week','weeks','month','months',
-
-    # pronouns
-    'mine','myself','ours','your',
-    'they','them','this','that',
-    'these','those','which','whom','what','whatever','whoever',
-
-    # possessives & reflexive
-    'itself','himself','herself','yourself','ourselves','themselves',
-
-    # common verbs & auxiliaries
-    'were','been','have',
-    'does','could','will','would','shall','should',
-    'might','must','need','dare','ought','used',
-    'just','only','very',
-
-    # adverbs / adverbials
-    'then','now','here','there','all','some','any','each','every',
-    'few','more','most','other','such','own','same',
-    'also','like','well','how',
-    'again','further','once','twice','often','always','never',
-    'ever','hardly','almost','enough','quite','rather','almost',
-
-    # conversational filler / common journal words
-    'today','yesterday','tomorrow',
-    'morning','evening','night','afternoon',
-    'did','done','doing',
-    'come','came','coming',
-    'say','said','saying',
-    'think','thinking','thought',
-    'know','knew','known',
-    'take','took','taking',
-    'make','made','making',
-    'see','saw','seeing',
-    'give','gave','giving',
-    'find','found','finding',
-    'tell','told','telling',
-    'ask','asked','asking',
-
-    # numbers (should never be keywords)
-    'one','two','three','four','five','six','seven','eight','nine','ten',
-    'first','second','third','last',
-
-    # time / duration words (already in parser, not useful as keywords)
-    'mins','minute','minutes','hour','hours',
-
-    # common words that carry no category
-    'thing','things','stuff','part',
-    'time','times',
-    'yeah','nope',
-    'okay',
-    'really','pretty','quite','rather','maybe','perhaps',
-    'also','else','anyway','though','although',
-    'still','already',
-    'half','full','many','much','little','small',
-    'good','great','nice','fine','best',
-    'worse','worst','better',
-    'right','wrong','left','front','back','bottom',
-    'high','short','long','hard','soft',
-    'early','late',
-
-    # standard journal connective words
-    'then','next','finally','first','second','third',
-    'because','since','hence','thus',
-
-    # ---- new stop words ----
-    # generic verbs
-    'went','going','getting','take','took','taking',
-    'make','made','making','come','came','coming',
-    'said','saying','think','thought','thinking',
-    'know','knew','known','seeing',
-    'find','found','finding','tell','told','telling',
-    'asked','asking','start','started','begin','began',
-    'finish','finished','stop','stopped',
-
-    # more filler / adverbs
-    'actually','maybe','perhaps','quite','rather','pretty',
-    'already','still','again','always','never',
-    'really','like','just','even','only','else','anyway','though','although',
-
-    # time words (duplicates safe)
-    'today','tomorrow','yesterday','morning','evening','night','afternoon',
-
-    # other common nouns / pronouns a journal entry might overuse
-    'thing','things','stuff','part',
-    'time','times','home','work',
-    'first','last',
-])
+# Replace the old STOP_WORDS assignment with a call to load_stopwords()
+STOP_WORDS = load_stopwords()
 
 def tokenize(text: str):
     """Return lowercased list of words (simple split)."""
@@ -160,7 +83,7 @@ def learn_keywords(text, category_paths, conn=None):
         w = re.sub(r'^[^a-zA-Z]+|[^a-zA-Z]+$', '', w)
         if w in STOP_WORDS:
             continue
-        if len(w) < 4:                # <--- changed from 3 to 4
+        if len(w) < 3: #do not log words under 3 letters
             continue
         if not re.fullmatch(r'[a-zA-Z-]+', w):
             continue
