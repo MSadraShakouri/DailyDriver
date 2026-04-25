@@ -10,25 +10,24 @@ PENDING_FILE = os.path.expanduser('~/.daily_pending')
 
 STOP_WORDS = set([
     # articles, conjunctions, prepositions
-    'a','an','the','and','or','but','if','in','on','at','to','for',
-    'of','with','by','from','up','down','about','into','through',
+    'with','from','down','about','into','through',
     'before','after','since','until','while','during','because',
-    'than','even','still','already','yet','ago',
-    'due','last','day','days','week','weeks','month','months',
+    'than','even','still','already',
+    'last','days','week','weeks','month','months',
 
     # pronouns
-    'i','me','my','mine','myself','we','our','ours','you','your',
-    'he','him','his','she','her','it','its','they','them','this','that',
-    'these','those','which','who','whom','what','whatever','whoever',
+    'mine','myself','ours','your',
+    'they','them','this','that',
+    'these','those','which','whom','what','whatever','whoever',
 
     # possessives & reflexive
     'itself','himself','herself','yourself','ourselves','themselves',
 
     # common verbs & auxiliaries
-    'is','was','are','were','been','be','have','has','had','do',
-    'does','did','can','could','will','would','shall','should',
-    'may','might','must','need','dare','ought','used',
-    'am','not','no','nor','just','only','very','too','so',
+    'were','been','have',
+    'does','could','will','would','shall','should',
+    'might','must','need','dare','ought','used',
+    'just','only','very',
 
     # adverbs / adverbials
     'then','now','here','there','all','some','any','each','every',
@@ -58,29 +57,49 @@ STOP_WORDS = set([
     'first','second','third','last',
 
     # time / duration words (already in parser, not useful as keywords)
-    'min','mins','minute','minutes','hour','hours','hr','hrs',
-
-    # flag tokens (keep out of keywords)
-    'm','s',
+    'mins','minute','minutes','hour','hours',
 
     # common words that carry no category
-    'thing','things','stuff','lot','bit','part','way',
+    'thing','things','stuff','part',
     'time','times',
-    'yes','yeah','no','nope',
-    'ok','okay','ah','oh','um','er',
+    'yeah','nope',
+    'okay',
     'really','pretty','quite','rather','maybe','perhaps',
     'also','else','anyway','though','although',
-    'still','yet','already',
-    'half','full','many','much','little','big','small',
-    'new','old','good','bad','great','nice','fine','best',
+    'still','already',
+    'half','full','many','much','little','small',
+    'good','great','nice','fine','best',
     'worse','worst','better',
-    'right','wrong','left','front','back','top','bottom',
-    'high','low','short','long','hard','soft',
+    'right','wrong','left','front','back','bottom',
+    'high','short','long','hard','soft',
     'early','late',
 
     # standard journal connective words
     'then','next','finally','first','second','third',
-    'because','since','as','so','hence','thus',
+    'because','since','hence','thus',
+
+    # ---- new stop words ----
+    # generic verbs
+    'went','going','getting','take','took','taking',
+    'make','made','making','come','came','coming',
+    'said','saying','think','thought','thinking',
+    'know','knew','known','seeing',
+    'find','found','finding','tell','told','telling',
+    'asked','asking','start','started','begin','began',
+    'finish','finished','stop','stopped',
+
+    # more filler / adverbs
+    'actually','maybe','perhaps','quite','rather','pretty',
+    'already','still','again','always','never',
+    'really','like','just','even','only','else','anyway','though','although',
+
+    # time words (duplicates safe)
+    'today','tomorrow','yesterday','morning','evening','night','afternoon',
+
+    # other common nouns / pronouns a journal entry might overuse
+    'thing','things','stuff','part',
+    'time','times','home','work',
+    'first','last',
 ])
 
 def tokenize(text: str):
@@ -141,7 +160,7 @@ def learn_keywords(text, category_paths, conn=None):
         w = re.sub(r'^[^a-zA-Z]+|[^a-zA-Z]+$', '', w)
         if w in STOP_WORDS:
             continue
-        if len(w) < 3:
+        if len(w) < 4:                # <--- changed from 3 to 4
             continue
         if not re.fullmatch(r'[a-zA-Z-]+', w):
             continue
@@ -156,22 +175,47 @@ def learn_keywords(text, category_paths, conn=None):
         own_conn = True
     cur = conn.cursor()
 
+    now_ts = int(time.time())
+
     for path in category_paths:
         cur.execute("SELECT id FROM categories WHERE path=?", (path,))
         row = cur.fetchone()
         if not row:
             continue
         cat_id = row['id']
+
         for word in cleaned:
+            # 1. Already a permanent keyword? → skip
             cur.execute(
                 "SELECT id FROM keywords WHERE word=? AND category_id=?",
                 (word, cat_id)
             )
-            if not cur.fetchone():
+            if cur.fetchone():
+                continue
+
+            # 2. Already in pending? → promote to permanent
+            cur.execute(
+                "SELECT id FROM pending_keywords WHERE word=? AND category_id=?",
+                (word, cat_id)
+            )
+            if cur.fetchone():
+                # Promote: delete from pending, insert into keywords
+                cur.execute(
+                    "DELETE FROM pending_keywords WHERE word=? AND category_id=?",
+                    (word, cat_id)
+                )
                 cur.execute(
                     "INSERT INTO keywords (word, category_id) VALUES (?,?)",
                     (word, cat_id)
                 )
+                continue
+
+            # 3. First sighting → store as pending
+            cur.execute(
+                "INSERT OR IGNORE INTO pending_keywords (word, category_id, first_seen) VALUES (?,?,?)",
+                (word, cat_id, now_ts)
+            )
+
     if own_conn:
         conn.commit()
         conn.close()

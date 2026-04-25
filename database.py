@@ -129,10 +129,31 @@ def init_db():
         )
     ''')
 
+    # ---------- pending_keywords (two‑sighting promotion) ----------
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS pending_keywords (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            word TEXT NOT NULL,
+            category_id INTEGER NOT NULL,
+            first_seen INTEGER NOT NULL,
+            FOREIGN KEY (category_id) REFERENCES categories(id),
+            UNIQUE(word, category_id)
+        )
+    ''')
+
     # Performance indexes for long-term use
     cur.execute('CREATE INDEX IF NOT EXISTS idx_entries_created_at ON entries(created_at)')
     cur.execute('CREATE INDEX IF NOT EXISTS idx_entries_started_at ON entries(started_at)')
     cur.execute('CREATE INDEX IF NOT EXISTS idx_entry_categories_category ON entry_categories(category_id)')
 
+    conn.commit()
+    conn.close()
+
+
+def cleanup_pending_keywords():
+    """Delete pending keywords older than 14 days."""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM pending_keywords WHERE first_seen < unixepoch() - 1209600")
     conn.commit()
     conn.close()

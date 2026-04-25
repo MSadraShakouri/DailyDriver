@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 from database import init_db
+from database import cleanup_pending_keywords
 from header_data import build_header_data
 from display import print_header
 from prayer import log_prayer, log_rq, log_mp
@@ -20,6 +21,7 @@ def clear():
 
 def repl():
     init_db()
+    cleanup_pending_keywords()   # <-- add this line
     multi_buf = []
     collecting = False
 
