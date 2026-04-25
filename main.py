@@ -43,6 +43,28 @@ def log_event_end(cmd):
     # return None so the REPL doesn't double-print
     return None
 
+def log_chain_now(line):
+    """ln command: log from last entry's created_at until now."""
+    import time
+    from database import get_connection
+    from logger import log_free_text
+
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT MAX(created_at) FROM entries")
+    row = cur.fetchone()
+    conn.close()
+
+    if not row or row[0] is None:
+        print("No previous entry to chain from.")
+        return None
+
+    last_created_at = row[0]
+    parts = line.strip().split(maxsplit=1)
+    text = parts[1] if len(parts) > 1 else ""
+
+    return log_free_text(text, started_at=last_created_at)
+
 def repl():
     init_db()
     cleanup_pending_keywords()   # <-- add this line
@@ -66,7 +88,8 @@ def repl():
         'flags': lambda _: manage_flags(),
         'se': lambda _: save_pending_start(),
         'ce': lambda _: discard_pending_start(),
-        'ee': log_event_end,   # we'll define this helper
+        'ee': log_event_end,
+        'ln': log_chain_now,
         # free‑text logging is handled in the else case
 }
 
@@ -111,7 +134,7 @@ def repl():
         handler = dispatch.get(first)
         if handler:
             try:
-                result = handler(line) if first in ('p','s','bd','t','ee') else handler(parts)
+                result = handler(line) if first in ('p','s','bd','t','ee','ln') else handler(parts)
                 if result:
                     clear()
                     data = build_header_data()

@@ -95,5 +95,14 @@ def print_header(data: dict):
     if hygiene_str:
         pline(hygiene_str)
 
-    # Bottom separator
-    print('─' * w)
+    # Bottom separator with last entry time
+    last_time = data.get('last_entry_time', '')
+    if last_time:
+        text = f" Last: {last_time} "
+        total_dashes = w - display_width(text)
+        if total_dashes > 0:
+            left = total_dashes // 2
+            right = total_dashes - left
+            print('─' * left + text + '─' * right)
+    else:
+        print('─' * w)

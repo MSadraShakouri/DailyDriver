@@ -204,35 +204,7 @@ def log_free_text(cmd, started_at=None):
     selected_paths = []
     result = ""
 
-    # ---------- step 0a – “l” prefix: chain from last entry ----------
-    is_chain = False
-    chain_to_now = False
-
-    # Check for "ln " prefix (chain to now)
-    if cmd.lower().startswith('ln '):
-        is_chain = True
-        chain_to_now = True
-        cmd = cmd[3:].strip()
-        if not cmd:
-            print("Nothing to log after 'ln'.")
-            return None
-
-    # Check for "l " prefix
-    elif cmd.lower().startswith('l '):
-        is_chain = True
-        cmd = cmd[2:].strip()
-        # Optional "-n" inside the l command
-        if cmd.lower().startswith('-n'):
-            chain_to_now = True
-            cmd = cmd[2:].strip()
-            if not cmd:
-                print("Nothing to log after 'l -n'.")
-                return None
-        elif not cmd:
-            print("Nothing to log after 'l'.")
-            return None
-
-    # ---------- step 0b – event start (if started_at is given) ----------
+    # ---------- step 0a – event start (if started_at is given) ----------
     if started_at is not None:
         duration = int(time.time() - started_at) // 60
         start_dt = datetime.fromtimestamp(started_at)
@@ -249,7 +221,7 @@ def log_free_text(cmd, started_at=None):
             conn.close()
             return None
 
-    # ---------- step 0c – normal / chain time handling ----------
+    # ---------- step 0b – normal / chain time handling ----------
     elif not is_chain:
         # normal entry (no chain, no event)
         started_at_parsed, duration = extract_time(cmd)
@@ -273,36 +245,6 @@ def log_free_text(cmd, started_at=None):
                 return None
         else:
             started_at = int(time.time())
-
-    else:  # is_chain
-        last_end = get_last_end_time()
-        if last_end is not None:
-            started_at = last_end
-        else:
-            started_at = int(time.time())
-
-        if chain_to_now:
-            duration = (int(time.time()) - started_at) // 60
-        else:
-            _, duration = extract_time(cmd)
-
-        start_dt = datetime.fromtimestamp(started_at)
-        start_str = start_dt.strftime('%H:%M')
-        dur_str = ""
-        if duration is not None and duration > 0:
-            h = duration // 60
-            m = duration % 60
-            dur_str = f"{h}h {m}m" if h else f"{m}m"
-
-        print()
-        print(f"Time:   {start_str} (chained{' to now' if chain_to_now else ''})")
-        if dur_str:
-            print(f"Duration: {dur_str}")
-        print("(Enter=yes, n=cancel)")
-        confirm = input("> ").strip().lower()
-        if confirm == 'n':
-            conn.close()
-            return None
 
     # ---------- step 1 – category suggestion ----------
     matches = find_matching_categories(cmd)

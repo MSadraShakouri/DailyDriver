@@ -102,6 +102,14 @@ def build_header_data():
         dt = datetime.fromtimestamp(ts)
         event_str = f"⏱ Event running since {dt.strftime('%H:%M')}"
 
+    # ---------- last entry time for header ----------
+    cur.execute("SELECT MAX(created_at) FROM entries")
+    last_ts = cur.fetchone()[0]
+    last_entry_time = ''
+    if last_ts is not None:
+        dt = datetime.fromtimestamp(last_ts)
+        last_entry_time = dt.strftime('%H:%M')
+
     conn.close()
 
     return {
@@ -111,4 +119,5 @@ def build_header_data():
         'bday_str': bday_str,
         'hygiene_str': hygiene_str,
         'event_str': event_str,
+        'last_entry_time': last_entry_time,
     }
