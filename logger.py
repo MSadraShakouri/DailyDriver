@@ -429,6 +429,7 @@ def log_free_text(cmd):
 
     # ---------- step 4 – learn keywords ----------
     learn_keywords(cmd, selected_paths, conn=conn)
+    conn.commit()
     conn.close()
 
     # ---------- clear pending start if used ----------
