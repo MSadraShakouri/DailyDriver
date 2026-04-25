@@ -204,12 +204,15 @@ def log_free_text(cmd, started_at=None):
     selected_paths = []
     result = ""
 
-    # ---------- step 0a – event start (if started_at is given) ----------
+    # ---------- step 0 – time handling ----------
+    duration = None   # will be set if we have a way to compute it
+
     if started_at is not None:
+        # started_at provided by ln or ee → force duration to now
         duration = int(time.time() - started_at) // 60
         start_dt = datetime.fromtimestamp(started_at)
         start_str = start_dt.strftime('%H:%M')
-        dur_str = f"{duration // 60}h {duration % 60}m" if duration // 60 else f"{duration}m" if duration > 0 else ""
+        dur_str = f"{duration // 60}h {duration % 60}m" if duration // 60 else f"{duration}m"
 
         print()
         print(f"Time:   {start_str} (from running event)")
@@ -221,12 +224,14 @@ def log_free_text(cmd, started_at=None):
             conn.close()
             return None
 
-    # ---------- step 0b – normal / chain time handling ----------
-    elif not is_chain:
-        # normal entry (no chain, no event)
-        started_at_parsed, duration = extract_time(cmd)
-        if started_at_parsed is not None:
-            start_dt = datetime.fromtimestamp(started_at_parsed)
+    else:
+        # Normal entry – try to extract time from the text
+        parsed_start, parsed_duration = extract_time(cmd)
+        if parsed_start is not None:
+            started_at = parsed_start
+            if parsed_duration is not None:
+                duration = parsed_duration
+            start_dt = datetime.fromtimestamp(started_at)
             start_str = start_dt.strftime('%H:%M')
             dur_str = ""
             if duration is not None:
