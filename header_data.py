@@ -113,9 +113,9 @@ def build_header_data():
         dt = datetime.fromtimestamp(ts)
         event_str = f"⏱ Event running since {dt.strftime('%H:%M')}"
 
-    # ---------- last entry time for header ----------
-    cur.execute("SELECT MAX(created_at) FROM entries")
-    last_ts = cur.fetchone()[0]
+    # ---------- last action time for header ----------
+    from logger import get_last_action_time
+    last_ts = get_last_action_time()
     last_entry_time = ''
     if last_ts is not None:
         dt = datetime.fromtimestamp(last_ts)

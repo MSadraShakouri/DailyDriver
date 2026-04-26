@@ -174,7 +174,7 @@ def init_db():
     cur.execute('CREATE INDEX IF NOT EXISTS idx_entries_started_at ON entries(started_at)')
     cur.execute('CREATE INDEX IF NOT EXISTS idx_entry_categories_category ON entry_categories(category_id)')
 
-    commit_and_update(conn)
+    conn.commit()
     conn.close()
 
 
@@ -183,5 +183,5 @@ def cleanup_pending_keywords():
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("DELETE FROM pending_keywords WHERE first_seen < unixepoch() - 1209600")
-    commit_and_update(conn)
+    conn.commit()
     conn.close()
