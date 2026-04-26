@@ -1,7 +1,7 @@
 import time
 import jdatetime
 from datetime import datetime
-from database import get_connection
+from database import get_connection, get_last_hygiene_time
 from utils import today_jalali, format_jalali
 from logger import get_pending_start
 
@@ -67,15 +67,8 @@ def build_header_data():
         early_enabled = item_row['early_warning_enabled']
         due_today_enabled = item_row['show_due_today']
 
-        cur.execute('''
-            SELECT MAX(e.started_at) as last_time
-            FROM entries e
-            JOIN entry_categories ec ON e.id = ec.entry_id
-            JOIN categories c ON ec.category_id = c.id
-            WHERE c.path LIKE ?
-        ''', ('%/' + item,))
-        last = cur.fetchone()
-        days_since = (now_ts - last['last_time']) // 86400 if (last and last['last_time']) else None
+        last_time = get_last_hygiene_time(conn, item)
+        days_since = (now_ts - last_time) // 86400 if last_time else None
 
         if days_since is None:
             continue

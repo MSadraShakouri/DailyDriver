@@ -16,6 +16,23 @@ def commit_and_update(conn):
     except Exception:
         pass
 
+def get_last_hygiene_time(conn, item):
+    """
+    Return the Unix timestamp of the most recent hygiene log for `item`,
+    or None if no log exists.  The hygiene category is expected to be named
+    exactly `.../item` (e.g., `hygiene/shower`).
+    """
+    cur = conn.cursor()
+    cur.execute('''
+        SELECT MAX(e.started_at) as last_time
+        FROM entries e
+        JOIN entry_categories ec ON e.id = ec.entry_id
+        JOIN categories c ON ec.category_id = c.id
+        WHERE c.path LIKE ?
+    ''', ('%/' + item,))
+    row = cur.fetchone()
+    return row['last_time'] if (row and row['last_time']) else None
+
 def get_connection():
     conn = sqlite3.connect(DB_NAME)
     conn.row_factory = sqlite3.Row
