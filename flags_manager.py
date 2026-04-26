@@ -1,4 +1,5 @@
 from database import get_connection
+from database import commit_and_update
 
 def create_flag_interactive(token, default_scope_path=None, conn=None):
     """
@@ -45,7 +46,7 @@ def create_flag_interactive(token, default_scope_path=None, conn=None):
     cur.execute("INSERT INTO flags (token, label, scope_category_id) VALUES (?,?,?)",
                 (token, label, scope_id))
     if own_conn:
-        conn.commit()
+        commit_and_update(conn)
         conn.close()
 
     return cur.lastrowid
@@ -92,7 +93,7 @@ def manage_flags():
                     print("Category not found. Using global.")
             cur.execute("INSERT INTO flags (token, label, scope_category_id) VALUES (?,?,?)",
                         (token, label, scope_id))
-            conn.commit()
+            commit_and_update(conn)
             print("Flag added.")
         elif choice == 'e':
             token = input("Token to edit: ").strip()
@@ -119,7 +120,7 @@ def manage_flags():
                     new_scope_id = row['scope_category_id']
             cur.execute("UPDATE flags SET label=?, scope_category_id=? WHERE id=?",
                         (new_label, new_scope_id, row['id']))
-            conn.commit()
+            commit_and_update(conn)
             print("Flag updated.")
         elif choice == 'd':
             token = input("Token to delete: ").strip()
@@ -134,6 +135,6 @@ def manage_flags():
                 # Remove the flag from all entries first
                 cur.execute("DELETE FROM entry_flags WHERE flag_id=?", (flag_id,))
                 cur.execute("DELETE FROM flags WHERE id=?", (flag_id,))
-                conn.commit()
+                commit_and_update(conn)
                 print("Flag deleted.")
     conn.close()

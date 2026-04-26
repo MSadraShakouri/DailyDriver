@@ -3,6 +3,7 @@ import re
 import os
 from datetime import datetime
 from database import get_connection
+from database import commit_and_update
 from parser import extract_time
 
 PENDING_FILE = os.path.expanduser('~/.daily_pending')
@@ -140,7 +141,7 @@ def learn_keywords(text, category_paths, conn=None):
             )
 
     if own_conn:
-        conn.commit()
+        commit_and_update(conn)
         conn.close()
 
 def get_last_end_time():
@@ -273,7 +274,7 @@ def log_free_text(cmd, started_at=None):
                         pass
                 else:
                     cur.execute("INSERT OR IGNORE INTO categories (path) VALUES (?)", (token,))
-                    conn.commit()
+                    commit_and_update(conn)
                     selected_paths.append(token)
     else:
         cat_choice = input("No suggestions. Enter category path (or Enter to skip): ").strip().lower()
@@ -281,7 +282,7 @@ def log_free_text(cmd, started_at=None):
             for token in cat_choice.split():
                 if token:
                     cur.execute("INSERT OR IGNORE INTO categories (path) VALUES (?)", (token,))
-                    conn.commit()
+                    commit_and_update(conn)
                     selected_paths.append(token)
 
     # ---------- step 2 – insert entry ----------
@@ -327,7 +328,7 @@ def log_free_text(cmd, started_at=None):
 
     # ---------- step 4 – learn keywords ----------
     learn_keywords(cmd, selected_paths, conn=conn)
-    conn.commit()
+    commit_and_update(conn)
     conn.close()
 
     # ---------- build result string ----------

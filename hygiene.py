@@ -1,4 +1,5 @@
 from database import get_connection
+from database import commit_and_update
 
 def manage_hygiene():
     """List hygiene config and allow setting/editing intervals."""
@@ -47,7 +48,7 @@ def manage_hygiene():
                 "INSERT INTO hygiene_config (item, desired_interval_days, early_warning_enabled, show_due_today) VALUES (?,?,?,?)",
                 (item, days, early_enabled, due_today_enabled)
             )
-            conn.commit()
+            commit_and_update(conn)
             print("Added.")
         elif choice == 'e':
             if not items:
@@ -90,11 +91,11 @@ def manage_hygiene():
                 "UPDATE hygiene_config SET desired_interval_days=?, early_warning_enabled=?, show_due_today=? WHERE item=?",
                 (days, early_enabled, due_today_enabled, item_name)
             )
-            conn.commit()
+            commit_and_update(conn)
             print("Updated.")
         elif choice == 'd':
             item_name = input("Item name to delete: ").strip().lower()
             cur.execute("DELETE FROM hygiene_config WHERE item=?", (item_name,))
-            conn.commit()
+            commit_and_update(conn)
             print("Deleted.")
     conn.close()

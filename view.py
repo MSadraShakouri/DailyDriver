@@ -2,6 +2,7 @@ import os
 import subprocess
 import time
 from database import get_connection
+from database import commit_and_update
 from logger import log_free_text
 
 def view_entries(category_filter=None):
@@ -113,7 +114,7 @@ def edit_entry(entry_id):
     cur.execute("DELETE FROM entry_flags WHERE entry_id=?", (entry_id,))
     # Now delete the entry itself
     cur.execute("DELETE FROM entries WHERE id=?", (entry_id,))
-    conn.commit()
+    commit_and_update(conn)
     conn.close()
 
     return new_desc

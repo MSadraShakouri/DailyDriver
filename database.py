@@ -1,7 +1,19 @@
 import sqlite3
+import time
 import os
 
 DB_NAME = os.path.expanduser("~/DailyDriver/daily.db")
+
+# file that stores the timestamp of the last successful write
+LAST_ACTION_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)), '.daily_last_action')
+
+def commit_and_update(conn):
+    conn.commit()
+    try:
+        with open(LAST_ACTION_FILE, 'w') as f:
+            f.write(str(int(time.time())))
+    except Exception:
+        pass
 
 def get_connection():
     conn = sqlite3.connect(DB_NAME)
@@ -161,7 +173,7 @@ def init_db():
     cur.execute('CREATE INDEX IF NOT EXISTS idx_entries_started_at ON entries(started_at)')
     cur.execute('CREATE INDEX IF NOT EXISTS idx_entry_categories_category ON entry_categories(category_id)')
 
-    conn.commit()
+    commit_and_update(conn)
     conn.close()
 
 
@@ -170,5 +182,5 @@ def cleanup_pending_keywords():
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("DELETE FROM pending_keywords WHERE first_seen < unixepoch() - 1209600")
-    conn.commit()
+    commit_and_update(conn)
     conn.close()
