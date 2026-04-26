@@ -1,5 +1,7 @@
+# DailyDriver/prayer.py
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
+import jdatetime
 from database import get_connection
 from database import commit_and_update
 from utils import today_jalali
@@ -13,6 +15,7 @@ PRAYER_TIMES = {
 
 PRAYER_SLOTS = ['fajr', 'dhuhr_asr', 'maghrib_isha']
 
+
 def current_slot() -> str:
     """Guess which prayer slot is most recent based on current time."""
     now = datetime.now().hour + datetime.now().minute / 60.0
@@ -22,6 +25,44 @@ def current_slot() -> str:
         return 'dhuhr_asr'
     else:
         return 'maghrib_isha'
+
+
+def _get_unlogged_slots(conn):
+    """
+    Return a list of (jalali_date, slot) for all unlogged prayer slots
+    since the first prayer log, sorted newest first, limited to 20.
+    Returns None if no logs exist at all.
+    """
+    cur = conn.cursor()
+    today = today_jalali()
+
+    cur.execute("SELECT MIN(jalali_date) FROM prayer_logs")
+    first_date = cur.fetchone()[0]
+    if not first_date:
+        return None
+
+    start_y, start_m, start_d = map(int, first_date.split('-'))
+    end_y, end_m, end_d = map(int, today.split('-'))
+    start_j = jdatetime.date(start_y, start_m, start_d)
+    end_j = jdatetime.date(end_y, end_m, end_d)
+
+    slots = PRAYER_SLOTS
+    all_dates = []
+    d = start_j
+    while d <= end_j:
+        all_dates.append(d.strftime('%Y-%m-%d'))
+        d += timedelta(days=1)
+
+    missing = []
+    for date_str in all_dates:
+        for slot in slots:
+            cur.execute("SELECT id FROM prayer_logs WHERE prayer_slot=? AND jalali_date=?", (slot, date_str))
+            if not cur.fetchone():
+                missing.append((date_str, slot))
+
+    missing_sorted = sorted(missing, key=lambda x: x[0], reverse=True)[:20]
+    return missing_sorted
+
 
 def log_prayer(cmd: str):
     conn = get_connection()
@@ -90,7 +131,6 @@ def log_prayer(cmd: str):
         slot = current_slot()
 
     # Compute prayer datetime
-    from datetime import timedelta
     if explicit_time:
         prayer_dt = datetime.now().replace(hour=explicit_time // 60,
                                            minute=explicit_time % 60,
@@ -136,61 +176,28 @@ def log_prayer(cmd: str):
         result += f"\nShak:   {shak_count}"
     return result
 
+
 def time_offset(minutes):
-    from datetime import timedelta
     return timedelta(minutes=minutes)
+
 
 def log_rq():
     """Let user select an unlogged prayer slot and mark it as qada."""
     conn = get_connection()
-    cur = conn.cursor()
+    missing = _get_unlogged_slots(conn)
 
-    # Find all prayer slots that have NO log entry (any date)
-    # We'll list them grouped by date, newest first
-    today = today_jalali()
-    # Generate all possible (slot, date) pairs since app start?
-    # For simplicity: query prayer_logs for slots that exist, then find missing.
-    # Better: compare against a list of expected slots for each day since first log.
-    cur.execute("SELECT MIN(jalali_date) FROM prayer_logs")
-    first_date = cur.fetchone()[0]
-    if not first_date:
+    if missing is None:
         print("No prayer logs yet – nothing to mark as qada.")
         conn.close()
         return
-
-    # Get all dates from first_date to today
-    from datetime import timedelta
-    import jdatetime
-    # Convert to dates
-    start_y, start_m, start_d = map(int, first_date.split('-'))
-    end_y, end_m, end_d = map(int, today.split('-'))
-    start_j = jdatetime.date(start_y, start_m, start_d)
-    end_j = jdatetime.date(end_y, end_m, end_d)
-
-    slots = ['fajr', 'dhuhr_asr', 'maghrib_isha']
-    all_dates = []
-    d = start_j
-    while d <= end_j:
-        all_dates.append(d.strftime('%Y-%m-%d'))
-        d += timedelta(days=1)
-
-    # For each slot and each date, check if log exists
-    missing = []
-    for date_str in all_dates:
-        for slot in slots:
-            cur.execute("SELECT id FROM prayer_logs WHERE prayer_slot=? AND jalali_date=?", (slot, date_str))
-            if not cur.fetchone():
-                missing.append((date_str, slot))
 
     if not missing:
         print("All prayer slots are logged – nothing to mark as qada.")
         conn.close()
         return
 
-    # Show newest first (last 20)
-    missing_sorted = sorted(missing, key=lambda x: x[0], reverse=True)[:20]
     print("\nUnlogged prayer slots (newest first):")
-    for i, (date_str, slot) in enumerate(missing_sorted, 1):
+    for i, (date_str, slot) in enumerate(missing, 1):
         print(f"  [{i}] {date_str}  {slot}")
 
     choice = input("Select number to mark as qada (q=quit): ").strip()
@@ -199,8 +206,9 @@ def log_rq():
         return
     try:
         idx = int(choice) - 1
-        if 0 <= idx < len(missing_sorted):
-            date_str, slot = missing_sorted[idx]
+        if 0 <= idx < len(missing):
+            date_str, slot = missing[idx]
+            cur = conn.cursor()
             cur.execute("INSERT INTO prayer_logs (prayer_slot, jalali_date, status, logged_at) VALUES (?,?,?,?)",
                         (slot, date_str, 'qada', int(time.time())))
             commit_and_update(conn)
@@ -211,48 +219,24 @@ def log_rq():
         print("Invalid input.")
     conn.close()
 
+
 def log_mp():
     """View all unlogged prayer slots and allow marking as missed or qada."""
     conn = get_connection()
-    cur = conn.cursor()
-    today = today_jalali()
+    missing = _get_unlogged_slots(conn)
 
-    cur.execute("SELECT MIN(jalali_date) FROM prayer_logs")
-    first_date = cur.fetchone()[0]
-    if not first_date:
+    if missing is None:
         print("No prayer logs yet.")
         conn.close()
         return
-
-    start_y, start_m, start_d = map(int, first_date.split('-'))
-    end_y, end_m, end_d = map(int, today.split('-'))
-    import jdatetime
-    from datetime import timedelta
-    start_j = jdatetime.date(start_y, start_m, start_d)
-    end_j = jdatetime.date(end_y, end_m, end_d)
-
-    slots = ['fajr', 'dhuhr_asr', 'maghrib_isha']
-    all_dates = []
-    d = start_j
-    while d <= end_j:
-        all_dates.append(d.strftime('%Y-%m-%d'))
-        d += timedelta(days=1)
-
-    missing = []
-    for date_str in all_dates:
-        for slot in slots:
-            cur.execute("SELECT id FROM prayer_logs WHERE prayer_slot=? AND jalali_date=?", (slot, date_str))
-            if not cur.fetchone():
-                missing.append((date_str, slot))
 
     if not missing:
         print("All prayer slots are logged.")
         conn.close()
         return
 
-    missing_sorted = sorted(missing, key=lambda x: x[0], reverse=True)[:20]
     print("\nUnlogged prayer slots (newest first):")
-    for i, (date_str, slot) in enumerate(missing_sorted, 1):
+    for i, (date_str, slot) in enumerate(missing, 1):
         print(f"  [{i}] {date_str}  {slot}")
 
     choice = input("Select number to mark (q=quit): ").strip()
@@ -261,8 +245,8 @@ def log_mp():
         return
     try:
         idx = int(choice) - 1
-        if 0 <= idx < len(missing_sorted):
-            date_str, slot = missing_sorted[idx]
+        if 0 <= idx < len(missing):
+            date_str, slot = missing[idx]
             mark = input("Mark as (m)issed or (q)ada? ").strip().lower()
             if mark == 'q':
                 status = 'qada'
@@ -272,6 +256,7 @@ def log_mp():
                 print("Invalid choice.")
                 conn.close()
                 return
+            cur = conn.cursor()
             cur.execute("INSERT INTO prayer_logs (prayer_slot, jalali_date, status, logged_at) VALUES (?,?,?,?)",
                         (slot, date_str, status, int(time.time())))
             commit_and_update(conn)
