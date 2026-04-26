@@ -151,13 +151,13 @@ def log_prayer(cmd: str):
     if shak_count > 0:
         flag_parts.append(f"Shak ({shak_count})")
     extra = ", ".join(flag_parts)
-    if extra:
-        current_ui.print_line(f"\n{slot_display} at {time_str} [{extra}]? (Enter=yes, n=cancel)")
-    else:
-        current_ui.print_line(f"\n{slot_display} at {time_str}? (Enter=yes, n=cancel)")
 
-    confirm = current_ui.prompt("> ").strip().lower()
-    if confirm != '' and confirm != 'y':
+    message = f"{slot_display} at {time_str}"
+    if extra:
+        message += f" [{extra}]"
+    message += "?"
+
+    if not current_ui.confirm(message):
         conn.close()
         return None
 

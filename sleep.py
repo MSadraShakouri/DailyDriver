@@ -48,12 +48,11 @@ def log_sleep(cmd: str):
     duration = int((wake_dt - sleep_dt).total_seconds() / 60)
 
     # Confirm
-    current_ui.print_line(f"\nSleep:  {sleep_dt.strftime('%H:%M')}")
-    current_ui.print_line(f"Wake:   {wake_dt.strftime('%H:%M')}")
-    current_ui.print_line(f"Duration: {duration//60}h {duration%60}m")
-    current_ui.print_line("(Enter=yes, n=cancel)")
-    confirm = current_ui.prompt("> ").strip().lower()
-    if confirm == 'n':
+    if not current_ui.confirm(
+        f"Sleep:  {sleep_dt.strftime('%H:%M')}\n"
+        f"Wake:   {wake_dt.strftime('%H:%M')}\n"
+        f"Duration: {duration//60}h {duration%60}m"
+    ):
         return None
 
     # Save

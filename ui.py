@@ -18,6 +18,7 @@ class UI(ABC):
 
     @abstractmethod
     def confirm(self, message: str, default_yes: bool = True) -> bool:
+        """Show a message and ask for confirmation. Return True to proceed."""
         ...
 
     @abstractmethod
@@ -49,8 +50,13 @@ class TerminalUI(UI):
         return input(text).strip()
 
     def confirm(self, message: str, default_yes: bool = True) -> bool:
-        print(message)
-        answer = input("> ").strip().lower()
+        self.print_line()
+        self.print_line(message)
+        if default_yes:
+            self.print_line("(Enter=yes, n=cancel)")
+        else:
+            self.print_line("(y=yes, Enter=cancel)")
+        answer = self.prompt("> ").strip().lower()
         if default_yes:
             return answer == '' or answer == 'y'
         else:
