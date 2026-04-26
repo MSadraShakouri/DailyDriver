@@ -215,6 +215,51 @@ def _confirm_time(start_str, dur_str):
     confirm = input("> ").strip().lower()
     return confirm == '' or confirm == 'y'
 
+def _save_entry(conn, cmd, started_at, duration, selected_paths, attached_flags):
+    """Insert an entry with categories, flags, and learn keywords.
+    Returns the built result string."""
+    cur = conn.cursor()
+    now_ts = int(time.time())
+
+    cur.execute(
+        "INSERT INTO entries (created_at, started_at, duration_minutes, description) VALUES (?,?,?,?)",
+        (now_ts, started_at, duration, cmd)
+    )
+    entry_id = cur.lastrowid
+
+    for path in selected_paths:
+        cur.execute("SELECT id FROM categories WHERE path=?", (path,))
+        row = cur.fetchone()
+        if row:
+            cur.execute("INSERT INTO entry_categories (entry_id, category_id) VALUES (?,?)",
+                        (entry_id, row['id']))
+
+    for token in attached_flags:
+        cur.execute("SELECT id FROM flags WHERE token=?", (token,))
+        frow = cur.fetchone()
+        if frow:
+            cur.execute("INSERT INTO entry_flags (entry_id, flag_id) VALUES (?,?)",
+                        (entry_id, frow['id']))
+
+    learn_keywords(cmd, selected_paths, conn=conn)
+
+    # build the result string
+    result = ""
+    if selected_paths:
+        result += "Logged:\n"
+        for p in selected_paths:
+            result += f"  {p}\n"
+    if started_at is not None:
+        start_dt = datetime.fromtimestamp(started_at)
+        result += f"Time:   {start_dt.strftime('%H:%M')}\n"
+    if duration is not None and duration > 0:
+        h = duration // 60
+        m = duration % 60
+        result += f"Duration: {h}h {m}m\n" if h else f"Duration: {m}m\n"
+    if attached_flags:
+        result += f"Flags:  {', '.join(attached_flags)}\n"
+    return result.strip()
+
 def log_free_text(cmd, started_at=None):
     import time
     from datetime import datetime
@@ -294,19 +339,11 @@ def log_free_text(cmd, started_at=None):
                     conn.commit()
                     selected_paths.append(token)
 
-    # ---------- step 2 – insert entry ----------
-    cur.execute(
-        "INSERT INTO entries (created_at, started_at, duration_minutes, description) VALUES (?,?,?,?)",
-        (int(time.time()), started_at, duration, cmd)
-    )
-    entry_id = cur.lastrowid
-
-    for path in selected_paths:
-        cur.execute("SELECT id FROM categories WHERE path=?", (path,))
-        row = cur.fetchone()
-        if row:
-            cur.execute("INSERT INTO entry_categories (entry_id, category_id) VALUES (?,?)",
-                        (entry_id, row['id']))
+    # ---------- step 2 – save entry ----------
+    result = _save_entry(conn, cmd, started_at, duration, selected_paths, attached_flags)
+    commit_and_update(conn)   # now conn.commit() with the wrapper
+    conn.close()
+    return result
 
     # ---------- step 3 – flags ----------
     print("\nFlags? (Enter=none, or type tokens)")
