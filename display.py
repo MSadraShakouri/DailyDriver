@@ -1,5 +1,6 @@
 import shutil
 import unicodedata
+from ui import current_ui
 
 def get_width():
     """Return terminal width in columns, default 80."""
@@ -23,7 +24,7 @@ def pline(s: str):
     """Print a line, truncating to terminal width based on display width."""
     tw = get_width()
     if display_width(s) <= tw:
-        print(s)
+        current_ui.print_line(s)
         return
     result = []
     current_width = 0
@@ -33,7 +34,7 @@ def pline(s: str):
             break
         result.append(ch)
         current_width += w
-    print(''.join(result) + '…')
+    current_ui.print_line(''.join(result) + '…')
 
 def spread_line(items, width=None, prefix=""):
     """Distribute items evenly across the terminal using display widths."""
@@ -81,7 +82,7 @@ def print_header(data: dict):
     text = f" {date_str} "
     left = (w - display_width(text)) // 2
     right = w - display_width(text) - left
-    print('═' * left + text + '═' * right)
+    current_ui.print_line('═' * left + text + '═' * right)
 
     pline(prayer_str)
     pline(sleep_str)
@@ -101,8 +102,8 @@ def print_header(data: dict):
         text = f" Last: {last_time} "
         dash_count = w - display_width(text)
         if dash_count > 0:
-            print('─' * dash_count + text)
+            current_ui.print_line('─' * dash_count + text)
         else:
             pline(text)          # terminal too narrow, just print the text
     else:
-        print('─' * w)
+        current_ui.print_line('─' * w)

@@ -2,6 +2,7 @@ import time
 from datetime import datetime, timedelta
 from database import get_connection
 from utils import today_jalali
+from ui import current_ui
 
 def log_sleep(cmd: str):
     """
@@ -12,33 +13,33 @@ def log_sleep(cmd: str):
     """
     parts = cmd.strip().split()
     if len(parts) < 2:
-        print("Usage: S <sleep> <wake>   or   S <sleep>-<wake>")
+        current_ui.print_line("Usage: S <sleep> <wake>   or   S <sleep>-<wake>")
         return None
 
     # Check for compact form: second token contains '-'
     if len(parts) == 2 and '-' in parts[1]:
         compact_parts = parts[1].split('-')
         if len(compact_parts) != 2:
-            print("Invalid format. Use S <sleep>-<wake> (e.g., S 2-8:30)")
+            current_ui.print_line("Invalid format. Use S <sleep>-<wake> (e.g., S 2-8:30)")
             return None
         sleep_str, wake_str = compact_parts[0], compact_parts[1]
     elif len(parts) >= 3:
         sleep_str = parts[1]
         wake_str = parts[2]
     else:
-        print("Usage: S <sleep> <wake>   or   S <sleep>-<wake>")
+        current_ui.print_line("Usage: S <sleep> <wake>   or   S <sleep>-<wake>")
         return None
 
     now = datetime.now()
 
     sleep_dt = parse_time(sleep_str, now, is_sleep=True)
     if sleep_dt is None:
-        print("Could not parse sleep time.")
+        current_ui.print_line("Could not parse sleep time.")
         return None
 
     wake_dt = parse_time(wake_str, now, is_sleep=False)
     if wake_dt is None:
-        print("Could not parse wake time.")
+        current_ui.print_line("Could not parse wake time.")
         return None
 
     if wake_dt <= sleep_dt:
@@ -47,11 +48,11 @@ def log_sleep(cmd: str):
     duration = int((wake_dt - sleep_dt).total_seconds() / 60)
 
     # Confirm
-    print(f"\nSleep:  {sleep_dt.strftime('%H:%M')}")
-    print(f"Wake:   {wake_dt.strftime('%H:%M')}")
-    print(f"Duration: {duration//60}h {duration%60}m")
-    print("(Enter=yes, n=cancel)")
-    confirm = input("> ").strip().lower()
+    current_ui.print_line(f"\nSleep:  {sleep_dt.strftime('%H:%M')}")
+    current_ui.print_line(f"Wake:   {wake_dt.strftime('%H:%M')}")
+    current_ui.print_line(f"Duration: {duration//60}h {duration%60}m")
+    current_ui.print_line("(Enter=yes, n=cancel)")
+    confirm = current_ui.prompt("> ").strip().lower()
     if confirm == 'n':
         return None
 

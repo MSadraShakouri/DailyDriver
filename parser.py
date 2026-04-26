@@ -1,6 +1,7 @@
 import re
 import jdatetime
 from datetime import datetime, timedelta
+from ui import current_ui
 
 # Map weekday names to Python weekday numbers (Monday=0 ... Sunday=6)
 _WEEKDAYS = {

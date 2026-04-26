@@ -1,4 +1,5 @@
 from database import get_connection
+from ui import current_ui
 
 def create_flag_interactive(token, default_scope_path=None, conn=None):
     """
@@ -12,8 +13,8 @@ def create_flag_interactive(token, default_scope_path=None, conn=None):
         own_conn = True
     cur = conn.cursor()
 
-    print(f"\nNew flag: '{token}'")
-    label = input("Label (Enter=use token): ").strip()
+    current_ui.print_line(f"\nNew flag: '{token}'")
+    label = current_ui.prompt("Label (Enter=use token): ").strip()
     if not label:
         label = token
 
@@ -22,7 +23,7 @@ def create_flag_interactive(token, default_scope_path=None, conn=None):
     else:
         prompt = "Scope category path (Enter=global): "
 
-    scope_path = input(prompt).strip().lower()
+    scope_path = current_ui.prompt(prompt).strip().lower()
     scope_id = None
 
     if scope_path == '':
@@ -39,7 +40,7 @@ def create_flag_interactive(token, default_scope_path=None, conn=None):
         if row:
             scope_id = row['id']
         else:
-            print("Category not found – making global.")
+            current_ui.print_line("Category not found – making global.")
             scope_id = None
 
     cur.execute("INSERT INTO flags (token, label, scope_category_id) VALUES (?,?,?)",
@@ -56,7 +57,7 @@ def manage_flags():
 
     while True:
         # clear screen (we are inside REPL, but we'll just print)
-        print("\n─── Flags ───")
+        current_ui.print_line("\n─── Flags ───")
         cur.execute('''
             SELECT f.id, f.token, f.label, f.scope_category_id,
                    COALESCE(c.path, 'global') AS scope
@@ -66,22 +67,22 @@ def manage_flags():
         ''')
         flags = cur.fetchall()
         if not flags:
-            print("No flags defined yet.")
+            current_ui.print_line("No flags defined yet.")
         else:
             for row in flags:
-                print(f"  {row['token']:10} {row['label'] or '':10}  scope: {row['scope']}")
+                current_ui.print_line(f"  {row['token']:10} {row['label'] or '':10}  scope: {row['scope']}")
 
-        print("\n(a)dd  (e)dit  (d)elete  (q)uit")
-        choice = input("> ").strip().lower()
+        current_ui.print_line("\n(a)dd  (e)dit  (d)elete  (q)uit")
+        choice = current_ui.prompt("> ").strip().lower()
 
         if choice == 'q':
             break
         elif choice == 'a':
-            token = input("Token (e.g., m, late): ").strip()
+            token = current_ui.prompt("Token (e.g., m, late): ").strip()
             if not token:
                 continue
-            label = input("Label (Enter=skip): ").strip() or None
-            scope_path = input("Scope category path (Enter=global): ").strip().lower()
+            label = current_ui.prompt("Label (Enter=skip): ").strip() or None
+            scope_path = current_ui.prompt("Scope category path (Enter=global): ").strip().lower()
             scope_id = None
             if scope_path:
                 cur.execute("SELECT id FROM categories WHERE path=?", (scope_path,))
@@ -89,22 +90,22 @@ def manage_flags():
                 if row:
                     scope_id = row['id']
                 else:
-                    print("Category not found. Using global.")
+                    current_ui.print_line("Category not found. Using global.")
             cur.execute("INSERT INTO flags (token, label, scope_category_id) VALUES (?,?,?)",
                         (token, label, scope_id))
             conn.commit()
-            print("Flag added.")
+            current_ui.print_line("Flag added.")
         elif choice == 'e':
-            token = input("Token to edit: ").strip()
+            token = current_ui.prompt("Token to edit: ").strip()
             cur.execute("SELECT id, label, scope_category_id FROM flags WHERE token=?", (token,))
             row = cur.fetchone()
             if not row:
-                print("Flag not found.")
+                current_ui.print_line("Flag not found.")
                 continue
-            new_label = input(f"New label (Enter=keep '{row['label']}'): ").strip()
+            new_label = current_ui.prompt(f"New label (Enter=keep '{row['label']}'): ").strip()
             if new_label == '':
                 new_label = row['label']
-            new_scope = input("New scope category path (Enter=keep, 'global' for global): ").strip().lower()
+            new_scope = current_ui.prompt("New scope category path (Enter=keep, 'global' for global): ").strip().lower()
             if new_scope == '':
                 new_scope_id = row['scope_category_id']
             elif new_scope.lower() == 'global':
@@ -115,25 +116,25 @@ def manage_flags():
                 if r:
                     new_scope_id = r['id']
                 else:
-                    print("Category not found. Keeping old scope.")
+                    current_ui.print_line("Category not found. Keeping old scope.")
                     new_scope_id = row['scope_category_id']
             cur.execute("UPDATE flags SET label=?, scope_category_id=? WHERE id=?",
                         (new_label, new_scope_id, row['id']))
             conn.commit()
-            print("Flag updated.")
+            current_ui.print_line("Flag updated.")
         elif choice == 'd':
-            token = input("Token to delete: ").strip()
+            token = current_ui.prompt("Token to delete: ").strip()
             cur.execute("SELECT id FROM flags WHERE token=?", (token,))
             frow = cur.fetchone()
             if not frow:
-                print("Flag not found.")
+                current_ui.print_line("Flag not found.")
                 continue
             flag_id = frow['id']
-            confirm = input(f"Delete flag '{token}'? (Enter=yes, n=no): ").strip().lower()
+            confirm = current_ui.prompt(f"Delete flag '{token}'? (Enter=yes, n=no): ").strip().lower()
             if confirm == '' or confirm == 'y':
                 # Remove the flag from all entries first
                 cur.execute("DELETE FROM entry_flags WHERE flag_id=?", (flag_id,))
                 cur.execute("DELETE FROM flags WHERE id=?", (flag_id,))
                 conn.commit()
-                print("Flag deleted.")
+                current_ui.print_line("Flag deleted.")
     conn.close()

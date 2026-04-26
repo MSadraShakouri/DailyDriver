@@ -3,6 +3,7 @@ import jdatetime
 from datetime import datetime
 from database import get_connection
 from utils import today_jalali, format_jalali
+from ui import current_ui
 
 def show_today():
     conn = get_connection()
@@ -17,10 +18,10 @@ def show_today():
     day_start = int(datetime(gdate.year, gdate.month, gdate.day, 0, 0, 0).timestamp())
     day_end   = int(datetime(gdate.year, gdate.month, gdate.day, 23, 59, 59).timestamp())
 
-    print(f"══════ Today: {formatted} ══════")
+    current_ui.print_line(f"══════ Today: {formatted} ══════")
 
     # Prayers
-    print("🕌 Prayers:")
+    current_ui.print_line("🕌 Prayers:")
     for slot in ['fajr', 'dhuhr_asr', 'maghrib_isha']:
         row = cur.execute(
             "SELECT status FROM prayer_logs WHERE prayer_slot=? AND jalali_date=?",
@@ -28,9 +29,9 @@ def show_today():
         ).fetchone()
         if row:
             icon = '✅' if row['status']=='on_time' else ('🕯️' if row['status']=='qada' else '❌')
-            print(f"   {slot.replace('_',' ').title()}: {icon}")
+            current_ui.print_line(f"   {slot.replace('_',' ').title()}: {icon}")
         else:
-            print(f"   {slot.replace('_',' ').title()}: ⏳")
+            current_ui.print_line(f"   {slot.replace('_',' ').title()}: ⏳")
 
     # Sleep
     sleep_row = cur.execute(
@@ -40,12 +41,12 @@ def show_today():
     if sleep_row:
         h = sleep_row['duration_minutes'] // 60
         m = sleep_row['duration_minutes'] % 60
-        print(f"💤 Sleep: {h}h {m}m")
+        current_ui.print_line(f"💤 Sleep: {h}h {m}m")
     else:
-        print("💤 Sleep: —")
+        current_ui.print_line("💤 Sleep: —")
 
     # Entries
-    print("\n📝 Entries:")
+    current_ui.print_line("\n📝 Entries:")
     cur.execute("""
         SELECT e.id, e.description, e.created_at,
                GROUP_CONCAT(DISTINCT c.path) AS cats,
@@ -62,15 +63,15 @@ def show_today():
     entries = cur.fetchall()
 
     if not entries:
-        print("   No entries yet today.")
+        current_ui.print_line("   No entries yet today.")
     else:
         for e in entries:
             dt = datetime.fromtimestamp(e['created_at']).strftime('%H:%M')
             cats = e['cats'] or '(no category)'
             flags = f" [{e['flags']}]" if e['flags'] else ""
             desc = (e['description'] or '')[:50].replace('\n', ' ')
-            print(f"   {dt}  {cats}{flags}")
+            current_ui.print_line(f"   {dt}  {cats}{flags}")
             if desc:
-                print(f"         {desc}")
+                current_ui.print_line(f"         {desc}")
 
     conn.close()

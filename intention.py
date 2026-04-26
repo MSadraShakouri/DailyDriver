@@ -1,5 +1,6 @@
 import time
 from database import get_connection
+from ui import current_ui
 
 def add_intention(cmd: str):
     """
@@ -13,10 +14,10 @@ def add_intention(cmd: str):
         deadline = None
         expected = None
     else:
-        description = input("Description: ").strip()
+        description = current_ui.prompt("Description: ").strip()
         if not description:
             return None
-        deadline_str = input("Deadline (Jalali YYYY/MM/DD, or Enter=skip): ").strip()
+        deadline_str = current_ui.prompt("Deadline (Jalali YYYY/MM/DD, or Enter=skip): ").strip()
         if deadline_str:
             try:
                 import jdatetime
@@ -26,16 +27,16 @@ def add_intention(cmd: str):
                 from datetime import datetime
                 deadline = int(datetime(gdate.year, gdate.month, gdate.day, 12, 0).timestamp())
             except:
-                print("Invalid date. Ignoring deadline.")
+                current_ui.print_line("Invalid date. Ignoring deadline.")
                 deadline = None
         else:
             deadline = None
-        expected_str = input("Expected duration (min, Enter=skip): ").strip()
+        expected_str = current_ui.prompt("Expected duration (min, Enter=skip): ").strip()
         if expected_str:
             try:
                 expected = int(expected_str)
             except ValueError:
-                print("Invalid number. Ignoring.")
+                current_ui.print_line("Invalid number. Ignoring.")
                 expected = None
         else:
             expected = None

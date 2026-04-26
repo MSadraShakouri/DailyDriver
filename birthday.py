@@ -1,23 +1,24 @@
 import re
 from database import get_connection
 from utils import today_jalali
+from ui import current_ui
 
 def add_birthday(cmd: str):
     parts = cmd.strip().split()
     if len(parts) == 1:
         # interactive
-        name = input("Name: ").strip()
+        name = current_ui.prompt("Name: ").strip()
         if not name:
             return None
-        day = input("Day (1-31): ").strip()
-        month = input("Month (1-12): ").strip()
-        year = input("Year (e.g., 1386, Enter=skip): ").strip()
+        day = current_ui.prompt("Day (1-31): ").strip()
+        month = current_ui.prompt("Month (1-12): ").strip()
+        year = current_ui.prompt("Year (e.g., 1386, Enter=skip): ").strip()
         try:
             day = int(day)
             month = int(month)
             year = int(year) if year else None
         except ValueError:
-            print("Invalid numbers.")
+            current_ui.print_line("Invalid numbers.")
             return None
     else:
         text = ' '.join(parts[1:])
@@ -40,21 +41,21 @@ def add_birthday(cmd: str):
                 # No date found – treat all as name, prompt for date
                 name = text.strip()
                 if not name:
-                    print("No name given.")
+                    current_ui.print_line("No name given.")
                     return None
-                day = input("Day (1-31): ").strip()
-                month = input("Month (1-12): ").strip()
-                year = input("Year (Enter=skip): ").strip()
+                day = current_ui.prompt("Day (1-31): ").strip()
+                month = current_ui.prompt("Month (1-12): ").strip()
+                year = current_ui.prompt("Year (Enter=skip): ").strip()
                 try:
                     day = int(day)
                     month = int(month)
                     year = int(year) if year else None
                 except ValueError:
-                    print("Invalid numbers.")
+                    current_ui.print_line("Invalid numbers.")
                     return None
 
     if not (1 <= month <= 12 and 1 <= day <= 31):
-        print("Invalid date.")
+        current_ui.print_line("Invalid date.")
         return None
 
     conn = get_connection()

@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 from database import get_connection
 from parser import extract_time
+from ui import current_ui
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 PENDING_FILE = os.path.join(BASE_DIR, '.daily_pending')
@@ -180,18 +181,18 @@ def save_pending_start():
     with open(PENDING_FILE, 'w') as f:
         f.write(str(ts))
     time_str = datetime.fromtimestamp(ts).strftime('%H:%M')
-    print(f"Start saved: {time_str}")
+    current_ui.print_line(f"Start saved: {time_str}")
 
 def discard_pending_start():
     """Clear the pending start and show the time that was discarded."""
     if not os.path.exists(PENDING_FILE):
-        print("No saved start to discard.")
+        current_ui.print_line("No saved start to discard.")
         return
     ts = get_pending_start()
     from datetime import datetime
     time_str = datetime.fromtimestamp(ts).strftime('%H:%M') if ts else "unknown"
     clear_pending_start()
-    print(f"Saved start ({time_str}) discarded.")
+    current_ui.print_line(f"Saved start ({time_str}) discarded.")
 
 def get_pending_start():
     """Return the saved timestamp, or None if the file doesn't exist."""
@@ -207,12 +208,12 @@ def clear_pending_start():
 
 def _confirm_time(start_str, dur_str):
     """Show time/duration and ask for confirmation. Returns True to proceed, False to cancel."""
-    print()
-    print(f"Time:   {start_str}")
+    current_ui.print_line()
+    current_ui.print_line(f"Time:   {start_str}")
     if dur_str:
-        print(f"Duration: {dur_str}")
-    print("(Enter=yes, n=cancel)")
-    confirm = input("> ").strip().lower()
+        current_ui.print_line(f"Duration: {dur_str}")
+    current_ui.print_line("(Enter=yes, n=cancel)")
+    confirm = current_ui.prompt("> ").strip().lower()
     return confirm == '' or confirm == 'y'
 
 def _save_entry(conn, cmd, started_at, duration, selected_paths, attached_flags):
@@ -301,12 +302,12 @@ def log_free_text(cmd, started_at=None):
     # ---------- step 1 – category suggestion ----------
     matches = find_matching_categories(cmd)
     if matches:
-        print()
-        print("Suggested categories:")
+        current_ui.print_line()
+        current_ui.print_line("Suggested categories:")
         for i, (path, cnt) in enumerate(matches, 1):
-            print(f"  [{i}] {path}")
-        print("Enter=1, numbers to select, or type new paths (space‑separated)")
-        choice = input("> ").strip().lower()
+            current_ui.print_line(f"  [{i}] {path}")
+        current_ui.print_line("Enter=1, numbers to select, or type new paths (space‑separated)")
+        choice = current_ui.prompt("> ").strip().lower()
         if choice == '':
             selected_paths = [matches[0][0]]
         else:
@@ -323,7 +324,7 @@ def log_free_text(cmd, started_at=None):
                     conn.commit()
                     selected_paths.append(token)
     else:
-        cat_choice = input("No suggestions. Enter category path (or Enter to skip): ").strip().lower()
+        cat_choice = current_ui.prompt("No suggestions. Enter category path (or Enter to skip): ").strip().lower()
         if cat_choice:
             for token in cat_choice.split():
                 if token:
@@ -333,8 +334,8 @@ def log_free_text(cmd, started_at=None):
 
     # ---------- step 2 – flags ----------
     attached_flags = []
-    print("\nFlags? (Enter=none, or type tokens)")
-    flag_input = input("> ").strip().lower()
+    current_ui.print_line("\nFlags? (Enter=none, or type tokens)")
+    flag_input = current_ui.prompt("> ").strip().lower()
     if flag_input:
         tokens = flag_input.split()
         for token in tokens:

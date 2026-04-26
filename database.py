@@ -1,6 +1,7 @@
 import sqlite3
 import time
 import os
+from ui import current_ui
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 DB_NAME = os.path.join(BASE_DIR, "daily.db")

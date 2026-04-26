@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+from ui import current_ui
 from database import init_db
 from database import cleanup_pending_keywords
 from header_data import build_header_data
@@ -42,14 +43,14 @@ def make_dispatch():
 
 
 def clear():
-    os.system('clear')
+    current_ui.clear()
 
 def log_event_end(cmd):
     """End the running event and log a free‑text entry."""
     from logger import get_pending_start, clear_pending_start, log_free_text
     started_at = get_pending_start()
     if started_at is None:
-        print("No running event to end.")
+        current_ui.print_line("No running event to end.")
         return
 
     # extract description: everything after 'ee' (and optional space)
@@ -64,7 +65,7 @@ def log_event_end(cmd):
         clear()
         data = build_header_data()
         print_header(data)
-        print(result)
+        current_ui.print_line(result)
     # return None so the REPL doesn't double-print
     return None
 
@@ -74,7 +75,7 @@ def log_chain_now(line):
 
     last_ts = get_last_action_time()
     if last_ts is None:
-        print("No previous action to chain from.")
+        current_ui.print_line("No previous action to chain from.")
         return None
 
     parts = line.strip().split(maxsplit=1)
@@ -86,15 +87,15 @@ def run_single_command(line):
     init_db()
     cleanup_pending_keywords()
 
-    clear()
+    current_ui.clear()
     data = build_header_data()
-    print_header(data)
+    current_ui.show_header(data)
 
     if not line:
-        input("Press Enter to exit.")
+        current_ui.prompt("Press Enter to exit.")
         return
 
-    print(f"\n> {line}")          # <-- add this line
+    current_ui.print_line(f"\n> {line}")          # <-- add this line
 
     dispatch = make_dispatch()
     parts = line.split()
@@ -108,9 +109,9 @@ def run_single_command(line):
                 clear()
                 data = build_header_data()
                 print_header(data)
-                print(result)
+                current_ui.print_line(result)
         except KeyboardInterrupt:
-            print("\nCancelled.")
+            current_ui.print_line("\nCancelled.")
     else:
         try:
             result = log_free_text(line)
@@ -118,11 +119,11 @@ def run_single_command(line):
                 clear()
                 data = build_header_data()
                 print_header(data)
-                print(result)
+                current_ui.print_line(result)
         except KeyboardInterrupt:
-            print("\nCancelled.")
+            current_ui.print_line("\nCancelled.")
 
-    input("Press Enter to exit.")
+    current_ui.prompt("Press Enter to exit.")
 
 def repl():
     init_db()
@@ -133,16 +134,16 @@ def repl():
     dispatch = make_dispatch()
 
     while True:
-        clear()
+        current_ui.clear()
         data = build_header_data()
-        print_header(data)
+        current_ui.show_header(data)
 
         if collecting:
             for line in multi_buf:
-                print(f"... {line}")
-            line = input("... ").strip()
+                current_ui.print_line(f"... {line}")
+            line = current_ui.prompt("... ").strip()
         else:
-            line = input("> ").strip()
+            line = current_ui.prompt("> ").strip()
 
         if line == '':
             continue
@@ -171,7 +172,7 @@ def repl():
                     log_free_text(full_text)
                 multi_buf = []
                 collecting = False
-                input("Press Enter to continue.")
+                current_ui.prompt("Press Enter to continue.")
             continue
 
         if line.lower() == ':m':
@@ -195,11 +196,11 @@ def repl():
                     clear()
                     data = build_header_data()
                     print_header(data)
-                    print(result)
+                    current_ui.print_line(result)
             except KeyboardInterrupt:
-                print("\nCancelled.")
+                current_ui.print_line("\nCancelled.")
                 result = None
-            input("Press Enter to continue.")
+            current_ui.prompt("Press Enter to continue.")
         else:
             # Fall back to free‑text logging
             try:
@@ -208,11 +209,11 @@ def repl():
                     clear()
                     data = build_header_data()
                     print_header(data)
-                    print(result)
+                    current_ui.print_line(result)
             except KeyboardInterrupt:
-                print("\nCancelled.")
+                current_ui.print_line("\nCancelled.")
                 result = None
-            input("Press Enter to continue.")
+            current_ui.prompt("Press Enter to continue.")
 
 if __name__ == "__main__":
     import sys

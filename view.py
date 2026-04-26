@@ -3,6 +3,7 @@ import subprocess
 import time
 from database import get_connection
 from logger import log_free_text
+from ui import current_ui
 
 def view_entries(category_filter=None):
     conn = get_connection()
@@ -44,23 +45,23 @@ def view_entries(category_filter=None):
         rows = cur.fetchall()
 
         if not rows and offset == 0:
-            print("No entries found.")
+            current_ui.print_line("No entries found.")
             conn.close()
             return
 
         os.system('clear')
         filter_str = f" [filter: {category_filter}]" if category_filter else ""
-        print(f"─────── Journal Entries{filter_str} ───────")
+        current_ui.print_line(f"─────── Journal Entries{filter_str} ───────")
         for row in rows:
             from datetime import datetime
             dt = datetime.fromtimestamp(row['created_at'])
             cat_str = row['categories'] if row['categories'] else '(no category)'
             desc_snippet = (row['description'] or '')[:50].replace('\n', ' ')
-            print(f"[{row['id']}] {dt.strftime('%Y-%m-%d %H:%M')}  {cat_str}")
-            print(f"    {desc_snippet}")
+            current_ui.print_line(f"[{row['id']}] {dt.strftime('%Y-%m-%d %H:%M')}  {cat_str}")
+            current_ui.print_line(f"    {desc_snippet}")
 
-        print("\n(n)ext  (p)rev  (q)uit  [id] edit")
-        choice = input("> ").strip().lower()
+        current_ui.print_line("\n(n)ext  (p)rev  (q)uit  [id] edit")
+        choice = current_ui.prompt("> ").strip().lower()
 
         if choice == 'q':
             break
@@ -68,8 +69,8 @@ def view_entries(category_filter=None):
             if len(rows) == page_size:
                 offset += page_size
             else:
-                print("No more pages.")
-                input()
+                current_ui.print_line("No more pages.")
+                current_ui.prompt()
         elif choice == 'p':
             offset = max(0, offset - page_size)
         elif choice.isdigit():
@@ -90,7 +91,7 @@ def edit_entry(entry_id):
     cur.execute("SELECT description FROM entries WHERE id=?", (entry_id,))
     row = cur.fetchone()
     if not row:
-        print("Entry not found.")
+        current_ui.print_line("Entry not found.")
         conn.close()
         return None
 
@@ -106,7 +107,7 @@ def edit_entry(entry_id):
         new_desc = f.read().strip()
 
     if new_desc == (row['description'] or '').strip():
-        print("No changes.")
+        current_ui.print_line("No changes.")
         conn.close()
         return None
 

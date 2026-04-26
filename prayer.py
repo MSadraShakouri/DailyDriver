@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import jdatetime
 from database import get_connection
 from utils import today_jalali
+from ui import current_ui
 
 # Fixed prayer times (24h) – you can adjust later
 PRAYER_TIMES = {
@@ -85,7 +86,7 @@ def log_prayer(cmd: str):
             try:
                 offset_min = int(a[1:])
             except ValueError:
-                print("Invalid offset.")
+                current_ui.print_line("Invalid offset.")
                 conn.close()
                 return None
             i += 1
@@ -151,11 +152,11 @@ def log_prayer(cmd: str):
         flag_parts.append(f"Shak ({shak_count})")
     extra = ", ".join(flag_parts)
     if extra:
-        print(f"\n{slot_display} at {time_str} [{extra}]? (Enter=yes, n=cancel)")
+        current_ui.print_line(f"\n{slot_display} at {time_str} [{extra}]? (Enter=yes, n=cancel)")
     else:
-        print(f"\n{slot_display} at {time_str}? (Enter=yes, n=cancel)")
+        current_ui.print_line(f"\n{slot_display} at {time_str}? (Enter=yes, n=cancel)")
 
-    confirm = input("> ").strip().lower()
+    confirm = current_ui.prompt("> ").strip().lower()
     if confirm != '' and confirm != 'y':
         conn.close()
         return None
@@ -186,20 +187,20 @@ def log_rq():
     missing = _get_unlogged_slots(conn)
 
     if missing is None:
-        print("No prayer logs yet – nothing to mark as qada.")
+        current_ui.print_line("No prayer logs yet – nothing to mark as qada.")
         conn.close()
         return
 
     if not missing:
-        print("All prayer slots are logged – nothing to mark as qada.")
+        current_ui.print_line("All prayer slots are logged – nothing to mark as qada.")
         conn.close()
         return
 
-    print("\nUnlogged prayer slots (newest first):")
+    current_ui.print_line("\nUnlogged prayer slots (newest first):")
     for i, (date_str, slot) in enumerate(missing, 1):
-        print(f"  [{i}] {date_str}  {slot}")
+        current_ui.print_line(f"  [{i}] {date_str}  {slot}")
 
-    choice = input("Select number to mark as qada (q=quit): ").strip()
+    choice = current_ui.prompt("Select number to mark as qada (q=quit): ").strip()
     if choice.lower() == 'q':
         conn.close()
         return
@@ -211,11 +212,11 @@ def log_rq():
             cur.execute("INSERT INTO prayer_logs (prayer_slot, jalali_date, status, logged_at) VALUES (?,?,?,?)",
                         (slot, date_str, 'qada', int(time.time())))
             conn.commit()
-            print(f"Marked {slot} on {date_str} as qada.")
+            current_ui.print_line(f"Marked {slot} on {date_str} as qada.")
         else:
-            print("Invalid selection.")
+            current_ui.print_line("Invalid selection.")
     except ValueError:
-        print("Invalid input.")
+        current_ui.print_line("Invalid input.")
     conn.close()
 
 
@@ -225,20 +226,20 @@ def log_mp():
     missing = _get_unlogged_slots(conn)
 
     if missing is None:
-        print("No prayer logs yet.")
+        current_ui.print_line("No prayer logs yet.")
         conn.close()
         return
 
     if not missing:
-        print("All prayer slots are logged.")
+        current_ui.print_line("All prayer slots are logged.")
         conn.close()
         return
 
-    print("\nUnlogged prayer slots (newest first):")
+    current_ui.print_line("\nUnlogged prayer slots (newest first):")
     for i, (date_str, slot) in enumerate(missing, 1):
-        print(f"  [{i}] {date_str}  {slot}")
+        current_ui.print_line(f"  [{i}] {date_str}  {slot}")
 
-    choice = input("Select number to mark (q=quit): ").strip()
+    choice = current_ui.prompt("Select number to mark (q=quit): ").strip()
     if choice.lower() == 'q':
         conn.close()
         return
@@ -246,22 +247,22 @@ def log_mp():
         idx = int(choice) - 1
         if 0 <= idx < len(missing):
             date_str, slot = missing[idx]
-            mark = input("Mark as (m)issed or (q)ada? ").strip().lower()
+            mark = current_ui.prompt("Mark as (m)issed or (q)ada? ").strip().lower()
             if mark == 'q':
                 status = 'qada'
             elif mark == 'm':
                 status = 'missed'
             else:
-                print("Invalid choice.")
+                current_ui.print_line("Invalid choice.")
                 conn.close()
                 return
             cur = conn.cursor()
             cur.execute("INSERT INTO prayer_logs (prayer_slot, jalali_date, status, logged_at) VALUES (?,?,?,?)",
                         (slot, date_str, status, int(time.time())))
             conn.commit()
-            print(f"Marked {slot} on {date_str} as {status}.")
+            current_ui.print_line(f"Marked {slot} on {date_str} as {status}.")
         else:
-            print("Invalid selection.")
+            current_ui.print_line("Invalid selection.")
     except ValueError:
-        print("Invalid input.")
+        current_ui.print_line("Invalid input.")
     conn.close()

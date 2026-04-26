@@ -4,6 +4,7 @@ from datetime import datetime
 from database import get_connection, get_last_hygiene_time
 from utils import today_jalali, format_jalali
 from logger import get_pending_start
+from ui import current_ui
 
 def build_header_data():
     """Collect all data needed for the daily header and return a dict."""

@@ -2,6 +2,7 @@
 import time
 from database import get_connection
 from utils import days_ago, today_start_ts
+from ui import current_ui
 
 def show_stats():
     conn = get_connection()
@@ -10,7 +11,7 @@ def show_stats():
     today_start = today_start_ts()
 
     # --- Prayer: last 30 days ---
-    print("─── Prayer (last 30 days) ───")
+    current_ui.print_line("─── Prayer (last 30 days) ───")
     slots = ['fajr', 'dhuhr_asr', 'maghrib_isha']
     for slot in slots:
         cur.execute("""
@@ -28,12 +29,12 @@ def show_stats():
         total = on_time + qada + missed
         if total > 0:
             pct = on_time * 100 // total
-            print(f"  {slot}: ✅{on_time}  🕯️{qada}  ❌{missed}  ({pct}% on time)")
+            current_ui.print_line(f"  {slot}: ✅{on_time}  🕯️{qada}  ❌{missed}  ({pct}% on time)")
         else:
-            print(f"  {slot}: no logs")
+            current_ui.print_line(f"  {slot}: no logs")
 
     # --- Sleep: last 14 days ---
-    print("\n─── Sleep (last 14 days) ───")
+    current_ui.print_line("\n─── Sleep (last 14 days) ───")
     cutoff = days_ago(14)
     cur.execute("""
         SELECT duration_minutes FROM sleep_logs
@@ -43,17 +44,17 @@ def show_stats():
     durations = [r['duration_minutes'] for r in cur.fetchall()]
     if durations:
         avg = sum(durations) / len(durations)
-        print(f"  Average: {avg/60:.1f}h ({len(durations)} nights)")
-        print(f"  Best: {max(durations)/60:.1f}h  Worst: {min(durations)/60:.1f}h")
+        current_ui.print_line(f"  Average: {avg/60:.1f}h ({len(durations)} nights)")
+        current_ui.print_line(f"  Best: {max(durations)/60:.1f}h  Worst: {min(durations)/60:.1f}h")
     else:
-        print("  No sleep data.")
+        current_ui.print_line("  No sleep data.")
 
     # --- Hygiene: last 30 days adherence ---
-    print("\n─── Hygiene (comparison vs desired) ───")
+    current_ui.print_line("\n─── Hygiene (comparison vs desired) ───")
     cur.execute("SELECT item, desired_interval_days FROM hygiene_config")
     items = cur.fetchall()
     if not items:
-        print("  No hygiene items configured.")
+        current_ui.print_line("  No hygiene items configured.")
     for item_row in items:
         item = item_row['item']
         desired = item_row['desired_interval_days']
@@ -66,10 +67,10 @@ def show_stats():
         log_count = cur.fetchone()['cnt']
         expected_count = 30 // desired if desired > 0 else 30
         pct = int(log_count / expected_count * 100) if expected_count > 0 else 0
-        print(f"  {item}: {log_count} logs (expected ~{expected_count}, {pct}%)")
+        current_ui.print_line(f"  {item}: {log_count} logs (expected ~{expected_count}, {pct}%)")
 
     # --- Flag frequency: last 30 days ---
-    print("\n─── Flags (last 30 days) ───")
+    current_ui.print_line("\n─── Flags (last 30 days) ───")
     cur.execute("""
         SELECT f.token, COUNT(*) as cnt
         FROM entry_flags ef
@@ -82,12 +83,12 @@ def show_stats():
     """, (days_ago(30),))
     flag_rows = cur.fetchall()
     if not flag_rows:
-        print("  No flags logged.")
+        current_ui.print_line("  No flags logged.")
     for fr in flag_rows:
-        print(f"  {fr['token']}: {fr['cnt']} times")
+        current_ui.print_line(f"  {fr['token']}: {fr['cnt']} times")
 
     # --- Entries per category (last 30 days) ---
-    print("\n─── Top Categories (last 30 days) ───")
+    current_ui.print_line("\n─── Top Categories (last 30 days) ───")
     cur.execute("""
         SELECT c.path, COUNT(*) as cnt
         FROM entries e
@@ -100,8 +101,8 @@ def show_stats():
     """, (days_ago(30),))
     cat_rows = cur.fetchall()
     if not cat_rows:
-        print("  No entries.")
+        current_ui.print_line("  No entries.")
     for cr in cat_rows:
-        print(f"  {cr['path']}: {cr['cnt']} entries")
+        current_ui.print_line(f"  {cr['path']}: {cr['cnt']} entries")
 
     conn.close()
