@@ -206,16 +206,6 @@ def clear_pending_start():
     if os.path.exists(PENDING_FILE):
         os.remove(PENDING_FILE)
 
-def _confirm_time(start_str, dur_str):
-    """Show time/duration and ask for confirmation. Returns True to proceed, False to cancel."""
-    current_ui.print_line()
-    current_ui.print_line(f"Time:   {start_str}")
-    if dur_str:
-        current_ui.print_line(f"Duration: {dur_str}")
-    current_ui.print_line("(Enter=yes, n=cancel)")
-    confirm = current_ui.prompt("> ").strip().lower()
-    return confirm == '' or confirm == 'y'
-
 def _save_entry(conn, cmd, started_at, duration, selected_paths, attached_flags):
     """Insert an entry with categories, flags, and learn keywords.
     Returns the built result string."""
@@ -277,7 +267,7 @@ def log_free_text(cmd, started_at=None):
         start_dt = datetime.fromtimestamp(started_at)
         start_str = start_dt.strftime('%H:%M')
         dur_str = f"{duration // 60}h {duration % 60}m" if duration // 60 else f"{duration}m"
-        if not _confirm_time(start_str, dur_str):
+        if not current_ui.confirm_time(start_str, dur_str):
             conn.close()
             return None
     else:
@@ -293,7 +283,7 @@ def log_free_text(cmd, started_at=None):
                 h = duration // 60
                 m = duration % 60
                 dur_str = f"{h}h {m}m" if h else f"{m}m"
-            if not _confirm_time(start_str, dur_str):
+            if not current_ui.confirm_time(start_str, dur_str):
                 conn.close()
                 return None
         else:

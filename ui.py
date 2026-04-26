@@ -21,6 +21,11 @@ class UI(ABC):
         ...
 
     @abstractmethod
+    def confirm_time(self, start_str: str, dur_str: str = "") -> bool:
+        """Ask user to confirm a time/duration. Return True to proceed."""
+        ...
+
+    @abstractmethod
     def choose_from_list(self, items: list[str], prompt: str = "") -> int:
         ...
 
@@ -50,6 +55,15 @@ class TerminalUI(UI):
             return answer == '' or answer == 'y'
         else:
             return answer == 'y'
+
+    def confirm_time(self, start_str: str, dur_str: str = "") -> bool:
+        self.print_line()
+        self.print_line(f"Time:   {start_str}")
+        if dur_str:
+            self.print_line(f"Duration: {dur_str}")
+        self.print_line("(Enter=yes, n=cancel)")
+        answer = self.prompt("> ").strip().lower()
+        return answer == '' or answer == 'y'
 
     def choose_from_list(self, items, prompt_text="Select:"):
         for i, item in enumerate(items, 1):

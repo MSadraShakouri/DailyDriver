@@ -49,7 +49,7 @@ def view_entries(category_filter=None):
             conn.close()
             return
 
-        os.system('clear')
+        current_ui.clear()
         filter_str = f" [filter: {category_filter}]" if category_filter else ""
         current_ui.print_line(f"─────── Journal Entries{filter_str} ───────")
         for row in rows:
