@@ -1,12 +1,13 @@
+# DailyDriver/stats.py
 import time
-from datetime import datetime, timedelta
 from database import get_connection
+from utils import days_ago, today_start_ts
 
 def show_stats():
     conn = get_connection()
     cur = conn.cursor()
     now = int(time.time())
-    today_start = int(datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).timestamp())
+    today_start = today_start_ts()
 
     # --- Prayer: last 30 days ---
     print("─── Prayer (last 30 days) ───")
@@ -17,7 +18,7 @@ def show_stats():
             FROM prayer_logs
             WHERE prayer_slot=? AND logged_at >= ?
             GROUP BY status
-        """, (slot, today_start - 30*86400))
+        """, (slot, days_ago(30)))
         rows = cur.fetchall()
         on_time = qada = missed = 0
         for r in rows:
@@ -33,7 +34,7 @@ def show_stats():
 
     # --- Sleep: last 14 days ---
     print("\n─── Sleep (last 14 days) ───")
-    cutoff = int((datetime.now() - timedelta(days=14)).timestamp())
+    cutoff = days_ago(14)
     cur.execute("""
         SELECT duration_minutes FROM sleep_logs
         WHERE sleep_time >= ?
@@ -61,7 +62,7 @@ def show_stats():
             JOIN entry_categories ec ON e.id = ec.entry_id
             JOIN categories c ON ec.category_id = c.id
             WHERE c.path LIKE ? AND e.started_at >= ?
-        """, ('%/'+item, today_start - 30*86400))
+        """, ('%/'+item, days_ago(30)))
         log_count = cur.fetchone()['cnt']
         expected_count = 30 // desired if desired > 0 else 30
         pct = int(log_count / expected_count * 100) if expected_count > 0 else 0
@@ -78,7 +79,7 @@ def show_stats():
         GROUP BY f.token
         ORDER BY cnt DESC
         LIMIT 5
-    """, (now - 30*86400,))
+    """, (days_ago(30),))
     flag_rows = cur.fetchall()
     if not flag_rows:
         print("  No flags logged.")
@@ -96,7 +97,7 @@ def show_stats():
         GROUP BY c.path
         ORDER BY cnt DESC
         LIMIT 5
-    """, (now - 30*86400,))
+    """, (days_ago(30),))
     cat_rows = cur.fetchall()
     if not cat_rows:
         print("  No entries.")
