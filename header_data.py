@@ -57,13 +57,16 @@ def build_header_data():
     bday_str = "   ".join(bday_lines[:3])
 
     # ---------- hygiene nudges ----------
-    cur.execute("SELECT item, desired_interval_days FROM hygiene_config")
+    cur.execute("SELECT id, item, desired_interval_days, early_warning_enabled, show_due_today FROM hygiene_config ORDER BY item")
     hygiene_items = cur.fetchall()
     nudge_lines = []
     now_ts = int(time.time())
     for item_row in hygiene_items:
         item = item_row['item']
         desired = item_row['desired_interval_days']
+        early_enabled = item_row['early_warning_enabled']
+        due_today_enabled = item_row['show_due_today']
+
         cur.execute('''
             SELECT MAX(e.started_at) as last_time
             FROM entries e
@@ -72,27 +75,35 @@ def build_header_data():
             WHERE c.path LIKE ?
         ''', ('%/' + item,))
         last = cur.fetchone()
-        if last and last['last_time']:
-            days_since = (now_ts - last['last_time']) // 86400
-        else:
-            days_since = None
+        days_since = (now_ts - last['last_time']) // 86400 if (last and last['last_time']) else None
 
-        # early warning thresholds
+        if days_since is None:
+            continue
+
+        # Early warning thresholds (hardcoded)
         if desired >= 15:
-            early = 3
+            early_threshold = 3
         elif desired >= 7:
-            early = 2
+            early_threshold = 2
         elif desired >= 2:
-            early = 1
+            early_threshold = 1
         else:
-            early = 0
+            early_threshold = 0
 
-        if days_since is not None and desired > 0:
-            due_in = desired - days_since
-            if 0 < due_in <= early:
-                nudge_lines.append(f"⚠️ {item}: due in {due_in}d (last {days_since}d ago)")
-            elif days_since >= desired:
-                nudge_lines.append(f"⚠️ {item}: overdue! (last {days_since}d ago)")
+        # 1. Overdue (always show)
+        if days_since > desired:
+            nudge_lines.append(f"⚠️ {item}: overdue! (last {days_since}d ago)")
+
+        # 2. Due today (optional)
+        elif days_since == desired and due_today_enabled:
+            nudge_lines.append(f"⚠️ {item}: due today")
+
+        # 3. Early warning (optional)
+        elif days_since < desired and early_enabled and early_threshold > 0:
+            remaining = desired - days_since
+            if remaining <= early_threshold:
+                nudge_lines.append(f"⚠️ {item}: due in {remaining}d (last {days_since}d ago)")
+
     hygiene_str = "   ".join(nudge_lines[:2])
 
     # ---------- running event indicator ----------

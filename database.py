@@ -125,9 +125,24 @@ def init_db():
         CREATE TABLE IF NOT EXISTS hygiene_config (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             item TEXT UNIQUE NOT NULL,
-            desired_interval_days INTEGER
+            desired_interval_days INTEGER,
+            early_warning_enabled INTEGER DEFAULT 1,
+            show_due_today INTEGER DEFAULT 1
         )
     ''')
+
+    # ---------- migration: add columns if missing ----------
+    try:
+        cur.execute("ALTER TABLE hygiene_config ADD COLUMN early_warning_enabled INTEGER DEFAULT 1")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        cur.execute("ALTER TABLE hygiene_config ADD COLUMN show_due_today INTEGER DEFAULT 1")
+    except sqlite3.OperationalError:
+        pass
+
+    cur.execute("UPDATE hygiene_config SET early_warning_enabled = 1 WHERE early_warning_enabled IS NULL")
+    cur.execute("UPDATE hygiene_config SET show_due_today = 0 WHERE show_due_today IS NULL")
 
     # ---------- pending_keywords (two‑sighting promotion) ----------
     cur.execute('''
