@@ -95,7 +95,9 @@ def edit_entry(entry_id):
         conn.close()
         return None
 
-    tmp_file = os.path.expanduser('~/.daily_edit.txt')
+    BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+    tmp_file = os.path.join(BASE_DIR, '.daily_edit.txt')
+
     with open(tmp_file, 'w') as f:
         f.write(row['description'] or '')
 

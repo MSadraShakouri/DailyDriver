@@ -2,7 +2,8 @@ import sqlite3
 import time
 import os
 
-DB_NAME = os.path.expanduser("~/DailyDriver/daily.db")
+BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+DB_NAME = os.path.join(BASE_DIR, "daily.db")
 
 # file that stores the timestamp of the last successful write
 LAST_ACTION_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)), '.daily_last_action')

@@ -6,7 +6,8 @@ from database import get_connection
 from database import commit_and_update
 from parser import extract_time
 
-PENDING_FILE = os.path.expanduser('~/.daily_pending')
+BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+PENDING_FILE = os.path.join(BASE_DIR, '.daily_pending')
 
 def load_stopwords():
     """Load stop words from stopwords.txt (located next to this file)."""
