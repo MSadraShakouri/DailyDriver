@@ -1,7 +1,6 @@
 import time
 from datetime import datetime, timedelta
 from database import get_connection
-from database import commit_and_update
 from utils import today_jalali
 
 def log_sleep(cmd: str):
@@ -64,7 +63,7 @@ def log_sleep(cmd: str):
         "INSERT INTO sleep_logs (jalali_date, sleep_time, wake_time, duration_minutes) VALUES (?,?,?,?)",
         (today, int(sleep_dt.timestamp()), int(wake_dt.timestamp()), duration)
     )
-    commit_and_update(conn)
+    conn.commit()
     conn.close()
 
     # Build result

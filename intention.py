@@ -1,6 +1,5 @@
 import time
 from database import get_connection
-from database import commit_and_update
 
 def add_intention(cmd: str):
     """
@@ -47,7 +46,7 @@ def add_intention(cmd: str):
         "INSERT INTO intentions (description, deadline, expected_duration_minutes) VALUES (?,?,?)",
         (description, deadline, expected)
     )
-    commit_and_update(conn)
+    conn.commit()
     conn.close()
 
     result = "Intention added:\n"

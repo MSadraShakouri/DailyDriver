@@ -1,6 +1,5 @@
 import re
 from database import get_connection
-from database import commit_and_update
 from utils import today_jalali
 
 def add_birthday(cmd: str):
@@ -64,7 +63,7 @@ def add_birthday(cmd: str):
         "INSERT INTO birthdays (name, day, month, year) VALUES (?,?,?,?)",
         (name, day, month, year)
     )
-    commit_and_update(conn)
+    conn.commit()
     conn.close()
 
     result = f"Birthday added: {name}"

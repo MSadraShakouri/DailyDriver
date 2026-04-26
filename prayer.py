@@ -3,7 +3,6 @@ import time
 from datetime import datetime, timedelta
 import jdatetime
 from database import get_connection
-from database import commit_and_update
 from utils import today_jalali
 
 # Fixed prayer times (24h) – you can adjust later
@@ -166,7 +165,7 @@ def log_prayer(cmd: str):
         "INSERT OR REPLACE INTO prayer_logs (prayer_slot, jalali_date, status, logged_at, prayer_time, jamaat_location, shak_count) VALUES (?,?,?,?,?,?,?)",
         (slot, today, 'on_time', int(time.time()), int(prayer_dt.timestamp()), jamaat_location, shak_count)
     )
-    commit_and_update(conn)
+    conn.commit()
     conn.close()
 
     result = f"Logged: {slot_display}\nTime:   {time_str}"
@@ -211,7 +210,7 @@ def log_rq():
             cur = conn.cursor()
             cur.execute("INSERT INTO prayer_logs (prayer_slot, jalali_date, status, logged_at) VALUES (?,?,?,?)",
                         (slot, date_str, 'qada', int(time.time())))
-            commit_and_update(conn)
+            conn.commit()
             print(f"Marked {slot} on {date_str} as qada.")
         else:
             print("Invalid selection.")
@@ -259,7 +258,7 @@ def log_mp():
             cur = conn.cursor()
             cur.execute("INSERT INTO prayer_logs (prayer_slot, jalali_date, status, logged_at) VALUES (?,?,?,?)",
                         (slot, date_str, status, int(time.time())))
-            commit_and_update(conn)
+            conn.commit()
             print(f"Marked {slot} on {date_str} as {status}.")
         else:
             print("Invalid selection.")

@@ -8,14 +8,6 @@ DB_NAME = os.path.join(BASE_DIR, "daily.db")
 # file that stores the timestamp of the last successful write
 LAST_ACTION_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)), '.daily_last_action')
 
-def commit_and_update(conn):
-    conn.commit()
-    try:
-        with open(LAST_ACTION_FILE, 'w') as f:
-            f.write(str(int(time.time())))
-    except Exception:
-        pass
-
 def get_last_hygiene_time(conn, item):
     """
     Return the Unix timestamp of the most recent hygiene log for `item`,
@@ -33,14 +25,37 @@ def get_last_hygiene_time(conn, item):
     row = cur.fetchone()
     return row['last_time'] if (row and row['last_time']) else None
 
-def get_connection():
+class _AutoCommitConnection:
+    """Wraps a sqlite3 connection, updating the last‑action file on commit()."""
+    def __init__(self, conn):
+        self._conn = conn
+
+    def commit(self):
+        self._conn.commit()
+        try:
+            with open(LAST_ACTION_FILE, 'w') as f:
+                f.write(str(int(time.time())))
+        except Exception:
+            pass
+
+    def close(self):
+        self._conn.close()
+
+    # Delegate everything else to the real connection
+    def __getattr__(self, name):
+        return getattr(self._conn, name)
+
+def get_connection(auto=True):
     conn = sqlite3.connect(DB_NAME)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
-    return conn
+    if not auto:
+        return conn
+    # otherwise wrap it to auto‑update the last‑action file on commit
+    return _AutoCommitConnection(conn)
 
 def init_db():
-    conn = get_connection()
+    conn = get_connection(auto=False)
     cur = conn.cursor()
 
     # ---------- categories ----------
@@ -197,7 +212,7 @@ def init_db():
 
 def cleanup_pending_keywords():
     """Delete pending keywords older than 14 days."""
-    conn = get_connection()
+    conn = get_connection(auto=False)
     cur = conn.cursor()
     cur.execute("DELETE FROM pending_keywords WHERE first_seen < unixepoch() - 1209600")
     conn.commit()
