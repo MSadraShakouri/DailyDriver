@@ -1,2 +1,5 @@
 *.db
 __pycache__/
+.daily_last_action
+.daily_pending
+.daily_edit.txt
