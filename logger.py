@@ -267,25 +267,19 @@ def log_free_text(cmd, started_at=None):
     conn = get_connection()
     cur = conn.cursor()
     selected_paths = []
-    result = ""
 
     # ---------- step 0 – time handling ----------
-    duration = None   # will be set if we have a way to compute it
+    duration = None
 
     if started_at is not None:
-        # started_at provided by ln or ee → force duration to now
         duration = int(time.time() - started_at) // 60
         start_dt = datetime.fromtimestamp(started_at)
         start_str = start_dt.strftime('%H:%M')
         dur_str = f"{duration // 60}h {duration % 60}m" if duration // 60 else f"{duration}m"
-
-        # Use the new confirmation helper
         if not _confirm_time(start_str, dur_str):
             conn.close()
             return None
-
     else:
-        # Normal entry – try to extract time from the text
         parsed_start, parsed_duration = extract_time(cmd)
         if parsed_start is not None:
             started_at = parsed_start
@@ -298,8 +292,6 @@ def log_free_text(cmd, started_at=None):
                 h = duration // 60
                 m = duration % 60
                 dur_str = f"{h}h {m}m" if h else f"{m}m"
-
-            # Use the same confirmation helper
             if not _confirm_time(start_str, dur_str):
                 conn.close()
                 return None
@@ -339,38 +331,21 @@ def log_free_text(cmd, started_at=None):
                     conn.commit()
                     selected_paths.append(token)
 
-    # ---------- step 2 – save entry ----------
-    result = _save_entry(conn, cmd, started_at, duration, selected_paths, attached_flags)
-    commit_and_update(conn)   # now conn.commit() with the wrapper
-    conn.close()
-    return result
-
-    # ---------- step 3 – flags ----------
+    # ---------- step 2 – flags ----------
+    attached_flags = []
     print("\nFlags? (Enter=none, or type tokens)")
     flag_input = input("> ").strip().lower()
-    attached_flags = []
     if flag_input:
         tokens = flag_input.split()
         for token in tokens:
-            cur.execute("SELECT id FROM flags WHERE token=?", (token,))
-            frow = cur.fetchone()
-            if frow:
-                cur.execute("INSERT INTO entry_flags (entry_id, flag_id) VALUES (?,?)",
-                            (entry_id, frow['id']))
-                attached_flags.append(token)
-            else:
-                from flags_manager import create_flag_interactive
-                print("\n(Press Ctrl+C to cancel flag creation)")
-                default_scope = selected_paths[0] if selected_paths else None
-                try:
-                    flag_id = create_flag_interactive(token, default_scope_path=default_scope, conn=conn)
-                except KeyboardInterrupt:
-                    print("Cancelled.")
-                    continue
-                if flag_id is not None:
-                    cur.execute("INSERT INTO entry_flags (entry_id, flag_id) VALUES (?,?)",
-                                (entry_id, flag_id))
-                    attached_flags.append(token)
+            # Just collect the token; _save_entry will validate and insert
+            attached_flags.append(token)
+
+    # ---------- step 3 – save entry (inserts everything and returns result) ----------
+    result = _save_entry(conn, cmd, started_at, duration, selected_paths, attached_flags)
+    conn.commit()
+    conn.close()
+    return result
 
     # ---------- step 4 – learn keywords ----------
     learn_keywords(cmd, selected_paths, conn=conn)
