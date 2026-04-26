@@ -1,45 +1,91 @@
-from database import get_connection
-
 def show_help():
-    conn = get_connection()
-    cur = conn.cursor()
+    print("═" * 50)
+    print("  DailyDriver — Quick Reference")
+    print("═" * 50)
+    print()
 
-    print("\n─── Commands ───")
-    print("P [offset/time]    S <sleep> <wake>    RQ    MP    BD    T")
-    print("hygiene            stats               today view [filter]")
-    print("flags              :m (multi-line)     ?     q (quit)")
+    # ── Logging ──
+    print("📝 Logging")
+    print("  p [time/offset]")
+    print("     Log a prayer (Enter confirms)")
+    print("     p          → current slot")
+    print("     p -15      → 15m before fixed time")
+    print("     p 05:30    → explicitly at 05:30")
+    print()
+    print("  s <sleep> <wake>")
+    print("     Log sleep duration")
+    print("     s 23:00 07:15")
+    print("     s 23-7:15  (compact form)")
+    print("     s n 08:00  (n = now)")
+    print()
+    print("  Any other text = free‑form journal")
+    print("     worked on project 9-12")
+    print()
 
-    print("\n─── Categories & Top Keywords ───")
-    cur.execute("SELECT path FROM categories ORDER BY path")
-    cats = cur.fetchall()
-    if not cats:
-        print("  No categories yet.")
-    else:
-        for cat in cats:
-            cur.execute("""
-                SELECT word FROM keywords
-                WHERE category_id = (SELECT id FROM categories WHERE path=?)
-                ORDER BY word
-                LIMIT 8
-            """, (cat['path'],))
-            words = [row['word'] for row in cur.fetchall()]
-            word_str = ', '.join(words) if words else '(no keywords)'
-            print(f"  {cat['path']}")
-            print(f"    {word_str}")
+    # ── Prayer management ──
+    print("🕌 Prayer Management")
+    print("  rq")
+    print("     Mark missing prayer as qada")
+    print("  mp")
+    print("     Mark missing as missed or qada")
+    print()
 
-    print("\n─── Flags ───")
-    cur.execute('''
-        SELECT f.token, f.label, COALESCE(c.path, 'global') AS scope
-        FROM flags f
-        LEFT JOIN categories c ON f.scope_category_id = c.id
-        ORDER BY f.token
-    ''')
-    flags = cur.fetchall()
-    if not flags:
-        print("  No flags defined.")
-    else:
-        for f in flags:
-            scope_str = f"scope: {f['scope']}"
-            print(f"  {f['token']:10} {f['label'] or '':10} {scope_str}")
+    # ── Events ──
+    print("⏱ Events (start / end / cancel)")
+    print("  se")
+    print("     Start a running event timer")
+    print("  ee [text]")
+    print("     End event & log entry")
+    print("     ee finished report")
+    print("  ce")
+    print("     Cancel the running event")
+    print()
 
-    conn.close()
+    # ── Chaining ──
+    print("🔗 Chaining")
+    print("  ln [text]")
+    print("     Log entry from last action")
+    print("     to now")
+    print("     ln replied to emails")
+    print()
+
+    # ── Viewing ──
+    print("👁 Viewing & Summaries")
+    print("  today")
+    print("     Show everything logged today")
+    print("  view [filter]")
+    print("     Browse entries (n=next p=prev)")
+    print("     view project")
+    print("     Inside view: id=edit entry")
+    print("  stats")
+    print("     Prayer/sleep/hygiene stats")
+    print()
+
+    # ── Tools ──
+    print("⚙ Tools & Configuration")
+    print("  bd [name date]")
+    print("     Add birthday (Jalali)")
+    print("     bd Ali 1386/05/12")
+    print("     bd Zahra 5/12")
+    print("  t [description]")
+    print("     Add intention / to‑do")
+    print("     t finish report")
+    print("  hygiene")
+    print("     Manage hygiene intervals")
+    print("  flags")
+    print("     Manage flags (tags)")
+    print()
+
+    # ── Multi‑line ──
+    print("📄 Multi‑line entries")
+    print("  :m")
+    print("     Start collecting lines")
+    print("  ---")
+    print("     (alone) End & log collected lines")
+    print()
+
+    # ── Other ──
+    print("❓ Other")
+    print("  ?          This help")
+    print("  q          Quit")
+    print()
