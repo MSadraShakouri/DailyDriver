@@ -69,26 +69,18 @@ def log_event_end(cmd):
     return None
 
 def log_chain_now(line):
-    """ln command: log from last entry's created_at until now."""
-    import time
-    from database import get_connection
-    from logger import log_free_text
+    """ln command: log from last action time until now."""
+    from logger import get_last_action_time, log_free_text
 
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute("SELECT MAX(created_at) FROM entries")
-    row = cur.fetchone()
-    conn.close()
-
-    if not row or row[0] is None:
-        print("No previous entry to chain from.")
+    last_ts = get_last_action_time()
+    if last_ts is None:
+        print("No previous action to chain from.")
         return None
 
-    last_created_at = row[0]
     parts = line.strip().split(maxsplit=1)
     text = parts[1] if len(parts) > 1 else ""
 
-    return log_free_text(text, started_at=last_created_at)
+    return log_free_text(text, started_at=last_ts)
 
 def run_single_command(line):
     init_db()

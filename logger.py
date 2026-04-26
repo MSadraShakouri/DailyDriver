@@ -8,6 +8,15 @@ from parser import extract_time
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 PENDING_FILE = os.path.join(BASE_DIR, '.daily_pending')
+LAST_ACTION_FILE = os.path.join(BASE_DIR, '.daily_last_action')
+
+def get_last_action_time():
+    """Return the Unix timestamp of the last successful write, or None."""
+    try:
+        with open(LAST_ACTION_FILE, 'r') as f:
+            return int(f.read().strip())
+    except (FileNotFoundError, ValueError):
+        return None
 
 def load_stopwords():
     """Load stop words from stopwords.txt (located next to this file)."""
