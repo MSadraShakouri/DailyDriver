@@ -112,7 +112,24 @@ def repl():
         if line == '---':
             if collecting:
                 full_text = '\n'.join(multi_buf)
-                log_free_text(full_text)
+                # Allow ln / ee as the first word of a multi‑line input
+                first_line = multi_buf[0].strip() if multi_buf else ''
+                first_parts = first_line.split(maxsplit=1)
+                cmd_check = first_parts[0].lower() if first_parts else ''
+                if cmd_check in ('ln', 'ee') and len(first_parts) > 0:
+                    # Reconstruct a command line: "ln rest_of_first_line\nother_lines"
+                    rest_first = first_parts[1] if len(first_parts) > 1 else ''
+                    if rest_first:
+                        new_lines = [rest_first] + multi_buf[1:]
+                    else:
+                        new_lines = multi_buf[1:]
+                    desc = '\n'.join(new_lines) if new_lines else ''
+                    if cmd_check == 'ln':
+                        log_chain_now(f'ln {desc}')
+                    else:
+                        log_event_end(f'ee {desc}')
+                else:
+                    log_free_text(full_text)
                 multi_buf = []
                 collecting = False
                 input("Press Enter to continue.")
