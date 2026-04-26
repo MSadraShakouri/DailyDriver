@@ -16,6 +16,31 @@ from today import show_today
 from flags_manager import manage_flags
 from help import show_help
 
+# ... after imports ...
+
+# Module‑level dispatch map
+def make_dispatch():
+    return {
+        'q': lambda _: exit(),
+        'p': log_prayer,
+        'rq': lambda _: log_rq(),
+        'mp': lambda _: log_mp(),
+        's': log_sleep,
+        'view': lambda args: view_entries(args[1] if len(args) > 1 else None),
+        '?': lambda _: show_help(),
+        'bd': add_birthday,
+        'hygiene': lambda _: manage_hygiene(),
+        't': add_intention,
+        'stats': lambda _: show_stats(),
+        'today': lambda _: show_today(),
+        'flags': lambda _: manage_flags(),
+        'se': lambda _: save_pending_start(),
+        'ce': lambda _: discard_pending_start(),
+        'ee': log_event_end,
+        'ln': log_chain_now,
+    }
+
+
 def clear():
     os.system('clear')
 
@@ -65,33 +90,55 @@ def log_chain_now(line):
 
     return log_free_text(text, started_at=last_created_at)
 
+def run_single_command(line):
+    init_db()
+    cleanup_pending_keywords()
+
+    clear()
+    data = build_header_data()
+    print_header(data)
+
+    if not line:
+        input("Press Enter to exit.")
+        return
+
+    print(f"\n> {line}")          # <-- add this line
+
+    dispatch = make_dispatch()
+    parts = line.split()
+    first = parts[0].lower()
+
+    handler = dispatch.get(first)
+    if handler:
+        try:
+            result = handler(line) if first in ('p','s','bd','t','ee','ln') else handler(parts)
+            if result:
+                clear()
+                data = build_header_data()
+                print_header(data)
+                print(result)
+        except KeyboardInterrupt:
+            print("\nCancelled.")
+    else:
+        try:
+            result = log_free_text(line)
+            if result:
+                clear()
+                data = build_header_data()
+                print_header(data)
+                print(result)
+        except KeyboardInterrupt:
+            print("\nCancelled.")
+
+    input("Press Enter to exit.")
+
 def repl():
     init_db()
     cleanup_pending_keywords()   # <-- add this line
     multi_buf = []
     collecting = False
 
-    # Command dispatch map: single‑letter or word to handler function
-    dispatch = {
-        'q': lambda _: exit(),
-        'p': log_prayer,
-        'rq': lambda _: log_rq(),
-        'mp': lambda _: log_mp(),
-        's': log_sleep,
-        'view': lambda args: view_entries(args[1] if len(args) > 1 else None),
-        '?': lambda _: show_help(),
-        'bd': add_birthday,
-        'hygiene': lambda _: manage_hygiene(),
-        't': add_intention,
-        'stats': lambda _: show_stats(),
-        'today': lambda _: show_today(),
-        'flags': lambda _: manage_flags(),
-        'se': lambda _: save_pending_start(),
-        'ce': lambda _: discard_pending_start(),
-        'ee': log_event_end,
-        'ln': log_chain_now,
-        # free‑text logging is handled in the else case
-}
+    dispatch = make_dispatch()
 
     while True:
         clear()
@@ -176,4 +223,9 @@ def repl():
             input("Press Enter to continue.")
 
 if __name__ == "__main__":
-    repl()
+    import sys
+    if len(sys.argv) > 1:
+        # CLI mode: join all arguments as one command
+        run_single_command(' '.join(sys.argv[1:]))
+    else:
+        repl()
