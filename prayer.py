@@ -1,4 +1,3 @@
-# DailyDriver/prayer.py
 import time
 from datetime import datetime, timedelta
 import jdatetime
@@ -6,7 +5,7 @@ from database import get_connection
 from utils import today_jalali
 from ui import current_ui
 
-# Fixed prayer times (24h) – you can adjust later
+# Fixed prayer times (24h)
 PRAYER_TIMES = {
     'fajr': 4.5,          # 4:30
     'dhuhr_asr': 13.0,    # 13:00
@@ -19,7 +18,7 @@ PRAYER_SLOTS = ['fajr', 'dhuhr_asr', 'maghrib_isha']
 def current_slot() -> str:
     """Guess which prayer slot is most recent based on current time."""
     now = datetime.now().hour + datetime.now().minute / 60.0
-    if now < PRAYER_TIMES['dhuhr_asr'] - 1:  # before ~12:00
+    if now < PRAYER_TIMES['dhuhr_asr'] - 1:
         return 'fajr'
     elif now < PRAYER_TIMES['maghrib_isha'] - 1:
         return 'dhuhr_asr'
@@ -51,7 +50,7 @@ def _get_unlogged_slots(conn):
     d = start_j
     while d <= end_j:
         all_dates.append(d.strftime('%Y-%m-%d'))
-        d += timedelta(days=1)
+        d += jdatetime.timedelta(days=1)
 
     missing = []
     for date_str in all_dates:
@@ -69,13 +68,11 @@ def log_prayer(cmd: str):
     cur = conn.cursor()
     today = today_jalali()
 
-    # Parse arguments: optional offset/time and flags j/s
     parts = cmd.strip().split()
-    # Remove the 'p' / 'P' itself
     args = parts[1:] if len(parts) > 1 else []
 
-    offset_min = 0
-    explicit_time = None
+    offset_min = None          # minutes before now (None = no offset)
+    explicit_time = None       # minutes since midnight
     jamaat_location = None
     shak_count = 0
 
@@ -84,19 +81,18 @@ def log_prayer(cmd: str):
         a = args[i]
         if a.startswith('-'):
             try:
-                offset_min = int(a[1:])
+                offset_min = int(a[1:])  # minutes ago
             except ValueError:
                 current_ui.print_line("Invalid offset.")
                 conn.close()
                 return None
             i += 1
         elif a.lower() == 'j':
-            # next argument is the location (optional)
             if i+1 < len(args) and not args[i+1].startswith('-') and args[i+1].lower() not in ('j','s'):
                 jamaat_location = args[i+1]
                 i += 2
             else:
-                jamaat_location = ''   # just 'j' means congregation, location empty
+                jamaat_location = ''
                 i += 1
         elif a.lower() == 's':
             if i+1 < len(args):
@@ -110,7 +106,6 @@ def log_prayer(cmd: str):
                 shak_count = 0
                 i += 1
         else:
-            # assume time
             try:
                 t = datetime.strptime(a, '%H:%M')
                 explicit_time = t.hour * 60 + t.minute
@@ -118,7 +113,6 @@ def log_prayer(cmd: str):
                 pass
             i += 1
 
-    # Determine slot
     if explicit_time:
         hour = explicit_time / 60
         if hour < 10:
@@ -135,7 +129,8 @@ def log_prayer(cmd: str):
         prayer_dt = datetime.now().replace(hour=explicit_time // 60,
                                            minute=explicit_time % 60,
                                            second=0, microsecond=0)
-    elif offset_min:
+    elif offset_min is not None:
+        # offset relative to now (rewind in time)
         prayer_dt = datetime.now() - timedelta(minutes=offset_min)
     else:
         prayer_dt = datetime.now()
@@ -143,7 +138,6 @@ def log_prayer(cmd: str):
     time_str = prayer_dt.strftime('%H:%M')
     slot_display = slot.replace('_', ' & ').title()
 
-    # Show confirmation
     flag_parts = []
     if jamaat_location is not None:
         loc_display = jamaat_location if jamaat_location else 'yes'
@@ -161,10 +155,28 @@ def log_prayer(cmd: str):
         conn.close()
         return None
 
-    # Save
+    # Warn before overwriting an existing log
+    cur.execute("SELECT id, prayer_time FROM prayer_logs WHERE prayer_slot=? AND jalali_date=?",
+                (slot, today))
+    existing = cur.fetchone()
+    if existing:
+        old_time = datetime.fromtimestamp(existing['prayer_time']).strftime('%H:%M')
+        confirm_replace = current_ui.confirm(
+            f"⚠️  Already logged at {old_time}. Overwrite? (Enter=yes, n=cancel): ",
+            default_yes=True
+        )
+        if not confirm_replace:
+            conn.close()
+            return None
+        cur.execute("DELETE FROM prayer_logs WHERE id=?", (existing['id'],))
+
     cur.execute(
-        "INSERT OR REPLACE INTO prayer_logs (prayer_slot, jalali_date, status, logged_at, prayer_time, jamaat_location, shak_count) VALUES (?,?,?,?,?,?,?)",
-        (slot, today, 'on_time', int(time.time()), int(prayer_dt.timestamp()), jamaat_location, shak_count)
+        """INSERT INTO prayer_logs
+           (prayer_slot, jalali_date, status, logged_at, prayer_time,
+            jamaat_location, shak_count)
+           VALUES (?,?,?,?,?,?,?)""",
+        (slot, today, 'on_time', int(time.time()), int(prayer_dt.timestamp()),
+         jamaat_location, shak_count)
     )
     conn.commit()
     conn.close()
@@ -177,12 +189,7 @@ def log_prayer(cmd: str):
     return result
 
 
-def time_offset(minutes):
-    return timedelta(minutes=minutes)
-
-
 def log_rq():
-    """Let user select an unlogged prayer slot and mark it as qada."""
     conn = get_connection()
     missing = _get_unlogged_slots(conn)
 
@@ -192,7 +199,7 @@ def log_rq():
         return
 
     if not missing:
-        current_ui.print_line("All prayer slots are logged – nothing to mark as qada.")
+        current_ui.print_line("All prayer slots are logged.")
         conn.close()
         return
 
@@ -221,7 +228,6 @@ def log_rq():
 
 
 def log_mp():
-    """View all unlogged prayer slots and allow marking as missed or qada."""
     conn = get_connection()
     missing = _get_unlogged_slots(conn)
 

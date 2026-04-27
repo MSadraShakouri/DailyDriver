@@ -134,6 +134,16 @@ def init_db():
         )
     ''')
 
+    # --- migration: add jamaat / shak columns to prayer_logs ---
+    try:
+        cur.execute("ALTER TABLE prayer_logs ADD COLUMN jamaat_location TEXT")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        cur.execute("ALTER TABLE prayer_logs ADD COLUMN shak_count INTEGER DEFAULT 0")
+    except sqlite3.OperationalError:
+        pass
+
     # ---------- sleep_logs ----------
     cur.execute('''
         CREATE TABLE IF NOT EXISTS sleep_logs (
