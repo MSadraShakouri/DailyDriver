@@ -87,6 +87,10 @@ def print_header(data: dict):
     pline(prayer_str)
     pline(sleep_str)
 
+    # Great event
+    if ge_str := data.get('great_event_str', ''):
+        pline(ge_str)
+
     # Running event
     if event_str := data.get('event_str', ''):
         pline(event_str)

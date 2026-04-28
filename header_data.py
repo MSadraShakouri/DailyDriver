@@ -3,7 +3,7 @@ import jdatetime
 from datetime import datetime
 from database import get_connection, get_last_hygiene_time
 from utils import today_jalali, format_jalali
-from logger import get_pending_start
+from logger import get_pending_start, get_active_great_event
 from ui import current_ui
 
 def build_header_data():
@@ -100,6 +100,15 @@ def build_header_data():
 
     hygiene_str = "   ".join(nudge_lines[:2])
 
+    # ---------- great event indicator ----------
+    great_event_str = ''
+    active_ge = get_active_great_event()
+    if active_ge:
+        start_ts, cats = active_ge
+        from datetime import datetime as dt   # already imported as datetime
+        time_str = dt.fromtimestamp(start_ts).strftime('%H:%M')
+        great_event_str = f"⏱ Great Event [{', '.join(cats)}] since {time_str}"
+
     # ---------- running event indicator ----------
     event_str = ""
     ts = get_pending_start()
@@ -124,5 +133,6 @@ def build_header_data():
         'bday_str': bday_str,
         'hygiene_str': hygiene_str,
         'event_str': event_str,
+        'great_event_str': great_event_str,
         'last_entry_time': last_entry_time,
     }
