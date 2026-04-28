@@ -144,8 +144,6 @@ def clear():
     current_ui.clear()
 
 def repl():
-    init_db()
-    cleanup_pending_keywords()
     multi_buf = []
     collecting = False
 
@@ -235,9 +233,6 @@ def repl():
         sys.exit(0)
 
 def run_single_command(line):
-    init_db()
-    cleanup_pending_keywords()
-
     current_ui.clear()
     data = build_header_data()
     current_ui.show_header(data)
@@ -277,6 +272,8 @@ def run_single_command(line):
     current_ui.prompt("Press Enter to exit.")
 
 if __name__ == "__main__":
+    init_db()
+    cleanup_pending_keywords()
     if len(sys.argv) > 1:
         run_single_command(' '.join(sys.argv[1:]))
     else:
