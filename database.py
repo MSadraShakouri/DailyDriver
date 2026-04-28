@@ -2,6 +2,7 @@ import sqlite3
 import time
 import os
 from ui import current_ui
+from contextlib import contextmanager
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 DB_NAME = os.path.join(BASE_DIR, "daily.db")
@@ -54,6 +55,14 @@ def get_connection(auto=True):
         return conn
     # otherwise wrap it to auto‑update the last‑action file on commit
     return _AutoCommitConnection(conn)
+
+@contextmanager
+def get_connection_cm(auto=True):
+    conn = get_connection(auto=auto)
+    try:
+        yield conn
+    finally:
+        conn.close()
 
 def init_db():
     conn = get_connection(auto=False)

@@ -2,7 +2,7 @@ import time
 import re
 import os
 from datetime import datetime
-from database import get_connection
+from database import get_connection_cm
 from parser import extract_time
 from ui import current_ui
 
@@ -50,19 +50,19 @@ def tokenize(text: str):
 
 def find_matching_categories(text: str):
     """Return list of (category_path, match_count) sorted by count desc."""
-    conn = get_connection()
-    cur = conn.cursor()
-    words = tokenize(text)
-    results = {}
-    for word in words:
-        cur.execute(
-            "SELECT c.path FROM keywords k JOIN categories c ON k.category_id=c.id WHERE INSTR(?, k.word)>0",
-            (word,)
-        )
-        for row in cur.fetchall():
-            path = row['path']
-            results[path] = results.get(path, 0) + 1
-    conn.close()
+    with get_connection_cm() as conn:
+        cur = conn.cursor()
+        words = tokenize(text)
+        results = {}
+        for word in words:
+            cur.execute(
+                "SELECT c.path FROM keywords k JOIN categories c ON k.category_id=c.id WHERE INSTR(?, k.word)>0",
+                (word,)
+            )
+            for row in cur.fetchall():
+                path = row['path']
+                results[path] = results.get(path, 0) + 1
+    # connection is automatically closed here
     sorted_cats = sorted(results.items(), key=lambda x: x[1], reverse=True)[:3]
     return sorted_cats
 
@@ -223,77 +223,74 @@ def _save_entry(conn, cmd, started_at, duration, selected_paths):
 #  Core free‑text logging
 # ----------------------------------------------------------------------
 def log_free_text(cmd, started_at=None):
-    conn = get_connection()
-    cur = conn.cursor()
-    selected_paths = []
-    duration = None
+    with get_connection_cm() as conn:
+        cur = conn.cursor()
+        selected_paths = []
+        duration = None
 
-    # ---------- step 0 – time handling ----------
-    if started_at is not None:
-        duration = int(time.time() - started_at) // 60
-        start_dt = datetime.fromtimestamp(started_at)
-        start_str = start_dt.strftime('%H:%M')
-        dur_str = f"{duration // 60}h {duration % 60}m" if duration // 60 else f"{duration}m"
-        if not current_ui.confirm_time(start_str, dur_str):
-            conn.close()
-            return None
-    else:
-        parsed_start, parsed_duration = extract_time(cmd)
-        if parsed_start is not None:
-            started_at = parsed_start
-            if parsed_duration is not None:
-                duration = parsed_duration
+        # ---------- step 0 – time handling ----------
+        if started_at is not None:
+            duration = int(time.time() - started_at) // 60
             start_dt = datetime.fromtimestamp(started_at)
             start_str = start_dt.strftime('%H:%M')
-            dur_str = ""
-            if duration is not None:
-                h = duration // 60
-                m = duration % 60
-                dur_str = f"{h}h {m}m" if h else f"{m}m"
+            dur_str = f"{duration // 60}h {duration % 60}m" if duration // 60 else f"{duration}m"
             if not current_ui.confirm_time(start_str, dur_str):
-                conn.close()
                 return None
         else:
-            started_at = int(time.time())
+            parsed_start, parsed_duration = extract_time(cmd)
+            if parsed_start is not None:
+                started_at = parsed_start
+                if parsed_duration is not None:
+                    duration = parsed_duration
+                start_dt = datetime.fromtimestamp(started_at)
+                start_str = start_dt.strftime('%H:%M')
+                dur_str = ""
+                if duration is not None:
+                    h = duration // 60
+                    m = duration % 60
+                    dur_str = f"{h}h {m}m" if h else f"{m}m"
+                if not current_ui.confirm_time(start_str, dur_str):
+                    return None
+            else:
+                started_at = int(time.time())
 
-    # ---------- step 1 – category suggestion ----------
-    matches = find_matching_categories(cmd)
-    if matches:
-        current_ui.print_line()
-        current_ui.print_line("Suggested categories:")
-        for i, (path, cnt) in enumerate(matches, 1):
-            current_ui.print_line(f"  [{i}] {path}")
-        current_ui.print_line("Enter=1, numbers to select, or type new paths (space‑separated)")
-        choice = current_ui.prompt("> ").strip().lower()
-        if choice == '':
-            selected_paths = [matches[0][0]]
+        # ---------- category suggestion ----------
+        matches = find_matching_categories(cmd)   # This still opens its own connection – we'll fix later
+        if matches:
+            current_ui.print_line()
+            current_ui.print_line("Suggested categories:")
+            for i, (path, cnt) in enumerate(matches, 1):
+                current_ui.print_line(f"  [{i}] {path}")
+            current_ui.print_line("Enter=1, numbers to select, or type new paths (space‑separated)")
+            choice = current_ui.prompt("> ").strip().lower()
+            if choice == '':
+                selected_paths = [matches[0][0]]
+            else:
+                for token in choice.split():
+                    if token.isdigit():
+                        try:
+                            idx = int(token) - 1
+                            if 0 <= idx < len(matches):
+                                selected_paths.append(matches[idx][0])
+                        except ValueError:
+                            pass
+                    else:
+                        cur.execute("INSERT OR IGNORE INTO categories (path) VALUES (?)", (token,))
+                        conn.commit()
+                        selected_paths.append(token)
         else:
-            for token in choice.split():
-                if token.isdigit():
-                    try:
-                        idx = int(token) - 1
-                        if 0 <= idx < len(matches):
-                            selected_paths.append(matches[idx][0])
-                    except ValueError:
-                        pass
-                else:
-                    cur.execute("INSERT OR IGNORE INTO categories (path) VALUES (?)", (token,))
-                    conn.commit()
-                    selected_paths.append(token)
-    else:
-        cat_choice = current_ui.prompt("No suggestions. Enter category path (or Enter to skip): ").strip().lower()
-        if cat_choice:
-            for token in cat_choice.split():
-                if token:
-                    cur.execute("INSERT OR IGNORE INTO categories (path) VALUES (?)", (token,))
-                    conn.commit()
-                    selected_paths.append(token)
+            cat_choice = current_ui.prompt("No suggestions. Enter category path (or Enter to skip): ").strip().lower()
+            if cat_choice:
+                for token in cat_choice.split():
+                    if token:
+                        cur.execute("INSERT OR IGNORE INTO categories (path) VALUES (?)", (token,))
+                        conn.commit()
+                        selected_paths.append(token)
 
-    # ---------- step 2 - inject great‑event categories ----------
-    inject_great_categories(selected_paths)
+        # ---------- inject great‑event categories ----------
+        inject_great_categories(selected_paths)
 
-    # ---------- step 3 – save entry ----------
-    result = _save_entry(conn, cmd, started_at, duration, selected_paths)
-    conn.commit()
-    conn.close()
-    return result
+        # ---------- save entry ----------
+        result = _save_entry(conn, cmd, started_at, duration, selected_paths)
+        conn.commit()
+        return result
