@@ -16,7 +16,6 @@ from hygiene import manage_hygiene
 from intention import add_intention
 from stats import show_stats
 from today import show_today
-from flags_manager import manage_flags
 from help import show_help
 from datetime import datetime
 
@@ -37,7 +36,6 @@ def make_dispatch():
         't': add_intention,
         'stats': lambda _: show_stats(),
         'today': lambda _: show_today(),
-        'flags': lambda _: manage_flags(),
         'se': lambda _: save_pending_start(),
         'ce': lambda _: discard_pending_start(),
         'ee': log_event_end,

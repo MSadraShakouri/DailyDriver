@@ -114,7 +114,6 @@ def edit_entry(entry_id):
 
     # Delete child rows first (foreign keys)
     cur.execute("DELETE FROM entry_categories WHERE entry_id=?", (entry_id,))
-    cur.execute("DELETE FROM entry_flags WHERE entry_id=?", (entry_id,))
     # Now delete the entry itself
     cur.execute("DELETE FROM entries WHERE id=?", (entry_id,))
     conn.commit()

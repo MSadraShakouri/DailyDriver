@@ -77,17 +77,6 @@ def init_db():
         )
     ''')
 
-    # ---------- flags ----------
-    cur.execute('''
-        CREATE TABLE IF NOT EXISTS flags (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            token TEXT NOT NULL,
-            label TEXT,
-            scope_category_id INTEGER,
-            FOREIGN KEY (scope_category_id) REFERENCES categories(id)
-        )
-    ''')
-
     # ---------- entries ----------
     cur.execute('''
         CREATE TABLE IF NOT EXISTS entries (
@@ -110,16 +99,6 @@ def init_db():
         )
     ''')
 
-    # ---------- entry_flags (many-to-many) ----------
-    cur.execute('''
-        CREATE TABLE IF NOT EXISTS entry_flags (
-            entry_id INTEGER NOT NULL,
-            flag_id INTEGER NOT NULL,
-            PRIMARY KEY (entry_id, flag_id),
-            FOREIGN KEY (entry_id) REFERENCES entries(id),
-            FOREIGN KEY (flag_id) REFERENCES flags(id)
-        )
-    ''')
 
     # ---------- prayer_logs ----------
     cur.execute('''
@@ -211,6 +190,10 @@ def init_db():
             UNIQUE(word, category_id)
         )
     ''')
+
+    # ---------- migration: remove flags system ----------
+    cur.execute("DROP TABLE IF EXISTS entry_flags")
+    cur.execute("DROP TABLE IF EXISTS flags")
 
     # Performance indexes for long-term use
     cur.execute('CREATE INDEX IF NOT EXISTS idx_entries_created_at ON entries(created_at)')

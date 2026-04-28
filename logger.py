@@ -66,26 +66,6 @@ def find_matching_categories(text: str):
     sorted_cats = sorted(results.items(), key=lambda x: x[1], reverse=True)[:3]
     return sorted_cats
 
-def suggest_flags(category_path: str, text: str):
-    """Return list of flag tokens that appear in text and are scoped to this category or global."""
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute("SELECT id FROM categories WHERE path=?", (category_path,))
-    cat_row = cur.fetchone()
-    if not cat_row:
-        conn.close()
-        return []
-    cat_id = cat_row[0]
-    cur.execute("SELECT token, label FROM flags WHERE scope_category_id=? OR scope_category_id IS NULL", (cat_id,))
-    flags = cur.fetchall()
-    conn.close()
-    text_lower = text.lower()
-    flagged = []
-    for f in flags:
-        if f['token'] in text_lower.split():
-            flagged.append(f['token'])
-    return flagged
-
 # ----------------------------------------------------------------------
 #  Keyword learning
 # ----------------------------------------------------------------------
@@ -206,7 +186,7 @@ def inject_great_categories(selected_paths: list):
 # ----------------------------------------------------------------------
 #  Internal save
 # ----------------------------------------------------------------------
-def _save_entry(conn, cmd, started_at, duration, selected_paths, attached_flags):
+def _save_entry(conn, cmd, started_at, duration, selected_paths):
     cur = conn.cursor()
     now_ts = int(time.time())
 
@@ -223,13 +203,6 @@ def _save_entry(conn, cmd, started_at, duration, selected_paths, attached_flags)
             cur.execute("INSERT INTO entry_categories (entry_id, category_id) VALUES (?,?)",
                         (entry_id, row['id']))
 
-    for token in attached_flags:
-        cur.execute("SELECT id FROM flags WHERE token=?", (token,))
-        frow = cur.fetchone()
-        if frow:
-            cur.execute("INSERT INTO entry_flags (entry_id, flag_id) VALUES (?,?)",
-                        (entry_id, frow['id']))
-
     learn_keywords(cmd, selected_paths, conn=conn)
 
     result = ""
@@ -244,8 +217,6 @@ def _save_entry(conn, cmd, started_at, duration, selected_paths, attached_flags)
         h = duration // 60
         m = duration % 60
         result += f"Duration: {h}h {m}m\n" if h else f"Duration: {m}m\n"
-    if attached_flags:
-        result += f"Flags:  {', '.join(attached_flags)}\n"
     return result.strip()
 
 # ----------------------------------------------------------------------
@@ -318,20 +289,11 @@ def log_free_text(cmd, started_at=None):
                     conn.commit()
                     selected_paths.append(token)
 
-    # ---------- step 2 – flags ----------
-    attached_flags = []
-    current_ui.print_line("\nFlags? (Enter=none, or type tokens)")
-    flag_input = current_ui.prompt("> ").strip().lower()
-    if flag_input:
-        tokens = flag_input.split()
-        for token in tokens:
-            attached_flags.append(token)
-
-    # ---------- inject great‑event categories ----------
+    # ---------- step 2 - inject great‑event categories ----------
     inject_great_categories(selected_paths)
 
     # ---------- step 3 – save entry ----------
-    result = _save_entry(conn, cmd, started_at, duration, selected_paths, attached_flags)
+    result = _save_entry(conn, cmd, started_at, duration, selected_paths)
     conn.commit()
     conn.close()
     return result

@@ -69,24 +69,6 @@ def show_stats():
         pct = int(log_count / expected_count * 100) if expected_count > 0 else 0
         current_ui.print_line(f"  {item}: {log_count} logs (expected ~{expected_count}, {pct}%)")
 
-    # --- Flag frequency: last 30 days ---
-    current_ui.print_line("\n─── Flags (last 30 days) ───")
-    cur.execute("""
-        SELECT f.token, COUNT(*) as cnt
-        FROM entry_flags ef
-        JOIN flags f ON ef.flag_id = f.id
-        JOIN entries e ON ef.entry_id = e.id
-        WHERE e.created_at >= ?
-        GROUP BY f.token
-        ORDER BY cnt DESC
-        LIMIT 5
-    """, (days_ago(30),))
-    flag_rows = cur.fetchall()
-    if not flag_rows:
-        current_ui.print_line("  No flags logged.")
-    for fr in flag_rows:
-        current_ui.print_line(f"  {fr['token']}: {fr['cnt']} times")
-
     # --- Entries per category (last 30 days) ---
     current_ui.print_line("\n─── Top Categories (last 30 days) ───")
     cur.execute("""

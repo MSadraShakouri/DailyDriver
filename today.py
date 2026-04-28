@@ -49,13 +49,10 @@ def show_today():
     current_ui.print_line("\n📝 Entries:")
     cur.execute("""
         SELECT e.id, e.description, e.created_at,
-               GROUP_CONCAT(DISTINCT c.path) AS cats,
-               GROUP_CONCAT(DISTINCT f.token) AS flags
+               GROUP_CONCAT(DISTINCT c.path) AS cats
         FROM entries e
         LEFT JOIN entry_categories ec ON e.id = ec.entry_id
         LEFT JOIN categories c ON ec.category_id = c.id
-        LEFT JOIN entry_flags ef ON e.id = ef.entry_id
-        LEFT JOIN flags f ON ef.flag_id = f.id
         WHERE e.created_at BETWEEN ? AND ?
         GROUP BY e.id
         ORDER BY e.created_at ASC
@@ -68,9 +65,8 @@ def show_today():
         for e in entries:
             dt = datetime.fromtimestamp(e['created_at']).strftime('%H:%M')
             cats = e['cats'] or '(no category)'
-            flags = f" [{e['flags']}]" if e['flags'] else ""
             desc = (e['description'] or '')[:50].replace('\n', ' ')
-            current_ui.print_line(f"   {dt}  {cats}{flags}")
+            current_ui.print_line(f"   {dt}  {cats}")
             if desc:
                 current_ui.print_line(f"         {desc}")
 

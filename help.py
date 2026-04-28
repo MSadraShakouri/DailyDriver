@@ -73,8 +73,6 @@ def show_help():
     current_ui.print_line("     t finish report")
     current_ui.print_line("  hygiene")
     current_ui.print_line("     Manage hygiene intervals")
-    current_ui.print_line("  flags")
-    current_ui.print_line("     Manage flags (tags)")
     current_ui.print_line()
 
     # ── Multi‑line ──
