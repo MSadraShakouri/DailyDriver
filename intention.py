@@ -1,5 +1,5 @@
 import time
-from database import get_connection_cm
+from dailydriver.core.database import get_connection_cm
 from ui import current_ui
 
 def add_intention(cmd: str):

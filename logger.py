@@ -2,7 +2,7 @@ import time
 import re
 import os
 from datetime import datetime
-from database import get_connection_cm, get_connection
+from dailydriver.core.database import get_connection_cm, get_connection
 from parser import extract_time
 from ui import current_ui
 

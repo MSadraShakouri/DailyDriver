@@ -1,68 +1,5 @@
 import sqlite3
-import time
-import os
-from ui import current_ui
-from contextlib import contextmanager
-
-BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-DB_NAME = os.path.join(BASE_DIR, "daily.db")
-
-# file that stores the timestamp of the last successful write
-LAST_ACTION_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)), '.daily_last_action')
-
-def get_last_hygiene_time(conn, item):
-    """
-    Return the Unix timestamp of the most recent hygiene log for `item`,
-    or None if no log exists.  The hygiene category is expected to be named
-    exactly `.../item` (e.g., `hygiene/shower`).
-    """
-    cur = conn.cursor()
-    cur.execute('''
-        SELECT MAX(e.started_at) as last_time
-        FROM entries e
-        JOIN entry_categories ec ON e.id = ec.entry_id
-        JOIN categories c ON ec.category_id = c.id
-        WHERE c.path LIKE ?
-    ''', ('%/' + item,))
-    row = cur.fetchone()
-    return row['last_time'] if (row and row['last_time']) else None
-
-class _AutoCommitConnection:
-    """Wraps a sqlite3 connection, updating the last‑action file on commit()."""
-    def __init__(self, conn):
-        self._conn = conn
-
-    def commit(self):
-        self._conn.commit()
-        try:
-            with open(LAST_ACTION_FILE, 'w') as f:
-                f.write(str(int(time.time())))
-        except Exception:
-            pass
-
-    def close(self):
-        self._conn.close()
-
-    # Delegate everything else to the real connection
-    def __getattr__(self, name):
-        return getattr(self._conn, name)
-
-def get_connection(auto=True):
-    conn = sqlite3.connect(DB_NAME)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA foreign_keys = ON")
-    if not auto:
-        return conn
-    # otherwise wrap it to auto‑update the last‑action file on commit
-    return _AutoCommitConnection(conn)
-
-@contextmanager
-def get_connection_cm(auto=True):
-    conn = get_connection(auto=auto)
-    try:
-        yield conn
-    finally:
-        conn.close()
+from dailydriver.core.database import get_connection
 
 def init_db():
     conn = get_connection(auto=False)
@@ -97,7 +34,7 @@ def init_db():
         )
     ''')
 
-    # ---------- entry_categories (many-to-many) ----------
+    # ---------- entry_categories ----------
     cur.execute('''
         CREATE TABLE IF NOT EXISTS entry_categories (
             entry_id INTEGER NOT NULL,
@@ -108,7 +45,6 @@ def init_db():
         )
     ''')
 
-
     # ---------- prayer_logs ----------
     cur.execute('''
         CREATE TABLE IF NOT EXISTS prayer_logs (
@@ -117,7 +53,7 @@ def init_db():
             jalali_date TEXT NOT NULL,
             status TEXT NOT NULL CHECK(status IN ('on_time','qada','missed')),
             logged_at INTEGER,
-            prayer_time INTEGER,   -- Unix timestamp of the actual prayer (nullable)
+            prayer_time INTEGER,
             UNIQUE(prayer_slot, jalali_date)
         )
     ''')
@@ -175,7 +111,7 @@ def init_db():
         )
     ''')
 
-    # ---------- migration: add columns if missing ----------
+    # --- migration: add columns if missing ---
     try:
         cur.execute("ALTER TABLE hygiene_config ADD COLUMN early_warning_enabled INTEGER DEFAULT 1")
     except sqlite3.OperationalError:
@@ -188,7 +124,7 @@ def init_db():
     cur.execute("UPDATE hygiene_config SET early_warning_enabled = 1 WHERE early_warning_enabled IS NULL")
     cur.execute("UPDATE hygiene_config SET show_due_today = 0 WHERE show_due_today IS NULL")
 
-    # ---------- pending_keywords (two‑sighting promotion) ----------
+    # ---------- pending_keywords ----------
     cur.execute('''
         CREATE TABLE IF NOT EXISTS pending_keywords (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -204,19 +140,10 @@ def init_db():
     cur.execute("DROP TABLE IF EXISTS entry_flags")
     cur.execute("DROP TABLE IF EXISTS flags")
 
-    # Performance indexes for long-term use
+    # Performance indexes
     cur.execute('CREATE INDEX IF NOT EXISTS idx_entries_created_at ON entries(created_at)')
     cur.execute('CREATE INDEX IF NOT EXISTS idx_entries_started_at ON entries(started_at)')
     cur.execute('CREATE INDEX IF NOT EXISTS idx_entry_categories_category ON entry_categories(category_id)')
 
-    conn.commit()
-    conn.close()
-
-
-def cleanup_pending_keywords():
-    """Delete pending keywords older than 14 days."""
-    conn = get_connection(auto=False)
-    cur = conn.cursor()
-    cur.execute("DELETE FROM pending_keywords WHERE first_seen < unixepoch() - 1209600")
     conn.commit()
     conn.close()

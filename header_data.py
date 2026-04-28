@@ -1,7 +1,7 @@
 import time
 import jdatetime
 from datetime import datetime
-from database import get_connection_cm, get_last_hygiene_time
+from dailydriver.core.database import get_connection_cm, get_last_hygiene_time
 from dailydriver.utils.time_utils import today_jalali, format_jalali
 from logger import get_pending_start, get_active_great_event
 from ui import current_ui

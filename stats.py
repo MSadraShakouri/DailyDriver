@@ -1,5 +1,5 @@
 import time
-from database import get_connection_cm
+from dailydriver.core.database import get_connection_cm
 from dailydriver.utils.time_utils import days_ago, today_start_ts
 from ui import current_ui
 

@@ -1,7 +1,7 @@
 import os
 import subprocess
 import time
-from database import get_connection_cm
+from dailydriver.core.database import get_connection_cm
 from logger import log_free_text
 from ui import current_ui
 

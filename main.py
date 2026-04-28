@@ -2,7 +2,8 @@
 import os
 import sys
 from ui import current_ui
-from database import init_db, cleanup_pending_keywords
+from dailydriver.core.schema import init_db
+from dailydriver.core.database import cleanup_pending_keywords
 from header_data import build_header_data
 from display import print_header
 from prayer import log_prayer, log_rq, log_mp
