@@ -1,5 +1,5 @@
 import re
-from database import get_connection
+from database import get_connection_cm
 from utils import today_jalali
 from ui import current_ui
 
@@ -58,14 +58,13 @@ def add_birthday(cmd: str):
         current_ui.print_line("Invalid date.")
         return None
 
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute(
-        "INSERT INTO birthdays (name, day, month, year) VALUES (?,?,?,?)",
-        (name, day, month, year)
-    )
-    conn.commit()
-    conn.close()
+    with get_connection_cm() as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO birthdays (name, day, month, year) VALUES (?,?,?,?)",
+            (name, day, month, year)
+        )
+        conn.commit()
 
     result = f"Birthday added: {name}"
     if year:

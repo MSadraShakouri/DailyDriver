@@ -2,7 +2,7 @@ import time
 import re
 import os
 from datetime import datetime
-from database import get_connection_cm
+from database import get_connection_cm, get_connection
 from parser import extract_time
 from ui import current_ui
 
@@ -255,7 +255,7 @@ def log_free_text(cmd, started_at=None):
                 started_at = int(time.time())
 
         # ---------- category suggestion ----------
-        matches = find_matching_categories(cmd)   # This still opens its own connection – we'll fix later
+        matches = find_matching_categories(cmd)
         if matches:
             current_ui.print_line()
             current_ui.print_line("Suggested categories:")

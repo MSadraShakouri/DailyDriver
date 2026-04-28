@@ -1,5 +1,5 @@
 import time
-from database import get_connection
+from database import get_connection_cm
 from ui import current_ui
 
 def add_intention(cmd: str):
@@ -41,14 +41,13 @@ def add_intention(cmd: str):
         else:
             expected = None
 
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute(
-        "INSERT INTO intentions (description, deadline, expected_duration_minutes) VALUES (?,?,?)",
-        (description, deadline, expected)
-    )
-    conn.commit()
-    conn.close()
+    with get_connection_cm() as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO intentions (description, deadline, expected_duration_minutes) VALUES (?,?,?)",
+            (description, deadline, expected)
+        )
+        conn.commit()
 
     result = "Intention added:\n"
     result += f"  {description}\n"

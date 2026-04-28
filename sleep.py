@@ -1,22 +1,15 @@
 import time
 from datetime import datetime, timedelta
-from database import get_connection
+from database import get_connection_cm
 from utils import today_jalali
 from ui import current_ui
 
 def log_sleep(cmd: str):
-    """
-    Parse 'S' command:
-      S <sleep_time> <wake_time>        e.g., S 2 8:30
-      S <sleep_time>-<wake_time>        e.g., S 2-8:30
-    Returns a result string (or None if cancelled/error).
-    """
     parts = cmd.strip().split()
     if len(parts) < 2:
         current_ui.print_line("Usage: S <sleep> <wake>   or   S <sleep>-<wake>")
         return None
 
-    # Check for compact form: second token contains '-'
     if len(parts) == 2 and '-' in parts[1]:
         compact_parts = parts[1].split('-')
         if len(compact_parts) != 2:
@@ -31,12 +24,10 @@ def log_sleep(cmd: str):
         return None
 
     now = datetime.now()
-
     sleep_dt = parse_time(sleep_str, now, is_sleep=True)
     if sleep_dt is None:
         current_ui.print_line("Could not parse sleep time.")
         return None
-
     wake_dt = parse_time(wake_str, now, is_sleep=False)
     if wake_dt is None:
         current_ui.print_line("Could not parse wake time.")
@@ -47,7 +38,6 @@ def log_sleep(cmd: str):
 
     duration = int((wake_dt - sleep_dt).total_seconds() / 60)
 
-    # Confirm
     if not current_ui.confirm(
         f"Sleep:  {sleep_dt.strftime('%H:%M')}\n"
         f"Wake:   {wake_dt.strftime('%H:%M')}\n"
@@ -55,18 +45,15 @@ def log_sleep(cmd: str):
     ):
         return None
 
-    # Save
-    conn = get_connection()
-    cur = conn.cursor()
-    today = today_jalali()
-    cur.execute(
-        "INSERT INTO sleep_logs (jalali_date, sleep_time, wake_time, duration_minutes) VALUES (?,?,?,?)",
-        (today, int(sleep_dt.timestamp()), int(wake_dt.timestamp()), duration)
-    )
-    conn.commit()
-    conn.close()
+    with get_connection_cm() as conn:
+        cur = conn.cursor()
+        today = today_jalali()
+        cur.execute(
+            "INSERT INTO sleep_logs (jalali_date, sleep_time, wake_time, duration_minutes) VALUES (?,?,?,?)",
+            (today, int(sleep_dt.timestamp()), int(wake_dt.timestamp()), duration)
+        )
+        conn.commit()
 
-    # Build result
     result = "Sleep logged:\n"
     result += f"  {sleep_dt.strftime('%H:%M')} → {wake_dt.strftime('%H:%M')}\n"
     result += f"  {duration//60}h {duration%60}m"
