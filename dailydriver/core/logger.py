@@ -1,15 +1,18 @@
+# dailydriver/core/logger.py
 import time
 import re
 import os
 from datetime import datetime
 from dailydriver.core.database import get_connection_cm, get_connection
 from dailydriver.core.parser import extract_time
+from dailydriver.core.keyword_learner import find_matching_categories, learn_keywords
+from dailydriver.core.entry_writer import _save_entry, inject_great_categories
 from ui import current_ui
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-PENDING_FILE = os.path.join(BASE_DIR, '.daily_pending')
-LAST_ACTION_FILE = os.path.join(BASE_DIR, '.daily_last_action')
-GREAT_EVENT_FILE = os.path.join(BASE_DIR, '.daily_great_event')
+PENDING_FILE = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), '.daily_pending')
+LAST_ACTION_FILE = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), '.daily_last_action')
+GREAT_EVENT_FILE = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), '.daily_great_event')
 
 # ----------------------------------------------------------------------
 #  Last‑action file helpers
@@ -21,98 +24,6 @@ def get_last_action_time():
             return int(f.read().strip())
     except (FileNotFoundError, ValueError):
         return None
-
-# ----------------------------------------------------------------------
-#  Stop‑word loading
-# ----------------------------------------------------------------------
-def load_stopwords():
-    """Load stop words from stopwords.txt (located next to this file)."""
-    stopwords_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'stopwords.txt')
-    stop_set = set()
-    try:
-        with open(stopwords_path, 'r', encoding='utf-8') as f:
-            for line in f:
-                word = line.strip()
-                if word and not word.startswith('#'):
-                    stop_set.add(word.lower())
-    except FileNotFoundError:
-        stop_set = {'the', 'and', 'for', 'not', 'you', 'but', 'are'}
-    return stop_set
-
-STOP_WORDS = load_stopwords()
-
-# ----------------------------------------------------------------------
-#  Tokenisation & matching
-# ----------------------------------------------------------------------
-def tokenize(text: str):
-    """Return lowercased list of words (simple split)."""
-    return text.lower().split()
-
-def find_matching_categories(text: str):
-    """Return list of (category_path, match_count) sorted by count desc."""
-    with get_connection_cm() as conn:
-        cur = conn.cursor()
-        words = tokenize(text)
-        results = {}
-        for word in words:
-            cur.execute(
-                "SELECT c.path FROM keywords k JOIN categories c ON k.category_id=c.id WHERE INSTR(?, k.word)>0",
-                (word,)
-            )
-            for row in cur.fetchall():
-                path = row['path']
-                results[path] = results.get(path, 0) + 1
-    # connection is automatically closed here
-    sorted_cats = sorted(results.items(), key=lambda x: x[1], reverse=True)[:3]
-    return sorted_cats
-
-# ----------------------------------------------------------------------
-#  Keyword learning
-# ----------------------------------------------------------------------
-def learn_keywords(text, category_paths, conn=None):
-    if not text or not category_paths:
-        return
-    words = tokenize(text)
-    cleaned = []
-    for w in words:
-        w = re.sub(r'^[^a-zA-Z]+|[^a-zA-Z]+$', '', w)
-        if w in STOP_WORDS:
-            continue
-        if len(w) < 3:
-            continue
-        if not re.fullmatch(r'[a-zA-Z-]+', w):
-            continue
-        cleaned.append(w)
-    if not cleaned:
-        return
-
-    own_conn = False
-    if conn is None:
-        conn = get_connection()
-        own_conn = True
-    cur = conn.cursor()
-    now_ts = int(time.time())
-
-    for path in category_paths:
-        cur.execute("SELECT id FROM categories WHERE path=?", (path,))
-        row = cur.fetchone()
-        if not row:
-            continue
-        cat_id = row['id']
-        for word in cleaned:
-            cur.execute("SELECT id FROM keywords WHERE word=? AND category_id=?", (word, cat_id))
-            if cur.fetchone():
-                continue
-            cur.execute("SELECT id FROM pending_keywords WHERE word=? AND category_id=?", (word, cat_id))
-            if cur.fetchone():
-                cur.execute("DELETE FROM pending_keywords WHERE word=? AND category_id=?", (word, cat_id))
-                cur.execute("INSERT INTO keywords (word, category_id) VALUES (?,?)", (word, cat_id))
-                continue
-            cur.execute("INSERT OR IGNORE INTO pending_keywords (word, category_id, first_seen) VALUES (?,?,?)",
-                        (word, cat_id, now_ts))
-    if own_conn:
-        conn.commit()
-        conn.close()
 
 # ----------------------------------------------------------------------
 #  Pending start helpers (se / ee / ce)
@@ -147,8 +58,7 @@ def clear_pending_start():
 #  Great‑event helpers (sge / ege / cge)
 # ----------------------------------------------------------------------
 def start_great_event(categories: list):
-    """Save a great event start timestamp and its categories.
-    Raises RuntimeError if one is already active."""
+    """Save a great event start timestamp and its categories."""
     if os.path.exists(GREAT_EVENT_FILE):
         raise RuntimeError("A great event is already active.")
     ts = int(time.time())
@@ -173,51 +83,6 @@ def clear_great_event():
     """Delete the great event state file."""
     if os.path.exists(GREAT_EVENT_FILE):
         os.remove(GREAT_EVENT_FILE)
-
-def inject_great_categories(selected_paths: list):
-    """If a great event is active, append its categories to selected_paths (no duplicates)."""
-    active = get_active_great_event()
-    if active:
-        _, ge_cats = active
-        for cat in ge_cats:
-            if cat not in selected_paths:
-                selected_paths.append(cat)
-
-# ----------------------------------------------------------------------
-#  Internal save
-# ----------------------------------------------------------------------
-def _save_entry(conn, cmd, started_at, duration, selected_paths):
-    cur = conn.cursor()
-    now_ts = int(time.time())
-
-    cur.execute(
-        "INSERT INTO entries (created_at, started_at, duration_minutes, description) VALUES (?,?,?,?)",
-        (now_ts, started_at, duration, cmd)
-    )
-    entry_id = cur.lastrowid
-
-    for path in selected_paths:
-        cur.execute("SELECT id FROM categories WHERE path=?", (path,))
-        row = cur.fetchone()
-        if row:
-            cur.execute("INSERT INTO entry_categories (entry_id, category_id) VALUES (?,?)",
-                        (entry_id, row['id']))
-
-    learn_keywords(cmd, selected_paths, conn=conn)
-
-    result = ""
-    if selected_paths:
-        result += "Logged:\n"
-        for p in selected_paths:
-            result += f"  {p}\n"
-    if started_at is not None:
-        start_dt = datetime.fromtimestamp(started_at)
-        result += f"Time:   {start_dt.strftime('%H:%M')}\n"
-    if duration is not None and duration > 0:
-        h = duration // 60
-        m = duration % 60
-        result += f"Duration: {h}h {m}m\n" if h else f"Duration: {m}m\n"
-    return result.strip()
 
 # ----------------------------------------------------------------------
 #  Core free‑text logging

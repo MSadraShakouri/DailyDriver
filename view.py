@@ -2,7 +2,7 @@ import os
 import subprocess
 import time
 from dailydriver.core.database import get_connection_cm
-from logger import log_free_text
+from dailydriver.core.logger import log_free_text
 from ui import current_ui
 
 def view_entries(category_filter=None):
