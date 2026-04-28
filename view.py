@@ -101,7 +101,8 @@ def edit_entry(entry_id):
     with open(tmp_file, 'w') as f:
         f.write(row['description'] or '')
 
-    subprocess.call(['nano', tmp_file])
+    editor = os.environ.get('EDITOR', 'nano')
+    subprocess.call([editor, tmp_file])
 
     with open(tmp_file, 'r') as f:
         new_desc = f.read().strip()
