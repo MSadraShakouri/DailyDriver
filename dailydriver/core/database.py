@@ -1,13 +1,11 @@
-# dailydriver/core/database.py
 import sqlite3
 import time
 import os
 from contextlib import contextmanager
 
-BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-DB_NAME = os.path.join(BASE_DIR, "daily.db")
-
-LAST_ACTION_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)), '.daily_last_action')
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+DB_NAME = os.path.join(PROJECT_ROOT, "daily.db")
+LAST_ACTION_FILE = os.path.join(PROJECT_ROOT, '.daily_last_action')
 
 def get_last_hygiene_time(conn, item):
     cur = conn.cursor()
