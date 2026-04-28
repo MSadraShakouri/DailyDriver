@@ -30,7 +30,7 @@ def pline(s: str):
     current_width = 0
     for ch in s:
         w = char_width(ch)
-        if current_width + w + 1 > tw:
+        if current_width + w  > tw:
             break
         result.append(ch)
         current_width += w
