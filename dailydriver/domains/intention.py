@@ -1,6 +1,6 @@
 import time
 from dailydriver.core.database import get_connection_cm
-from ui import current_ui
+from dailydriver.ui.terminal_ui import current_ui
 
 def add_intention(cmd: str):
     """

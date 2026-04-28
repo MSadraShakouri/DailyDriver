@@ -1,6 +1,6 @@
 import shutil
 import unicodedata
-from ui import current_ui
+from dailydriver.ui.terminal_ui import current_ui
 
 def get_width():
     """Return terminal width in columns, default 80."""

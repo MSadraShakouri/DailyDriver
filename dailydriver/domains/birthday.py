@@ -1,7 +1,7 @@
 import re
 from dailydriver.core.database import get_connection_cm
 from dailydriver.utils.time_utils import today_jalali
-from ui import current_ui
+from dailydriver.ui.terminal_ui import current_ui
 
 def add_birthday(cmd: str):
     parts = cmd.strip().split()

@@ -4,7 +4,7 @@ import jdatetime
 from dailydriver.core.database import get_connection_cm
 from dailydriver.utils.time_utils import today_jalali
 from dailydriver.domains.prayer_core import PRAYER_SLOTS
-from ui import current_ui
+from dailydriver.ui.terminal_ui import current_ui
 
 def _get_unlogged_slots(conn):
     """

@@ -1,7 +1,7 @@
 import time
 from dailydriver.core.database import get_connection_cm
 from dailydriver.utils.time_utils import days_ago, today_start_ts
-from ui import current_ui
+from dailydriver.ui.terminal_ui import current_ui
 
 def show_stats():
     with get_connection_cm() as conn:

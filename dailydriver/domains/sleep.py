@@ -2,7 +2,7 @@ import time
 from datetime import datetime, timedelta
 from dailydriver.core.database import get_connection_cm
 from dailydriver.utils.time_utils import today_jalali
-from ui import current_ui
+from dailydriver.ui.terminal_ui import current_ui
 
 def log_sleep(cmd: str):
     parts = cmd.strip().split()

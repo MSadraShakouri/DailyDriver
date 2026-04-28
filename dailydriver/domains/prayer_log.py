@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from dailydriver.core.database import get_connection_cm
 from dailydriver.utils.time_utils import today_jalali
 from dailydriver.domains.prayer_core import current_slot, PRAYER_SLOTS
-from ui import current_ui
+from dailydriver.ui.terminal_ui import current_ui
 
 def log_prayer(cmd: str):
     with get_connection_cm() as conn:

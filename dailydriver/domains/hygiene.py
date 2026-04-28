@@ -1,5 +1,5 @@
 from dailydriver.core.database import get_connection_cm
-from ui import current_ui
+from dailydriver.ui.terminal_ui import current_ui
 
 def manage_hygiene():
     with get_connection_cm() as conn:

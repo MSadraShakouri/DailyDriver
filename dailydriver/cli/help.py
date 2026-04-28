@@ -1,4 +1,4 @@
-from ui import current_ui
+from dailydriver.ui.terminal_ui import current_ui
 def show_help():
     current_ui.print_line("═" * 50)
     current_ui.print_line("  DailyDriver — Quick Reference")
