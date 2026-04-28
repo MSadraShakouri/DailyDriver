@@ -1,6 +1,6 @@
 import re
 from database import get_connection_cm
-from utils import today_jalali
+from dailydriver.utils.time_utils import today_jalali
 from ui import current_ui
 
 def add_birthday(cmd: str):

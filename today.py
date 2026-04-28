@@ -2,7 +2,7 @@ import time
 import jdatetime
 from datetime import datetime
 from database import get_connection_cm
-from utils import today_jalali, format_jalali
+from dailydriver.utils.time_utils import today_jalali, format_jalali
 from ui import current_ui
 
 def show_today():
