@@ -6,7 +6,8 @@ from dailydriver.core.schema import init_db
 from dailydriver.core.database import cleanup_pending_keywords
 from header_data import build_header_data
 from display import print_header
-from prayer import log_prayer, log_rq, log_mp
+from dailydriver.domains.prayer_log import log_prayer
+from dailydriver.domains.prayer_backlog import log_rq, log_mp
 from sleep import log_sleep
 from dailydriver.core.logger import (log_free_text, save_pending_start, discard_pending_start,
                                      get_pending_start, clear_pending_start,
