@@ -3,7 +3,7 @@ import re
 import os
 from datetime import datetime
 from dailydriver.core.database import get_connection_cm, get_connection
-from parser import extract_time
+from dailydriver.core.parser import extract_time
 from ui import current_ui
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
