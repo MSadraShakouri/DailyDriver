@@ -9,7 +9,7 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(
 
 def load_stopwords():
     """Load stop words from stopwords.txt."""
-    stopwords_path = os.path.join(PROJECT_ROOT, 'stopwords.txt')
+    stopwords_path = os.path.join(PROJECT_ROOT, 'data', 'stopwords.txt')
     stop_set = set()
     try:
         with open(stopwords_path, 'r', encoding='utf-8') as f:
