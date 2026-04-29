@@ -1,371 +1,397 @@
-DailyDriver v1.0
+# DailyDriver v2.0.0
 
-Your personal, terminal‑based life tracker.
-Log prayers, sleep, hygiene routines, birthdays, intentions, and free‑form journal entries – all from a fast, keyboard‑driven REPL.
+Your personal, terminal‑based life tracker.  
+Log prayers, sleep, hygiene routines, birthdays, intentions, and free‑form journal entries – all from a fast, keyboard‑driven REPL.  
 Built with Python, SQLite, and Jalali calendar support.
 
 ---
 
-Table of Contents
+## Table of Contents
 
-· Features
-· Installation
-· Quick Start
-· The REPL Interface
-· Command Reference
-  · Prayer Logging (P)
-  · Qada / Missed Prayers (RQ, MP)
-  · Sleep Logging (S)
-  · Free‑Text Journal Entry
-  · Viewing Entries (view)
-  · Birthdays (BD)
-  · Hygiene Tracking (hygiene)
-  · Intentions (T)
-  · Statistics (stats)
-  · Today’s Summary (today)
-  · Flags Manager (flags)
-  · Help (?)
-  · Quit (q)
-· Multi‑Line Input
-· Categories & Keywords
-· Flags
-· Data Storage & Privacy
-· Customisation
-· Troubleshooting
-· Contributing
-· License
-
----
-
-Features
-
-· Prayer tracking – log Fajr, Dhuhr/Asr, Maghrib/Isha with exact times.
-· Sleep logging – record bed/wake times, auto‑calculate duration.
-· Hygiene reminders – define intervals for habits (shaving, teeth, etc.) and get nudges when overdue.
-· Birthday list – never miss a birthday (Jalali dates supported, with age calculation).
-· Intentions – set tasks with optional deadlines and expected durations.
-· Journal entries – quickly capture thoughts, automatically categorised by keywords.
-· Smart parsing – natural time expressions like 13:00, 2‑3, yesterday, last Monday are understood.
-· Flags – tag entries with custom tokens (late, urgent, etc.) for filtering.
-· Statistics – see prayer adherence, sleep averages, hygiene conformance, and top categories.
-· Jalali calendar – all dates are in the Jalali (Persian) calendar; Gregorian conversions happen transparently.
-· Beautiful header – a glance shows today’s prayers, sleep, upcoming birthdays, and hygiene nudges.
-· Minimal dependencies – Python 3.8+, SQLite, and the jdatetime library.
+- [Features](#features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [The REPL Interface](#the-repl-interface)
+- [Command Reference](#command-reference)
+  - [Prayer Logging `p`](#prayer-logging-p)
+  - [Qada / Missed Prayers `rq`, `mp`](#qada--missed-prayers-rq-mp)
+  - [Sleep Logging `s`](#sleep-logging-s)
+  - [Free‑Text Journal Entry](#free-text-journal-entry)
+  - [Viewing Entries `view`](#viewing-entries-view)
+  - [Birthdays `bd`](#birthdays-bd)
+  - [Hygiene Tracking `hygiene`](#hygiene-tracking-hygiene)
+  - [Intentions `t`](#intentions-t)
+  - [Statistics `stats`](#statistics-stats)
+  - [Today’s Summary `today`](#todays-summary-today)
+  - [Great Events `sge`, `ege`, `cge`](#great-events-sge-ege-cge)
+  - [Chaining `ln`](#chaining-ln)
+  - [Running Event `se`, `ee`, `ce`](#running-event-se-ee-ce)
+  - [Help `?`](#help-)
+  - [Quit `q`](#quit-q)
+- [Multi‑Line Input](#multi-line-input)
+- [Categories & Keywords](#categories--keywords)
+- [Data Storage & Privacy](#data-storage--privacy)
+- [Project Structure](#project-structure)
+- [Customisation](#customisation)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [License](#license)
 
 ---
 
-Installation
+## Features
 
-1. Clone the repository (or place the DailyDriver/ folder anywhere you like):
+- **Prayer tracking** – Log Fajr, Dhuhr/Asr, Maghrib/Isha with exact times, optional jamaat location and shak count.
+- **Sleep logging** – Record bed/wake times, auto‑calculate duration.
+- **Hygiene reminders** – Define intervals for habits and get gentle nudges when overdue.
+- **Birthday list** – Never miss a birthday (Jalali dates with age calculation).
+- **Intentions** – Quick to‑dos with deadlines and expected durations.
+- **Journal entries** – Free‑text with smart time parsing (e.g. `13:00`, `2‑3`, `yesterday`).
+- **Great events & chaining** – Start a long activity, later end and log it with minimal typing.
+- **Smart categories** – Automatic keyword learning from your entries.
+- **Statistics** – Prayer adherence, sleep averages, hygiene conformance, top categories.
+- **Jalali calendar** – Native Persian calendar; dates shown in the header and summaries.
+- **Beautiful header** – Today’s prayers, sleep, upcoming birthdays, and hygiene nudges at a glance.
+- **Minimal dependencies** – Python 3.8+, SQLite, `jdatetime`.
+
+---
+
+## Installation
+
+1. **Clone the repository** (or place the `DailyDriver/` folder anywhere):
    ```bash
    git clone https://github.com/yourname/DailyDriver.git
    cd DailyDriver
    ```
-2. Install the single required Python package:
+
+2. **Install the required package**:
    ```bash
    pip install jdatetime
    ```
-3. Make the main script executable (optional, for direct launch):
+
+3. Make the entry point executable (optional):
    ```bash
-   chmod +x DailyDriver/main.py
+   chmod +x main.py
    ```
-4. Add a shebang if your main.py doesn’t already have one:
-   ```python
-   #!/usr/bin/env python3
-   ```
-   Then you can run it with ./DailyDriver/main.py.
-5. Create a convenient command (choose one):
-   · Symlink (recommended):
+
+4. Create a convenient command (choose one):
+   - **Symlink** (recommended):
      ```bash
      ln -s /full/path/to/DailyDriver/main.py ~/.local/bin/daily
      ```
-     Now typing daily launches the app from anywhere.
-   · Alias (add to ~/.bashrc or ~/.zshrc):
+   - **Alias** (add to `~/.bashrc` or `~/.zshrc`):
      ```bash
      alias daily='python /path/to/DailyDriver/main.py'
      ```
 
 ---
 
-Quick Start
+## Quick Start
 
 Launch the app:
 
 ```bash
-./DailyDriver/main.py
+./main.py
 # or if you set up the symlink:
 daily
 ```
 
-You’ll see the daily header and a prompt >. Type ? for a command overview, or just start typing a journal entry.
-
-Your first action could be:
+You’ll see the daily header and a prompt `>`. Type `?` for a command overview, or just start writing a journal entry.
 
 ```
-> today was a good day
+> today was a productive day
 ```
 
-DailyDriver will ask for a category (you can create one on the fly) and optional flags.
-That’s it – data is saved automatically to daily.db.
+The app will suggest categories (or let you create new ones), parse any time expressions, and save everything to `data/daily.db`.
 
 ---
 
-The REPL Interface
+## The REPL Interface
 
 Every time you press Enter, the screen clears and the header refreshes.
-The header shows:
+The header displays:
 
-· Date in Jalali format (e.g., 25 Farvardin 1405).
-· Prayer status for today: a coloured emoji and the time you logged (or — if not yet logged).
-· Sleep duration from last night’s log.
-· Upcoming birthdays in the next 7 days.
-· Hygiene nudges if a habit is due soon or overdue.
-
-Below the header, the prompt waits for your command.
+- **Date** in Jalali format (e.g. *25 Farvardin 1405*)
+- **Prayer status** for today (emoji and time, or `—` if not logged yet)
+- **Sleep** duration from last night’s log
+- **Upcoming birthdays** (next 7 days)
+- **Hygiene nudges** when a habit is due soon or overdue
+- **Active great event** indicator (if any)
+- **Running event** timer (if any)
+- **Last action time** in the bottom bar
 
 ---
 
-Command Reference
+## Command Reference
 
-Commands are case‑insensitive and almost always a single letter or word.
-Arguments are separated by spaces.
+Commands are case‑insensitive, usually a single letter or short word. Arguments are separated by spaces.
 
-Prayer Logging (P)
+### Prayer logging `p`
 
-Log today’s prayer with an optional time adjustment.
+Log today’s prayer with optional arguments.
 
-Command Description
-P Log the prayer for the current time slot (automatically guessed).
-P -15 Log the prayer, but 15 minutes before the fixed prayer time.
-P 05:30 Explicitly log at 05:30 (slot is guessed from the hour).
-P dhuhr_asr -5 Log a specific slot with an offset.
+| Command | Description |
+|---------|-------------|
+| `p` | Log the prayer for the current time slot (auto‑guessed) |
+| `p -15` | 15 minutes before the fixed prayer time |
+| `p 05:30` | Explicitly at 05:30 (slot guessed from hour) |
+| `p j` | With jamaat (no specific location) |
+| `p j masjid` | With jamaat at a given location |
+| `p s 3` | With shak count of 3 |
 
-When you enter a time, you will be shown a confirmation before saving.
+Fixed prayer times (configurable in `dailydriver/domains/prayer_core.py`):
+- Fajr: 04:30
+- Dhuhr & Asr: 13:00
+- Maghrib & Isha: 19:30
 
-Fixed prayer times (configurable in prayer.py):
+### Qada / Missed Prayers `rq`, `mp`
 
-· Fajr: 04:30
-· Dhuhr & Asr: 13:00
-· Maghrib & Isha: 19:30
+- `rq` – List unlogged slots (newest first) and mark one as **qada**.
+- `mp` – Same listing, but you can mark as **missed** or **qada**.
 
-Qada / Missed Prayers (RQ, MP)
+Unlogged slots are shown from the first prayer log until today.
 
-Retrospectively fill in missed prayers.
+### Sleep logging `s`
 
-· RQ – List unlogged slots (newest first) and mark one as qada (late but performed).
-· MP – Same listing, but you can mark as missed or qada.
+| Command | Description |
+|---------|-------------|
+| `s 23:00 07:15` | Sleep at 23:00, wake at 07:15 |
+| `s 23-7:15` | Shorthand form (sleep – wake) |
+| `s n 08:00` | `n` = now (sleep time is right now) |
+| `s -30 08:00` | Offset: fell asleep 30 minutes ago |
 
-Select a number from the list to log.
-The app only shows dates from the first prayer log to today.
+Duration is calculated automatically.
 
-Sleep Logging (S)
+### Free‑Text Journal Entry
 
-Record when you went to bed and when you woke up.
+Anything that isn’t a recognised command is treated as a journal entry. The app will:
 
-Command Description
-S 23:00 07:15 Sleep at 23:00, wake at 07:15.
-S 23-7:15 Shorthand form (sleep – wake).
-S 01:00 09 Integer hour for wake time (9 = 09:00).
-S n 08:00 n = now (sleep time is right now).
-S -30 08:00 Offset: fell asleep 30 minutes ago.
-
-Duration is calculated automatically and saved.
-
-Free‑Text Journal Entry
-
-Type anything that isn’t a recognised command, and it will be logged as an entry.
-DailyDriver will:
-
-1. Parse any time expressions in your text (e.g. 13:00, 2‑3, yesterday) and ask for confirmation.
-2. Suggest categories based on keywords it has learned.
-3. Prompt you to attach flags.
+1. Parse any time expressions (e.g. `13:00`, `2‑3`, `yesterday`) and ask for confirmation.
+2. Suggest categories based on learned keywords.
+3. Ask for a category if none matched.
 
 Examples:
-
 ```
 > read Quran for 30 minutes
-> worked on project from 9-12
+> worked on project from 9‑12
 > last Thursday visited grandmother
 ```
 
-Viewing Entries (view)
+### Viewing Entries `view`
 
-Browse past entries in pages of 20.
+| Command | Description |
+|---------|-------------|
+| `view` | Show all entries, newest first |
+| `view project` | Filter by category containing “project” |
 
-Command Description
-view Show all entries, newest first.
-view project Filter by category containing “project”.
-During viewing: n next page, p previous, q quit. 
-Enter an entry ID (number) Open that entry in an editor (nano by default).
+Navigation inside the viewer: `n` next page, `p` previous, `q` quit.  
+Type an entry ID (number) to edit it in your default editor (`nano` by default).
 
-Editing an entry deletes the old record and re‑logs the text (allowing you to change categories and flags).
+Editing an entry deletes the old record and re‑logs the text, allowing you to change categories.
 
-Birthdays (BD)
+### Birthdays `bd`
 
 Add a birthday (Jalali dates).
 
-Command Description
-BD Interactive prompts.
-BD Ali 1386/05/12 Specify name and full date.
-BD Zahra 5/12 Month/day only (year unknown).
+| Command | Description |
+|---------|-------------|
+| `bd` | Interactive prompts |
+| `bd Ali 1386/05/12` | Full date |
+| `bd Zahra 5/12` | Month/day only (year unknown) |
 
-The header will show birthdays within the next 7 days, including age if the year was provided.
+Upcoming birthdays appear in the header for the next 7 days, with age if the year was given.
 
-Hygiene Tracking (hygiene)
+### Hygiene Tracking `hygiene`
 
-Define personal care habits and their desired intervals. The header will nudge you when something is due.
+Define personal care habits and their desired intervals. The header nudges you when something is due.
 
-Command Description
-hygiene Opens the hygiene manager.
-Inside the manager: a add item, e edit interval, d delete, q quit. 
+Inside the manager: `a` add, `e` edit, `d` delete, `q` quit.  
+Example items: `shaving`, `brushing_teeth`, `laundry`.
 
-Example items: shaving, brushing_teeth, laundry.
-When you later log an entry under a category ending with /item (e.g., hygiene/shaving), the system records the last time.
+Log an entry under a category like `hygiene/shaving` to record the last time.
 
-Intentions (T)
+### Intentions `t`
 
-Set a to‑do with optional deadline and expected duration.
+| Command | Description |
+|---------|-------------|
+| `t` | Interactive mode |
+| `t finish report` | Adds intention with description only |
 
-Command Description
-T Interactive mode.
-T finish report Adds intention with description only.
-During interactive mode you can set a Jalali deadline (YYYY/MM/DD) and expected minutes. 
+Interactive mode lets you set a Jalali deadline (`YYYY/MM/DD`) and expected duration (minutes).
 
-Intentions are stored but not yet actively reminded – future versions will integrate them into the header.
-
-Statistics (stats)
+### Statistics `stats`
 
 Shows:
+- Prayer on‑time, qada, missed counts and percentages (last 30 days)
+- Sleep average, best, worst (last 14 days)
+- Hygiene adherence (logs vs expected)
+- Top categories (last 30 days)
 
-· Prayer on‑time, qada, missed counts and percentages (last 30 days).
-· Sleep average, best, and worst (last 14 days).
-· Hygiene adherence (logs vs expected).
-· Most used flags and top categories (last 30 days).
+### Today’s Summary `today`
 
-Today’s Summary (today)
+A detailed view of today:
+- Prayer status (emoji indicators)
+- Sleep record
+- All entries with time, categories, and descriptions
 
-A detailed view of everything logged today:
+### Great Events `sge`, `ege`, `cge`
 
-· Prayer status (with emoji indicators).
-· Sleep record.
-· All entries with time, categories, and flags.
+Start a great event, later end it and log the time automatically.
 
-Flags Manager (flags)
+- `sge work` – Start a great event with category “work”
+- `ege finished the report` – End, log entry, and clear the great event
+- `cge` – Cancel without logging
 
-Define short tokens that can be attached to entries for tagging.
+Great events appear in the header while active.
 
-Command Description
-flags Opens the flags manager.
-Inside: a add flag (token, label, scope), e edit, d delete. 
+### Chaining `ln`
 
-Flags can be global or scoped to a specific category.
+Log an entry that started at the time of the last recorded action.
 
-Help (?)
+`ln replied to emails` – starts from the previous log’s end time until now.
 
-Displays all commands, a list of categories with their top keywords, and defined flags.
+### Running Event `se`, `ee`, `ce`
 
-Quit (q)
+Fine‑grained event timing:
 
-Exits the application. All data is saved instantly – no unsaved changes.
+- `se` – Save the current time as the start of an event
+- `ee something` – End the event and log the description
+- `ce` – Cancel the saved start
 
----
+The header shows a running event indicator.
 
-Multi‑Line Input
+### Help `?`
 
-To write a longer journal entry across several lines:
+Displays all commands and a list of categories with their top keywords.
 
-1. Type :m and press Enter.
-2. You are now in multi‑line mode. Each line you type is collected.
-3. When you’re done, type three dashes on a line by themselves: ---.
-4. The whole text is treated as a single entry.
+### Quit `q`
 
----
-
-Categories & Keywords
-
-DailyDriver automatically learns keywords from your entries.
-When you log a free‑text entry and assign it a category, every non‑stop‑word in the text is linked to that category.
-Later, when you type a similar entry, the app suggests the most relevant categories.
-
-You can see the learned keywords in the ? help screen.
-There’s no direct command to remove keywords yet; you can manually edit the SQLite DB if needed.
+Exits the app. All data is saved instantly.
 
 ---
 
-Flags
+## Multi‑Line Input
 
-Flags are short strings you can attach to any entry.
-Examples: late, urgent, home, work, m (for “mobile”).
-Use them to mark special circumstances – they appear in the today and stats views.
-
-Flags can be created:
-
-· On the fly when logging an entry (just type the token at the prompt).
-· From the flags manager, where you can also set a scope (the flag only appears for a certain category).
+1. Type `:m` and press Enter.
+2. Each subsequent line is collected.
+3. Finish with three dashes on a line by itself: `---`.
+4. The whole text becomes a single entry.
 
 ---
 
-Data Storage & Privacy
+## Categories & Keywords
 
-All your data lives in a single file: daily.db (SQLite).
-It is created in the same directory as main.py.
+The app automatically learns keywords from your entries.  
+When you log free text and assign a category, non‑stop‑words are linked to that category.  
+Future entries with similar words will suggest those categories.
 
-· No network calls.
-· No third‑party analytics.
-· You can back it up by simply copying the .db file.
+Stop words are loaded from `data/stopwords.txt` (editable).
 
-To see or modify data directly, use the sqlite3 command:
+---
 
+## Data Storage & Privacy
+
+All your data lives in **`data/daily.db`** (SQLite).  
+No network calls, no third‑party analytics. Easy to backup – just copy the file.
+
+To inspect the database directly:
 ```bash
-sqlite3 daily.db ".tables"
-sqlite3 daily.db "SELECT * FROM entries;"
+sqlite3 data/daily.db ".tables"
+sqlite3 data/daily.db "SELECT * FROM entries;"
 ```
 
 ---
 
-Customisation
+## Project Structure
 
-· Prayer times – edit the PRAYER_TIMES dictionary in prayer.py.
-· Hygiene early warning thresholds – tweak the if desired >= … logic in header_data.py.
-· Text editor – change nano to your preferred editor in view.py (function edit_entry).
-· Date format – adjust the strftime in utils.py.
+```
+DailyDriver/
+├── main.py                    # entry point
+├── README.md
+├── dailydriver/
+│   ├── core/
+│   │   ├── database.py
+│   │   ├── schema.py
+│   │   ├── parser.py
+│   │   ├── date_parser.py
+│   │   ├── logger.py
+│   │   ├── keyword_learner.py
+│   │   └── entry_writer.py
+│   ├── domains/
+│   │   ├── prayer_core.py
+│   │   ├── prayer_log.py
+│   │   ├── prayer_backlog.py
+│   │   ├── sleep.py
+│   │   ├── hygiene.py
+│   │   ├── birthday.py
+│   │   └── intention.py
+│   ├── display/
+│   │   ├── header.py
+│   │   ├── display_utils.py
+│   │   ├── stats.py
+│   │   ├── today.py
+│   │   └── hygiene_nudges.py
+│   ├── cli/
+│   │   ├── commander.py
+│   │   ├── entry_viewer.py
+│   │   └── help.py
+│   ├── ui/
+│   │   └── terminal_ui.py
+│   └── utils/
+│       └── time_utils.py
+├── data/
+│   ├── daily.db
+│   └── stopwords.txt
+└── tests/
+    └── .gitkeep
+```
 
 ---
 
-Troubleshooting
+## Customisation
 
-Problem: ModuleNotFoundError: No module named 'jdatetime'
-Solution: Run pip install jdatetime.
-
-Problem: The header looks misaligned or truncated.
-Solution: Your terminal might be too narrow; resize it to at least 80 columns.
-
-Problem: daily.db is empty after moving the folder.
-Solution: The database is created relative to the working directory. Always run main.py from inside the DailyDriver/ folder, or update the DB_NAME path in database.py.
-
-Problem: Multi‑line input doesn’t end.
-Solution: Make sure you type exactly --- on an empty line, no extra spaces.
+- **Prayer times** – edit `PRAYER_TIMES` in `dailydriver/domains/prayer_core.py`.
+- **Hygiene early warning thresholds** – tweak the thresholds in `dailydriver/display/hygiene_nudges.py`.
+- **Text editor** – change `nano` to your preferred editor in `dailydriver/cli/entry_viewer.py` (function `edit_entry`).
+- **Date format** – adjust the `strftime` formats in `dailydriver/utils/time_utils.py`.
 
 ---
 
-Contributing
+## Troubleshooting
 
-Pull requests are welcome! Please keep the architecture clean:
+**`ModuleNotFoundError: No module named 'jdatetime'`**  
+→ `pip install jdatetime`
 
-· main.py – control flow only.
-· header_data.py – data gathering for the display.
-· display.py – terminal rendering.
-· Other modules each own a single domain (prayer, sleep, etc.).
+**Header looks misaligned or truncated**  
+→ Resize your terminal to at least 80 columns.
 
-For major changes, open an issue first to discuss what you’d like to change.
+**Database is empty after moving the folder**  
+→ Ensure you run `main.py` from the `DailyDriver/` directory, or update `DB_NAME` in `dailydriver/core/database.py`.
 
----
-
-License
-
-MIT License. See LICENSE file for details.
+**Multi‑line input doesn’t end**  
+→ Type exactly `---` on an empty line (no extra spaces).
 
 ---
 
-Made with ❤️ for a mindful, organised life.
+## Contributing
+
+Pull requests are welcome. Please respect the package layout:
+- `core/` – data, parsing, logging
+- `domains/` – one domain per file (prayer, sleep, etc.)
+- `display/` – header building and display utilities
+- `cli/` – REPL logic, commands
+- `ui/` – terminal abstraction
+- `utils/` – shared helpers
+
+For major changes, please open an issue first to discuss your ideas.
+
+---
+
+## License
+
+MIT License. See `LICENSE` file for details.
+
+---
+
+Made with ❤️ for a mindful, organised life.  
 May your prayers be on time and your sleep restful.
