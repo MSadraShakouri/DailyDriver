@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from dailydriver.core.database import get_connection_cm
 from dailydriver.utils.time_utils import today_jalali
 from dailydriver.domains.prayer_core import current_slot, PRAYER_SLOTS
+from dailydriver.domains.prayer_times import get_approximate_times
 from dailydriver.ui.terminal_ui import current_ui
 
 def log_prayer(cmd: str):
@@ -55,11 +56,22 @@ def log_prayer(cmd: str):
                     pass
                 i += 1
 
+        # Get today's prayer times (interpolated)
+        import jdatetime
+        today_j = jdatetime.date.today()
+        approx = get_approximate_times(today_j.month, today_j.day)
+        now = datetime.now()
+        fajr_dt = now.replace(hour=approx['fajr'][0], minute=approx['fajr'][1], second=0, microsecond=0)
+        dhuhr_dt = now.replace(hour=approx['dhuhr'][0], minute=approx['dhuhr'][1], second=0, microsecond=0)
+        maghrib_dt = now.replace(hour=approx['maghrib'][0], minute=approx['maghrib'][1], second=0, microsecond=0)
+
         if explicit_time:
-            hour = explicit_time / 60
-            if hour < 10:
+            hour = explicit_time // 60
+            minute = explicit_time % 60
+            test_dt = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+            if test_dt < dhuhr_dt:
                 slot = 'fajr'
-            elif hour < 17:
+            elif test_dt < maghrib_dt:
                 slot = 'dhuhr_asr'
             else:
                 slot = 'maghrib_isha'
@@ -67,13 +79,13 @@ def log_prayer(cmd: str):
             slot = current_slot()
 
         if explicit_time:
-            prayer_dt = datetime.now().replace(hour=explicit_time // 60,
-                                               minute=explicit_time % 60,
-                                               second=0, microsecond=0)
+            prayer_dt = now.replace(hour=explicit_time // 60,
+                                    minute=explicit_time % 60,
+                                    second=0, microsecond=0)
         elif offset_min is not None:
-            prayer_dt = datetime.now() - timedelta(minutes=offset_min)
+            prayer_dt = now - timedelta(minutes=offset_min)
         else:
-            prayer_dt = datetime.now()
+            prayer_dt = now
 
         time_str = prayer_dt.strftime('%H:%M')
         slot_display = slot.replace('_', ' & ').title()
