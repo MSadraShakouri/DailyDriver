@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 """Simple test for prayer time interpolation and slot logic."""
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from datetime import datetime, timedelta
 from dailydriver.domains.prayer_times import get_approximate_times
 from dailydriver.domains.prayer_core import _today_times, current_slot
