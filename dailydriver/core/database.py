@@ -4,7 +4,7 @@ import os
 from contextlib import contextmanager
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-DB_NAME = os.path.join(PROJECT_ROOT, "daily.db")
+DB_NAME = os.path.join(PROJECT_ROOT, "data", "daily.db")
 LAST_ACTION_FILE = os.path.join(PROJECT_ROOT, '.daily_last_action')
 
 def get_last_hygiene_time(conn, item):
