@@ -99,6 +99,9 @@ def print_header(data: dict):
         pline(bday_str)
     if hygiene_str:
         pline(hygiene_str)
+    calendar_str = data.get('calendar_str', '')
+    if calendar_str:
+        pline(calendar_str)
 
     # Bottom separator with last entry time (right‑aligned)
     last_time = data.get('last_entry_time', '')

@@ -1,3 +1,4 @@
+# dailydriver/display/header.py
 import time
 import jdatetime
 from datetime import datetime
@@ -63,12 +64,24 @@ def build_header_data():
         nudge_lines = compute_hygiene_nudges(conn)
         hygiene_str = "   ".join(nudge_lines[:2])
 
+        # ---------- today's events from calendar ----------
+        from dailydriver.utils.calendar_events import get_events, get_todays_events
+        events = get_events()
+        todays = get_todays_events(events)
+        calendar_str = ""
+        if todays:
+            parts = []
+            for e in todays:
+                prefix = "🎌" if e.get("holiday") else "📌"
+                parts.append(f"{prefix} {e['title']}")
+            calendar_str = " | ".join(parts)
+
         # ---------- great event indicator ----------
         great_event_str = ''
         active_ge = get_active_great_event()
         if active_ge:
             start_ts, cats = active_ge
-            from datetime import datetime as dt   # already imported as datetime
+            from datetime import datetime as dt
             time_str = dt.fromtimestamp(start_ts).strftime('%H:%M')
             great_event_str = f"⏱ Great Event [{', '.join(cats)}] since {time_str}"
 
@@ -93,6 +106,7 @@ def build_header_data():
             'sleep_str': sleep_str,
             'bday_str': bday_str,
             'hygiene_str': hygiene_str,
+            'calendar_str': calendar_str,
             'event_str': event_str,
             'great_event_str': great_event_str,
             'last_entry_time': last_entry_time,
