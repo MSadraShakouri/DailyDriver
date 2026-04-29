@@ -99,6 +99,7 @@ def start_great_event_cmd(line):
     return f"Great event started at {time_str} with: {', '.join(cats)}"
 
 def end_great_event_cmd(line):
+    """ege [description] – End the great event and log like ee."""
     ge = get_active_great_event()
     if ge is None:
         current_ui.print_line("No great event is active.")
@@ -109,7 +110,9 @@ def end_great_event_cmd(line):
     text = parts[1] if len(parts) > 1 else ""
 
     result = log_free_text(text, started_at=start_ts)
-    clear_great_event()
+
+    if result is not None:
+        clear_great_event()
     return result
 
 def cancel_great_event_cmd(line):
