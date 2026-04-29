@@ -1,0 +1,6 @@
+[
+  {"month": 1, "day": 1, "title": "Nowruz (New Year)", "holiday": true},
+  {"month": 2, "day": 10, "title": "National Day of Something", "holiday": false},
+  {"month": 2, "day": 12, "title": "Teachers' Day", "holiday": false},
+  {"month": 2, "day": 15, "title": "Imam Reza's Birthday (simulated)", "holiday": true}
+]
