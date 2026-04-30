@@ -3,474 +3,553 @@
     "month": 1,
     "day": 1,
     "title": "آغاز سال جدید هجری قمری",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 1,
     "day": 1,
     "title": "بزرگداشت محتشم کاشانی",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 1,
     "day": 1,
     "title": "روز شعر و ادبیات آیینی",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 1,
     "day": 2,
     "title": "روز امر به معروف و نهی از منکر",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 1,
     "day": 9,
     "title": "تاسوعای حسینی",
-    "holiday": true
+    "holiday": true,
+    "remind": false
   },
   {
     "month": 1,
     "day": 10,
     "title": "عاشورای حسینی",
-    "holiday": true
+    "holiday": true,
+    "remind": false
   },
   {
     "month": 1,
     "day": 11,
     "title": "تجلیل از اسرا و مفقودان",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 1,
     "day": 12,
     "title": "شهادت امام زین العابدین علیه السلام",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 1,
     "day": 25,
     "title": "شهادت امام زین‌العابدین (ع) به روایتی",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 2,
     "day": 3,
     "title": "ولادت امام محمدباقر (ع) به روایتی",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 2,
     "day": 7,
     "title": "شهادت امام حسن مجتبی (ع) به روایتی",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 2,
     "day": 7,
     "title": "بزرگداشت سلمان فارسی",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 2,
     "day": 20,
     "title": "اربعین حسینی",
-    "holiday": true
+    "holiday": true,
+    "remind": false
   },
   {
     "month": 2,
     "day": 27,
     "title": "روز وقف",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 2,
     "day": 28,
     "title": "رحلت رسول اکرم",
-    "holiday": true
+    "holiday": true,
+    "remind": false
   },
   {
     "month": 2,
     "day": 28,
     "title": "شهادت امام حسن مجتبی علیه السلام",
-    "holiday": true
+    "holiday": true,
+    "remind": false
   },
   {
     "month": 2,
     "day": 30,
     "title": "شهادت امام رضا علیه السلام",
-    "holiday": true
+    "holiday": true,
+    "remind": false
   },
   {
     "month": 3,
     "day": 1,
     "title": "هجرت پیامبر اکرم از مکه به مدینه",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 3,
     "day": 8,
     "title": "شهادت امام حسن عسکری علیه السلام",
-    "holiday": true
+    "holiday": true,
+    "remind": false
   },
   {
     "month": 3,
     "day": 8,
     "title": "آغاز امامت حضرت ولیعصر (عج)",
-    "holiday": true
+    "holiday": true,
+    "remind": false
   },
   {
     "month": 3,
     "day": 12,
     "title": "میلاد رسول اکرم به روایت اهل سنت",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 3,
     "day": 12,
     "title": "آغاز هفته وحدت",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 3,
     "day": 14,
     "title": "روز سیستان و بلوچستان",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 3,
     "day": 17,
     "title": "میلاد رسول اکرم",
-    "holiday": true
+    "holiday": true,
+    "remind": false
   },
   {
     "month": 3,
     "day": 17,
     "title": "ولادت امام جعفر صادق علیه السلام",
-    "holiday": true
+    "holiday": true,
+    "remind": false
   },
   {
     "month": 3,
     "day": 17,
     "title": "روز اخلاق و مهرورزی",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 3,
     "day": 23,
     "title": "روز قم",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 4,
     "day": 4,
     "title": "ولادت حضرت عبدالعظیم حسنی (ع)",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 4,
     "day": 8,
     "title": "ولادت امام حسن عسکری علیه السلام",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 4,
     "day": 10,
     "title": "وفات حضرت معصومه سلام الله علیها",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 5,
     "day": 5,
     "title": "ولادت حضرت زینب سلام الله علیها و روز پرستار و بهورز",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 5,
     "day": 13,
     "title": "شهادت حضرت فاطمه زهرا (س) به روایتی",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 6,
     "day": 3,
     "title": "شهادت حضرت فاطمه زهرا سلام الله علیها",
-    "holiday": true
+    "holiday": true,
+    "remind": false
   },
   {
     "month": 6,
     "day": 13,
     "title": "سالروز وفات حضرت ام‌البنین (س)",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 6,
     "day": 13,
     "title": "روز تکریم مادران و همسران شهدا",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 6,
     "day": 20,
     "title": "ولادت حضرت فاطمه زهرا سلام الله علیها و روز مادر",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 7,
     "day": 1,
     "title": "ولادت امام محمد باقر علیه السلام",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 7,
     "day": 3,
     "title": "شهادت امام علی النقی علیه السلام",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 7,
     "day": 10,
     "title": "ولادت امام محمد تقی علیه السلام",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 7,
     "day": 13,
     "title": "ولادت امام علی علیه السلام و روز پدر",
-    "holiday": true
+    "holiday": true,
+    "remind": false
   },
   {
     "month": 7,
     "day": 13,
     "title": "آغاز ایام البیض (اعتکاف)",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 7,
     "day": 15,
     "title": "وفات حضرت زینب سلام الله علیها",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 7,
     "day": 25,
     "title": "شهادت امام موسی کاظم علیه السلام",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 7,
     "day": 27,
     "title": "مبعث رسول اکرم (ص)",
-    "holiday": true
+    "holiday": true,
+    "remind": false
   },
   {
     "month": 8,
     "day": 3,
     "title": "ولادت سالار شهیدان، امام حسین علیه السلام و روز پاسدار",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 8,
     "day": 4,
     "title": "ولادت ابوالفضل العباس علیه السلام و روز جانباز",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 8,
     "day": 5,
     "title": "ولادت امام زین العابدین علیه السلام و روز صحیفه سجادیه",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 8,
     "day": 11,
     "title": "ولادت علی اکبر علیه السلام و روز جوان",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 8,
     "day": 15,
     "title": "ولادت حضرت قائم عجل الله تعالی فرجه و جشن نیمه شعبان",
-    "holiday": true
+    "holiday": true,
+    "remind": false
   },
   {
     "month": 8,
     "day": 15,
     "title": "روز جهانی مستضعفان",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 8,
     "day": 15,
     "title": "روز سربازان گمنام امام زمان (عج)",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 9,
     "day": 10,
     "title": "وفات حضرت خدیجه (س)",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 9,
     "day": 15,
     "title": "ولادت امام حسن مجتبی علیه السلام و روز اکرام",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 9,
     "day": 18,
     "title": "شب قدر",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 9,
     "day": 19,
     "title": "ضربت خوردن حضرت علی علیه السلام و روز نهج البلاغه",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 9,
     "day": 20,
     "title": "شب قدر",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 9,
     "day": 21,
     "title": "شهادت حضرت علی علیه السلام",
-    "holiday": true
+    "holiday": true,
+    "remind": false
   },
   {
     "month": 9,
     "day": 22,
     "title": "شب قدر",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 10,
     "day": 1,
     "title": "عید سعید فطر",
-    "holiday": true
+    "holiday": true,
+    "remind": false
   },
   {
     "month": 10,
     "day": 2,
     "title": "تعطیل به مناسبت عید سعید فطر",
-    "holiday": true
+    "holiday": true,
+    "remind": false
   },
   {
     "month": 10,
     "day": 17,
     "title": "روز فرهنگ پهلوانی و ورزش زورخانه‌ای",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 10,
     "day": 25,
     "title": "شهادت امام جعفر صادق علیه السلام",
-    "holiday": true
+    "holiday": true,
+    "remind": false
   },
   {
     "month": 11,
     "day": 1,
     "title": "ولادت حضرت معصومه سلام الله علیها و روز دختران",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 11,
     "day": 5,
     "title": "تجلیل از امامزادگان و بقاع متبرکه",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 11,
     "day": 5,
     "title": "بزرگداشت حضرت صالح بن موسی کاظم (ع)",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 11,
     "day": 6,
     "title": "بزرگداشت حضرت احمد بن موسی شاهچراغ (ع)",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 11,
     "day": 11,
     "title": "ولادت امام رضا علیه السلام",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 11,
     "day": 30,
     "title": "شهادت امام محمد تقی علیه السلام",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 12,
     "day": 1,
     "title": "سالروز ازدواج حضرت علی (ع) و حضرت فاطمه (س) و روز ازدواج",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 12,
     "day": 6,
     "title": "شهادت زائران خانه خدا به دست مأموران آل سعود",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 12,
     "day": 7,
     "title": "شهادت امام محمد باقر علیه السلام",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 12,
     "day": 9,
     "title": "روز عرفه",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 12,
     "day": 10,
     "title": "عید سعید قربان",
-    "holiday": true
+    "holiday": true,
+    "remind": false
   },
   {
     "month": 12,
     "day": 10,
     "title": "آغاز دهه امامت و ولایت",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 12,
     "day": 15,
     "title": "ولادت امام علی النقی علیه السلام",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 12,
     "day": 18,
     "title": "عید سعید غدیر خم",
-    "holiday": true
+    "holiday": true,
+    "remind": false
   },
   {
     "month": 12,
     "day": 20,
     "title": "ولادت امام موسی کاظم علیه السلام",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 12,
     "day": 24,
     "title": "مباهله پیامبر اسلام (ص)",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   },
   {
     "month": 12,
     "day": 25,
     "title": "روز خانواده و تکریم بازنشستگان",
-    "holiday": false
+    "holiday": false,
+    "remind": false
   }
 ]
