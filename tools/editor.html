@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes">
+  <title>Event Editor</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Tahoma', sans-serif;
+      font-size: 18px;
+      margin: 0;
+      background: #f5f5f5;
+      color: #333;
+      direction: rtl;
+      padding-bottom: 80px;
+    }
+    header {
+      background: #007bff;
+      color: white;
+      padding: 12px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    header h1 { margin: 0 0 8px 0; font-size: 24px; }
+    .tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .tab {
+      padding: 8px 14px;
+      background: rgba(255,255,255,0.25);
+      border: none;
+      border-radius: 6px 6px 0 0;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      touch-action: manipulation;
+    }
+    .tab.active { background: white; color: #007bff; font-weight: bold; }
+    .toolbar {
+      padding: 8px 16px;
+      background: white;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      border-bottom: 1px solid #ddd;
+    }
+    .toolbar button {
+      font-size: 14px;
+      padding: 6px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    .toolbar button:active { background: #e9e9e9; }
+    .count { margin-right: auto; font-weight: bold; }
+    #search {
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-top: 8px;
+    }
+    #events-container {
+      padding: 8px 16px;
+    }
+    .event-card {
+      background: white;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: flex-start;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      cursor: pointer;
+      transition: background 0.15s;
+      user-select: none;
+      touch-action: manipulation;
+    }
+    .event-card.selected {
+      background: #d6e9ff;
+      border: 2px solid #007bff;
+      padding: 10px 14px;   /* compensate border */
+    }
+    .event-info { flex: 1; }
+    .event-title { font-weight: bold; font-size: 18px; }
+    .event-meta { color: #666; font-size: 14px; margin-top: 4px; }
+    .holiday-badge {
+      background: #dc3545;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-right: 8px;
+    }
+    .floating-delete {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      background: #dc3545;
+      color: white;
+      font-size: 18px;
+      padding: 14px 24px;
+      border: none;
+      border-radius: 50px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      cursor: pointer;
+      z-index: 20;
+      touch-action: manipulation;
+    }
+    .floating-delete:active { background: #c82333; }
+    .status-toast {
+      position: fixed;
+      bottom: 100px;
+      right: 16px;
+      background: #333;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      opacity: 0.9;
+      z-index: 30;
+      transition: opacity 0.3s;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📅 Event Editor</h1>
+    <div class="tabs">
+      <button class="tab active" data-file="events_jalali.json">Jalali</button>
+      <button class="tab" data-file="events_gregorian.json">Gregorian</button>
+      <button class="tab" data-file="events_hijri.json">Hijri</button>
+    </div>
+    <input type="text" id="search" placeholder="Search..." oninput="renderFiltered()">
+  </header>
+
+  <div class="toolbar">
+    <button onclick="selectAll()">✅ Select All</button>
+    <button onclick="deselectAll()">⬜ Deselect All</button>
+    <button onclick="invertSelection()">↔ Invert</button>
+    <span class="count" id="counter">0 / 0</span>
+  </div>
+
+  <div id="events-container"></div>
+
+  <button class="floating-delete" onclick="deleteSelected()">🗑 Delete (<span id="selectedCount">0</span>)</button>
+
+  <script>
+    let currentFile = 'events_jalali.json';
+    let allEvents = [];
+    let selectedIndices = new Set();   // stores indices of selected events
+
+    // ---------- data fetching ----------
+    async function fetchEvents() {
+      const resp = await fetch('/events?file=' + currentFile);
+      return await resp.json();
+    }
+
+    async function loadFile() {
+      allEvents = await fetchEvents();
+      allEvents.sort((a,b) => a.month*100 + a.day - b.month*100 - b.day);
+      selectedIndices.clear();
+      renderFiltered();
+      updateCounter();
+    }
+
+    // ---------- rendering ----------
+    function renderFiltered() {
+      const q = document.getElementById('search').value.toLowerCase();
+      const container = document.getElementById('events-container');
+      container.innerHTML = '';
+
+      allEvents.forEach((ev, idx) => {
+        if (q && !ev.title.toLowerCase().includes(q) &&
+            !(ev.month+'/'+ev.day).includes(q)) {
+          return;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'event-card' + (selectedIndices.has(idx) ? ' selected' : '');
+        card.setAttribute('data-index', idx);   // important for selection
+        card.innerHTML = `
+          <div class="event-info">
+            <div class="event-title">${ev.title}</div>
+            <div class="event-meta">
+              ${ev.month}/${ev.day}
+              ${ev.holiday ? '<span class="holiday-badge">تعطیل</span>' : ''}
+            </div>
+          </div>
+        `;
+        card.addEventListener('click', (e) => {
+          const index = parseInt(card.getAttribute('data-index'), 10);
+          toggleSelection(index);
+        });
+        container.appendChild(card);
+      });
+      updateCounter();
+    }
+
+    function toggleSelection(idx) {
+      if (selectedIndices.has(idx)) {
+        selectedIndices.delete(idx);
+      } else {
+        selectedIndices.add(idx);
+      }
+      // update only the card's visual class without full re-render
+      const card = document.querySelector(`.event-card[data-index="${idx}"]`);
+      if (card) {
+        card.classList.toggle('selected', selectedIndices.has(idx));
+      }
+      updateCounter();
+    }
+
+    function updateCounter() {
+      const total = allEvents.length;
+      const sel = selectedIndices.size;
+      document.getElementById('counter').textContent = `${sel} / ${total}`;
+      document.getElementById('selectedCount').textContent = sel;
+    }
+
+    // ---------- bulk selection ----------
+    function selectAll() {
+      // select only currently visible (filtered) events
+      const visible = document.querySelectorAll('.event-card');
+      visible.forEach(card => {
+        const idx = parseInt(card.getAttribute('data-index'), 10);
+        selectedIndices.add(idx);
+        card.classList.add('selected');
+      });
+      updateCounter();
+    }
+
+    function deselectAll() {
+      const visible = document.querySelectorAll('.event-card');
+      visible.forEach(card => {
+        const idx = parseInt(card.getAttribute('data-index'), 10);
+        selectedIndices.delete(idx);
+        card.classList.remove('selected');
+      });
+      updateCounter();
+    }
+
+    function invertSelection() {
+      const visible = document.querySelectorAll('.event-card');
+      visible.forEach(card => {
+        const idx = parseInt(card.getAttribute('data-index'), 10);
+        if (selectedIndices.has(idx)) {
+          selectedIndices.delete(idx);
+          card.classList.remove('selected');
+        } else {
+          selectedIndices.add(idx);
+          card.classList.add('selected');
+        }
+      });
+      updateCounter();
+    }
+
+    // ---------- delete ----------
+    async function deleteSelected() {
+      const selSize = selectedIndices.size;
+      if (selSize === 0) {
+        alert('No events selected.');
+        return;
+      }
+      if (!confirm(`Delete ${selSize} event(s)?`)) return;
+
+      // Remove from data (sort descending to preserve indices)
+      const sorted = [...selectedIndices].sort((a,b) => b-a);
+      for (const idx of sorted) {
+        allEvents.splice(idx, 1);
+      }
+      selectedIndices.clear();
+      renderFiltered();
+      showToast(`Removed ${selSize} event(s).`);
+    }
+
+    // ---------- save ----------
+    async function saveToServer() {
+      const payload = { file: currentFile, events: allEvents };
+      const resp = await fetch('/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (resp.ok) {
+        showToast('Saved!');
+      } else {
+        alert('Save failed.');
+      }
+    }
+
+    // ---------- utility ----------
+    function showToast(msg) {
+      const toast = document.createElement('div');
+      toast.className = 'status-toast';
+      toast.textContent = msg;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2000);
+    }
+
+    // ---------- tab switching ----------
+    function switchTab(fname) {
+      currentFile = fname;
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.file === fname);
+      });
+      loadFile();
+    }
+
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => switchTab(tab.dataset.file));
+    });
+
+    // Initial load
+    loadFile();
+  </script>
+</body>
+</html>
