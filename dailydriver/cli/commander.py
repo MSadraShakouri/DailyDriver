@@ -18,6 +18,7 @@ from dailydriver.display.stats import show_stats
 from dailydriver.display.today import show_today
 from dailydriver.cli.help import show_help
 from dailydriver.cli.calendar_view import show_calendar
+from dailydriver.cli.year_view import show_year
 
 def make_dispatch():
     dispatch = {
@@ -38,6 +39,7 @@ def make_dispatch():
         'ee': log_event_end,
         'ln': log_chain_now,
         'cal': lambda args: show_calendar(args[1:] if len(args) > 1 else []),
+        'year': lambda _: show_year(),
     }
     dispatch['sge'] = start_great_event_cmd
     dispatch['ege'] = end_great_event_cmd
