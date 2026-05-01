@@ -19,6 +19,7 @@ from dailydriver.display.today import show_today
 from dailydriver.cli.help import show_help
 from dailydriver.cli.calendar_view import show_calendar
 from dailydriver.cli.year_view import show_year
+from dailydriver.cli.export_log import export
 
 def make_dispatch():
     dispatch = {
@@ -40,6 +41,7 @@ def make_dispatch():
         'ln': log_chain_now,
         'cal': lambda args: show_calendar(args[1:] if len(args) > 1 else []),
         'year': lambda _: show_year(),
+        'export': lambda cmd: export(cmd),
     }
     dispatch['sge'] = start_great_event_cmd
     dispatch['ege'] = end_great_event_cmd
@@ -191,7 +193,7 @@ def repl():
             handler = dispatch.get(first)
             if handler:
                 try:
-                    result = handler(line) if first in ('p','s','bd','t','ee','ln','sge','ege') else handler(parts)
+                    result = handler(line) if first in ('p','s','bd','t','ee','ln','sge','ege','export') else handler(parts)
                     if result:
                         clear()
                         data = build_header_data()
@@ -233,7 +235,7 @@ def run_single_command(line):
     handler = dispatch.get(first)
     if handler:
         try:
-            result = handler(line) if first in ('p','s','bd','t','ee','ln','sge','ege') else handler(parts)
+            result = handler(line) if first in ('p','s','bd','t','ee','ln','sge','ege','export') else handler(parts)
             if result:
                 clear()
                 data = build_header_data()
