@@ -53,7 +53,7 @@ def _print_month_grid(year, month):
     elif month <= 11:
         num_days = 30
     else:
-        # Esfand: leap year detection (simplified)
+        # Esfand: leap year detection
         try:
             jdatetime.date(year, 12, 30)
             num_days = 30
@@ -73,13 +73,12 @@ def _print_month_grid(year, month):
         today = jdatetime.date.today()
         is_today = (year == today.year and month == today.month and day == today.day)
         # Check if holiday (from events)
-        events = get_events()
+        raw_events = get_events() or []   # returns list of (jalali_date, event)
         holiday = False
-        if events:
-            for e in events:
-                if e["month"] == month and e["day"] == day and e.get("holiday"):
-                    holiday = True
-                    break
+        for jdate, e in raw_events:
+            if jdate.month == month and jdate.day == day and e.get("holiday"):
+                holiday = True
+                break
         # Format day string
         if is_today:
             day_str = f"[{day:2d}]"
