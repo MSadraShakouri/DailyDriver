@@ -102,6 +102,9 @@ def print_header(data: dict):
     calendar_str = data.get('calendar_str', '')
     if calendar_str:
         pline(calendar_str)
+    reminders_str = data.get('reminders_str', '')
+    if reminders_str:
+        pline(reminders_str)
 
     # Bottom separator with last entry time (right‑aligned)
     last_time = data.get('last_entry_time', '')

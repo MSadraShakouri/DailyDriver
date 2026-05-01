@@ -7,6 +7,7 @@ from dailydriver.display.hygiene_nudges import compute_hygiene_nudges
 from dailydriver.utils.time_utils import today_jalali, format_jalali
 from dailydriver.core.logger import get_pending_start, get_active_great_event
 from dailydriver.ui.terminal_ui import current_ui
+from dailydriver.utils.calendar_events import get_events, get_todays_events, get_upcoming_events
 
 def build_header_data():
     """Collect all data needed for the daily header and return a dict."""
@@ -76,6 +77,19 @@ def build_header_data():
                 parts.append(f"{prefix} {e['title']}")
             calendar_str = " | ".join(parts)
 
+        # ---------- upcoming reminders (events with remind:true in the next 14 days) ----------
+        reminders_str = ""
+        if events:
+            today_j = jdatetime.date.today()
+            upcoming = get_upcoming_events(events, days=14)
+            # Only events that are in the future (starting tomorrow) and have remind=True
+            reminders = [(d, e) for d, e in upcoming if d > today_j and e.get('remind')]
+            if reminders:
+                rparts = []
+                for d, e in reminders[:5]:          # show up to 5
+                    rparts.append(f"🔔 {d.day} {jdatetime.date.j_months_fa[d.month-1]}: {e['title']}")
+                reminders_str = " | ".join(rparts)
+
         # ---------- great event indicator ----------
         great_event_str = ''
         active_ge = get_active_great_event()
@@ -107,6 +121,7 @@ def build_header_data():
             'bday_str': bday_str,
             'hygiene_str': hygiene_str,
             'calendar_str': calendar_str,
+            'reminders_str': reminders_str,
             'event_str': event_str,
             'great_event_str': great_event_str,
             'last_entry_time': last_entry_time,
