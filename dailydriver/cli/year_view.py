@@ -93,7 +93,7 @@ def show_year():
 
         # Print side by side with 2-space gap
         for line_idx in range(max_lines):
-            line = "  ".join(g[line_idx] for g in grids)
+            line = "   ".join(g[line_idx] for g in grids)
             current_ui.print_line(line)
         current_ui.print_line()  # blank line between rows
 
