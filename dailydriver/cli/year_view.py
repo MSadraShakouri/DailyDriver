@@ -1,107 +1,105 @@
 # dailydriver/cli/year_view.py
-"""Year calendar view for DailyDriver."""
+"""Responsive year calendar view (like cal -y) for DailyDriver."""
+import shutil
 import jdatetime
 from dailydriver.ui.terminal_ui import current_ui
 from dailydriver.utils.calendar_events import get_events
 
-# Days in each month (1..12). For Esfand we handle leap years separately.
-_MONTH_DAYS = [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29]
+_JALALI_MONTHS_EN = [
+    "Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar",
+    "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"
+]
 
-def _is_jalali_leap(year):
-    """Return True if the given Jalali year is a leap year (i.e., Esfand has 30 days)."""
-    # In the Jalali calendar, a year is leap if the remainder after dividing
-    # (year + 2346) by 2820 is <= 1386?  Simpler: just check if 12/30 exists.
-    try:
-        jdatetime.date(year, 12, 30)
-        return True
-    except ValueError:
-        return False
+def _build_month_lines(year, month):
+    """Return a list of strings representing one month's clean grid.
+    Each line is exactly 20 characters wide (7*2 + 6 spaces).
+    """
+    first_day = jdatetime.date(year, month, 1)
+    start_col = first_day.weekday()  # 0=Sat
+    if month <= 6:
+        num_days = 31
+    elif month <= 11:
+        num_days = 30
+    else:
+        try:
+            jdatetime.date(year, 12, 30)
+            num_days = 30
+        except ValueError:
+            num_days = 29
 
-def _days_in_month(year, month):
-    if month <= 11:
-        return _MONTH_DAYS[month-1]
-    # Esfand
-    return 30 if _is_jalali_leap(year) else 29
+    lines = []
+    # centered month name
+    month_name = _JALALI_MONTHS_EN[month - 1]
+    lines.append(month_name.center(20))
+    # weekday header
+    lines.append("Sa Su Mo Tu We Th Fr")
+
+    # day cells
+    day_cells = ["  "] * start_col
+    for day in range(1, num_days + 1):
+        day_cells.append(f"{day:2d}")
+
+    # wrap into rows of 7
+    for i in range(0, len(day_cells), 7):
+        row = " ".join(day_cells[i:i+7])
+        # pad row to exactly 20 chars for consistent alignment
+        row = row.ljust(20)
+        lines.append(row)
+
+    # pad to same height (6 data lines minimum)
+    while len(lines) < 6:
+        lines.append(" " * 20)
+    return lines
 
 def show_year():
-    """Display a compact year calendar with events."""
-    raw_events = get_events() or []   # returns list of (jalali_date, event_dict)
+    """Display a responsive year calendar."""
+    try:
+        term_width = shutil.get_terminal_size().columns
+    except Exception:
+        term_width = 80
+
+    # each month grid is 20 chars + 2 spaces between grids
+    if term_width >= 70:
+        months_per_row = 3
+    elif term_width >= 50:
+        months_per_row = 2
+    else:
+        months_per_row = 1
+
     today = jdatetime.date.today()
-    current_year = today.year
+    year = today.year
 
-    # Build lookup: (month, day) -> event (prefer holiday)
-    event_map = {}
-    for jdate, ev in raw_events:
-        key = (jdate.month, jdate.day)
-        if key not in event_map or (ev.get("holiday") and not event_map[key].get("holiday")):
-            event_map[key] = ev
-
-    # List of all holidays as (month, day, event)
+    raw_events = get_events() or []
+    # Build list of holidays
     holidays = []
     for jdate, ev in raw_events:
         if ev.get("holiday"):
             holidays.append((jdate.month, jdate.day, ev))
 
-    # Print header
-    current_ui.print_line(f"\n══════ سال {current_year} هجری شمسی ══════")
-    current_ui.print_line("  ● = holiday   ○ = other event\n")
+    # Print the year header
+    current_ui.print_line(f"\n{str(year).center(months_per_row * 22)}")
+    current_ui.print_line()
 
-    # Print months in rows of 3
-    for row_start in range(0, 12, 3):
-        months = [m for m in range(row_start+1, min(row_start+4, 13))]
-        grids = []
-        for month in months:
-            grid = _build_month_grid(current_year, month, today, event_map)
-            grids.append(grid)
-        # Pad all grids to same height
+    # Print months in rows
+    for row_start in range(1, 13, months_per_row):
+        months = list(range(row_start, min(row_start + months_per_row, 13)))
+        grids = [_build_month_lines(year, m) for m in months]
+
+        # Pad all grids to same number of lines
         max_lines = max(len(g) for g in grids)
         for g in grids:
             while len(g) < max_lines:
                 g.append(" " * 20)
-        # Print side by side
-        for line_idx in range(max_lines):
-            line = "   ".join(grids[i][line_idx] for i in range(len(grids)))
-            current_ui.print_line(line)
-        current_ui.print_line()
 
-    # List all holidays
+        # Print side by side with 2-space gap
+        for line_idx in range(max_lines):
+            line = "  ".join(g[line_idx] for g in grids)
+            current_ui.print_line(line)
+        current_ui.print_line()  # blank line between rows
+
+    # List official holidays below
     if holidays:
         current_ui.print_line("─── تعطیلات رسمی ───")
-        holidays.sort(key=lambda h: (h[0], h[1]))  # sort by month,day
+        holidays.sort(key=lambda h: (h[0], h[1]))
         for m, d, ev in holidays:
             current_ui.print_line(f"  {m:02d}/{d:02d}  {ev['title']}")
-
-def _build_month_grid(year, month, today, event_map):
-    """Return list of strings representing one month's grid."""
-    first_day = jdatetime.date(year, month, 1)
-    num_days = _days_in_month(year, month)
-    weekday_of_first = first_day.weekday()  # 0=Sat, 6=Fri
-
-    lines = []
-    month_name = first_day.strftime("%B")
-    lines.append(f"{month_name:^20}")
-    lines.append("ش  ی  د  س  چ  پ  ج")
-
-    day_cells = []
-    # Leading spaces
-    for _ in range(weekday_of_first):
-        day_cells.append("   ")
-
-    for d in range(1, num_days+1):
-        key = (month, d)
-        ev = event_map.get(key)
-        if key == (today.month, today.day):
-            cell = f"[{d:2d}]"
-        elif ev and ev.get("holiday"):
-            cell = f"●{d:2d}●"
-        elif ev:
-            cell = f"○{d:2d}○"
-        else:
-            cell = f" {d:2d} "
-        day_cells.append(cell)
-
-    # Wrap into lines of 7 cells
-    for i in range(0, len(day_cells), 7):
-        lines.append(" ".join(day_cells[i:i+7]))
-
-    return lines
