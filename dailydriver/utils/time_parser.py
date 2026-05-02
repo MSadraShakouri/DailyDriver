@@ -37,11 +37,16 @@ def parse_time(s: str, now: datetime, allow_future: bool = False) -> datetime | 
     s = s.strip().lower()
     if s in ('n', 'now'):
         return now
-    # offset: -30
-    m = re.match(r'^-(\d+)$', s)
+    # offset: -30, -30m, -30min, -1h, -1hour, etc.
+    m = re.match(r'^-(\d+)\s*(m(?:in(?:ute)?s?)?|h(?:ou)?r?s?)?$', s, re.IGNORECASE)
     if m:
-        mins = int(m.group(1))
-        return now - timedelta(minutes=mins)
+        num = int(m.group(1))
+        unit = (m.group(2) or '').lower()
+        if unit.startswith('h'):
+            minutes = num * 60
+        else:
+            minutes = num
+        return now - timedelta(minutes=minutes)
     # HH:MM
     m = re.match(r'^(\d{1,2}):(\d{2})$', s)
     if m:

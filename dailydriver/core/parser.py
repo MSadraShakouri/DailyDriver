@@ -2,6 +2,7 @@
 import re
 from datetime import datetime, timedelta
 from dailydriver.core.date_parser import _parse_date_jalali, _parse_relative_date
+from dailydriver.utils.time_parser import parse_time
 
 def extract_time(text: str):
     """
@@ -11,7 +12,7 @@ def extract_time(text: str):
     now = datetime.now()
     text_clean = text.strip()
 
-    # ---------- 0. "last X mins/hours" (moved to top to ensure it is matched first) ----------
+    # ---------- 0. "last X mins/hours" ----------
     m = re.search(r'(?:last|past)\s+(\d+)\s*min(?:ute)?s?', text_clean, re.IGNORECASE)
     if not m:
         m = re.search(r'(?:last|past)\s+(\d+)\s+m\b', text_clean, re.IGNORECASE)
@@ -26,17 +27,13 @@ def extract_time(text: str):
         start = now - timedelta(hours=hours)
         return int(start.timestamp()), hours * 60
 
-    # ---------- 1. Offset: -30m, -1h ----------
-    m = re.search(r'-(\d+)\s*[mM](?!\w)', text_clean)
-    if not m:
-        m = re.search(r'-(\d+)\s*[hH](?!\w)', text_clean)
-    if m:
-        num = int(m.group(1))
-        unit = 'h' if 'h' in m.group(0).lower() else 'm'
-        if unit == 'h':
-            return int((now - timedelta(hours=num)).timestamp()), None
-        else:
-            return int((now - timedelta(minutes=num)).timestamp()), None
+    # ---------- 1. Offsets ( -30m, -1h ) ----------
+    # Try to extract a standalone offset word from the beginning/anywhere
+    for word in text_clean.split():
+        if word.startswith('-'):
+            parsed = parse_time(word, now)
+            if parsed is not None:
+                return int(parsed.timestamp()), None
 
     # ---------- 2. Time range like 17-02 ----------
     range_match = re.search(r'(\d{1,2})\s*-\s*(\d{1,2})(?::(\d{2}))?', text_clean)
@@ -66,14 +63,13 @@ def extract_time(text: str):
             duration = int((now - start).total_seconds() / 60)
             return int(start.timestamp()), duration
 
-    # ---------- 3. HH:MM (or HH:MM-HH:MM) ----------
+    # ---------- 3. HH:MM (single or range) ----------
     time_matches = re.findall(r'(\d{1,2}):(\d{2})', text_clean)
     if len(time_matches) == 1:
-        h, m = time_matches[0]
-        h, m = int(h), int(m)
-        if 0 <= h <= 23 and 0 <= m <= 59:
-            start = now.replace(hour=h, minute=m, second=0, microsecond=0)
-            return int(start.timestamp()), None
+        h, m = int(time_matches[0][0]), int(time_matches[0][1])
+        parsed = parse_time(f"{h:02d}:{m:02d}", now)
+        if parsed is not None:
+            return int(parsed.timestamp()), None
     elif len(time_matches) >= 2:
         h1, m1 = int(time_matches[0][0]), int(time_matches[0][1])
         h2, m2 = int(time_matches[1][0]), int(time_matches[1][1])
