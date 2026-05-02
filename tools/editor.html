@@ -272,13 +272,14 @@
       }
       if (!confirm(`Delete ${selSize} event(s)?`)) return;
 
-      // Remove from data (sort descending to preserve indices)
       const sorted = [...selectedIndices].sort((a,b) => b-a);
       for (const idx of sorted) {
         allEvents.splice(idx, 1);
       }
       selectedIndices.clear();
       renderFiltered();
+      // Automatically save changes to file
+      await saveToServer();
       showToast(`Removed ${selSize} event(s).`);
     }
 
