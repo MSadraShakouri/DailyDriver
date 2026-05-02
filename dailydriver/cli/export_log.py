@@ -72,6 +72,31 @@ def export(cmd):
             duration = _fmt_dur(r['duration_minutes'])
             sleep_lines.append(f'{date_str}   {start_t} → {wake_t}   ({duration})')
 
+        # ----- Naps -----
+        nap_rows = cur.execute('''
+            SELECT jalali_date, start_time, duration_minutes, description
+            FROM nap_logs WHERE start_time >= ?
+            ORDER BY start_time
+        ''', (cutoff,)).fetchall()
+
+        nap_lines = []
+        for r in nap_rows:
+            parts_date = r['jalali_date'].split('-') if r['jalali_date'] else None
+            if parts_date and len(parts_date) == 3:
+                date_str = jdatetime.date(int(parts_date[0]), int(parts_date[1]), int(parts_date[2])).strftime('%d %B %Y')
+            else:
+                date_str = 'unknown'
+            _, start_t = _jdate_str(r['start_time'])
+            if r['duration_minutes'] is not None:
+                end_ts = r['start_time'] + r['duration_minutes'] * 60
+                _, end_t = _jdate_str(end_ts)
+                duration_str = _fmt_dur(r['duration_minutes'])
+            else:
+                end_t = '??:??'
+                duration_str = ''
+            desc = f" - {r['description']}" if r['description'] else ""
+            nap_lines.append(f'{date_str}   {start_t} → {end_t}   ({duration_str}){desc}')
+
         # ----- Prayers -----
         prayer_rows = cur.execute('''
             SELECT jalali_date, prayer_slot, status, prayer_time, jamaat_location, shak_count
@@ -145,8 +170,9 @@ def export(cmd):
         f.write('══════ Export (last {} days) ══════\n\n'.format(days))
         f.write('── Sleep ──\n')
         f.write('\n'.join(sleep_lines) + '\n\n')
+        f.write('── Naps ──\n')
+        f.write('\n'.join(nap_lines) + '\n\n')
         f.write('── Prayers ──\n')
-        f.write('\n'.join(prayer_lines) + '\n\n')
         f.write('── Journal Entries ──\n')
         f.write('\n'.join(entry_lines) + '\n')
 
