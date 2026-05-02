@@ -128,11 +128,22 @@ def _migration_1(conn):
 
     conn.commit()
 
+def _migration_2(conn):
+    cur = conn.cursor()
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS nap_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            jalali_date TEXT NOT NULL,
+            start_time INTEGER NOT NULL,
+            duration_minutes INTEGER,
+            description TEXT
+        )
+    ''')
+    conn.commit()
 
 _MIGRATIONS = {
     1: _migration_1,
-    # Future migrations go here, e.g.:
-    # 2: _migration_2_add_nap_table,
+    2: _migration_2,
 }
 
 
