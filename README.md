@@ -106,19 +106,16 @@ sqlite3 data/daily.db "SELECT * FROM entries;"
 ## Project Structure
 
 ```
-DailyDriver/
-├── main.py
-├── README.md
-├── dailydriver/
-│   ├── core/           # database, parser, logger, keywords
-│   ├── domains/        # prayer, sleep, hygiene, birthday, intention, prayer_times
-│   ├── display/        # header, stats, today, hygiene_nudges
-│   ├── cli/            # commander, entry_viewer, help, calendar_view, year_view, export_log
-│   ├── ui/             # terminal_ui
-│   └── utils/          # time_utils, calendar_events
-├── data/               # daily.db, stopwords.txt, events_*.json
-├── tools/              # event editor (edit_events.py, editor.html)
-└── tests/
+dailydriver/
+├── core/          # database, parser, logger, keyword learning
+├── domains/       # prayer, sleep, hygiene, birthday, intention, prayer times
+├── display/       # header, stats, today view, hygiene nudges
+├── cli/           # REPL, commands, calendar, export
+├── ui/            # terminal abstraction
+└── utils/         # time helpers, calendar events
+data/              # database, stopwords, event JSON files
+tools/             # event editor (mobile‑friendly web UI)
+tests/             # test files
 ```
 
 ---
