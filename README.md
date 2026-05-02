@@ -26,28 +26,32 @@ Built with Python, SQLite, and Jalali calendar support.
 
 ## Installation
 
-1. Clone the repository:
+1. **Clone the repository**  
    ```bash
    git clone https://github.com/MSadraShakouri/DailyDriver.git
    cd DailyDriver
    ```
 
-2. Install the required packages:
+2. **Install the project and dependencies**  
    ```bash
-   pip install jdatetime hijridate
+   pip install .
    ```
 
-3. (Optional) Make the entry point executable:
+   This will automatically install `jdatetime` and `hijridate`.
+
+   *(Alternatively, you can install the dependencies manually: `pip install jdatetime hijridate`)*
+
+3. **(Optional) Make the entry point executable**  
    ```bash
    chmod +x main.py
    ```
 
-4. Create a convenient command (optional):
-   - Symlink:
+4. **(Optional) Create a convenient command**  
+   - **Symlink**  
      ```bash
      ln -s /full/path/to/DailyDriver/main.py ~/.local/bin/daily
      ```
-   - Alias (add to `~/.bashrc` or `~/.zshrc`):
+   - **Alias** (add to `~/.bashrc` or `~/.zshrc`)  
      ```bash
      alias daily='python /path/to/DailyDriver/main.py'
      ```
