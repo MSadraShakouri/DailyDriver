@@ -82,7 +82,7 @@ def build_header_data():
         if todays:
             for e in todays:
                 prefix = "🎌" if e.get("holiday") else "📌"
-                calendar_lines.append(f"{prefix} {e['title']}")
+                calendar_lines.append(f"{prefix} {e['title_en']}")
 
         # ---------- upcoming reminders (events with remind:true in the next 14 days) ----------
         reminders_str = ""
@@ -94,7 +94,7 @@ def build_header_data():
             if reminders:
                 rparts = []
                 for d, e in reminders[:5]:          # show up to 5
-                    rparts.append(f"🔔 {d.day} {jdatetime.date.j_months_fa[d.month-1]}: {e['title']}")
+                    rparts.append(f"🔔 {d.day} {jdatetime.date.j_months_fa[d.month-1]}: {e['title_en']}")
                 reminders_str = " | ".join(rparts)
 
         # ---------- great event indicator ----------

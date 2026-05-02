@@ -102,4 +102,4 @@ def show_year():
         current_ui.print_line("─── تعطیلات رسمی ───")
         holidays.sort(key=lambda h: (h[0], h[1]))
         for m, d, ev in holidays:
-            current_ui.print_line(f"  {m:02d}/{d:02d}  {ev['title']}")
+            current_ui.print_line(f"  {m:02d}/{d:02d}  {ev['title_en']}")

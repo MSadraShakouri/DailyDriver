@@ -113,7 +113,7 @@ def _convert_all_events(target_jalali_year):
     seen = set()
     unique = []
     for jdate, ev in sorted(events, key=lambda x: x[0]):
-        key = (jdate, ev["title"])
+        key = (jdate, ev['title_en'])
         if key not in seen:
             seen.add(key)
             unique.append((jdate, ev))

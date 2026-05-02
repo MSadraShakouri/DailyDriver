@@ -189,7 +189,7 @@
         card.setAttribute('data-index', idx);   // important for selection
         card.innerHTML = `
           <div class="event-info">
-            <div class="event-title">${ev.title}</div>
+            <div class="event-title">${ev.title_en || ev.title_fa}</div>
             <div class="event-meta">
               ${ev.month}/${ev.day}
               ${ev.holiday ? '<span class="holiday-badge">تعطیل</span>' : ''}

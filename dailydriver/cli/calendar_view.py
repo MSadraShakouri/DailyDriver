@@ -43,7 +43,7 @@ def show_calendar(args=None):
         current_ui.print_line("\n─── Upcoming 15 days ───")
         for date, e in upcoming:
             prefix = "🎌" if e.get("holiday") else "📌"
-            current_ui.print_line(f"  {date.strftime('%d %B')}: {prefix} {e['title']}")
+            current_ui.print_line(f"  {date.strftime('%d %B')}: {prefix} {e['title_en']}")
     else:
         current_ui.print_line("No events for the next 15 days.")
 
