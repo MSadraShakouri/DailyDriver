@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dailydriver"
-version = "2.1.0"
+version = "1.0.0"
 description = "Personal terminal‑based life tracker (prayer, sleep, journal, calendar)"
 readme = "README.md"
 license = { text = "MIT" }

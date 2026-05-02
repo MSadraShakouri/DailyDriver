@@ -1,4 +1,4 @@
-# DailyDriver v2.1.0
+# DailyDriver v1.0.0
 
 Your personal, terminal‑based life tracker.
 Log prayers, sleep, hygiene routines, birthdays, intentions, and free‑form journal entries – all from a fast, keyboard‑driven REPL.
