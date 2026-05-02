@@ -16,28 +16,7 @@
   {
     "month": 1,
     "day": 15,
-    "title": "نخستین مکالمه تلفنی میان نیویورک و سانفرانسیسکو برقرار شد.",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 1,
-    "day": 15,
     "title": "ویکی‌پدیای انگلیسی بزرگترین و قدیمی‌ترین نسخه دانشنامه ویکی‌پدیا آغاز به کار کرد.",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 1,
-    "day": 19,
-    "title": "برای اولین بار، لامپ رشته‌ای ساخته شده توسط توماس ادیسون در نیوجرسی شروع به کار کرد.",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 1,
-    "day": 20,
-    "title": "کشف اشعه ایکس توسط ویلهلم کنراد رونتگن فیزیکدان آلمانی.",
     "holiday": false,
     "remind": false
   },
@@ -63,27 +42,6 @@
     "remind": false
   },
   {
-    "month": 1,
-    "day": 27,
-    "title": "روز جهانی بزرگداشت قربانیان هولوکاست",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 1,
-    "day": 28,
-    "title": "روز جهانی همزیستی مسالمت‌آمیز",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 2,
-    "day": 1,
-    "title": "شروع هفتهٔ جهانی هماهنگی بین ادیان",
-    "holiday": false,
-    "remind": false
-  },
-  {
     "month": 2,
     "day": 2,
     "title": "روز جهانی تالاب‌ها",
@@ -94,13 +52,6 @@
     "month": 2,
     "day": 4,
     "title": "روز جهانی همبستگی انسانی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 2,
-    "day": 6,
-    "title": "روز جهانی مقابله با ناقص‌سازی اندام جنسی زنان",
     "holiday": false,
     "remind": false
   },
@@ -120,20 +71,6 @@
   },
   {
     "month": 2,
-    "day": 10,
-    "title": "روز جهانی پلنگ عربی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 2,
-    "day": 11,
-    "title": "حمله به سفارت روسیه و قتل گریبایدوف سفیر روسیه تزاری در ایران",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 2,
     "day": 11,
     "title": "روز جهانی مشارکت زنان و دختران در علم",
     "holiday": false,
@@ -141,36 +78,8 @@
   },
   {
     "month": 2,
-    "day": 12,
-    "title": "روز بین‌المللی پیشگیری از افراط‌گرایی خشونت‌آمیز",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 2,
     "day": 13,
     "title": "روز جهانی رادیو",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 2,
-    "day": 14,
-    "title": "جشن ولنتاین",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 2,
-    "day": 14,
-    "title": "ثبت اختراع تلفن توسط الکساندر گراهام بل",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 2,
-    "day": 17,
-    "title": "روز جهانی توانمندی صنعت گردشگری برای مقابله با بحران ها",
     "holiday": false,
     "remind": false
   },
@@ -197,22 +106,8 @@
   },
   {
     "month": 3,
-    "day": 1,
-    "title": "روز جهانی علف‌های دریایی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 3,
     "day": 3,
     "title": "روز جهانی حیات‌وحش",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 3,
-    "day": 5,
-    "title": "روز بین‌المللی آگاهی‌رسانی درباره خلع سلاح و عدم گسترش سلاح‌ها",
     "holiday": false,
     "remind": false
   },
@@ -225,29 +120,8 @@
   },
   {
     "month": 3,
-    "day": 10,
-    "title": "روز جهانی زنان قاضی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 3,
     "day": 14,
     "title": "روز جهانی عدد پی  π",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 3,
-    "day": 15,
-    "title": "روز بین‌المللی مبارزه با اسلام‌هراسی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 3,
-    "day": 18,
-    "title": "فضانورد روس، آلکسی لئونوف در لباس فضایی از سفینه فضایی وسخود ۲ خارج شد و به عنوان اولین انسانی که به فضا گام نهاد، نام خود را در تاریخ ثبت کرد.",
     "holiday": false,
     "remind": false
   },
@@ -276,27 +150,6 @@
     "month": 3,
     "day": 21,
     "title": "روز جهانی نوروز",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 3,
-    "day": 21,
-    "title": "روز جهانی یخچال‌ها طبیعی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 3,
-    "day": 21,
-    "title": "شروع هفته همبستگی با مردمان مبارز علیه نژادپرستی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 3,
-    "day": 21,
-    "title": "روز جهانی مبارزه با تبعیض نژادی",
     "holiday": false,
     "remind": false
   },
@@ -345,13 +198,6 @@
   {
     "month": 3,
     "day": 25,
-    "title": "روز جهانی همبستگی با کارکنان زندانی یا مفقودشده",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 3,
-    "day": 25,
     "title": "روز جهانی یادبود قربانیان برده‌داری و تجارت برده اقیانوس اطلس",
     "holiday": false,
     "remind": false
@@ -360,20 +206,6 @@
     "month": 3,
     "day": 27,
     "title": "روز جهانی تئاتر",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 3,
-    "day": 30,
-    "title": "روز جهانی بدون پسماند",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 3,
-    "day": 31,
-    "title": "برج ایفل در پاریس بطور رسمی گشایش یافت.",
     "holiday": false,
     "remind": false
   },
@@ -393,85 +225,8 @@
   },
   {
     "month": 4,
-    "day": 4,
-    "title": "گشایش رسمی مرکز تجارت جهانی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 4,
-    "day": 4,
-    "title": "روز جهانی آگاهی دربارهٔ مین و کمک به اقدامات مین‌زدایی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 4,
-    "day": 5,
-    "title": "روز جهانی وجدان",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 4,
-    "day": 6,
-    "title": "زاد روز هورست لودویگ اشتورمر فیزیکدان آلمانی، برندهٔ جایزه نوبل فیزیک سال ۱۹۹۸",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 4,
-    "day": 6,
-    "title": "زاد روز جیمز واتسون ،زیست‌فیزیکدان و متخصّص علم ژنتیک آمریکایی، برندهٔ جایزه نوبل فیزیولوژی و پزشکی سال ۱۹۶۲",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 4,
-    "day": 6,
-    "title": "روز جهانی ورزش برای توسعه و صلح",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 4,
     "day": 7,
     "title": "روز جهانی بهداشت",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 4,
-    "day": 7,
-    "title": "روز جهانی یادبود نسل‌کشی توتسی‌ها در رواندا",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 4,
-    "day": 12,
-    "title": "روز جهانی پرواز انسان به فضا",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 4,
-    "day": 14,
-    "title": "کشتی مسافربر تایتانیک با ۲۲۰۰ مسافر و خدمه در حوالی کانادا غرق شد.",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 4,
-    "day": 14,
-    "title": "روز جهانی بیماری شاگاس",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 4,
-    "day": 15,
-    "title": "زاد روز لئوناردو داوینچی دانشمند، نقاش، مجسمه‌ساز و معمار نامدار ایتالیایی",
     "holiday": false,
     "remind": false
   },
@@ -486,13 +241,6 @@
     "month": 4,
     "day": 20,
     "title": "روز جهانی زبان چینی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 4,
-    "day": 21,
-    "title": "روز جهانی خلاقیت و نوآوری",
     "holiday": false,
     "remind": false
   },
@@ -526,50 +274,8 @@
   },
   {
     "month": 4,
-    "day": 24,
-    "title": "روز جهانی دختران در فناوری اطلاعات و ارتباطات",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 4,
-    "day": 24,
-    "title": "شروع هفته جهانی ایمن سازی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 4,
-    "day": 24,
-    "title": "روز جهانی چندجانبه‌گرایی و دیپلماسی برای صلح",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 4,
     "day": 25,
     "title": "روز جهانی مالاریا",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 4,
-    "day": 25,
-    "title": "روز جهانی نمایندگان",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 4,
-    "day": 26,
-    "title": "روز جهانی یادبود فاجعه چرنوبیل",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 4,
-    "day": 26,
-    "title": "روز جهانی مالکیت معنوی",
     "holiday": false,
     "remind": false
   },
@@ -588,30 +294,9 @@
     "remind": false
   },
   {
-    "month": 4,
-    "day": 29,
-    "title": "روز جهانی یادبود قربانیان زلزله ها",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 4,
-    "day": 30,
-    "title": "روز جهانی موسیقی جاز",
-    "holiday": false,
-    "remind": false
-  },
-  {
     "month": 5,
     "day": 1,
     "title": "روزجهانی  کارگر",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 5,
-    "day": 2,
-    "title": "روز جهانی ماهی تن",
     "holiday": false,
     "remind": false
   },
@@ -638,50 +323,8 @@
   },
   {
     "month": 5,
-    "day": 7,
-    "title": "رابیندرانات تاگور شاعر، نویسنده، نقاش و آهنگساز بنگالی، برندهٔ جایزه نوبل ادبیات سال ۱۹۱۳",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 5,
-    "day": 7,
-    "title": "روز جهانی قدس",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 5,
     "day": 8,
     "title": "روز جهانی صلیب سرخ و هلال احمر",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 5,
-    "day": 8,
-    "title": "زمان یادبود و مصالحه برای جان‌باختگان جنگ جهانی دوم",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 5,
-    "day": 10,
-    "title": "نلسون ماندلا، پس از پیروزی در انتخابات، نخستین رئیس‌جمهور سیاه‌پوست آفریقای جنوبی شد.",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 5,
-    "day": 10,
-    "title": "روز جهانی گیاه آرگان",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 5,
-    "day": 10,
-    "title": "روز جهانی پرندگان مهاجر",
     "holiday": false,
     "remind": false
   },
@@ -694,43 +337,8 @@
   },
   {
     "month": 5,
-    "day": 12,
-    "title": "روز جهانی بهداشت گیاه",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 5,
-    "day": 12,
-    "title": "هفته جهانی ایمنی جاده",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 5,
-    "day": 12,
-    "title": "روز ماه کامل، وساک",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 5,
     "day": 15,
     "title": "روز جهانی خانواده",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 5,
-    "day": 16,
-    "title": "روز جهانی همزیستی در صلح",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 5,
-    "day": 16,
-    "title": "روز جهانی نور",
     "holiday": false,
     "remind": false
   },
@@ -750,13 +358,6 @@
   },
   {
     "month": 5,
-    "day": 19,
-    "title": "روز جهانی بازی جوانمردانه",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 5,
     "day": 20,
     "title": "روز جهانی زنبور",
     "holiday": false,
@@ -766,55 +367,6 @@
     "month": 5,
     "day": 21,
     "title": "روز جهانی چای",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 5,
-    "day": 21,
-    "title": "روز جهانی تنوع فرهنگی برای گفتگو و توسعه",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 5,
-    "day": 22,
-    "title": "روز جهانی تنوع زیستی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 5,
-    "day": 23,
-    "title": "روز جهانی پایان دادن به فیستول زایمانی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 5,
-    "day": 24,
-    "title": "روز جهانی مارخور",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 5,
-    "day": 25,
-    "title": "شروع هفته همبستگی با ملت‌های سرزمین های غیرخودگردان",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 5,
-    "day": 27,
-    "title": "پل گلدن گیت، که در زمان تکمیل، طولانی‌ترین پل معلق دنیا محسوب می‌شد، گشایش یافت.",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 5,
-    "day": 29,
-    "title": "روز جهانی حافظان صلح سازمان ملل متحد",
     "holiday": false,
     "remind": false
   },
@@ -862,22 +414,8 @@
   },
   {
     "month": 6,
-    "day": 5,
-    "title": "روز بین‌المللی مبارزه با ماهیگیری غیرقانونی، گزارش‌نشده و بی‌ضابطه",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 6,
     "day": 6,
     "title": "روز زبان روسی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 6,
-    "day": 7,
-    "title": "روز جهانی ایمنی غذایی",
     "holiday": false,
     "remind": false
   },
@@ -897,13 +435,6 @@
   },
   {
     "month": 6,
-    "day": 10,
-    "title": "روز جهانی گفتگوی تمدن‌ها",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 6,
     "day": 11,
     "title": "روز جهانی بازی",
     "holiday": false,
@@ -918,22 +449,8 @@
   },
   {
     "month": 6,
-    "day": 13,
-    "title": "روز آگاهی‌رسانی دربارهٔ زالی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 6,
     "day": 14,
     "title": "روز جهانی اهدای خون",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 6,
-    "day": 15,
-    "title": "روز جهانی آگاهی از پیرآزاری",
     "holiday": false,
     "remind": false
   },
@@ -946,13 +463,6 @@
   },
   {
     "month": 6,
-    "day": 16,
-    "title": "روز جهانی کمک های مالی خانواده‌ها",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 6,
     "day": 17,
     "title": "روز جهانی مبارزه با بیابان‌زایی و خشکسالی",
     "holiday": false,
@@ -960,71 +470,8 @@
   },
   {
     "month": 6,
-    "day": 18,
-    "title": "روز جهانی تغذیه پایدار",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 6,
-    "day": 18,
-    "title": "روز جهانی مقابله با سخنان نفرت‌ انگیز",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 6,
-    "day": 19,
-    "title": "روز جهانی مقابله با خشونت جنسی حین منازعات",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 6,
     "day": 20,
     "title": "روز جهانی پناهندگان",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 6,
-    "day": 21,
-    "title": "روز جهانی یوگا",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 6,
-    "day": 21,
-    "title": "روز جهانی بزرگداشت انقلاب تابستانی (سولستیس)",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 6,
-    "day": 23,
-    "title": "روز خدمات عمومی سازمان ملل",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 6,
-    "day": 23,
-    "title": "روز جهانی بیوه‌ها",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 6,
-    "day": 24,
-    "title": "روز جهانی زنان در دیپلماسی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 6,
-    "day": 25,
-    "title": "روز دریانوردان",
     "holiday": false,
     "remind": false
   },
@@ -1043,90 +490,6 @@
     "remind": false
   },
   {
-    "month": 6,
-    "day": 26,
-    "title": "روز جهانی مبارزه با سوءمصرف و قاچاق مواد مخدر",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 6,
-    "day": 27,
-    "title": "روز بنگاه‌های خرد، کوچک و متوسط",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 6,
-    "day": 27,
-    "title": "روز جهانی اختلال همزمان شنوایی و بینایی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 6,
-    "day": 29,
-    "title": "روز جهانی مناطق گرمسیری (استوایی)",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 6,
-    "day": 30,
-    "title": "(مجلس‌محوری) روز جهانی پارلمانتاریسم",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 6,
-    "day": 30,
-    "title": "روز جهانی سیارک‌ها",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 7,
-    "day": 1,
-    "title": "ژان ویکتور پونسله ریاضی‌دان و بنیادگذار هندسه تحلیلی اهل فرانسوی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 7,
-    "day": 5,
-    "title": "روز بین‌المللی تعاون",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 7,
-    "day": 6,
-    "title": "روز جهانی توسعه روستایی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 7,
-    "day": 7,
-    "title": "روز جهانی زبان سواحلی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 7,
-    "day": 11,
-    "title": "روز جهانی اسب",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 7,
-    "day": 11,
-    "title": "روز بین‌المللی یادآوری و بزرگداشت قربانیان نسل‌کشی سربرنیتسا ۱۹۹۵",
-    "holiday": false,
-    "remind": false
-  },
-  {
     "month": 7,
     "day": 11,
     "title": "روز جهانی جمعیت",
@@ -1134,121 +497,9 @@
     "remind": false
   },
   {
-    "month": 7,
-    "day": 12,
-    "title": "روز بین‌المللی مبارزه با طوفان‌های شن و گردوغبار",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 7,
-    "day": 12,
-    "title": "روز جهانی امید",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 7,
-    "day": 15,
-    "title": "روز جهانی مهارت‌های جوانان",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 7,
-    "day": 18,
-    "title": "روز بین‌المللی نلسون ماندلا",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 7,
-    "day": 20,
-    "title": "روز جهانی شطرنج",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 7,
-    "day": 20,
-    "title": "روز جهانی ماه",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 7,
-    "day": 25,
-    "title": "روز بین‌المللی زنان و دختران با تبار آفریقایی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 7,
-    "day": 25,
-    "title": "روز جهانی پیشگیری از غرق‌شدن",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 7,
-    "day": 25,
-    "title": "روز بین‌المللی سلامت قضایی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 7,
-    "day": 28,
-    "title": "روز جهانی هپاتیت",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 7,
-    "day": 30,
-    "title": "روز بین‌المللی دوستی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 7,
-    "day": 30,
-    "title": "روز جهانی مبارزه با قاچاق انسان",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 8,
-    "day": 1,
-    "title": "آغاز هفته جهانی شیردهی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 8,
-    "day": 6,
-    "title": "روز جهانی آگاهی از نیازهای کشورهای در حال توسعه محصور در خشکی",
-    "holiday": false,
-    "remind": false
-  },
-  {
     "month": 8,
     "day": 6,
     "title": "انفجار بمب اتمی آمریکا در هیروشیما",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 8,
-    "day": 9,
-    "title": "روز جهانی مردمان بومی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 8,
-    "day": 11,
-    "title": "روز جهانی استیل‌پن",
     "holiday": false,
     "remind": false
   },
@@ -1282,36 +533,8 @@
   },
   {
     "month": 8,
-    "day": 20,
-    "title": "آغاز به کار نخستین جشنواره فیلم کن در شهر کن فرانسه با رقابت ۱۱ فیلم برای کسب نخل طلایی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 8,
-    "day": 21,
-    "title": "روز بین‌المللی یادبود و ادای احترام به قربانیان تروریسم",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 8,
     "day": 21,
     "title": "روز جهانی مساجد",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 8,
-    "day": 22,
-    "title": "روز جهانی بزرگداشت قربانیان خشونت مبتنی بر دین یا عقیده",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 8,
-    "day": 23,
-    "title": "روز بین‌المللی یادبود تجارت برده و لغو آن",
     "holiday": false,
     "remind": false
   },
@@ -1330,27 +553,6 @@
     "remind": false
   },
   {
-    "month": 8,
-    "day": 30,
-    "title": "روز بین‌المللی قربانیان ناپدیدشدن های اجباری",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 8,
-    "day": 31,
-    "title": "روز جهانی مردم آفریقایی تبار",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 2,
-    "title": "وقوع آتش سوزی بزرگ لندن",
-    "holiday": false,
-    "remind": false
-  },
-  {
     "month": 9,
     "day": 5,
     "title": "روز جهانی خیریه",
@@ -1359,36 +561,8 @@
   },
   {
     "month": 9,
-    "day": 7,
-    "title": "روز جهانی آگاهی از دیستروفی عضلانی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 7,
-    "title": "روز جهانی هوای پاک برای آسمان‌آبی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 7,
-    "title": "روز جهانی همکاری پلیس",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
     "day": 8,
     "title": "روز جهانی سوادآموزی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 9,
-    "title": "روز جهانی محافظت از آموزش در برابر حملات",
     "holiday": false,
     "remind": false
   },
@@ -1408,29 +582,8 @@
   },
   {
     "month": 9,
-    "day": 12,
-    "title": "روز ملل متحد برای همکاری جنوب-جنوب",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
     "day": 13,
     "title": "روز گرامیداشت برنامه نویسان",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 14,
-    "title": "انتخاب تئودور روزولت از حزب جمهوری‌خواه به عنوان بیست و ششمین رئیس جمهور ایالات متحده در پی ترور ویلیام مک کینلی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 15,
-    "title": "ثبت دامنه اینترنتی جست‌وجوگر گوگل (google.com) پربازدیدترین وب سایت جهان",
     "holiday": false,
     "remind": false
   },
@@ -1444,63 +597,7 @@
   {
     "month": 9,
     "day": 16,
-    "title": "روز جهانی علم، فناوری و نوآوری برای جنوب",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 16,
-    "title": "روز جهانی اقدامات مداخله‌ای قلب و عروق",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 16,
     "title": "روز جهانی حفاظت از لایه اوزون",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 17,
-    "title": "روز جهانی ایمنی بیمار",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 18,
-    "title": "سالروز تأسیس روزنامه نیویورک تایمز",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 18,
-    "title": "روز جهانی برابری دستمزد",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 20,
-    "title": "محاصره اورشلیم یا بیت‌المُقَّدَس توسط صلاح‌الدین ایوبی بنیان‌گذار دودمان ایوبیان",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 20,
-    "title": "تأسیس مجمع ملی فرانسه در هنگامه‌ی انقلاب فرانسه که نقش مجلس مؤسسان قانون اساسی و قانون‌گذاری را به عهده داشت.",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 20,
-    "title": "روز جهانی پاکسازی",
     "holiday": false,
     "remind": false
   },
@@ -1513,34 +610,6 @@
   },
   {
     "month": 9,
-    "day": 21,
-    "title": "استقلال جمهوری ارمنستان از اتحاد جماهیر شوروی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 22,
-    "title": "اعلام موجودیت جمهوری اول فرانسه",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 22,
-    "title": "صدور اعلامیه آزادی بردگان در ایالات متحده آمریکا",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 23,
-    "title": "نپتون هشتمین سیاره سامانه خورشیدی، برای نخستین بار توسط «یوهان گوتفرید گاله» رصد شد، وجود این سیاره پیشتر توسط دو دانشمند، با محاسبات ریاضی اثبات شده بود.",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
     "day": 23,
     "title": "روز جهانی زبان‌های اشاره",
     "holiday": false,
@@ -1548,99 +617,8 @@
   },
   {
     "month": 9,
-    "day": 24,
-    "title": "هوندا شرکت بزرگ ژاپنی تولیدکنندهٔ موتورسیکلت و بعدها خودرو، در این روز رسماً آغاز به کار کرد.",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 24,
-    "title": "نیوکمپ، بزرگترین ورزشگاه اروپا و ورزشگاه اختصاصی باشگاه بارسلونای اسپانیا در این روز افتتاح شد.",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 25,
-    "title": "روز جهانی دریانوردی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 26,
-    "title": "ارائه نظریه نسبیت خاص توسط آلبرت انیشتین",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 26,
-    "title": "نخستین پرواز هواپیمای پهن پیکر بوئینگ ۷۶۷",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 26,
-    "title": "روز جهانی حذف کامل تسلیحات هسته‌ای",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
     "day": 27,
     "title": "روز جهانی گردشگری",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 27,
-    "title": "فرمول «هم‌ارزی جرم و انرژی» (E=mc۲) یکی از مشهورترین معادله‌ها در علم فیزیک، توسط آلبرت اینشتین انتشار یافت.",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 27,
-    "title": "در جریان جنگ جهانی دوم و حمله نیروهای آلمان نازی به ورشو پایتخت لهستان، این شهر پس از ۱۹ روز مقاومت، تسلیم نیروهای آلمان شد.",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 27,
-    "title": "طالبان با تصرف کابل پایتخت افغانستان، ایجاد یک «دولت اسلامی» در آن کشور را اعلام کردند و نجیب‌الله رئیس دولت کمونیستی سابق افغانستان، توسط آنان به دار آویخته شد.",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 28,
-    "title": "تصویب قانون اساسی جمهوری پنجم فرانسه، نظام کنونی این کشور، با نظر مثبت بیش از ۸۲ درصد رای‌دهندگان",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 28,
-    "title": "روز جهانی دسترسی همگانی به اطلاعات",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 29,
-    "title": "تأسیس اسکاتلندیارد، به عنوان مرکز پلیس لندن",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 9,
-    "day": 29,
-    "title": "روز جهانی آگاهی از اتلاف و ضایعات مواد غذایی",
     "holiday": false,
     "remind": false
   },
@@ -1659,23 +637,9 @@
     "remind": false
   },
   {
-    "month": 9,
-    "day": 30,
-    "title": "سالروز «قتل عام بابی یار» و کشتار ۳۳٬۷۷۱ یهودی به‌دست یک واحد ویژهٔ «اس اس» آلمان نازی در دره ای به نام «بابی یار» در حد فاصل شمالی شهر کی‌اف در اوکراین",
-    "holiday": false,
-    "remind": false
-  },
-  {
     "month": 10,
     "day": 1,
     "title": "روز جهانی سالمندان",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 1,
-    "title": "انتخاب فرانسیسکو فرانکو به سمت رهبری رژیم ناسیونالیست اسپانیا و آغاز جنگ داخلی اسپانیا",
     "holiday": false,
     "remind": false
   },
@@ -1688,64 +652,8 @@
   },
   {
     "month": 10,
-    "day": 2,
-    "title": "روز جهانی عدم خشونت",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 3,
-    "title": "بازگشت چارلز داروین، پس از ۵ سال دریانوردی با کشتی بیگل به بریتانیا و پایه گذاری نظریه فرگشت",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 3,
-    "title": "در طی نشست لوکا، سه تن از سرداران روم به نام‌های ژول سزار، پومپه و کراسوس، تصمیم به حمله به امپراتوری ایران را گرفتند. در این جنگ که به جنگ حران معروف است، کراسوس توسط سردار ایرانی، سورنا کشته شد.",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 4,
-    "title": "آغاز هفته جهانی فضا",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 4,
-    "title": "اسپوتنیک - 1، نخستین ماهواره جهان به فضا پرتاب شد",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
     "day": 5,
     "title": "روز جهانی معلم",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 5,
-    "title": "آغاز جمهوری پنجم فرانسه و جایگزینی نظام پارلمانیِ جمهوری چهارم با به نظام ریاستی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 5,
-    "title": "استعفای «اسلوبودان میلوشویچ» رئیس جمهور وقت صربستان در جریان انقلاب پنجم اکتبر",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 6,
-    "title": "ترور محمد انور سادات، سومین رئیس جمهور مصر و برندهٔ جایزه صلح نوبل، توسط سازمان اسلام‌گرای جهاد اسلامی مصر",
     "holiday": false,
     "remind": false
   },
@@ -1758,34 +666,6 @@
   },
   {
     "month": 10,
-    "day": 6,
-    "title": "تأسیس انجمن جهانی قلم در لندن",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 6,
-    "title": "افتتاح کاباره پرآوازه‌ی «مولن‌روژ» در پاریس",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 6,
-    "title": "روز جهانی زیستگاه",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 7,
-    "title": "روز جهانی پنبه",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
     "day": 7,
     "title": "روز جهانی حماسه فلسطین",
     "holiday": false,
@@ -1793,64 +673,8 @@
   },
   {
     "month": 10,
-    "day": 8,
-    "title": "آتش‌سوزی بزرگ شهر شیکاگو و سوختن ۱۷٬۴۵۰ خانه با ۲۵۰ تن کشته و ۹۰٬۰۰۰ نفر بی‌خانمان",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 8,
-    "title": "اعلان جنگ کشور مونته نگرو به امپراتوری عثمانی و آغاز جنگ اول بالکان",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
     "day": 9,
     "title": "روز جهانی پست",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 9,
-    "title": "اعدام ارنستو چه‌گوارا توسط سربازان ارتش بولیوی به جرم تحریک برای برپایی یک انقلاب در بولیوی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 9,
-    "title": "اعطای جایزه نوبل صلح به آندره ساخاروف دانشمند شوروی و معروف به «پدر بمب هیدروژنی»",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 9,
-    "title": "نخستین انتخابات ریاست جمهوری مردم افغانستان پس از سقوط حکومت طالبان",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 10,
-    "title": "روز جهانی مبارزه با حکم اعدام",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 10,
-    "title": "استقلال کشور فیجی از انگلستان",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 10,
-    "title": "کشف تریتون، بزرگترین ماه طبیعی نپتون توسط ویلیام لاسل",
     "holiday": false,
     "remind": false
   },
@@ -1870,55 +694,6 @@
   },
   {
     "month": 10,
-    "day": 11,
-    "title": "نخستین مأموریت همراه با آدم برنامه آپولو ناسا  از پایگاه پرتاب ۳۴ در دماغه کاناورال ایالت فلوریدا در ایالات متحده آمریکا",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 11,
-    "title": "گشایش دانشگاه سیدنی، قدیمی‌ترین دانشگاه استرالیا",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 11,
-    "title": "روز جهانی پرندگان مهاجر",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 12,
-    "title": "افتتاحیه بازی‌های المپیک تابستانی ۱۹۶۸ مکزیکوسیتی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 13,
-    "title": "شروع ساخت کاخ سفید، محل کار و زندگی دائمی رئیس جمهور ایالات متحده آمریکا در واشنگتن دی‌سی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 13,
-    "title": "تأسیس تووا یکی از جمهوری‌های خودمختار روسیه در جنوب سیبری",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 13,
-    "title": "روز جهانی کاهش اثرات بلایای طبیعی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
     "day": 14,
     "title": "روز جهانی استاندارد",
     "holiday": false,
@@ -1926,36 +701,8 @@
   },
   {
     "month": 10,
-    "day": 14,
-    "title": "شکستن دیوار صوتی توسط یک خلبان آمریکایی برای نخستین بار با سرعتی بیشتر از سرعت صوت",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 14,
-    "title": "ورود رسمی بلغارستان به جنگ جهانی اول به طرفداری از آلمان و اتریش",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
     "day": 15,
     "title": "روز جهانی عصای سفید",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 15,
-    "title": "پرتاب نخستین فضاپیمای سرنشین دار چین به فضا بنام «شنزو ۵»",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 15,
-    "title": "روز جهانی زنان روستایی",
     "holiday": false,
     "remind": false
   },
@@ -1975,71 +722,8 @@
   },
   {
     "month": 10,
-    "day": 17,
-    "title": "روز جهانی ریشه کنی فقر",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 17,
-    "title": "حضور گروه موسیقی بیتلز برای نخستین بار در یک برنامه زنده تلویزیونی در شبکه «گِرِنادا» در شهر منچستر انگلستان",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 17,
-    "title": "شروع بکار وبگاه بانک اطلاعات اینترنتی فیلم‌ها (IMDB)",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 18,
-    "title": "پرتاب فضاپیمای گالیله به فضا",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 19,
-    "title": "نخستین فرود هواپیمای کنکورد، در شهر نیویورک",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
     "day": 20,
     "title": "روز جهانی آمار",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 21,
-    "title": "اختراع لامپ برق توسط توماس ادیسون",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 21,
-    "title": "توافق اتمی کره شمالی و ایالات متحده آمریکا بر سر متوقف کردن ساخت جنگ‌افزار هسته‌ای",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 22,
-    "title": "ساخت نخستین ماشین فتوکپی با نام زیراکس",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 23,
-    "title": "روز جهانی پلنگ برفی",
     "holiday": false,
     "remind": false
   },
@@ -2053,28 +737,7 @@
   {
     "month": 10,
     "day": 24,
-    "title": "سقوط وال‌استریت در سال ۱۹۲۹ سقوط بازار سهام در بازار بورس نیویورک",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 24,
-    "title": "شروع هفته خلع سلاح",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 24,
     "title": "روز جهانی اطلاعات مربوط به توسعه",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 24,
-    "title": "شروع هفته جهانی سواد رسانه‌ای و اطلاعاتی",
     "holiday": false,
     "remind": false
   },
@@ -2082,27 +745,6 @@
     "month": 10,
     "day": 27,
     "title": "روز جهانی میراث سمعی و بصری",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 28,
-    "title": "تاسیس دانشگاه هاروارد نخستین مؤسسه آموزش عالی در آمریکا",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 29,
-    "title": "روز جهانی مراقبت و حمایت",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 10,
-    "day": 31,
-    "title": "ترور ایندیرا گاندی نخست وزیر و یکی از برجسته‌ترین و بحث‌برانگیزترین رهبران هند",
     "holiday": false,
     "remind": false
   },
@@ -2122,13 +764,6 @@
   },
   {
     "month": 11,
-    "day": 1,
-    "title": "ویلیام شکسپیر نمایشنامه «اُتلو» را برای نخستین بار در کاخ «وایت هال» لندن به روی صحنه آورد.",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 11,
     "day": 2,
     "title": "روز جهانی پایان مصونیت برای جرایم علیه خبرنگاران",
     "holiday": false,
@@ -2136,50 +771,8 @@
   },
   {
     "month": 11,
-    "day": 3,
-    "title": "اسپوتنیک - 2، نخستین فضاپیمای حامل یک موجود زنده به فضا پرتاب شد.",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 11,
-    "day": 3,
-    "title": "الیمپ دگوژ نمایشنامه‌ نویس، فعال سیاسی و طرفدار الغای برده‌داری از نخستین فمنیست‌های اعدام شده است",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 11,
-    "day": 5,
-    "title": "روز جهانی آگاهی از سونامی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 11,
-    "day": 6,
-    "title": "آبراهام لینکلن برای یک دوره چهارساله به ریاست جمهوری ایالات متحده انتخاب شد، دوران ریاست جمهوری او، شاهد تجزیه ایالات جنوبی، آغاز جنگ داخلی و لغو برده‌داری بود.",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 11,
     "day": 6,
     "title": "روز جهانی جلوگیری از بهره‌برداری از محیط زیست در جنگ و درگیری‌های مسلحانه",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 11,
-    "day": 9,
-    "title": "شروع هفته بین‌المللی علم و صلح",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 11,
-    "day": 10,
-    "title": "تأسیس پلیس صلح بین‌ الملل",
     "holiday": false,
     "remind": false
   },
@@ -2194,48 +787,6 @@
     "month": 11,
     "day": 14,
     "title": "روز جهانی دیابت",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 11,
-    "day": 15,
-    "title": "روز جهانی پیشگیری و مبارزه با تمامی اشکال جرائم سازمان یافته فراملی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 11,
-    "day": 16,
-    "title": "روز جهانی مدارا و بردباری",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 11,
-    "day": 17,
-    "title": "اختراع «موشواره» برای رایانه توسط دکتر داگلاس انگلبارت.",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 11,
-    "day": 17,
-    "title": "روز جهانی یادآوری قربانیان تصادفات جاده‌ای",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 11,
-    "day": 18,
-    "title": "شروع هفته جهانی آگاهی از مقاومت میکروبی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 11,
-    "day": 18,
-    "title": "روز جهانی پیشگیری و بهبودی از بهره‌کشی، سوء استفاده و خشونت جنسی علیه کودکان",
     "holiday": false,
     "remind": false
   },
@@ -2262,20 +813,6 @@
   },
   {
     "month": 11,
-    "day": 20,
-    "title": "روز صنعتی‌شدن آفریقا",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 11,
-    "day": 21,
-    "title": "نخستین پرواز ثبت‌شده انسان با بالون توسط برادران مون‌گلفیه در پاریس",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 11,
     "day": 21,
     "title": "روز جهانی فلسفه",
     "holiday": false,
@@ -2290,29 +827,8 @@
   },
   {
     "month": 11,
-    "day": 24,
-    "title": "روز جهانی دوقلوهای به هم چسبیده",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 11,
-    "day": 25,
-    "title": "ارائه نظریه نسبیت عام توسط آلبرت انیشتین",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 11,
     "day": 25,
     "title": "روز جهانی مبارزه با خشونت علیه زنان",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 11,
-    "day": 26,
-    "title": "روز جهانی حمل و نقل پایدار",
     "holiday": false,
     "remind": false
   },
@@ -2324,23 +840,9 @@
     "remind": false
   },
   {
-    "month": 11,
-    "day": 30,
-    "title": "روز یادبود همه قربانیان جنگ شیمیایی",
-    "holiday": false,
-    "remind": false
-  },
-  {
     "month": 12,
     "day": 1,
     "title": "روز جهانی ایدز",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 12,
-    "day": 2,
-    "title": "مراسم تاج‌گذاری ناپلئون بُناپارت به عنوان امپراتور فرانسه در کلیسای نوتردام پاریس برگزار شد.",
     "holiday": false,
     "remind": false
   },
@@ -2362,13 +864,6 @@
     "month": 12,
     "day": 4,
     "title": "روز جهانی بانک‌ها",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 12,
-    "day": 4,
-    "title": "روز جهانی مبارزه با اقدامات قهری یکجانبه",
     "holiday": false,
     "remind": false
   },
@@ -2396,13 +891,6 @@
   {
     "month": 12,
     "day": 9,
-    "title": "روز جهانی گرامیداشت و کرامت قربانیان جنایت نسل‌کشی و پیشگیری از این جنایت",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 12,
-    "day": 9,
     "title": "روز جهانی مبارزه با فساد",
     "holiday": false,
     "remind": false
@@ -2423,29 +911,8 @@
   },
   {
     "month": 12,
-    "day": 12,
-    "title": "روز جهانی بی‌طرفی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 12,
-    "day": 12,
-    "title": "روز جهانی پوشش همگانی سلامت",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 12,
     "day": 14,
     "title": "روز جهانی مبارزه با استعمار در همه اشکال و مظاهر آن",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 12,
-    "day": 18,
-    "title": "روز جهانی مهاجران",
     "holiday": false,
     "remind": false
   },
@@ -2458,43 +925,8 @@
   },
   {
     "month": 12,
-    "day": 20,
-    "title": "روز جهانی همبستگی بشر",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 12,
-    "day": 21,
-    "title": "روز جهانی مدیتیشن",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 12,
-    "day": 21,
-    "title": "روز جهانی بسکتبال",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 12,
     "day": 25,
     "title": "جشن کریسمس",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 12,
-    "day": 25,
-    "title": "روز جهانی بزرگداشت دوستی",
-    "holiday": false,
-    "remind": false
-  },
-  {
-    "month": 12,
-    "day": 27,
-    "title": "روز جهانی آمادگی برای بیماری های همه‌گیر",
     "holiday": false,
     "remind": false
   }
