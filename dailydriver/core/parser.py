@@ -1,3 +1,4 @@
+# dailydriver/core/parser.py
 import re
 from datetime import datetime, timedelta
 from dailydriver.core.date_parser import _parse_date_jalali, _parse_relative_date
@@ -10,7 +11,22 @@ def extract_time(text: str):
     now = datetime.now()
     text_clean = text.strip()
 
-    # ---------- 1. Offset: -30m, -1h (anywhere in text) ----------
+    # ---------- 0. "last X mins/hours" (moved to top to ensure it is matched first) ----------
+    m = re.search(r'(?:last|past)\s+(\d+)\s*min(?:ute)?s?', text_clean, re.IGNORECASE)
+    if not m:
+        m = re.search(r'(?:last|past)\s+(\d+)\s+m\b', text_clean, re.IGNORECASE)
+    if m:
+        minutes = int(m.group(1))
+        start = now - timedelta(minutes=minutes)
+        return int(start.timestamp()), minutes
+
+    m = re.search(r'(?:last|past)\s+(\d+)\s*(?:hour(?:s)?|h)\b', text_clean, re.IGNORECASE)
+    if m:
+        hours = int(m.group(1))
+        start = now - timedelta(hours=hours)
+        return int(start.timestamp()), hours * 60
+
+    # ---------- 1. Offset: -30m, -1h ----------
     m = re.search(r'-(\d+)\s*[mM](?!\w)', text_clean)
     if not m:
         m = re.search(r'-(\d+)\s*[hH](?!\w)', text_clean)
@@ -22,7 +38,7 @@ def extract_time(text: str):
         else:
             return int((now - timedelta(minutes=num)).timestamp()), None
 
-    # ---------- 2. Time range like 17-02 (anywhere) ----------
+    # ---------- 2. Time range like 17-02 ----------
     range_match = re.search(r'(\d{1,2})\s*-\s*(\d{1,2})(?::(\d{2}))?', text_clean)
     if range_match:
         try:
@@ -88,19 +104,6 @@ def extract_time(text: str):
             if 0 <= h <= 23 and 0 <= m <= 59:
                 rel_date = rel_date.replace(hour=h, minute=m)
         return int(rel_date.timestamp()), None
-
-    # ---------- "last X mins/hours" → start = now - X, duration = X ----------
-    m = re.search(r'(?:last|past)\s+(\d+)\s*(?:min(?:ute)?s?|m)\b', text_clean)
-    if m:
-        minutes = int(m.group(1))
-        start = now - timedelta(minutes=minutes)
-        return int(start.timestamp()), minutes
-
-    m = re.search(r'(?:last|past)\s+(\d+)\s*(?:hour(?:s)?|h)\b', text_clean)
-    if m:
-        hours = int(m.group(1))
-        start = now - timedelta(hours=hours)
-        return int(start.timestamp()), hours * 60
 
     # ---------- 6. nothing found ----------
     return None, None
