@@ -99,9 +99,9 @@ def print_header(data: dict):
         pline(bday_str)
     if hygiene_str:
         pline(hygiene_str)
-    calendar_str = data.get('calendar_str', '')
-    if calendar_str:
-        pline(calendar_str)
+    calendar_lines = data.get('calendar_lines', [])
+    for line in calendar_lines:
+        pline(line)
     reminders_str = data.get('reminders_str', '')
     if reminders_str:
         pline(reminders_str)

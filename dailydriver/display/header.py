@@ -66,16 +66,13 @@ def build_header_data():
         hygiene_str = "   ".join(nudge_lines[:2])
 
         # ---------- today's events from calendar ----------
-        from dailydriver.utils.calendar_events import get_events, get_todays_events
         events = get_events()
         todays = get_todays_events(events)
-        calendar_str = ""
+        calendar_lines = []
         if todays:
-            parts = []
             for e in todays:
                 prefix = "🎌" if e.get("holiday") else "📌"
-                parts.append(f"{prefix} {e['title']}")
-            calendar_str = " | ".join(parts)
+                calendar_lines.append(f"{prefix} {e['title']}")
 
         # ---------- upcoming reminders (events with remind:true in the next 14 days) ----------
         reminders_str = ""
@@ -120,7 +117,7 @@ def build_header_data():
             'sleep_str': sleep_str,
             'bday_str': bday_str,
             'hygiene_str': hygiene_str,
-            'calendar_str': calendar_str,
+            'calendar_lines': calendar_lines,
             'reminders_str': reminders_str,
             'event_str': event_str,
             'great_event_str': great_event_str,
