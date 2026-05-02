@@ -46,6 +46,16 @@ def build_header_data():
         else:
             sleep_str = "💤 Sleep: —"
 
+        # ---------- naps ----------
+        nap_row = cur.execute(
+            "SELECT SUM(duration_minutes) FROM nap_logs WHERE jalali_date=?", (today,)
+        ).fetchone()
+        total_nap = nap_row[0] if nap_row and nap_row[0] is not None else 0
+        if total_nap:
+            nap_str = f"😴 Nap: {total_nap//60}h {total_nap%60}m"
+        else:
+            nap_str = ""
+
         # ---------- birthdays (next 7 days) ----------
         today_j = jdatetime.date.today()
         bday_lines = []
@@ -122,4 +132,5 @@ def build_header_data():
             'event_str': event_str,
             'great_event_str': great_event_str,
             'last_entry_time': last_entry_time,
+            'nap_str': nap_str,
         }

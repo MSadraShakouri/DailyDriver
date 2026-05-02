@@ -1,6 +1,6 @@
 import time
 import jdatetime
-from datetime import datetime
+from datetime import datetime, timedelta
 from dailydriver.core.database import get_connection_cm
 from dailydriver.utils.time_utils import today_jalali, format_jalali
 from dailydriver.ui.terminal_ui import current_ui
@@ -45,6 +45,20 @@ def show_today():
             current_ui.print_line(f"💤 Sleep: {h}h {m}m")
         else:
             current_ui.print_line("💤 Sleep: —")
+
+        # Naps
+        nap_rows = cur.execute(
+            "SELECT start_time, duration_minutes FROM nap_logs WHERE jalali_date=? ORDER BY start_time",
+            (today,)
+        ).fetchall()
+        if nap_rows:
+            current_ui.print_line("😴 Naps:")
+            for r in nap_rows:
+                from datetime import timedelta
+                start_dt = datetime.fromtimestamp(r['start_time'])
+                dur = r['duration_minutes']
+                end_dt = start_dt + timedelta(minutes=dur)
+                current_ui.print_line(f"   {start_dt.strftime('%H:%M')} → {end_dt.strftime('%H:%M')} ({dur//60}h {dur%60}m)")
 
         # Entries
         current_ui.print_line("\n📝 Entries:")
