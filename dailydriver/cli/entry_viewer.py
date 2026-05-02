@@ -1,6 +1,7 @@
 import os
 import subprocess
 import time
+import jdatetime
 from dailydriver.core.database import get_connection_cm
 from dailydriver.core.logger import log_free_text
 from dailydriver.ui.terminal_ui import current_ui
@@ -52,11 +53,10 @@ def view_entries(category_filter=None):
             filter_str = f" [filter: {category_filter}]" if category_filter else ""
             current_ui.print_line(f"─────── Journal Entries{filter_str} ───────")
             for row in rows:
-                from datetime import datetime
-                dt = datetime.fromtimestamp(row['created_at'])
+                jdt = jdatetime.datetime.fromtimestamp(row['created_at'])
                 cat_str = row['categories'] if row['categories'] else '(no category)'
                 desc_snippet = (row['description'] or '')[:50].replace('\n', ' ')
-                current_ui.print_line(f"[{row['id']}] {dt.strftime('%Y-%m-%d %H:%M')}  {cat_str}")
+                current_ui.print_line(f"[{row['id']}] {jdt.strftime('%Y-%m-%d %H:%M')}  {cat_str}")
                 current_ui.print_line(f"    {desc_snippet}")
 
             current_ui.print_line("\n(n)ext  (p)rev  (q)uit  [id] edit")
