@@ -3,6 +3,7 @@ import time
 from datetime import datetime, timedelta
 from dailydriver.core.database import get_connection_cm
 from dailydriver.utils.time_utils import today_jalali
+from dailydriver.utils.time_parser import parse_prayer_args
 from dailydriver.domains.prayer_core import current_slot, PRAYER_SLOTS
 from dailydriver.domains.prayer_times import get_approximate_times
 from dailydriver.ui.terminal_ui import current_ui
@@ -15,46 +16,11 @@ def log_prayer(cmd: str):
         parts = cmd.strip().split()
         args = parts[1:] if len(parts) > 1 else []
 
-        offset_min = None
-        explicit_time = None
-        jamaat_location = None
-        shak_count = 0
-
-        i = 0
-        while i < len(args):
-            a = args[i]
-            if a.startswith('-'):
-                try:
-                    offset_min = int(a[1:])
-                except ValueError:
-                    current_ui.print_line("Invalid offset.")
-                    return None
-                i += 1
-            elif a.lower() == 'j':
-                if i+1 < len(args) and not args[i+1].startswith('-') and args[i+1].lower() not in ('j','s'):
-                    jamaat_location = args[i+1]
-                    i += 2
-                else:
-                    jamaat_location = ''
-                    i += 1
-            elif a.lower() == 's':
-                if i+1 < len(args):
-                    try:
-                        shak_count = int(args[i+1])
-                        i += 2
-                    except ValueError:
-                        shak_count = 0
-                        i += 1
-                else:
-                    shak_count = 0
-                    i += 1
-            else:
-                try:
-                    t = datetime.strptime(a, '%H:%M')
-                    explicit_time = t.hour * 60 + t.minute
-                except ValueError:
-                    pass
-                i += 1
+        parsed = parse_prayer_args(args)
+        offset_min = parsed['offset_min']
+        explicit_time = parsed['explicit_time']
+        jamaat_location = parsed['jamaat_location']
+        shak_count = parsed['shak_count']
 
         # Get today's prayer times (interpolated)
         import jdatetime
