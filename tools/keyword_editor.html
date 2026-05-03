@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes">
+  <title>Keyword Editor</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 18px;
+      margin: 0;
+      background: #f5f5f5;
+      color: #333;
+      padding-bottom: 80px;
+    }
+    header {
+      background: #007bff;
+      color: white;
+      padding: 12px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    header h1 { margin: 0; font-size: 24px; }
+    .toolbar {
+      padding: 8px 16px;
+      background: white;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      border-bottom: 1px solid #ddd;
+    }
+    .toolbar button {
+      font-size: 14px;
+      padding: 6px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    .toolbar button:active { background: #e9e9e9; }
+    #search {
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-top: 8px;
+    }
+    .keyword-list {
+      padding: 8px 16px;
+    }
+    .keyword-card {
+      background: white;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      transition: background 0.15s;
+    }
+    .keyword-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .keyword-word {
+      font-weight: bold;
+      font-size: 18px;
+      word-break: break-word;
+    }
+    .keyword-category {
+      color: #888;
+      font-size: 14px;
+      margin-top: 2px;
+    }
+    .keyword-count {
+      color: #666;
+      font-size: 13px;
+    }
+    .checks {
+      display: flex;
+      gap: 12px;
+      margin-left: 12px;
+      flex-shrink: 0;
+    }
+    .checks label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      touch-action: manipulation;
+    }
+    .checks input[type="checkbox"] {
+      width: 24px;
+      height: 24px;
+      appearance: none;
+      border: 2px solid #ccc;
+      border-radius: 6px;
+      position: relative;
+    }
+    .checks input[type="checkbox"]:checked {
+      border-color: transparent;
+    }
+    .checks input.stop:checked {
+      background: #f0ad4e;
+      border-color: #f0ad4e;
+    }
+    .checks input.del:checked {
+      background: #dc3545;
+      border-color: #dc3545;
+    }
+    .checks input[type="checkbox"]:checked::after {
+      content: '✓';
+      position: absolute;
+      left: 3px;
+      top: -1px;
+      color: white;
+      font-weight: bold;
+      font-size: 20px;
+    }
+    .floating-apply {
+      position: fixed;
+      bottom: 16px;
+      left: 16px;
+      right: 16px;
+      background: #28a745;
+      color: white;
+      font-size: 18px;
+      padding: 14px;
+      border: none;
+      border-radius: 50px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      cursor: pointer;
+      z-index: 20;
+      touch-action: manipulation;
+      text-align: center;
+    }
+    .floating-apply:disabled {
+      background: #adb5bd;
+      cursor: not-allowed;
+    }
+    .floating-apply:active:not(:disabled) { background: #1e7e34; }
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      left: 16px;
+      right: 16px;
+      background: #333;
+      color: white;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 14px;
+      text-align: center;
+      opacity: 0.9;
+      z-index: 30;
+      transition: opacity 0.3s;
+    }
+    .selected-count { font-weight: bold; margin-left: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Keyword Editor</h1>
+    <input type="text" id="search" placeholder="Search keywords..." oninput="filter()">
+  </header>
+
+  <div class="toolbar">
+    <button onclick="allStop()">All Stop</button>
+    <button onclick="noneStop()">None Stop</button>
+    <button onclick="allDel()">All Del</button>
+    <button onclick="noneDel()">None Del</button>
+    <span class="selected-count"><span id="stopCount">0</span> stop / <span id="delCount">0</span> del</span>
+  </div>
+
+  <div class="keyword-list" id="keywordList"></div>
+
+  <button class="floating-apply" id="applyBtn" onclick="applyChanges()" disabled>Apply (0)</button>
+
+  <script>
+    let allKeywords = [];
+    let selectedStop = new Set();   // keyword IDs
+    let selectedDel = new Set();
+
+    async function loadKeywords() {
+      const resp = await fetch('/keywords');
+      allKeywords = await resp.json();
+      allKeywords.sort((a,b) => a.category.localeCompare(b.category) || b.count - a.count);
+      filter();
+    }
+
+    function filter() {
+      const q = document.getElementById('search').value.toLowerCase();
+      const container = document.getElementById('keywordList');
+      container.innerHTML = '';
+      allKeywords.forEach(kw => {
+        if (q && !kw.word.toLowerCase().includes(q) && !kw.category.toLowerCase().includes(q)) return;
+        const card = document.createElement('div');
+        card.className = 'keyword-card';
+        const stopChecked = selectedStop.has(kw.id) ? 'checked' : '';
+        const delChecked = selectedDel.has(kw.id) ? 'checked' : '';
+        card.innerHTML = `
+          <div class="keyword-info">
+            <div class="keyword-word">${kw.word}</div>
+            <div class="keyword-category">${kw.category}</div>
+            <div class="keyword-count">used ${kw.count}×</div>
+          </div>
+          <div class="checks">
+            <label>
+              <input type="checkbox" class="stop" data-id="${kw.id}" ${stopChecked} onchange="toggleStop(${kw.id}, this.checked)">
+              Stop
+            </label>
+            <label>
+              <input type="checkbox" class="del" data-id="${kw.id}" ${delChecked} onchange="toggleDel(${kw.id}, this.checked)">
+              Del
+            </label>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+      updateCounts();
+    }
+
+    function toggleStop(id, checked) {
+      if (checked) selectedStop.add(id); else selectedStop.delete(id);
+      updateCounts();
+    }
+    function toggleDel(id, checked) {
+      if (checked) selectedDel.add(id); else selectedDel.delete(id);
+      updateCounts();
+    }
+
+    function allStop() {
+      document.querySelectorAll('.stop').forEach(cb => {
+        cb.checked = true;
+        selectedStop.add(parseInt(cb.dataset.id));
+      });
+      updateCounts();
+    }
+    function noneStop() {
+      document.querySelectorAll('.stop').forEach(cb => {
+        cb.checked = false;
+        selectedStop.delete(parseInt(cb.dataset.id));
+      });
+      updateCounts();
+    }
+    function allDel() {
+      document.querySelectorAll('.del').forEach(cb => {
+        cb.checked = true;
+        selectedDel.add(parseInt(cb.dataset.id));
+      });
+      updateCounts();
+    }
+    function noneDel() {
+      document.querySelectorAll('.del').forEach(cb => {
+        cb.checked = false;
+        selectedDel.delete(parseInt(cb.dataset.id));
+      });
+      updateCounts();
+    }
+
+    function updateCounts() {
+      const stop = selectedStop.size;
+      const del = selectedDel.size;
+      const total = stop + del;
+      document.getElementById('stopCount').textContent = stop;
+      document.getElementById('delCount').textContent = del;
+      const btn = document.getElementById('applyBtn');
+      btn.textContent = `Apply (${total})`;
+      btn.disabled = total === 0;
+    }
+
+    async function applyChanges() {
+      const stopIds = Array.from(selectedStop);
+      const delIds = Array.from(selectedDel);
+      if (stopIds.length === 0 && delIds.length === 0) return;
+
+      const msgParts = [];
+      if (stopIds.length > 0) msgParts.push(`add ${stopIds.length} word(s) to stopwords`);
+      if (delIds.length > 0) msgParts.push(`delete ${delIds.length} keyword(s)`);
+      if (!confirm(msgParts.join(' and ') + '?')) return;
+
+      const resp = await fetch('/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stop_ids: stopIds, del_ids: delIds })
+      });
+      const result = await resp.json();
+      selectedStop.clear();
+      selectedDel.clear();
+      showToast(`Done: ${result.added_stopwords > 0 ? result.added_stopwords + ' added to stopwords. ' : ''}${result.deleted} removed.`);
+      loadKeywords();
+    }
+
+    function showToast(msg) {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = msg;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2000);
+    }
+
+    loadKeywords();
+  </script>
+</body>
+</html>
