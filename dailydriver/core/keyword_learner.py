@@ -1,14 +1,14 @@
 # dailydriver/core/keyword_learner.py
+"""TF‑IDF based category suggestion with exact path‑match boost."""
 import re
-import time
+import math
 import os
 from dailydriver.core.database import get_connection_cm, get_connection
 
-# Project root for stopwords.txt
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 def load_stopwords():
-    """Load stop words from stopwords.txt."""
+    """Load stop words from data/stopwords.txt."""
     stopwords_path = os.path.join(PROJECT_ROOT, 'data', 'stopwords.txt')
     stop_set = set()
     try:
@@ -23,42 +23,93 @@ def load_stopwords():
 
 STOP_WORDS = load_stopwords()
 
+EXACT_MATCH_BOOST = 5.0
+MIN_SCORE = 0.1
+MAX_RESULTS = 10
+
 def tokenize(text: str):
-    """Return lowercased list of words (simple split)."""
-    return text.lower().split()
-
-def find_matching_categories(text: str):
-    """Return list of (category_path, match_count) sorted by count desc."""
-    with get_connection_cm() as conn:
-        cur = conn.cursor()
-        words = tokenize(text)
-        results = {}
-        for word in words:
-            cur.execute(
-                "SELECT c.path FROM keywords k JOIN categories c ON k.category_id=c.id WHERE INSTR(?, k.word)>0",
-                (word,)
-            )
-            for row in cur.fetchall():
-                path = row['path']
-                results[path] = results.get(path, 0) + 1
-    sorted_cats = sorted(results.items(), key=lambda x: x[1], reverse=True)[:3]
-    return sorted_cats
-
-def learn_keywords(text, category_paths, conn=None):
-    if not text or not category_paths:
-        return
-    words = tokenize(text)
+    """Return lowercased list of words after basic cleaning."""
+    # split, lower, keep only letters/hyphens
+    words = text.lower().split()
     cleaned = []
     for w in words:
         w = re.sub(r'^[^a-zA-Z]+|[^a-zA-Z]+$', '', w)
-        if w in STOP_WORDS:
-            continue
-        if len(w) < 3:
-            continue
-        if not re.fullmatch(r'[a-zA-Z-]+', w):
-            continue
-        cleaned.append(w)
-    if not cleaned:
+        if w and len(w) >= 3 and re.fullmatch(r'[a-zA-Z-]+', w):
+            cleaned.append(w)
+    return cleaned
+
+def find_matching_categories(text: str):
+    """Return up to MAX_RESULTS categories scored by TF‑IDF + exact path boost."""
+    tokens = tokenize(text)
+    # filter stop words
+    tokens = [t for t in tokens if t not in STOP_WORDS]
+    if not tokens:
+        return []
+
+    with get_connection_cm() as conn:
+        cur = conn.cursor()
+
+        # total number of categories
+        cur.execute("SELECT COUNT(*) FROM categories")
+        total_cats = cur.fetchone()[0]
+        if total_cats == 0:
+            return []
+
+        # get all category paths for exact‑match boost
+        cur.execute("SELECT id, path FROM categories")
+        all_cats = {row['id']: row['path'] for row in cur.fetchall()}
+        # also map path -> id for quick boost lookup
+        path_to_id = {p: i for i, p in all_cats.items()}
+
+        # category scores: id -> score
+        scores = {}
+
+        # 1. exact path‑match boost
+        for token in tokens:
+            # categories where token appears in any part of the path
+            token_lower = token.lower()
+            for cat_id, path in all_cats.items():
+                if token_lower in path.lower():
+                    scores[cat_id] = scores.get(cat_id, 0) + EXACT_MATCH_BOOST
+
+        # 2. TF‑IDF scoring
+        for token in tokens:
+            cur.execute("""
+                SELECT k.category_id, k.count,
+                       (SELECT COUNT(DISTINCT k2.category_id) FROM keywords k2 WHERE k2.word = k.word) as df
+                FROM keywords k
+                WHERE k.word = ?
+            """, (token,))
+            rows = cur.fetchall()
+            for row in rows:
+                cat_id = row['category_id']
+                tf = row['count']
+                df = row['df']
+                # smooth to avoid division by zero
+                idf = math.log(total_cats / (df + 1))
+                tfidf = tf * idf
+                scores[cat_id] = scores.get(cat_id, 0) + tfidf
+
+        # sort by score descending, filter by min score, take top MAX_RESULTS
+        sorted_cats = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+        results = []
+        for cat_id, score in sorted_cats:
+            if score < MIN_SCORE:
+                break
+            if len(results) >= MAX_RESULTS:
+                break
+            results.append((all_cats[cat_id], score))
+
+    return results
+
+def learn_keywords(text, category_paths, conn=None):
+    """Store or increment keyword counts for selected categories."""
+    if not text or not category_paths:
+        return
+    words = tokenize(text)
+    # filter stop words again
+    words = [w for w in words if w not in STOP_WORDS]
+    if not words:
         return
 
     own_conn = False
@@ -66,7 +117,6 @@ def learn_keywords(text, category_paths, conn=None):
         conn = get_connection()
         own_conn = True
     cur = conn.cursor()
-    now_ts = int(time.time())
 
     for path in category_paths:
         cur.execute("SELECT id FROM categories WHERE path=?", (path,))
@@ -74,17 +124,14 @@ def learn_keywords(text, category_paths, conn=None):
         if not row:
             continue
         cat_id = row['id']
-        for word in cleaned:
+        for word in words:
+            # try to update existing keyword count
             cur.execute("SELECT id FROM keywords WHERE word=? AND category_id=?", (word, cat_id))
-            if cur.fetchone():
-                continue
-            cur.execute("SELECT id FROM pending_keywords WHERE word=? AND category_id=?", (word, cat_id))
-            if cur.fetchone():
-                cur.execute("DELETE FROM pending_keywords WHERE word=? AND category_id=?", (word, cat_id))
-                cur.execute("INSERT INTO keywords (word, category_id) VALUES (?,?)", (word, cat_id))
-                continue
-            cur.execute("INSERT OR IGNORE INTO pending_keywords (word, category_id, first_seen) VALUES (?,?,?)",
-                        (word, cat_id, now_ts))
+            existing = cur.fetchone()
+            if existing:
+                cur.execute("UPDATE keywords SET count = count + 1 WHERE id=?", (existing['id'],))
+            else:
+                cur.execute("INSERT INTO keywords (word, category_id, count) VALUES (?, ?, 1)", (word, cat_id))
     if own_conn:
         conn.commit()
         conn.close()

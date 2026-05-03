@@ -141,11 +141,20 @@ def _migration_2(conn):
     ''')
     conn.commit()
 
+def _migration_3(conn):
+    cur = conn.cursor()
+    # add count column to keywords
+    cur.execute("ALTER TABLE keywords ADD COLUMN count INTEGER DEFAULT 1")
+    cur.execute("UPDATE keywords SET count = 1 WHERE count IS NULL")
+    # delete the old pending_keywords table
+    cur.execute("DROP TABLE IF EXISTS pending_keywords")
+    conn.commit()
+
 _MIGRATIONS = {
     1: _migration_1,
     2: _migration_2,
+    3: _migration_3,
 }
-
 
 def _get_current_version(conn):
     cur = conn.cursor()
