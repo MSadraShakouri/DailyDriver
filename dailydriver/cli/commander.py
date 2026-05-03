@@ -123,7 +123,7 @@ def end_great_event_cmd(line):
         clear_great_event()
     return result
 
-def cancel_great_event_cmd():
+def cancel_great_event_cmd(_=None):
     ge = get_active_great_event()
     if ge is None:
         current_ui.print_line("No great event active.")
