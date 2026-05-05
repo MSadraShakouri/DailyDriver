@@ -1,5 +1,4 @@
 # dailydriver/display/header.py
-import time
 import jdatetime
 from datetime import datetime
 from dailydriver.core.database import get_connection_cm

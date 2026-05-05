@@ -53,10 +53,3 @@ def get_connection_cm(auto=True):
     finally:
         conn.close()
 
-def cleanup_pending_keywords():
-    """Delete pending keywords older than 14 days."""
-    conn = get_connection(auto=False)
-    cur = conn.cursor()
-    cur.execute("DELETE FROM pending_keywords WHERE first_seen < unixepoch() - 1209600")
-    conn.commit()
-    conn.close()

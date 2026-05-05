@@ -13,16 +13,6 @@ _WEEKDAYS = {
     'fri': 4, 'friday': 4,
 }
 
-def _parse_time_string(s: str, now: datetime):
-    """Parse a HH:MM time string and return a datetime for today, or None."""
-    m = re.match(r'^(\d{1,2}):(\d{2})$', s)
-    if not m:
-        return None
-    h, mins = int(m.group(1)), int(m.group(2))
-    if h > 23 or mins > 59:
-        return None
-    return now.replace(hour=h, minute=mins, second=0, microsecond=0)
-
 def _parse_date_jalali(s: str):
     """Try to parse a Jalali date YYYY/MM/DD or YYYY-MM-DD. Return Gregorian datetime with time 00:00."""
     m = re.search(r'(\d{4})\s*[-/]\s*(\d{1,2})\s*[-/]\s*(\d{1,2})', s)

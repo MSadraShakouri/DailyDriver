@@ -173,6 +173,7 @@ def export(cmd):
         f.write('── Naps ──\n')
         f.write('\n'.join(nap_lines) + '\n\n')
         f.write('── Prayers ──\n')
+        f.write('\n'.join(prayer_lines) + '\n\n')
         f.write('── Journal Entries ──\n')
         f.write('\n'.join(entry_lines) + '\n')
 
