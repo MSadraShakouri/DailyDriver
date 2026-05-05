@@ -62,6 +62,8 @@ def show_help():
     current_ui.print_line("     Browse entries (n=next p=prev)")
     current_ui.print_line("     view project")
     current_ui.print_line("     Inside view: id=edit entry")
+    current_ui.print_line("  search [query]")
+    current_ui.print_line("     Full‑text search journal entries")
     current_ui.print_line("  stats")
     current_ui.print_line("     Prayer/sleep/hygiene stats")
     current_ui.print_line()

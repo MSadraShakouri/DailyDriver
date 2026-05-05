@@ -150,10 +150,23 @@ def _migration_3(conn):
     cur.execute("DROP TABLE IF EXISTS pending_keywords")
     conn.commit()
 
+def _migration_4(conn):
+    """Create FTS5 index on entries.description."""
+    cur = conn.cursor()
+    cur.execute("""
+        CREATE VIRTUAL TABLE IF NOT EXISTS entries_fts USING fts5(
+            description,
+            content='entries',
+            content_rowid='id'
+        );
+    """)
+    conn.commit()
+
 _MIGRATIONS = {
     1: _migration_1,
     2: _migration_2,
     3: _migration_3,
+    4: _migration_4,
 }
 
 def _get_current_version(conn):
