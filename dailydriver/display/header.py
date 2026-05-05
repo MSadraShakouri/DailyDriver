@@ -79,8 +79,13 @@ def build_header_data():
         todays = get_todays_events(events)
         calendar_lines = []
         if todays:
+            cal_icons = {'jalali': '🔆', 'gregorian': '🌐', 'hijri': '🌙'}
+            holiday_icon = '🎊'
             for e in todays:
-                prefix = "🎌" if e.get("holiday") else "📌"
+                cal = e.get('calendar', 'jalali')
+                prefix = cal_icons.get(cal, '📌')
+                if e.get('holiday'):
+                    prefix += holiday_icon
                 calendar_lines.append(f"{prefix} {e['title_en']}")
 
         # ---------- upcoming reminders (events with remind:true in the next 14 days) ----------

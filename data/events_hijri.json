@@ -5,7 +5,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "آغاز سال جدید هجری قمری",
-    "title_en": "Beginning of the new Hijri lunar year"
+    "title_en": "Beginning of the new Hijri lunar year",
+    "calendar": "hijri"
   },
   {
     "month": 1,
@@ -13,7 +14,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "بزرگداشت محتشم کاشانی",
-    "title_en": "Commemoration of Mohtasham Kashani"
+    "title_en": "Commemoration of Mohtasham Kashani",
+    "calendar": "hijri"
   },
   {
     "month": 1,
@@ -21,7 +23,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز شعر و ادبیات آیینی",
-    "title_en": "Day of Ritual Poetry and Literature"
+    "title_en": "Day of Ritual Poetry and Literature",
+    "calendar": "hijri"
   },
   {
     "month": 1,
@@ -29,7 +32,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز امر به معروف و نهی از منکر",
-    "title_en": "Day of Enjoining Good and Forbidding Evil"
+    "title_en": "Day of Enjoining Good and Forbidding Evil",
+    "calendar": "hijri"
   },
   {
     "month": 1,
@@ -37,7 +41,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "تاسوعای حسینی",
-    "title_en": "Tasua of Husayn"
+    "title_en": "Tasua of Husayn",
+    "calendar": "hijri"
   },
   {
     "month": 1,
@@ -45,7 +50,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "عاشورای حسینی",
-    "title_en": "Ashura of Husayn"
+    "title_en": "Ashura of Husayn",
+    "calendar": "hijri"
   },
   {
     "month": 1,
@@ -53,7 +59,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "تجلیل از اسرا و مفقودان",
-    "title_en": "Commemoration of Captives and Missing Persons"
+    "title_en": "Commemoration of Captives and Missing Persons",
+    "calendar": "hijri"
   },
   {
     "month": 1,
@@ -61,7 +68,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت امام زین العابدین علیه السلام",
-    "title_en": "Martyrdom of Imam Zayn al-Abidin (AS)"
+    "title_en": "Martyrdom of Imam Zayn al-Abidin (AS)",
+    "calendar": "hijri"
   },
   {
     "month": 1,
@@ -69,7 +77,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت امام زین‌العابدین (ع) به روایتی",
-    "title_en": "Martyrdom of Imam Zayn al-Abidin (AS) according to one narration"
+    "title_en": "Martyrdom of Imam Zayn al-Abidin (AS) according to one narration",
+    "calendar": "hijri"
   },
   {
     "month": 2,
@@ -77,7 +86,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "ولادت امام محمدباقر (ع) به روایتی",
-    "title_en": "Birth of Imam Muhammad al-Baqir (AS) according to one narration"
+    "title_en": "Birth of Imam Muhammad al-Baqir (AS) according to one narration",
+    "calendar": "hijri"
   },
   {
     "month": 2,
@@ -85,7 +95,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت امام حسن مجتبی (ع) به روایتی",
-    "title_en": "Martyrdom of Imam Hasan al-Mujtaba (AS) according to one narration"
+    "title_en": "Martyrdom of Imam Hasan al-Mujtaba (AS) according to one narration",
+    "calendar": "hijri"
   },
   {
     "month": 2,
@@ -93,7 +104,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "بزرگداشت سلمان فارسی",
-    "title_en": "Commemoration of Salman al-Farsi"
+    "title_en": "Commemoration of Salman al-Farsi",
+    "calendar": "hijri"
   },
   {
     "month": 2,
@@ -101,7 +113,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "اربعین حسینی",
-    "title_en": "Arbaeen of Husayn"
+    "title_en": "Arbaeen of Husayn",
+    "calendar": "hijri"
   },
   {
     "month": 2,
@@ -109,7 +122,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز وقف",
-    "title_en": "Day of Waqf (Endowment)"
+    "title_en": "Day of Waqf (Endowment)",
+    "calendar": "hijri"
   },
   {
     "month": 2,
@@ -117,7 +131,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "رحلت رسول اکرم",
-    "title_en": "Demise of the Holy Prophet (PBUH)"
+    "title_en": "Demise of the Holy Prophet (PBUH)",
+    "calendar": "hijri"
   },
   {
     "month": 2,
@@ -125,7 +140,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "شهادت امام حسن مجتبی علیه السلام",
-    "title_en": "Martyrdom of Imam Hasan al-Mujtaba (AS)"
+    "title_en": "Martyrdom of Imam Hasan al-Mujtaba (AS)",
+    "calendar": "hijri"
   },
   {
     "month": 2,
@@ -133,7 +149,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "شهادت امام رضا علیه السلام",
-    "title_en": "Martyrdom of Imam Reza (AS)"
+    "title_en": "Martyrdom of Imam Reza (AS)",
+    "calendar": "hijri"
   },
   {
     "month": 3,
@@ -141,7 +158,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "هجرت پیامبر اکرم از مکه به مدینه",
-    "title_en": "Hijra of the Holy Prophet (PBUH) from Mecca to Medina"
+    "title_en": "Hijra of the Holy Prophet (PBUH) from Mecca to Medina",
+    "calendar": "hijri"
   },
   {
     "month": 3,
@@ -149,7 +167,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "شهادت امام حسن عسکری علیه السلام",
-    "title_en": "Martyrdom of Imam Hasan al-Askari (AS)"
+    "title_en": "Martyrdom of Imam Hasan al-Askari (AS)",
+    "calendar": "hijri"
   },
   {
     "month": 3,
@@ -157,7 +176,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "آغاز امامت حضرت ولیعصر (عج)",
-    "title_en": "Beginning of the Imamate of Imam Mahdi (ATFS)"
+    "title_en": "Beginning of the Imamate of Imam Mahdi (ATFS)",
+    "calendar": "hijri"
   },
   {
     "month": 3,
@@ -165,7 +185,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "میلاد رسول اکرم به روایت اهل سنت",
-    "title_en": "Birth of the Holy Prophet (PBUH) according to Sunni narration"
+    "title_en": "Birth of the Holy Prophet (PBUH) according to Sunni narration",
+    "calendar": "hijri"
   },
   {
     "month": 3,
@@ -173,7 +194,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "آغاز هفته وحدت",
-    "title_en": "Beginning of Unity Week"
+    "title_en": "Beginning of Unity Week",
+    "calendar": "hijri"
   },
   {
     "month": 3,
@@ -181,7 +203,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز سیستان و بلوچستان",
-    "title_en": "Sistan and Baluchestan Day"
+    "title_en": "Sistan and Baluchestan Day",
+    "calendar": "hijri"
   },
   {
     "month": 3,
@@ -189,7 +212,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "میلاد رسول اکرم",
-    "title_en": "Birth of the Holy Prophet (PBUH)"
+    "title_en": "Birth of the Holy Prophet (PBUH)",
+    "calendar": "hijri"
   },
   {
     "month": 3,
@@ -197,7 +221,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "ولادت امام جعفر صادق علیه السلام",
-    "title_en": "Birth of Imam Ja'far al-Sadiq (AS)"
+    "title_en": "Birth of Imam Ja'far al-Sadiq (AS)",
+    "calendar": "hijri"
   },
   {
     "month": 3,
@@ -205,7 +230,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز اخلاق و مهرورزی",
-    "title_en": "Day of Ethics and Kindness"
+    "title_en": "Day of Ethics and Kindness",
+    "calendar": "hijri"
   },
   {
     "month": 3,
@@ -213,7 +239,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز قم",
-    "title_en": "Qom Day"
+    "title_en": "Qom Day",
+    "calendar": "hijri"
   },
   {
     "month": 4,
@@ -221,7 +248,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "ولادت حضرت عبدالعظیم حسنی (ع)",
-    "title_en": "Birth of Abdul Azim al-Hasani (AS)"
+    "title_en": "Birth of Abdul Azim al-Hasani (AS)",
+    "calendar": "hijri"
   },
   {
     "month": 4,
@@ -229,7 +257,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "ولادت امام حسن عسکری علیه السلام",
-    "title_en": "Birth of Imam Hasan al-Askari (AS)"
+    "title_en": "Birth of Imam Hasan al-Askari (AS)",
+    "calendar": "hijri"
   },
   {
     "month": 4,
@@ -237,7 +266,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "وفات حضرت معصومه سلام الله علیها",
-    "title_en": "Demise of Lady Masuma (SA)"
+    "title_en": "Demise of Lady Masuma (SA)",
+    "calendar": "hijri"
   },
   {
     "month": 5,
@@ -245,7 +275,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "ولادت حضرت زینب سلام الله علیها و روز پرستار و بهورز",
-    "title_en": "Birth of Lady Zaynab (SA) and Nurse & Behvarz Day"
+    "title_en": "Birth of Lady Zaynab (SA) and Nurse & Behvarz Day",
+    "calendar": "hijri"
   },
   {
     "month": 5,
@@ -253,7 +284,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت حضرت فاطمه زهرا (س) به روایتی",
-    "title_en": "Martyrdom of Lady Fatima al-Zahra (SA) according to one narration"
+    "title_en": "Martyrdom of Lady Fatima al-Zahra (SA) according to one narration",
+    "calendar": "hijri"
   },
   {
     "month": 6,
@@ -261,7 +293,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "شهادت حضرت فاطمه زهرا سلام الله علیها",
-    "title_en": "Martyrdom of Lady Fatima al-Zahra (SA)"
+    "title_en": "Martyrdom of Lady Fatima al-Zahra (SA)",
+    "calendar": "hijri"
   },
   {
     "month": 6,
@@ -269,7 +302,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "سالروز وفات حضرت ام‌البنین (س)",
-    "title_en": "Anniversary of Demise of Umm al-Banin (SA)"
+    "title_en": "Anniversary of Demise of Umm al-Banin (SA)",
+    "calendar": "hijri"
   },
   {
     "month": 6,
@@ -277,7 +311,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز تکریم مادران و همسران شهدا",
-    "title_en": "Day of Honoring Mothers and Wives of Martyrs"
+    "title_en": "Day of Honoring Mothers and Wives of Martyrs",
+    "calendar": "hijri"
   },
   {
     "month": 6,
@@ -285,7 +320,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "ولادت حضرت فاطمه زهرا سلام الله علیها و روز مادر",
-    "title_en": "Birth of Lady Fatima al-Zahra (SA) and Mother's Day"
+    "title_en": "Birth of Lady Fatima al-Zahra (SA) and Mother's Day",
+    "calendar": "hijri"
   },
   {
     "month": 7,
@@ -293,7 +329,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "ولادت امام محمد باقر علیه السلام",
-    "title_en": "Birth of Imam Muhammad al-Baqir (AS)"
+    "title_en": "Birth of Imam Muhammad al-Baqir (AS)",
+    "calendar": "hijri"
   },
   {
     "month": 7,
@@ -301,7 +338,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت امام علی النقی علیه السلام",
-    "title_en": "Martyrdom of Imam Ali al-Hadi (AS)"
+    "title_en": "Martyrdom of Imam Ali al-Hadi (AS)",
+    "calendar": "hijri"
   },
   {
     "month": 7,
@@ -309,7 +347,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "ولادت امام محمد تقی علیه السلام",
-    "title_en": "Birth of Imam Muhammad al-Taqi (AS)"
+    "title_en": "Birth of Imam Muhammad al-Taqi (AS)",
+    "calendar": "hijri"
   },
   {
     "month": 7,
@@ -317,7 +356,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "ولادت امام علی علیه السلام و روز پدر",
-    "title_en": "Birth of Imam Ali (AS) and Father's Day"
+    "title_en": "Birth of Imam Ali (AS) and Father's Day",
+    "calendar": "hijri"
   },
   {
     "month": 7,
@@ -325,7 +365,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "آغاز ایام البیض (اعتکاف)",
-    "title_en": "Beginning of Ayyam al-Beed (I'tikaf)"
+    "title_en": "Beginning of Ayyam al-Beed (I'tikaf)",
+    "calendar": "hijri"
   },
   {
     "month": 7,
@@ -333,7 +374,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "وفات حضرت زینب سلام الله علیها",
-    "title_en": "Demise of Lady Zaynab (SA)"
+    "title_en": "Demise of Lady Zaynab (SA)",
+    "calendar": "hijri"
   },
   {
     "month": 7,
@@ -341,7 +383,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت امام موسی کاظم علیه السلام",
-    "title_en": "Martyrdom of Imam Musa al-Kadhim (AS)"
+    "title_en": "Martyrdom of Imam Musa al-Kadhim (AS)",
+    "calendar": "hijri"
   },
   {
     "month": 7,
@@ -349,7 +392,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "مبعث رسول اکرم (ص)",
-    "title_en": "Mab'ath of the Holy Prophet (PBUH)"
+    "title_en": "Mab'ath of the Holy Prophet (PBUH)",
+    "calendar": "hijri"
   },
   {
     "month": 8,
@@ -357,7 +401,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "ولادت سالار شهیدان، امام حسین علیه السلام و روز پاسدار",
-    "title_en": "Birth of the Master of Martyrs, Imam Husayn (AS), and Pasdar Day"
+    "title_en": "Birth of the Master of Martyrs, Imam Husayn (AS), and Pasdar Day",
+    "calendar": "hijri"
   },
   {
     "month": 8,
@@ -365,7 +410,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "ولادت ابوالفضل العباس علیه السلام و روز جانباز",
-    "title_en": "Birth of Abu al-Fadl al-Abbas (AS) and Veterans Day"
+    "title_en": "Birth of Abu al-Fadl al-Abbas (AS) and Veterans Day",
+    "calendar": "hijri"
   },
   {
     "month": 8,
@@ -373,7 +419,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "ولادت امام زین العابدین علیه السلام و روز صحیفه سجادیه",
-    "title_en": "Birth of Imam Zayn al-Abidin (AS) and Sahifa Sajjadiyya Day"
+    "title_en": "Birth of Imam Zayn al-Abidin (AS) and Sahifa Sajjadiyya Day",
+    "calendar": "hijri"
   },
   {
     "month": 8,
@@ -381,7 +428,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "ولادت علی اکبر علیه السلام و روز جوان",
-    "title_en": "Birth of Ali Akbar (AS) and Youth Day"
+    "title_en": "Birth of Ali Akbar (AS) and Youth Day",
+    "calendar": "hijri"
   },
   {
     "month": 8,
@@ -389,7 +437,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "ولادت حضرت قائم عجل الله تعالی فرجه و جشن نیمه شعبان",
-    "title_en": "Birth of Imam Mahdi (ATFS) and Mid-Sha'ban Celebration"
+    "title_en": "Birth of Imam Mahdi (ATFS) and Mid-Sha'ban Celebration",
+    "calendar": "hijri"
   },
   {
     "month": 8,
@@ -397,7 +446,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی مستضعفان",
-    "title_en": "International Day of the Oppressed"
+    "title_en": "International Day of the Oppressed",
+    "calendar": "hijri"
   },
   {
     "month": 8,
@@ -405,7 +455,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز سربازان گمنام امام زمان (عج)",
-    "title_en": "Day of the Anonymous Soldiers of Imam Mahdi (ATFS)"
+    "title_en": "Day of the Anonymous Soldiers of Imam Mahdi (ATFS)",
+    "calendar": "hijri"
   },
   {
     "month": 9,
@@ -413,7 +464,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "وفات حضرت خدیجه (س)",
-    "title_en": "Demise of Lady Khadija (SA)"
+    "title_en": "Demise of Lady Khadija (SA)",
+    "calendar": "hijri"
   },
   {
     "month": 9,
@@ -421,7 +473,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "ولادت امام حسن مجتبی علیه السلام و روز اکرام",
-    "title_en": "Birth of Imam Hasan al-Mujtaba (AS) and Day of Respect"
+    "title_en": "Birth of Imam Hasan al-Mujtaba (AS) and Day of Respect",
+    "calendar": "hijri"
   },
   {
     "month": 9,
@@ -429,7 +482,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شب قدر",
-    "title_en": "Night of Qadr"
+    "title_en": "Night of Qadr",
+    "calendar": "hijri"
   },
   {
     "month": 9,
@@ -437,7 +491,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "ضربت خوردن حضرت علی علیه السلام و روز نهج البلاغه",
-    "title_en": "Striking of Imam Ali (AS) and Nahj al-Balagha Day"
+    "title_en": "Striking of Imam Ali (AS) and Nahj al-Balagha Day",
+    "calendar": "hijri"
   },
   {
     "month": 9,
@@ -445,7 +500,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شب قدر",
-    "title_en": "Night of Qadr"
+    "title_en": "Night of Qadr",
+    "calendar": "hijri"
   },
   {
     "month": 9,
@@ -453,7 +509,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "شهادت حضرت علی علیه السلام",
-    "title_en": "Martyrdom of Imam Ali (AS)"
+    "title_en": "Martyrdom of Imam Ali (AS)",
+    "calendar": "hijri"
   },
   {
     "month": 9,
@@ -461,7 +518,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شب قدر",
-    "title_en": "Night of Qadr"
+    "title_en": "Night of Qadr",
+    "calendar": "hijri"
   },
   {
     "month": 10,
@@ -469,7 +527,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "عید سعید فطر",
-    "title_en": "Eid al-Fitr"
+    "title_en": "Eid al-Fitr",
+    "calendar": "hijri"
   },
   {
     "month": 10,
@@ -477,7 +536,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "تعطیل به مناسبت عید سعید فطر",
-    "title_en": "Holiday on the occasion of Eid al-Fitr"
+    "title_en": "Holiday on the occasion of Eid al-Fitr",
+    "calendar": "hijri"
   },
   {
     "month": 10,
@@ -485,7 +545,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز فرهنگ پهلوانی و ورزش زورخانه‌ای",
-    "title_en": "Day of Pahlavani Culture and Zurkhaneh Sports"
+    "title_en": "Day of Pahlavani Culture and Zurkhaneh Sports",
+    "calendar": "hijri"
   },
   {
     "month": 10,
@@ -493,7 +554,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "شهادت امام جعفر صادق علیه السلام",
-    "title_en": "Martyrdom of Imam Ja'far al-Sadiq (AS)"
+    "title_en": "Martyrdom of Imam Ja'far al-Sadiq (AS)",
+    "calendar": "hijri"
   },
   {
     "month": 11,
@@ -501,7 +563,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "ولادت حضرت معصومه سلام الله علیها و روز دختران",
-    "title_en": "Birth of Lady Masuma (SA) and Daughters' Day"
+    "title_en": "Birth of Lady Masuma (SA) and Daughters' Day",
+    "calendar": "hijri"
   },
   {
     "month": 11,
@@ -509,7 +572,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "تجلیل از امامزادگان و بقاع متبرکه",
-    "title_en": "Commemoration of Imamzadehs and Holy Shrines"
+    "title_en": "Commemoration of Imamzadehs and Holy Shrines",
+    "calendar": "hijri"
   },
   {
     "month": 11,
@@ -517,7 +581,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "بزرگداشت حضرت صالح بن موسی کاظم (ع)",
-    "title_en": "Commemoration of Salih ibn Musa al-Kadhim (AS)"
+    "title_en": "Commemoration of Salih ibn Musa al-Kadhim (AS)",
+    "calendar": "hijri"
   },
   {
     "month": 11,
@@ -525,7 +590,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "بزرگداشت حضرت احمد بن موسی شاهچراغ (ع)",
-    "title_en": "Commemoration of Ahmad ibn Musa al-Shah Cheragh (AS)"
+    "title_en": "Commemoration of Ahmad ibn Musa al-Shah Cheragh (AS)",
+    "calendar": "hijri"
   },
   {
     "month": 11,
@@ -533,7 +599,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "ولادت امام رضا علیه السلام",
-    "title_en": "Birth of Imam Reza (AS)"
+    "title_en": "Birth of Imam Reza (AS)",
+    "calendar": "hijri"
   },
   {
     "month": 11,
@@ -541,7 +608,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت امام محمد تقی علیه السلام",
-    "title_en": "Martyrdom of Imam Muhammad al-Taqi (AS)"
+    "title_en": "Martyrdom of Imam Muhammad al-Taqi (AS)",
+    "calendar": "hijri"
   },
   {
     "month": 12,
@@ -549,7 +617,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "سالروز ازدواج حضرت علی (ع) و حضرت فاطمه (س) و روز ازدواج",
-    "title_en": "Anniversary of the Marriage of Imam Ali (AS) and Lady Fatima (SA), and Marriage Day"
+    "title_en": "Anniversary of the Marriage of Imam Ali (AS) and Lady Fatima (SA), and Marriage Day",
+    "calendar": "hijri"
   },
   {
     "month": 12,
@@ -557,7 +626,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت زائران خانه خدا به دست مأموران آل سعود",
-    "title_en": "Martyrdom of Pilgrims of the Holy House of God at the hands of Saudi agents"
+    "title_en": "Martyrdom of Pilgrims of the Holy House of God at the hands of Saudi agents",
+    "calendar": "hijri"
   },
   {
     "month": 12,
@@ -565,7 +635,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت امام محمد باقر علیه السلام",
-    "title_en": "Martyrdom of Imam Muhammad al-Baqir (AS)"
+    "title_en": "Martyrdom of Imam Muhammad al-Baqir (AS)",
+    "calendar": "hijri"
   },
   {
     "month": 12,
@@ -573,7 +644,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز عرفه",
-    "title_en": "Day of Arafah"
+    "title_en": "Day of Arafah",
+    "calendar": "hijri"
   },
   {
     "month": 12,
@@ -581,7 +653,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "عید سعید قربان",
-    "title_en": "Eid al-Adha"
+    "title_en": "Eid al-Adha",
+    "calendar": "hijri"
   },
   {
     "month": 12,
@@ -589,7 +662,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "آغاز دهه امامت و ولایت",
-    "title_en": "Beginning of the Ten Days of Imamate and Wilayah"
+    "title_en": "Beginning of the Ten Days of Imamate and Wilayah",
+    "calendar": "hijri"
   },
   {
     "month": 12,
@@ -597,7 +671,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "ولادت امام علی النقی علیه السلام",
-    "title_en": "Birth of Imam Ali al-Hadi (AS)"
+    "title_en": "Birth of Imam Ali al-Hadi (AS)",
+    "calendar": "hijri"
   },
   {
     "month": 12,
@@ -605,7 +680,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "عید سعید غدیر خم",
-    "title_en": "Eid al-Ghadir"
+    "title_en": "Eid al-Ghadir",
+    "calendar": "hijri"
   },
   {
     "month": 12,
@@ -613,7 +689,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "ولادت امام موسی کاظم علیه السلام",
-    "title_en": "Birth of Imam Musa al-Kadhim (AS)"
+    "title_en": "Birth of Imam Musa al-Kadhim (AS)",
+    "calendar": "hijri"
   },
   {
     "month": 12,
@@ -621,7 +698,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "مباهله پیامبر اسلام (ص)",
-    "title_en": "Mubahala of the Prophet of Islam (PBUH)"
+    "title_en": "Mubahala of the Prophet of Islam (PBUH)",
+    "calendar": "hijri"
   },
   {
     "month": 12,
@@ -629,6 +707,7 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز خانواده و تکریم بازنشستگان",
-    "title_en": "Day of Family and Honoring Retirees"
+    "title_en": "Day of Family and Honoring Retirees",
+    "calendar": "hijri"
   }
 ]

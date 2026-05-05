@@ -41,8 +41,13 @@ def show_calendar(args=None):
     upcoming = get_upcoming_events(events, days=15)
     if upcoming:
         current_ui.print_line("\n─── Upcoming 15 days ───")
+        cal_icons = {'jalali': '🔆', 'gregorian': '🌐', 'hijri': '🌙'}
+        holiday_icon = '🎊'
         for date, e in upcoming:
-            prefix = "🎌" if e.get("holiday") else "📌"
+            cal = e.get('calendar', 'jalali')
+            prefix = cal_icons.get(cal, '📌')
+            if e.get('holiday'):
+                prefix += holiday_icon
             current_ui.print_line(f"  {date.strftime('%d %B')}: {prefix} {e['title_en']}")
     else:
         current_ui.print_line("No events for the next 15 days.")

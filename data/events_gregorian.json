@@ -5,7 +5,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "جشن آغاز سال نو میلادی",
-    "title_en": "New Year's Day"
+    "title_en": "New Year's Day",
+    "calendar": "gregorian"
   },
   {
     "month": 1,
@@ -13,7 +14,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی بریل",
-    "title_en": "World Braille Day"
+    "title_en": "World Braille Day",
+    "calendar": "gregorian"
   },
   {
     "month": 1,
@@ -21,7 +23,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "ویکی‌پدیای انگلیسی بزرگترین و قدیمی‌ترین نسخه دانشنامه ویکی‌پدیا آغاز به کار کرد.",
-    "title_en": "The English Wikipedia, the largest and oldest version of the Wikipedia encyclopedia, began operation."
+    "title_en": "The English Wikipedia, the largest and oldest version of the Wikipedia encyclopedia, began operation.",
+    "calendar": "gregorian"
   },
   {
     "month": 1,
@@ -29,7 +32,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی آموزش",
-    "title_en": "International Day of Education"
+    "title_en": "International Day of Education",
+    "calendar": "gregorian"
   },
   {
     "month": 1,
@@ -37,7 +41,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی انرژی پاک",
-    "title_en": "International Day of Clean Energy"
+    "title_en": "International Day of Clean Energy",
+    "calendar": "gregorian"
   },
   {
     "month": 1,
@@ -45,7 +50,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی گمرک",
-    "title_en": "International Customs Day"
+    "title_en": "International Customs Day",
+    "calendar": "gregorian"
   },
   {
     "month": 2,
@@ -53,7 +59,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی تالاب‌ها",
-    "title_en": "World Wetlands Day"
+    "title_en": "World Wetlands Day",
+    "calendar": "gregorian"
   },
   {
     "month": 2,
@@ -61,7 +68,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی همبستگی انسانی",
-    "title_en": "World Day of Human Solidarity"
+    "title_en": "World Day of Human Solidarity",
+    "calendar": "gregorian"
   },
   {
     "month": 2,
@@ -69,7 +77,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی کودک",
-    "title_en": "World Children's Day"
+    "title_en": "World Children's Day",
+    "calendar": "gregorian"
   },
   {
     "month": 2,
@@ -77,7 +86,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی حبوبات",
-    "title_en": "World Pulses Day"
+    "title_en": "World Pulses Day",
+    "calendar": "gregorian"
   },
   {
     "month": 2,
@@ -85,7 +95,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی مشارکت زنان و دختران در علم",
-    "title_en": "International Day of Women and Girls in Science"
+    "title_en": "International Day of Women and Girls in Science",
+    "calendar": "gregorian"
   },
   {
     "month": 2,
@@ -93,7 +104,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی رادیو",
-    "title_en": "World Radio Day"
+    "title_en": "World Radio Day",
+    "calendar": "gregorian"
   },
   {
     "month": 2,
@@ -101,7 +113,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی عدالت اجتماعی",
-    "title_en": "World Day of Social Justice"
+    "title_en": "World Day of Social Justice",
+    "calendar": "gregorian"
   },
   {
     "month": 2,
@@ -109,7 +122,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی زبان مادری",
-    "title_en": "International Mother Language Day"
+    "title_en": "International Mother Language Day",
+    "calendar": "gregorian"
   },
   {
     "month": 3,
@@ -117,7 +131,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی مبارزه با تبعیض",
-    "title_en": "World Day Against Discrimination"
+    "title_en": "World Day Against Discrimination",
+    "calendar": "gregorian"
   },
   {
     "month": 3,
@@ -125,7 +140,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی حیات‌وحش",
-    "title_en": "World Wildlife Day"
+    "title_en": "World Wildlife Day",
+    "calendar": "gregorian"
   },
   {
     "month": 3,
@@ -133,7 +149,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روزجهانی زنان",
-    "title_en": "International Women's Day"
+    "title_en": "International Women's Day",
+    "calendar": "gregorian"
   },
   {
     "month": 3,
@@ -141,7 +158,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی عدد پی  π",
-    "title_en": "International Pi Day"
+    "title_en": "International Pi Day",
+    "calendar": "gregorian"
   },
   {
     "month": 3,
@@ -149,7 +167,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی شادی",
-    "title_en": "International Day of Happiness"
+    "title_en": "International Day of Happiness",
+    "calendar": "gregorian"
   },
   {
     "month": 3,
@@ -157,7 +176,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز زبان فرانسوی",
-    "title_en": "French Language Day"
+    "title_en": "French Language Day",
+    "calendar": "gregorian"
   },
   {
     "month": 3,
@@ -165,7 +185,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی شعر",
-    "title_en": "World Poetry Day"
+    "title_en": "World Poetry Day",
+    "calendar": "gregorian"
   },
   {
     "month": 3,
@@ -173,7 +194,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی نوروز",
-    "title_en": "International Nowruz Day"
+    "title_en": "International Nowruz Day",
+    "calendar": "gregorian"
   },
   {
     "month": 3,
@@ -181,7 +203,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی جنگل‌ها",
-    "title_en": "International Day of Forests"
+    "title_en": "International Day of Forests",
+    "calendar": "gregorian"
   },
   {
     "month": 3,
@@ -189,7 +212,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی سندروم داون",
-    "title_en": "World Down Syndrome Day"
+    "title_en": "World Down Syndrome Day",
+    "calendar": "gregorian"
   },
   {
     "month": 3,
@@ -197,7 +221,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی آب",
-    "title_en": "World Water Day"
+    "title_en": "World Water Day",
+    "calendar": "gregorian"
   },
   {
     "month": 3,
@@ -205,7 +230,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی هواشناسی",
-    "title_en": "World Meteorological Day"
+    "title_en": "World Meteorological Day",
+    "calendar": "gregorian"
   },
   {
     "month": 3,
@@ -213,7 +239,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بین‌المللی حق دانستن حقیقت در مورد نقض گسترده حقوق بشر و حفظ کرامت قربانیان",
-    "title_en": "International Day for the Right to the Truth Concerning Gross Human Rights Violations and for the Dignity of Victims"
+    "title_en": "International Day for the Right to the Truth Concerning Gross Human Rights Violations and for the Dignity of Victims",
+    "calendar": "gregorian"
   },
   {
     "month": 3,
@@ -221,7 +248,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی سل",
-    "title_en": "World Tuberculosis Day"
+    "title_en": "World Tuberculosis Day",
+    "calendar": "gregorian"
   },
   {
     "month": 3,
@@ -229,7 +257,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی یادبود قربانیان برده‌داری و تجارت برده اقیانوس اطلس",
-    "title_en": "International Day of Remembrance of the Victims of Slavery and the Transatlantic Slave Trade"
+    "title_en": "International Day of Remembrance of the Victims of Slavery and the Transatlantic Slave Trade",
+    "calendar": "gregorian"
   },
   {
     "month": 3,
@@ -237,7 +266,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی تئاتر",
-    "title_en": "World Theatre Day"
+    "title_en": "World Theatre Day",
+    "calendar": "gregorian"
   },
   {
     "month": 4,
@@ -245,7 +275,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی کتاب کودک",
-    "title_en": "International Children's Book Day"
+    "title_en": "International Children's Book Day",
+    "calendar": "gregorian"
   },
   {
     "month": 4,
@@ -253,7 +284,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی اطلاع‌رسانی دربارهٔ بیماری اوتیسم",
-    "title_en": "World Autism Awareness Day"
+    "title_en": "World Autism Awareness Day",
+    "calendar": "gregorian"
   },
   {
     "month": 4,
@@ -261,7 +293,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی بهداشت",
-    "title_en": "World Health Day"
+    "title_en": "World Health Day",
+    "calendar": "gregorian"
   },
   {
     "month": 4,
@@ -269,7 +302,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی میراث فرهنگی",
-    "title_en": "World Cultural Heritage Day"
+    "title_en": "World Cultural Heritage Day",
+    "calendar": "gregorian"
   },
   {
     "month": 4,
@@ -277,7 +311,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی زبان چینی",
-    "title_en": "Chinese Language Day"
+    "title_en": "Chinese Language Day",
+    "calendar": "gregorian"
   },
   {
     "month": 4,
@@ -285,7 +320,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز زمین",
-    "title_en": "Earth Day"
+    "title_en": "Earth Day",
+    "calendar": "gregorian"
   },
   {
     "month": 4,
@@ -293,7 +329,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی کتاب و حق نشر",
-    "title_en": "World Book and Copyright Day"
+    "title_en": "World Book and Copyright Day",
+    "calendar": "gregorian"
   },
   {
     "month": 4,
@@ -301,7 +338,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی زبان انگلیسی",
-    "title_en": "English Language Day"
+    "title_en": "English Language Day",
+    "calendar": "gregorian"
   },
   {
     "month": 4,
@@ -309,7 +347,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی زبان اسپانیایی",
-    "title_en": "Spanish Language Day"
+    "title_en": "Spanish Language Day",
+    "calendar": "gregorian"
   },
   {
     "month": 4,
@@ -317,7 +356,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی مالاریا",
-    "title_en": "World Malaria Day"
+    "title_en": "World Malaria Day",
+    "calendar": "gregorian"
   },
   {
     "month": 4,
@@ -325,7 +365,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی طراحی و گرافیک",
-    "title_en": "World Design and Graphics Day"
+    "title_en": "World Design and Graphics Day",
+    "calendar": "gregorian"
   },
   {
     "month": 4,
@@ -333,7 +374,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی ایمنی و بهداشت در محل کار",
-    "title_en": "World Day for Safety and Health at Work"
+    "title_en": "World Day for Safety and Health at Work",
+    "calendar": "gregorian"
   },
   {
     "month": 5,
@@ -341,7 +383,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روزجهانی  کارگر",
-    "title_en": "International Workers' Day"
+    "title_en": "International Workers' Day",
+    "calendar": "gregorian"
   },
   {
     "month": 5,
@@ -349,7 +392,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی آزادی مطبوعات",
-    "title_en": "World Press Freedom Day"
+    "title_en": "World Press Freedom Day",
+    "calendar": "gregorian"
   },
   {
     "month": 5,
@@ -357,7 +401,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی ماما",
-    "title_en": "International Day of the Midwife"
+    "title_en": "International Day of the Midwife",
+    "calendar": "gregorian"
   },
   {
     "month": 5,
@@ -365,7 +410,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی زبان پرتغالی",
-    "title_en": "Portuguese Language Day"
+    "title_en": "Portuguese Language Day",
+    "calendar": "gregorian"
   },
   {
     "month": 5,
@@ -373,7 +419,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی صلیب سرخ و هلال احمر",
-    "title_en": "World Red Cross and Red Crescent Day"
+    "title_en": "World Red Cross and Red Crescent Day",
+    "calendar": "gregorian"
   },
   {
     "month": 5,
@@ -381,7 +428,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی پرستار",
-    "title_en": "International Nurses Day"
+    "title_en": "International Nurses Day",
+    "calendar": "gregorian"
   },
   {
     "month": 5,
@@ -389,7 +437,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی خانواده",
-    "title_en": "International Day of Families"
+    "title_en": "International Day of Families",
+    "calendar": "gregorian"
   },
   {
     "month": 5,
@@ -397,7 +446,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی ارتباطات و جامعه اطلاعاتی",
-    "title_en": "World Telecommunication and Information Society Day"
+    "title_en": "World Telecommunication and Information Society Day",
+    "calendar": "gregorian"
   },
   {
     "month": 5,
@@ -405,7 +455,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی موزه و میراث فرهنگی",
-    "title_en": "International Museum and Cultural Heritage Day"
+    "title_en": "International Museum and Cultural Heritage Day",
+    "calendar": "gregorian"
   },
   {
     "month": 5,
@@ -413,7 +464,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی زنبور",
-    "title_en": "World Bee Day"
+    "title_en": "World Bee Day",
+    "calendar": "gregorian"
   },
   {
     "month": 5,
@@ -421,7 +473,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی چای",
-    "title_en": "International Tea Day"
+    "title_en": "International Tea Day",
+    "calendar": "gregorian"
   },
   {
     "month": 5,
@@ -429,7 +482,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی سیب‌زمینی",
-    "title_en": "International Day of Potato"
+    "title_en": "International Day of Potato",
+    "calendar": "gregorian"
   },
   {
     "month": 5,
@@ -437,7 +491,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی بدون دخانیات",
-    "title_en": "World No Tobacco Day"
+    "title_en": "World No Tobacco Day",
+    "calendar": "gregorian"
   },
   {
     "month": 6,
@@ -445,7 +500,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی والدین",
-    "title_en": "Global Day of Parents"
+    "title_en": "Global Day of Parents",
+    "calendar": "gregorian"
   },
   {
     "month": 6,
@@ -453,7 +509,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی دوچرخه",
-    "title_en": "World Bicycle Day"
+    "title_en": "World Bicycle Day",
+    "calendar": "gregorian"
   },
   {
     "month": 6,
@@ -461,7 +518,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی کودکان بی‌گناه قربانی خشونت",
-    "title_en": "International Day of Innocent Children Victims of Aggression"
+    "title_en": "International Day of Innocent Children Victims of Aggression",
+    "calendar": "gregorian"
   },
   {
     "month": 6,
@@ -469,7 +527,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی محیط زیست",
-    "title_en": "World Environment Day"
+    "title_en": "World Environment Day",
+    "calendar": "gregorian"
   },
   {
     "month": 6,
@@ -477,7 +536,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز زبان روسی",
-    "title_en": "Russian Language Day"
+    "title_en": "Russian Language Day",
+    "calendar": "gregorian"
   },
   {
     "month": 6,
@@ -485,7 +545,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی اقیانوس‌ها",
-    "title_en": "World Oceans Day"
+    "title_en": "World Oceans Day",
+    "calendar": "gregorian"
   },
   {
     "month": 6,
@@ -493,7 +554,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی صنایع دستی",
-    "title_en": "World Handicrafts Day"
+    "title_en": "World Handicrafts Day",
+    "calendar": "gregorian"
   },
   {
     "month": 6,
@@ -501,7 +563,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی بازی",
-    "title_en": "International Day of Play"
+    "title_en": "International Day of Play",
+    "calendar": "gregorian"
   },
   {
     "month": 6,
@@ -509,7 +572,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی مبارزه با کار کودکان",
-    "title_en": "World Day Against Child Labour"
+    "title_en": "World Day Against Child Labour",
+    "calendar": "gregorian"
   },
   {
     "month": 6,
@@ -517,7 +581,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی اهدای خون",
-    "title_en": "World Blood Donor Day"
+    "title_en": "World Blood Donor Day",
+    "calendar": "gregorian"
   },
   {
     "month": 6,
@@ -525,7 +590,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی پدر",
-    "title_en": "World Father's Day"
+    "title_en": "World Father's Day",
+    "calendar": "gregorian"
   },
   {
     "month": 6,
@@ -533,7 +599,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی مبارزه با بیابان‌زایی و خشکسالی",
-    "title_en": "World Day to Combat Desertification and Drought"
+    "title_en": "World Day to Combat Desertification and Drought",
+    "calendar": "gregorian"
   },
   {
     "month": 6,
@@ -541,7 +608,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی پناهندگان",
-    "title_en": "World Refugee Day"
+    "title_en": "World Refugee Day",
+    "calendar": "gregorian"
   },
   {
     "month": 6,
@@ -549,7 +617,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی مبارزه با مواد مخدر",
-    "title_en": "International Day Against Drug Abuse and Illicit Trafficking"
+    "title_en": "International Day Against Drug Abuse and Illicit Trafficking",
+    "calendar": "gregorian"
   },
   {
     "month": 6,
@@ -557,7 +626,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی حمایت از قربانیان شکنجه",
-    "title_en": "International Day in Support of Victims of Torture"
+    "title_en": "International Day in Support of Victims of Torture",
+    "calendar": "gregorian"
   },
   {
     "month": 7,
@@ -565,7 +635,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی جمعیت",
-    "title_en": "World Population Day"
+    "title_en": "World Population Day",
+    "calendar": "gregorian"
   },
   {
     "month": 8,
@@ -573,7 +644,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "انفجار بمب اتمی آمریکا در هیروشیما",
-    "title_en": "US atomic bombing of Hiroshima"
+    "title_en": "US atomic bombing of Hiroshima",
+    "calendar": "gregorian"
   },
   {
     "month": 8,
@@ -581,7 +653,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی جوانان",
-    "title_en": "International Youth Day"
+    "title_en": "International Youth Day",
+    "calendar": "gregorian"
   },
   {
     "month": 8,
@@ -589,7 +662,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی چپ دست ها",
-    "title_en": "International Left-Handers Day"
+    "title_en": "International Left-Handers Day",
+    "calendar": "gregorian"
   },
   {
     "month": 8,
@@ -597,7 +671,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی عکاسی",
-    "title_en": "World Photography Day"
+    "title_en": "World Photography Day",
+    "calendar": "gregorian"
   },
   {
     "month": 8,
@@ -605,7 +680,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی بشردوستی",
-    "title_en": "World Humanitarian Day"
+    "title_en": "World Humanitarian Day",
+    "calendar": "gregorian"
   },
   {
     "month": 8,
@@ -613,7 +689,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی مساجد",
-    "title_en": "World Mosques Day"
+    "title_en": "World Mosques Day",
+    "calendar": "gregorian"
   },
   {
     "month": 8,
@@ -621,7 +698,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی دریاچه‌ها",
-    "title_en": "World Lakes Day"
+    "title_en": "World Lakes Day",
+    "calendar": "gregorian"
   },
   {
     "month": 8,
@@ -629,7 +707,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بین‌المللی مقابله با آزمایش‌های هسته‌ای",
-    "title_en": "International Day against Nuclear Tests"
+    "title_en": "International Day against Nuclear Tests",
+    "calendar": "gregorian"
   },
   {
     "month": 9,
@@ -637,7 +716,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی خیریه",
-    "title_en": "International Day of Charity"
+    "title_en": "International Day of Charity",
+    "calendar": "gregorian"
   },
   {
     "month": 9,
@@ -645,7 +725,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی سوادآموزی",
-    "title_en": "International Literacy Day"
+    "title_en": "International Literacy Day",
+    "calendar": "gregorian"
   },
   {
     "month": 9,
@@ -653,7 +734,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی پیشگیری از خودکشی",
-    "title_en": "World Suicide Prevention Day"
+    "title_en": "World Suicide Prevention Day",
+    "calendar": "gregorian"
   },
   {
     "month": 9,
@@ -661,7 +743,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "حمله به برج‌های دوقلوی مرکز تجارت جهانی",
-    "title_en": "Attack on the Twin Towers of the World Trade Center"
+    "title_en": "Attack on the Twin Towers of the World Trade Center",
+    "calendar": "gregorian"
   },
   {
     "month": 9,
@@ -669,7 +752,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز گرامیداشت برنامه نویسان",
-    "title_en": "Programmers' Day"
+    "title_en": "Programmers' Day",
+    "calendar": "gregorian"
   },
   {
     "month": 9,
@@ -677,7 +761,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی دموکراسی",
-    "title_en": "International Day of Democracy"
+    "title_en": "International Day of Democracy",
+    "calendar": "gregorian"
   },
   {
     "month": 9,
@@ -685,7 +770,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی حفاظت از لایه اوزون",
-    "title_en": "International Day for the Preservation of the Ozone Layer"
+    "title_en": "International Day for the Preservation of the Ozone Layer",
+    "calendar": "gregorian"
   },
   {
     "month": 9,
@@ -693,7 +779,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی صلح",
-    "title_en": "International Day of Peace"
+    "title_en": "International Day of Peace",
+    "calendar": "gregorian"
   },
   {
     "month": 9,
@@ -701,7 +788,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی زبان‌های اشاره",
-    "title_en": "International Day of Sign Languages"
+    "title_en": "International Day of Sign Languages",
+    "calendar": "gregorian"
   },
   {
     "month": 9,
@@ -709,7 +797,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی گردشگری",
-    "title_en": "World Tourism Day"
+    "title_en": "World Tourism Day",
+    "calendar": "gregorian"
   },
   {
     "month": 9,
@@ -717,7 +806,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی ناشنوایان",
-    "title_en": "World Deaf Day"
+    "title_en": "World Deaf Day",
+    "calendar": "gregorian"
   },
   {
     "month": 9,
@@ -725,7 +815,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی ترجمه و مترجم",
-    "title_en": "International Translation Day"
+    "title_en": "International Translation Day",
+    "calendar": "gregorian"
   },
   {
     "month": 10,
@@ -733,7 +824,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی سالمندان",
-    "title_en": "International Day of Older Persons"
+    "title_en": "International Day of Older Persons",
+    "calendar": "gregorian"
   },
   {
     "month": 10,
@@ -741,7 +833,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "تأسیس جمهوری خلق چین توسط مائو تسه‌تونگ",
-    "title_en": "Founding of the People's Republic of China by Mao Zedong"
+    "title_en": "Founding of the People's Republic of China by Mao Zedong",
+    "calendar": "gregorian"
   },
   {
     "month": 10,
@@ -749,7 +842,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی معلم",
-    "title_en": "World Teachers' Day"
+    "title_en": "World Teachers' Day",
+    "calendar": "gregorian"
   },
   {
     "month": 10,
@@ -757,7 +851,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "آغاز جنگ یوم کیپور و حمله ارتش‌های مصر و سوریه از دو جبهه به اسرائیل",
-    "title_en": "Start of the Yom Kippur War and the attack of the Egyptian and Syrian armies on two fronts against Israel"
+    "title_en": "Start of the Yom Kippur War and the attack of the Egyptian and Syrian armies on two fronts against Israel",
+    "calendar": "gregorian"
   },
   {
     "month": 10,
@@ -765,7 +860,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی حماسه فلسطین",
-    "title_en": "World Day of the Palestinian Epic"
+    "title_en": "World Day of the Palestinian Epic",
+    "calendar": "gregorian"
   },
   {
     "month": 10,
@@ -773,7 +869,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی پست",
-    "title_en": "World Post Day"
+    "title_en": "World Post Day",
+    "calendar": "gregorian"
   },
   {
     "month": 10,
@@ -781,7 +878,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی سلامت روان",
-    "title_en": "World Mental Health Day"
+    "title_en": "World Mental Health Day",
+    "calendar": "gregorian"
   },
   {
     "month": 10,
@@ -789,7 +887,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی دختر",
-    "title_en": "International Day of the Girl Child"
+    "title_en": "International Day of the Girl Child",
+    "calendar": "gregorian"
   },
   {
     "month": 10,
@@ -797,7 +896,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی استاندارد",
-    "title_en": "World Standards Day"
+    "title_en": "World Standards Day",
+    "calendar": "gregorian"
   },
   {
     "month": 10,
@@ -805,7 +905,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی عصای سفید",
-    "title_en": "International White Cane Day"
+    "title_en": "International White Cane Day",
+    "calendar": "gregorian"
   },
   {
     "month": 10,
@@ -813,7 +914,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی غذا",
-    "title_en": "World Food Day"
+    "title_en": "World Food Day",
+    "calendar": "gregorian"
   },
   {
     "month": 10,
@@ -821,7 +923,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "چین نخستین بمب اتمی خود را آزمایش کرد و به پنجمین قدرت اتمی دنیا تبدیل شد.",
-    "title_en": "China tested its first atomic bomb and became the world's fifth nuclear power."
+    "title_en": "China tested its first atomic bomb and became the world's fifth nuclear power.",
+    "calendar": "gregorian"
   },
   {
     "month": 10,
@@ -829,7 +932,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی آمار",
-    "title_en": "World Statistics Day"
+    "title_en": "World Statistics Day",
+    "calendar": "gregorian"
   },
   {
     "month": 10,
@@ -837,7 +941,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "تأسیس سازمان ملل متحد",
-    "title_en": "Founding of the United Nations"
+    "title_en": "Founding of the United Nations",
+    "calendar": "gregorian"
   },
   {
     "month": 10,
@@ -845,7 +950,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی اطلاعات مربوط به توسعه",
-    "title_en": "World Development Information Day"
+    "title_en": "World Development Information Day",
+    "calendar": "gregorian"
   },
   {
     "month": 10,
@@ -853,7 +959,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی میراث سمعی و بصری",
-    "title_en": "World Day for Audiovisual Heritage"
+    "title_en": "World Day for Audiovisual Heritage",
+    "calendar": "gregorian"
   },
   {
     "month": 10,
@@ -861,7 +968,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "جشن هالووین",
-    "title_en": "Halloween"
+    "title_en": "Halloween",
+    "calendar": "gregorian"
   },
   {
     "month": 10,
@@ -869,7 +977,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی شهرها",
-    "title_en": "World Cities Day"
+    "title_en": "World Cities Day",
+    "calendar": "gregorian"
   },
   {
     "month": 11,
@@ -877,7 +986,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی پایان مصونیت برای جرایم علیه خبرنگاران",
-    "title_en": "International Day to End Impunity for Crimes against Journalists"
+    "title_en": "International Day to End Impunity for Crimes against Journalists",
+    "calendar": "gregorian"
   },
   {
     "month": 11,
@@ -885,7 +995,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی جلوگیری از بهره‌برداری از محیط زیست در جنگ و درگیری‌های مسلحانه",
-    "title_en": "International Day for Preventing the Exploitation of the Environment in War and Armed Conflict"
+    "title_en": "International Day for Preventing the Exploitation of the Environment in War and Armed Conflict",
+    "calendar": "gregorian"
   },
   {
     "month": 11,
@@ -893,7 +1004,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی علم در خدمت صلح و توسعه",
-    "title_en": "World Science Day for Peace and Development"
+    "title_en": "World Science Day for Peace and Development",
+    "calendar": "gregorian"
   },
   {
     "month": 11,
@@ -901,7 +1013,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی دیابت",
-    "title_en": "World Diabetes Day"
+    "title_en": "World Diabetes Day",
+    "calendar": "gregorian"
   },
   {
     "month": 11,
@@ -909,7 +1022,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی آقایان",
-    "title_en": "International Men's Day"
+    "title_en": "International Men's Day",
+    "calendar": "gregorian"
   },
   {
     "month": 11,
@@ -917,7 +1031,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی توالت",
-    "title_en": "World Toilet Day"
+    "title_en": "World Toilet Day",
+    "calendar": "gregorian"
   },
   {
     "month": 11,
@@ -925,7 +1040,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی کودک",
-    "title_en": "World Children's Day"
+    "title_en": "World Children's Day",
+    "calendar": "gregorian"
   },
   {
     "month": 11,
@@ -933,7 +1049,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی فلسفه",
-    "title_en": "World Philosophy Day"
+    "title_en": "World Philosophy Day",
+    "calendar": "gregorian"
   },
   {
     "month": 11,
@@ -941,7 +1058,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی تلویزیون",
-    "title_en": "World Television Day"
+    "title_en": "World Television Day",
+    "calendar": "gregorian"
   },
   {
     "month": 11,
@@ -949,7 +1067,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی مبارزه با خشونت علیه زنان",
-    "title_en": "International Day for the Elimination of Violence against Women"
+    "title_en": "International Day for the Elimination of Violence against Women",
+    "calendar": "gregorian"
   },
   {
     "month": 11,
@@ -957,7 +1076,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی همبستگی با مردم فلسطین",
-    "title_en": "International Day of Solidarity with the Palestinian People"
+    "title_en": "International Day of Solidarity with the Palestinian People",
+    "calendar": "gregorian"
   },
   {
     "month": 12,
@@ -965,7 +1085,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی ایدز",
-    "title_en": "World AIDS Day"
+    "title_en": "World AIDS Day",
+    "calendar": "gregorian"
   },
   {
     "month": 12,
@@ -973,7 +1094,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی لغو برده‌داری",
-    "title_en": "International Day for the Abolition of Slavery"
+    "title_en": "International Day for the Abolition of Slavery",
+    "calendar": "gregorian"
   },
   {
     "month": 12,
@@ -981,7 +1103,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی معلولان",
-    "title_en": "International Day of Persons with Disabilities"
+    "title_en": "International Day of Persons with Disabilities",
+    "calendar": "gregorian"
   },
   {
     "month": 12,
@@ -989,7 +1112,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی بانک‌ها",
-    "title_en": "International Day of Banks"
+    "title_en": "International Day of Banks",
+    "calendar": "gregorian"
   },
   {
     "month": 12,
@@ -997,7 +1121,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی داوطلبان برای توسعه اقتصادی و اجتماعی",
-    "title_en": "International Volunteer Day for Economic and Social Development"
+    "title_en": "International Volunteer Day for Economic and Social Development",
+    "calendar": "gregorian"
   },
   {
     "month": 12,
@@ -1005,7 +1130,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی خاک",
-    "title_en": "World Soil Day"
+    "title_en": "World Soil Day",
+    "calendar": "gregorian"
   },
   {
     "month": 12,
@@ -1013,7 +1139,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی هوانوردی غیرنظامی",
-    "title_en": "International Civil Aviation Day"
+    "title_en": "International Civil Aviation Day",
+    "calendar": "gregorian"
   },
   {
     "month": 12,
@@ -1021,7 +1148,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی مبارزه با فساد",
-    "title_en": "International Anti-Corruption Day"
+    "title_en": "International Anti-Corruption Day",
+    "calendar": "gregorian"
   },
   {
     "month": 12,
@@ -1029,7 +1157,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی حقوق بشر",
-    "title_en": "Human Rights Day"
+    "title_en": "Human Rights Day",
+    "calendar": "gregorian"
   },
   {
     "month": 12,
@@ -1037,7 +1166,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی کوهستان",
-    "title_en": "International Mountain Day"
+    "title_en": "International Mountain Day",
+    "calendar": "gregorian"
   },
   {
     "month": 12,
@@ -1045,7 +1175,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی مبارزه با استعمار در همه اشکال و مظاهر آن",
-    "title_en": "International Day against Colonialism in All Its Forms and Manifestations"
+    "title_en": "International Day against Colonialism in All Its Forms and Manifestations",
+    "calendar": "gregorian"
   },
   {
     "month": 12,
@@ -1053,7 +1184,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز زبان عربی",
-    "title_en": "World Arabic Language Day"
+    "title_en": "World Arabic Language Day",
+    "calendar": "gregorian"
   },
   {
     "month": 12,
@@ -1061,6 +1193,7 @@
     "holiday": false,
     "remind": false,
     "title_fa": "جشن کریسمس",
-    "title_en": "Christmas"
+    "title_en": "Christmas",
+    "calendar": "gregorian"
   }
 ]

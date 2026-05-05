@@ -101,5 +101,9 @@ def show_year():
     if holidays:
         current_ui.print_line("─── تعطیلات رسمی ───")
         holidays.sort(key=lambda h: (h[0], h[1]))
+        cal_icons = {'jalali': '🔆', 'gregorian': '🌐', 'hijri': '🌙'}
+        holiday_icon = '🎊'
         for m, d, ev in holidays:
-            current_ui.print_line(f"  {m:02d}/{d:02d}  {ev['title_en']}")
+            cal = ev.get('calendar', 'jalali')
+            prefix = cal_icons.get(cal, '📌') + holiday_icon
+            current_ui.print_line(f"  {m:02d}/{d:02d}  {prefix} {ev['title_en']}")

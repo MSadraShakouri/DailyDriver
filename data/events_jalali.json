@@ -5,7 +5,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "جشن نوروز/جشن سال نو",
-    "title_en": "Nowruz / New Year's Day"
+    "title_en": "Nowruz / New Year's Day",
+    "calendar": "jalali"
   },
   {
     "month": 1,
@@ -13,7 +14,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "عید نوروز",
-    "title_en": "Eid-e Nowruz (Persian New Year)"
+    "title_en": "Eid-e Nowruz (Persian New Year)",
+    "calendar": "jalali"
   },
   {
     "month": 1,
@@ -21,7 +23,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "آغاز عملیات فتح‌المبین",
-    "title_en": "Beginning of Operation Fath ol-Mobin"
+    "title_en": "Beginning of Operation Fath ol-Mobin",
+    "calendar": "jalali"
   },
   {
     "month": 1,
@@ -29,7 +32,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "عید نوروز",
-    "title_en": "Eid-e Nowruz (Persian New Year)"
+    "title_en": "Eid-e Nowruz (Persian New Year)",
+    "calendar": "jalali"
   },
   {
     "month": 1,
@@ -37,7 +41,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "عید نوروز",
-    "title_en": "Eid-e Nowruz (Persian New Year)"
+    "title_en": "Eid-e Nowruz (Persian New Year)",
+    "calendar": "jalali"
   },
   {
     "month": 1,
@@ -45,7 +50,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "زادروز آشو زرتشت، اَبَراِنسان بزرگ تاریخ",
-    "title_en": "Birth Anniversary of Asho Zarathustra, the Great Superhuman of History"
+    "title_en": "Birth Anniversary of Asho Zarathustra, the Great Superhuman of History",
+    "calendar": "jalali"
   },
   {
     "month": 1,
@@ -53,7 +59,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز هنرهای نمایشی",
-    "title_en": "Day of Performing Arts"
+    "title_en": "Day of Performing Arts",
+    "calendar": "jalali"
   },
   {
     "month": 1,
@@ -61,7 +68,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "روز جمهوری اسلامی",
-    "title_en": "Islamic Republic Day"
+    "title_en": "Islamic Republic Day",
+    "calendar": "jalali"
   },
   {
     "month": 1,
@@ -69,7 +77,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "جشن سیزده به در",
-    "title_en": "Sizdah be Dar (Nature's Day)"
+    "title_en": "Sizdah be Dar (Nature's Day)",
+    "calendar": "jalali"
   },
   {
     "month": 1,
@@ -77,7 +86,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "روز طبیعت",
-    "title_en": "Nature Day"
+    "title_en": "Nature Day",
+    "calendar": "jalali"
   },
   {
     "month": 1,
@@ -85,7 +95,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "درگذشت پروین اعتصامی",
-    "title_en": "Death of Parvin E'tesami"
+    "title_en": "Death of Parvin E'tesami",
+    "calendar": "jalali"
   },
   {
     "month": 1,
@@ -93,7 +104,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز ذخایر ژنتیکی و زیستی",
-    "title_en": "Day of Genetic and Biological Reserves"
+    "title_en": "Day of Genetic and Biological Reserves",
+    "calendar": "jalali"
   },
   {
     "month": 1,
@@ -101,7 +113,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز سلامتی",
-    "title_en": "Health Day"
+    "title_en": "Health Day",
+    "calendar": "jalali"
   },
   {
     "month": 1,
@@ -109,7 +122,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز ملی فناوری هسته‌ای",
-    "title_en": "National Nuclear Technology Day"
+    "title_en": "National Nuclear Technology Day",
+    "calendar": "jalali"
   },
   {
     "month": 1,
@@ -117,7 +131,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز هنر انقلاب اسلامی",
-    "title_en": "Day of Islamic Revolution Art"
+    "title_en": "Day of Islamic Revolution Art",
+    "calendar": "jalali"
   },
   {
     "month": 1,
@@ -125,7 +140,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت سید مرتضی آوینی",
-    "title_en": "Martyrdom of Seyyed Morteza Avini"
+    "title_en": "Martyrdom of Seyyed Morteza Avini",
+    "calendar": "jalali"
   },
   {
     "month": 1,
@@ -133,7 +149,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت امیر سپهبد علی صیاد شیرازی",
-    "title_en": "Martyrdom of Amir Sepahbod Ali Sayyad Shirazi"
+    "title_en": "Martyrdom of Amir Sepahbod Ali Sayyad Shirazi",
+    "calendar": "jalali"
   },
   {
     "month": 1,
@@ -141,7 +158,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "تأسیس بنیاد مسکن انقلاب اسلامی",
-    "title_en": "Foundation of Islamic Revolution Housing Foundation"
+    "title_en": "Foundation of Islamic Revolution Housing Foundation",
+    "calendar": "jalali"
   },
   {
     "month": 1,
@@ -149,7 +167,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز دندانپزشک",
-    "title_en": "Dentist's Day"
+    "title_en": "Dentist's Day",
+    "calendar": "jalali"
   },
   {
     "month": 1,
@@ -157,7 +176,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بزرگداشت عطار نیشابوری",
-    "title_en": "Commemoration Day of Attar of Nishapur"
+    "title_en": "Commemoration Day of Attar of Nishapur",
+    "calendar": "jalali"
   },
   {
     "month": 1,
@@ -165,7 +185,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز ارتش جمهوری اسلامی ایران",
-    "title_en": "Islamic Republic of Iran Army Day"
+    "title_en": "Islamic Republic of Iran Army Day",
+    "calendar": "jalali"
   },
   {
     "month": 1,
@@ -173,7 +194,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز علوم آزمایشگاهی، زاد‌روز حکیم سید اسماعیل جرجانی",
-    "title_en": "Day of Laboratory Sciences, Birth Anniversary of Hakim Seyyed Esma'il Jorjani"
+    "title_en": "Day of Laboratory Sciences, Birth Anniversary of Hakim Seyyed Esma'il Jorjani",
+    "calendar": "jalali"
   },
   {
     "month": 1,
@@ -181,7 +203,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز گندم و نان",
-    "title_en": "Day of Wheat and Bread"
+    "title_en": "Day of Wheat and Bread",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -189,7 +212,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بزرگداشت سعدی",
-    "title_en": "Commemoration Day of Saadi"
+    "title_en": "Commemoration Day of Saadi",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -197,7 +221,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز نثر فارسی",
-    "title_en": "Day of Persian Prose"
+    "title_en": "Day of Persian Prose",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -205,7 +230,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز شهدای ورزشکار",
-    "title_en": "Day of Martyr Athletes"
+    "title_en": "Day of Martyr Athletes",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -213,7 +239,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "تأسیس سپاه پاسداران انقلاب اسلامی",
-    "title_en": "Foundation of Islamic Revolution Guard Corps (IRGC)"
+    "title_en": "Foundation of Islamic Revolution Guard Corps (IRGC)",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -221,7 +248,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "سالروز اعلام انقلاب فرهنگی",
-    "title_en": "Anniversary of the Announcement of the Cultural Revolution"
+    "title_en": "Anniversary of the Announcement of the Cultural Revolution",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -229,7 +257,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بزرگداشت شیخ بهایی",
-    "title_en": "Commemoration Day of Sheikh Bahai"
+    "title_en": "Commemoration Day of Sheikh Bahai",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -237,7 +266,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روزملی کارآفرینی",
-    "title_en": "National Entrepreneurship Day"
+    "title_en": "National Entrepreneurship Day",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -245,7 +275,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز معماری",
-    "title_en": "Architecture Day"
+    "title_en": "Architecture Day",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -253,7 +284,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت امیر سپهبد قرنی",
-    "title_en": "Martyrdom of Amir Sepahbod Qarani"
+    "title_en": "Martyrdom of Amir Sepahbod Qarani",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -261,7 +293,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "آغاز به کار نخستین فرستنده عمومی رادیویی در ایران به نام «رادیو تهران»",
-    "title_en": "Inauguration of Iran's First Public Radio Transmitter Named \"Radio Tehran\""
+    "title_en": "Inauguration of Iran's First Public Radio Transmitter Named \"Radio Tehran\"",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -269,7 +302,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شکست حمله نظامی آمریکا به ایران در طبس",
-    "title_en": "Failure of US Military Attack on Iran in Tabas"
+    "title_en": "Failure of US Military Attack on Iran in Tabas",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -277,7 +311,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز ایمنی حمل و نقل",
-    "title_en": "Transport Safety Day"
+    "title_en": "Transport Safety Day",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -285,7 +320,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز ملی روانشناس و مشاور",
-    "title_en": "National Psychologist and Counselor Day"
+    "title_en": "National Psychologist and Counselor Day",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -293,7 +329,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز شوراها",
-    "title_en": "Day of Councils"
+    "title_en": "Day of Councils",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -301,7 +338,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز ملی خلیج فارس",
-    "title_en": "National Persian Gulf Day"
+    "title_en": "National Persian Gulf Day",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -309,7 +347,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "آغاز عملیات بیت‌المقدس",
-    "title_en": "Beginning of Operation Beyt ol-Moqaddas"
+    "title_en": "Beginning of Operation Beyt ol-Moqaddas",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -317,7 +356,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز معلم",
-    "title_en": "Teacher's Day"
+    "title_en": "Teacher's Day",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -325,7 +365,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت استاد مرتضی مطهری",
-    "title_en": "Martyrdom of Master Morteza Motahhari"
+    "title_en": "Martyrdom of Master Morteza Motahhari",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -333,7 +374,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز شیراز",
-    "title_en": "Shiraz Day"
+    "title_en": "Shiraz Day",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -341,7 +383,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "بزرگداشت شیخ صدوق",
-    "title_en": "Commemoration of Sheikh Saduq"
+    "title_en": "Commemoration of Sheikh Saduq",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -349,7 +392,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز صنعت بتن آماده",
-    "title_en": "Ready-Mix Concrete Industry Day"
+    "title_en": "Ready-Mix Concrete Industry Day",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -357,7 +401,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز صنعت تهویه مطبوع",
-    "title_en": "HVAC Industry Day"
+    "title_en": "HVAC Industry Day",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -365,7 +410,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بیماری‌های خاص و صعب‌العلاج",
-    "title_en": "Day of Special and Incurable Diseases"
+    "title_en": "Day of Special and Incurable Diseases",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -373,7 +419,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "بزرگداشت شیخ کلینی",
-    "title_en": "Commemoration of Sheikh Kolayni"
+    "title_en": "Commemoration of Sheikh Kolayni",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -381,7 +428,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز اسناد ملی و میراث مکتوب",
-    "title_en": "Day of National Documents and Written Heritage"
+    "title_en": "Day of National Documents and Written Heritage",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -389,7 +437,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز گل محمدی و گلاب",
-    "title_en": "Day of Damask Rose and Rosewater"
+    "title_en": "Day of Damask Rose and Rosewater",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -397,7 +446,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی زن در ریاضیات (به افتخار روز تولد مریم میرزاخانی)",
-    "title_en": "International Day of Women in Mathematics (Honoring the Birthday of Maryam Mirzakhani)"
+    "title_en": "International Day of Women in Mathematics (Honoring the Birthday of Maryam Mirzakhani)",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -405,7 +455,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز مشاغل خانگی و تولید خانواده‌محور",
-    "title_en": "Day of Home-Based Jobs and Family-Oriented Production"
+    "title_en": "Day of Home-Based Jobs and Family-Oriented Production",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -413,7 +464,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "لغو امتیاز تنباکو به فتوای آیت‌الله میرزا حسن شیرازی",
-    "title_en": "Revocation of Tobacco Concession by Fatwa of Ayatollah Mirza Hassan Shirazi"
+    "title_en": "Revocation of Tobacco Concession by Fatwa of Ayatollah Mirza Hassan Shirazi",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -421,7 +473,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بزرگداشت فردوسی",
-    "title_en": "Commemoration Day of Ferdowsi"
+    "title_en": "Commemoration Day of Ferdowsi",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -429,7 +482,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز پاسداشت زبان فارسی",
-    "title_en": "Day of Preserving the Persian Language"
+    "title_en": "Day of Preserving the Persian Language",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -437,7 +491,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز ارتباطات و روابط عمومی",
-    "title_en": "Communications and Public Relations Day"
+    "title_en": "Communications and Public Relations Day",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -445,7 +500,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بزرگداشت حکیم عمر خیام",
-    "title_en": "Commemoration Day of Hakim Omar Khayyam"
+    "title_en": "Commemoration Day of Hakim Omar Khayyam",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -453,7 +509,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز ملی جمعیت",
-    "title_en": "National Population Day"
+    "title_en": "National Population Day",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -461,7 +518,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز شهدای خدمت",
-    "title_en": "Day of Service Martyrs"
+    "title_en": "Day of Service Martyrs",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -469,7 +527,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز اهدای عضو، اهدای زندگی",
-    "title_en": "Day of Organ Donation, Day of Life"
+    "title_en": "Day of Organ Donation, Day of Life",
+    "calendar": "jalali"
   },
   {
     "month": 2,
@@ -477,7 +536,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بوم‌گردی",
-    "title_en": "Ecotourism Day"
+    "title_en": "Ecotourism Day",
+    "calendar": "jalali"
   },
   {
     "month": 3,
@@ -485,7 +545,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بهره وری و بهینه سازی مصرف",
-    "title_en": "Productivity and Consumption Optimization Day"
+    "title_en": "Productivity and Consumption Optimization Day",
+    "calendar": "jalali"
   },
   {
     "month": 3,
@@ -493,7 +554,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بزرگداشت ملاصدرا",
-    "title_en": "Commemoration Day of Molla Sadra"
+    "title_en": "Commemoration Day of Molla Sadra",
+    "calendar": "jalali"
   },
   {
     "month": 3,
@@ -501,7 +563,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "فتح خرمشهر در عملیات بیت المقدس و روز مقاومت، ایثار و پیروزی",
-    "title_en": "Conquest of Khorramshahr in Operation Beyt ol-Moqaddas and Day of Resistance, Sacrifice, and Victory"
+    "title_en": "Conquest of Khorramshahr in Operation Beyt ol-Moqaddas and Day of Resistance, Sacrifice, and Victory",
+    "calendar": "jalali"
   },
   {
     "month": 3,
@@ -509,7 +572,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز دزفول، روز مقاومت و پایداری",
-    "title_en": "Dezful Day, Day of Resistance and Steadfastness"
+    "title_en": "Dezful Day, Day of Resistance and Steadfastness",
+    "calendar": "jalali"
   },
   {
     "month": 3,
@@ -517,7 +581,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز نسیم مهر (حمایت از خانواده زندانیان)",
-    "title_en": "Nasim-e Mehr Day (Supporting Prisoners' Families)"
+    "title_en": "Nasim-e Mehr Day (Supporting Prisoners' Families)",
+    "calendar": "jalali"
   },
   {
     "month": 3,
@@ -525,7 +590,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "افتتاح اولین دوره مجلس شورای اسلامی",
-    "title_en": "Opening of the First Term of the Islamic Consultative Assembly"
+    "title_en": "Opening of the First Term of the Islamic Consultative Assembly",
+    "calendar": "jalali"
   },
   {
     "month": 3,
@@ -533,7 +599,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز نقشه‌برداری",
-    "title_en": "Surveying Day"
+    "title_en": "Surveying Day",
+    "calendar": "jalali"
   },
   {
     "month": 3,
@@ -541,7 +608,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز مشاور املاک",
-    "title_en": "Real Estate Agents Day"
+    "title_en": "Real Estate Agents Day",
+    "calendar": "jalali"
   },
   {
     "month": 3,
@@ -549,7 +617,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "رحلت حضرت امام خمینی",
-    "title_en": "Demise of Imam Khomeini"
+    "title_en": "Demise of Imam Khomeini",
+    "calendar": "jalali"
   },
   {
     "month": 3,
@@ -557,7 +626,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "انتخاب آیت‌الله خامنه‌ای به رهبری",
-    "title_en": "Election of Ayatollah Khamenei as Supreme Leader"
+    "title_en": "Election of Ayatollah Khamenei as Supreme Leader",
+    "calendar": "jalali"
   },
   {
     "month": 3,
@@ -565,7 +635,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "قیام 15 خرداد",
-    "title_en": "Uprising of 15 Khordad"
+    "title_en": "Uprising of 15 Khordad",
+    "calendar": "jalali"
   },
   {
     "month": 3,
@@ -573,7 +644,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "درگذشت شیخ بهایی دانشمند عصر صفوی",
-    "title_en": "Death of Sheikh Bahai, Safavid Era Scholar"
+    "title_en": "Death of Sheikh Bahai, Safavid Era Scholar",
+    "calendar": "jalali"
   },
   {
     "month": 3,
@@ -581,7 +653,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز صنایع دستی",
-    "title_en": "Handicrafts Day"
+    "title_en": "Handicrafts Day",
+    "calendar": "jalali"
   },
   {
     "month": 3,
@@ -589,7 +662,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز ملی فرش",
-    "title_en": "National Carpet Day"
+    "title_en": "National Carpet Day",
+    "calendar": "jalali"
   },
   {
     "month": 3,
@@ -597,7 +671,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت آیت‌الله سعیدی",
-    "title_en": "Martyrdom of Ayatollah Sa'idi"
+    "title_en": "Martyrdom of Ayatollah Sa'idi",
+    "calendar": "jalali"
   },
   {
     "month": 3,
@@ -605,7 +680,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز شهدای اقتدار و اتحاد ملی",
-    "title_en": "Day of Martyrs of National Dignity and Unity"
+    "title_en": "Day of Martyrs of National Dignity and Unity",
+    "calendar": "jalali"
   },
   {
     "month": 3,
@@ -613,7 +689,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز ملی گل وگیاه",
-    "title_en": "National Flower and Plant Day"
+    "title_en": "National Flower and Plant Day",
+    "calendar": "jalali"
   },
   {
     "month": 3,
@@ -621,7 +698,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت بخارایی، امانی، صفار هرندی و نیک‌نژاد",
-    "title_en": "Martyrdom of Bokharaei, Amani, Saffar Harandi, and Niknejad"
+    "title_en": "Martyrdom of Bokharaei, Amani, Saffar Harandi, and Niknejad",
+    "calendar": "jalali"
   },
   {
     "month": 3,
@@ -629,7 +707,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهاد کشاورزی",
-    "title_en": "Agricultural Jihad Day"
+    "title_en": "Agricultural Jihad Day",
+    "calendar": "jalali"
   },
   {
     "month": 3,
@@ -637,7 +716,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "تشکیل جهاد سازندگی",
-    "title_en": "Foundation of Jihad of Construction"
+    "title_en": "Foundation of Jihad of Construction",
+    "calendar": "jalali"
   },
   {
     "month": 3,
@@ -645,7 +725,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "درگذشت دکتر علی شریعتی",
-    "title_en": "Death of Dr. Ali Shariati"
+    "title_en": "Death of Dr. Ali Shariati",
+    "calendar": "jalali"
   },
   {
     "month": 3,
@@ -653,7 +734,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت زائران حرم رضوی",
-    "title_en": "Martyrdom of Pilgrims of the Razavi Shrine"
+    "title_en": "Martyrdom of Pilgrims of the Razavi Shrine",
+    "calendar": "jalali"
   },
   {
     "month": 3,
@@ -661,7 +743,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز صنعت موتورسیکلت",
-    "title_en": "Motorcycle Industry Day"
+    "title_en": "Motorcycle Industry Day",
+    "calendar": "jalali"
   },
   {
     "month": 3,
@@ -669,7 +752,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت دکتر مصطفی چمران",
-    "title_en": "Martyrdom of Dr. Mostafa Chamran"
+    "title_en": "Martyrdom of Dr. Mostafa Chamran",
+    "calendar": "jalali"
   },
   {
     "month": 3,
@@ -677,7 +761,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بسیج استادان",
-    "title_en": "Day of Professors' Basij"
+    "title_en": "Day of Professors' Basij",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -685,7 +770,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز تبلیغ و اطلاع‌رسانی دینی",
-    "title_en": "Religious Propagation and Information Day"
+    "title_en": "Religious Propagation and Information Day",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -693,7 +779,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "تأسیس سازمان تبلیغات اسلامی",
-    "title_en": "Foundation of Islamic Propagation Organization"
+    "title_en": "Foundation of Islamic Propagation Organization",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -701,7 +788,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز اصناف",
-    "title_en": "Guilds Day"
+    "title_en": "Guilds Day",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -709,7 +797,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز صنعت ابزارآلات",
-    "title_en": "Tool Industry Day"
+    "title_en": "Tool Industry Day",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -717,7 +806,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز عینک‌سازی و بینایی‌سنجی",
-    "title_en": "Optometry and Vision Testing Day"
+    "title_en": "Optometry and Vision Testing Day",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -725,7 +815,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "انفجار دفتر حزب جمهوری اسلامی و شهادت دکتر بهشتی و 72 نفر از اعضای حزب",
-    "title_en": "Bombing of the Islamic Republic Party Headquarters and Martyrdom of Dr. Beheshti and 72 Members of the Party"
+    "title_en": "Bombing of the Islamic Republic Party Headquarters and Martyrdom of Dr. Beheshti and 72 Members of the Party",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -733,7 +824,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز قوه قضاییه",
-    "title_en": "Judiciary Day"
+    "title_en": "Judiciary Day",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -741,7 +833,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "بمباران شیمیایی شهر سردشت",
-    "title_en": "Chemical Bombing of Sardasht City"
+    "title_en": "Chemical Bombing of Sardasht City",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -749,7 +842,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز مبارزه با سلاح های شیمیایی و میکروبی",
-    "title_en": "Day of Struggle against Chemical and Biological Weapons"
+    "title_en": "Day of Struggle against Chemical and Biological Weapons",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -757,7 +851,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز صنعت و معدن",
-    "title_en": "Industry and Mining Day"
+    "title_en": "Industry and Mining Day",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -765,7 +860,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بزرگداشت صائب تبریزی",
-    "title_en": "Commemoration Day of Saeb Tabrizi"
+    "title_en": "Commemoration Day of Saeb Tabrizi",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -773,7 +869,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز دیپلماسی فرهنگی و تعامل با جهان",
-    "title_en": "Day of Cultural Diplomacy and Interaction with the World"
+    "title_en": "Day of Cultural Diplomacy and Interaction with the World",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -781,7 +878,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "آزادسازی شهر مهران",
-    "title_en": "Liberation of Mehran City"
+    "title_en": "Liberation of Mehran City",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -789,7 +887,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت آیت‌الله صدوقی",
-    "title_en": "Martyrdom of Ayatollah Sadoughi"
+    "title_en": "Martyrdom of Ayatollah Sadoughi",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -797,7 +896,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شلیک به پرواز 655 ایران ایر توسط ناو وینسنس [ 1367 خورشیدی ]",
-    "title_en": "Shooting Down of Iran Air Flight 655 by USS Vincennes [1988]"
+    "title_en": "Shooting Down of Iran Air Flight 655 by USS Vincennes [1988]",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -805,7 +905,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز افشای حقوق بشر آمریکایی",
-    "title_en": "Day of Exposing American Human Rights"
+    "title_en": "Day of Exposing American Human Rights",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -813,7 +914,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "بزرگداشت علامه امینی",
-    "title_en": "Commemoration of Allameh Amini"
+    "title_en": "Commemoration of Allameh Amini",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -821,7 +923,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "حمایت از تولید ملی و مبارزه با قاچاق کالا",
-    "title_en": "Support for National Production and Fight against Goods Smuggling"
+    "title_en": "Support for National Production and Fight against Goods Smuggling",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -829,7 +932,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز خیاط، صنعت نساجی و پوشاک",
-    "title_en": "Day of Tailoring, Textile, and Garment Industry"
+    "title_en": "Day of Tailoring, Textile, and Garment Industry",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -837,7 +941,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز قلم",
-    "title_en": "Pen Day"
+    "title_en": "Pen Day",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -845,7 +950,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز شهرداری و دهیاری",
-    "title_en": "Municipality and Village Council Day"
+    "title_en": "Municipality and Village Council Day",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -853,7 +959,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "جشن خام خواری",
-    "title_en": "Khām-khāri Feast (Raw-Eating Festival)"
+    "title_en": "Khām-khāri Feast (Raw-Eating Festival)",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -861,7 +968,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز مالیات",
-    "title_en": "Tax Day"
+    "title_en": "Tax Day",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -869,7 +977,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز ادبیات کودکان و نوجوانان",
-    "title_en": "Day of Children's and Adolescent Literature"
+    "title_en": "Day of Children's and Adolescent Literature",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -877,7 +986,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "کشف توطئه آمریکایی در پایگاه هوایی شهید نوژه",
-    "title_en": "Discovery of American Conspiracy at Shahid Nojeh Air Base"
+    "title_en": "Discovery of American Conspiracy at Shahid Nojeh Air Base",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -885,7 +995,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز صنعت قیر و آسفالت",
-    "title_en": "Bitumen and Asphalt Industry Day"
+    "title_en": "Bitumen and Asphalt Industry Day",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -893,7 +1004,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز عفاف و حجاب",
-    "title_en": "Chastity and Hijab Day"
+    "title_en": "Chastity and Hijab Day",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -901,7 +1013,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "حمله به مسجد گوهرشاد و کشتار مردم به دست رضاخان",
-    "title_en": "Attack on Goharshad Mosque and Massacre of People by Reza Khan"
+    "title_en": "Attack on Goharshad Mosque and Massacre of People by Reza Khan",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -909,7 +1022,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "زادروز محمد خوارزمی، ریاضیدان و فیلسوف ایرانی و روز ملی فناوری اطلاعات",
-    "title_en": "Birthday of Muhammad Khwarizmi, Iranian Mathematician and Philosopher, and National Information Technology Day"
+    "title_en": "Birthday of Muhammad Khwarizmi, Iranian Mathematician and Philosopher, and National Information Technology Day",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -917,7 +1031,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز گفتگو و تعامل سازنده با جهان",
-    "title_en": "Day of Dialogue and Constructive Interaction with the World"
+    "title_en": "Day of Dialogue and Constructive Interaction with the World",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -925,7 +1040,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "گشایش نخستین مجلس خبرگان رهبری",
-    "title_en": "Opening of the First Assembly of Experts"
+    "title_en": "Opening of the First Assembly of Experts",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -933,7 +1049,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بهزیستی و تامین اجتماعی",
-    "title_en": "Day of Welfare and Social Security"
+    "title_en": "Day of Welfare and Social Security",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -941,7 +1058,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "تأسیس نهاد شورای نگهبان",
-    "title_en": "Foundation of the Guardian Council"
+    "title_en": "Foundation of the Guardian Council",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -949,7 +1067,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "اعلام پذیرش قطعنامه 598 شورای امنیت از سوی ایران [ 1367 خورشیدی ]",
-    "title_en": "Announcement of Iran's Acceptance of UN Security Council Resolution 598 [1988]"
+    "title_en": "Announcement of Iran's Acceptance of UN Security Council Resolution 598 [1988]",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -957,7 +1076,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "بزرگداشت آیت‌الله کاشانی",
-    "title_en": "Commemoration of Ayatollah Kashani"
+    "title_en": "Commemoration of Ayatollah Kashani",
+    "calendar": "jalali"
   },
   {
     "month": 4,
@@ -965,7 +1085,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز خلبان",
-    "title_en": "Pilot's Day"
+    "title_en": "Pilot's Day",
+    "calendar": "jalali"
   },
   {
     "month": 5,
@@ -973,7 +1094,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "افتتاح بزرگترین پالایشگاه نفت سنگین جهان در بندرعباس",
-    "title_en": "Inauguration of the World's Largest Heavy Oil Refinery in Bandar Abbas"
+    "title_en": "Inauguration of the World's Largest Heavy Oil Refinery in Bandar Abbas",
+    "calendar": "jalali"
   },
   {
     "month": 5,
@@ -981,7 +1103,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "بزرگداشت شیخ صفی‌الدین اردبیلی",
-    "title_en": "Commemoration of Sheikh Safi od-Din Ardabili"
+    "title_en": "Commemoration of Sheikh Safi od-Din Ardabili",
+    "calendar": "jalali"
   },
   {
     "month": 5,
@@ -989,7 +1112,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "سالروز عملیات افتخارآفرین مرصاد",
-    "title_en": "Anniversary of the Glorious Operation Mersad"
+    "title_en": "Anniversary of the Glorious Operation Mersad",
+    "calendar": "jalali"
   },
   {
     "month": 5,
@@ -997,7 +1121,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز کارآفرینی و آموزش‌های فنی و حرفه‌ای",
-    "title_en": "Day of Entrepreneurship and Technical-Vocational Training"
+    "title_en": "Day of Entrepreneurship and Technical-Vocational Training",
+    "calendar": "jalali"
   },
   {
     "month": 5,
@@ -1005,7 +1130,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بزرگداشت شیخ شهاب الدین سهروردی",
-    "title_en": "Commemoration Day of Sheikh Shahab od-Din Suhrawardi"
+    "title_en": "Commemoration Day of Sheikh Shahab od-Din Suhrawardi",
+    "calendar": "jalali"
   },
   {
     "month": 5,
@@ -1013,7 +1139,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز زنجان",
-    "title_en": "Zanjan Day"
+    "title_en": "Zanjan Day",
+    "calendar": "jalali"
   },
   {
     "month": 5,
@@ -1021,7 +1148,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "سالروز اهدای خون در ایران",
-    "title_en": "Anniversary of Blood Donation in Iran"
+    "title_en": "Anniversary of Blood Donation in Iran",
+    "calendar": "jalali"
   },
   {
     "month": 5,
@@ -1029,7 +1157,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "سالروز صدور فرمان مشروطیت",
-    "title_en": "Anniversary of the Decree of Constitutional Revolution"
+    "title_en": "Anniversary of the Decree of Constitutional Revolution",
+    "calendar": "jalali"
   },
   {
     "month": 5,
@@ -1037,7 +1166,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "برگزاری اولین کنکور در ایران",
-    "title_en": "Holding of Iran's First University Entrance Exam (Concours)"
+    "title_en": "Holding of Iran's First University Entrance Exam (Concours)",
+    "calendar": "jalali"
   },
   {
     "month": 5,
@@ -1045,7 +1175,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز حقوق بشر اسلامی و کرامت انسانی",
-    "title_en": "Day of Islamic Human Rights and Human Dignity"
+    "title_en": "Day of Islamic Human Rights and Human Dignity",
+    "calendar": "jalali"
   },
   {
     "month": 5,
@@ -1053,7 +1184,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت امیر سرلشکر خلبان عباس بابایی",
-    "title_en": "Martyrdom of Major General Pilot Abbas Babaei"
+    "title_en": "Martyrdom of Major General Pilot Abbas Babaei",
+    "calendar": "jalali"
   },
   {
     "month": 5,
@@ -1061,7 +1193,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "تشکیل جهاد دانشگاهی",
-    "title_en": "Foundation of Academic Jihad"
+    "title_en": "Foundation of Academic Jihad",
+    "calendar": "jalali"
   },
   {
     "month": 5,
@@ -1069,7 +1202,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز خبرنگار",
-    "title_en": "Journalist's Day"
+    "title_en": "Journalist's Day",
+    "calendar": "jalali"
   },
   {
     "month": 5,
@@ -1077,7 +1211,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "سالروز شهادت محمود صارمی",
-    "title_en": "Anniversary of Martyrdom of Mahmoud Saremi"
+    "title_en": "Anniversary of Martyrdom of Mahmoud Saremi",
+    "calendar": "jalali"
   },
   {
     "month": 5,
@@ -1085,7 +1220,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "بزرگداشت شهدای مدافع حرم",
-    "title_en": "Commemoration of Defenders of the Shrine Martyrs"
+    "title_en": "Commemoration of Defenders of the Shrine Martyrs",
+    "calendar": "jalali"
   },
   {
     "month": 5,
@@ -1093,7 +1229,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز حمایت از صنایع کوچک",
-    "title_en": "Day of Supporting Small Industries"
+    "title_en": "Day of Supporting Small Industries",
+    "calendar": "jalali"
   },
   {
     "month": 5,
@@ -1101,7 +1238,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز تشکل‌ها و مشارکت‌های اجتماعی",
-    "title_en": "Day of Organizations and Social Participation"
+    "title_en": "Day of Organizations and Social Participation",
+    "calendar": "jalali"
   },
   {
     "month": 5,
@@ -1109,7 +1247,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز مقاومت اسلامی",
-    "title_en": "Day of Islamic Resistance"
+    "title_en": "Day of Islamic Resistance",
+    "calendar": "jalali"
   },
   {
     "month": 5,
@@ -1117,7 +1256,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "سالروز ورود آزادگانِ سرافراز به وطن",
-    "title_en": "Anniversary of the Return of Honored Ex-Prisoners of War to Homeland"
+    "title_en": "Anniversary of the Return of Honored Ex-Prisoners of War to Homeland",
+    "calendar": "jalali"
   },
   {
     "month": 5,
@@ -1125,7 +1265,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "سالروز وقایع 28 مرداد پس از برکناری محمد مصدق",
-    "title_en": "Anniversary of the Events of 28 Mordad Following the Dismissal of Mohammad Mosaddegh"
+    "title_en": "Anniversary of the Events of 28 Mordad Following the Dismissal of Mohammad Mosaddegh",
+    "calendar": "jalali"
   },
   {
     "month": 5,
@@ -1133,7 +1274,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "گشایش مجلس خبرگان",
-    "title_en": "Opening of the Assembly of Experts"
+    "title_en": "Opening of the Assembly of Experts",
+    "calendar": "jalali"
   },
   {
     "month": 5,
@@ -1141,7 +1283,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز پزشک",
-    "title_en": "Physician's Day"
+    "title_en": "Physician's Day",
+    "calendar": "jalali"
   },
   {
     "month": 5,
@@ -1149,7 +1292,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "بزرگداشت علامه مجلسی",
-    "title_en": "Commemoration of Allameh Majlesi"
+    "title_en": "Commemoration of Allameh Majlesi",
+    "calendar": "jalali"
   },
   {
     "month": 5,
@@ -1157,7 +1301,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز صنعت دفاعی",
-    "title_en": "Defense Industry Day"
+    "title_en": "Defense Industry Day",
+    "calendar": "jalali"
   },
   {
     "month": 5,
@@ -1165,7 +1310,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز عسل",
-    "title_en": "Honey Day"
+    "title_en": "Honey Day",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1173,7 +1319,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بزرگداشت ابوعلی سینا و روز پزشک",
-    "title_en": "Commemoration Day of Avicenna and Physician's Day"
+    "title_en": "Commemoration Day of Avicenna and Physician's Day",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1181,7 +1328,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز همدان",
-    "title_en": "Hamedan Day"
+    "title_en": "Hamedan Day",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1189,7 +1337,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "آغاز هفته دولت",
-    "title_en": "Beginning of Government Week"
+    "title_en": "Beginning of Government Week",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1197,7 +1346,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت سید علی اندرزگو",
-    "title_en": "Martyrdom of Seyyed Ali Andarzgo"
+    "title_en": "Martyrdom of Seyyed Ali Andarzgo",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1205,7 +1355,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "اشغال ایران توسط متفقین",
-    "title_en": "Occupation of Iran by the Allies"
+    "title_en": "Occupation of Iran by the Allies",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1213,7 +1364,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "زادروز کوروش بزرگ",
-    "title_en": "Birthday of Cyrus the Great"
+    "title_en": "Birthday of Cyrus the Great",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1221,7 +1373,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهریور روز، جشن شهریورگان",
-    "title_en": "Shahrivar Day, Feast of Shahrivargan"
+    "title_en": "Shahrivar Day, Feast of Shahrivargan",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1229,7 +1382,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز کارمند",
-    "title_en": "Employee's Day"
+    "title_en": "Employee's Day",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1237,7 +1391,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بزرگداشت محمدبن زکریای رازی و روز داروساز",
-    "title_en": "Commemoration Day of Muhammad ibn Zakariya al-Razi and Pharmacist's Day"
+    "title_en": "Commemoration Day of Muhammad ibn Zakariya al-Razi and Pharmacist's Day",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1245,7 +1400,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز کُشتی",
-    "title_en": "Wrestling Day"
+    "title_en": "Wrestling Day",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1253,7 +1409,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "انفجار در دفتر نخست‌وزیری جمهوری اسلامی ایران، روز مبارزه با تروریسم",
-    "title_en": "Explosion at the Iranian Prime Minister's Office, Day of Struggle against Terrorism"
+    "title_en": "Explosion at the Iranian Prime Minister's Office, Day of Struggle against Terrorism",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1261,7 +1418,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "درگذشت علامه حلی از علمای شیعه قرن هشتم قمری",
-    "title_en": "Death of Allameh Helli, 8th Century AH Shiite Scholar"
+    "title_en": "Death of Allameh Helli, 8th Century AH Shiite Scholar",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1269,7 +1427,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت شهیدان رجایی و باهنر",
-    "title_en": "Martyrdom of Shahid Rajai and Shahid Bahonar"
+    "title_en": "Martyrdom of Shahid Rajai and Shahid Bahonar",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1277,7 +1436,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "امضای معاهده تقسیم ایران بین روسیه و انگلیس",
-    "title_en": "Signing of the Treaty of Division of Iran between Russia and Britain"
+    "title_en": "Signing of the Treaty of Division of Iran between Russia and Britain",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1285,7 +1445,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بانکداری اسلامی",
-    "title_en": "Islamic Banking Day"
+    "title_en": "Islamic Banking Day",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1293,7 +1454,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "سالروز تصویب قانون عملیات بانکی بدون ربا",
-    "title_en": "Anniversary of Enactment of Interest-Free Banking Law"
+    "title_en": "Anniversary of Enactment of Interest-Free Banking Law",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1301,7 +1463,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز تشکیل قرارگاه پدافند هوایی خاتم الانبیا",
-    "title_en": "Day of Formation of Khatam ol-Anbia Air Defense Base"
+    "title_en": "Day of Formation of Khatam ol-Anbia Air Defense Base",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1309,7 +1472,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روزصنعت چاپ",
-    "title_en": "Printing Industry Day"
+    "title_en": "Printing Industry Day",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1317,7 +1481,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "وقوع زلزله بویین زهرا و مرگ بیش از 25 هزار نفر",
-    "title_en": "Buin Zahra Earthquake and Death of Over 25,000 People"
+    "title_en": "Buin Zahra Earthquake and Death of Over 25,000 People",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1325,7 +1490,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "سالروز شهادت رئیسعلی دلواری، سردار بزرگ میهن و فرمانده قیام جنوب علیه اشغالگران انگلیسی",
-    "title_en": "Anniversary of Martyrdom of Rais Ali Delvari, Great Commander of the Nation and Leader of Southern Uprising against British Occupiers"
+    "title_en": "Anniversary of Martyrdom of Rais Ali Delvari, Great Commander of the Nation and Leader of Southern Uprising against British Occupiers",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1333,7 +1499,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز مبارزه با استعمار انگلیس",
-    "title_en": "Day of Struggle against British Colonialism"
+    "title_en": "Day of Struggle against British Colonialism",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1341,7 +1508,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بهورز",
-    "title_en": "Behvarz Day (Community Health Worker Day)"
+    "title_en": "Behvarz Day (Community Health Worker Day)",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1349,7 +1517,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بزرگداشت ابوریحان بیرونی",
-    "title_en": "Commemoration Day of Abu Rayhan Biruni"
+    "title_en": "Commemoration Day of Abu Rayhan Biruni",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1357,7 +1526,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز تعاون",
-    "title_en": "Cooperation Day"
+    "title_en": "Cooperation Day",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1365,7 +1535,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز مردم‌شناسی",
-    "title_en": "Anthropology Day"
+    "title_en": "Anthropology Day",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1373,7 +1544,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز علوم پایه",
-    "title_en": "Basic Sciences Day"
+    "title_en": "Basic Sciences Day",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1381,7 +1553,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "سالروز زلزله فردوس در سال ۱۳۴۷",
-    "title_en": "Anniversary of the Ferdows Earthquake in 1968"
+    "title_en": "Anniversary of the Ferdows Earthquake in 1968",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1389,7 +1562,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز حرکت‌های جهادی و امداد مردمی",
-    "title_en": "Day of Jihadi Movements and Popular Relief"
+    "title_en": "Day of Jihadi Movements and Popular Relief",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1397,7 +1571,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت آیت‌الله قدوسی و سرتیپ وحید دستجردی",
-    "title_en": "Martyrdom of Ayatollah Qoddusi and Brigadier General Vahid Dastjerdi"
+    "title_en": "Martyrdom of Ayatollah Qoddusi and Brigadier General Vahid Dastjerdi",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1405,7 +1580,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "قیام 17 شهریور",
-    "title_en": "Uprising of 17 Shahrivar"
+    "title_en": "Uprising of 17 Shahrivar",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1413,7 +1589,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "درگذشت آیت الله سید محمود طالقانی",
-    "title_en": "Death of Ayatollah Seyyed Mahmoud Taleghani"
+    "title_en": "Death of Ayatollah Seyyed Mahmoud Taleghani",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1421,7 +1598,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت آیت‌الله مدنی",
-    "title_en": "Martyrdom of Ayatollah Madani"
+    "title_en": "Martyrdom of Ayatollah Madani",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1429,7 +1607,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز سینما",
-    "title_en": "Cinema Day"
+    "title_en": "Cinema Day",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1437,7 +1616,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "کشته شدن شیخ محمد خیابانی از فعالان سیاسی در دوره انقلاب مشروطه ایران",
-    "title_en": "Killing of Sheikh Mohammad Khiyabani, Political Activist during Iran's Constitutional Revolution"
+    "title_en": "Killing of Sheikh Mohammad Khiyabani, Political Activist during Iran's Constitutional Revolution",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1445,7 +1625,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "برگزاری انتخابات دوره نخست مجلس شورای ملی",
-    "title_en": "Holding of the First Term of the National Consultative Assembly Elections"
+    "title_en": "Holding of the First Term of the National Consultative Assembly Elections",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1453,7 +1634,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز کفاش، صنعت کفش و چرم",
-    "title_en": "Day of Shoemaking, Footwear, and Leather Industry"
+    "title_en": "Day of Shoemaking, Footwear, and Leather Industry",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1461,7 +1643,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز خرما",
-    "title_en": "Date Palm Day"
+    "title_en": "Date Palm Day",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1469,7 +1652,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز شعر و ادب فارسی",
-    "title_en": "Day of Persian Poetry and Literature"
+    "title_en": "Day of Persian Poetry and Literature",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1477,7 +1661,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "بزرگداشت استاد شهریار",
-    "title_en": "Commemoration of Master Shahriar"
+    "title_en": "Commemoration of Master Shahriar",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1485,7 +1670,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "آغاز هفته دفاع مقدس",
-    "title_en": "Beginning of Sacred Defense Week"
+    "title_en": "Beginning of Sacred Defense Week",
+    "calendar": "jalali"
   },
   {
     "month": 6,
@@ -1493,7 +1679,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "آغاز جنگ تحمیلی",
-    "title_en": "Beginning of the Imposed War"
+    "title_en": "Beginning of the Imposed War",
+    "calendar": "jalali"
   },
   {
     "month": 7,
@@ -1501,7 +1688,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "آغاز حمله مغول به ایران در پاییز 598 خورشیدی",
-    "title_en": "Beginning of the Mongol Invasion of Iran in Fall 598 Solar Hijri"
+    "title_en": "Beginning of the Mongol Invasion of Iran in Fall 598 Solar Hijri",
+    "calendar": "jalali"
   },
   {
     "month": 7,
@@ -1509,7 +1697,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "بزرگداشت شهدای منا",
-    "title_en": "Commemoration of the Mina Martyrs"
+    "title_en": "Commemoration of the Mina Martyrs",
+    "calendar": "jalali"
   },
   {
     "month": 7,
@@ -1517,7 +1706,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز گرامیداشت سربازان وطن",
-    "title_en": "Day of Honoring Soldiers of the Homeland"
+    "title_en": "Day of Honoring Soldiers of the Homeland",
+    "calendar": "jalali"
   },
   {
     "month": 7,
@@ -1525,7 +1715,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز گردشگری",
-    "title_en": "Tourism Day"
+    "title_en": "Tourism Day",
+    "calendar": "jalali"
   },
   {
     "month": 7,
@@ -1533,7 +1724,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شکست حصر آبادان",
-    "title_en": "Breaking of the Abadan Siege"
+    "title_en": "Breaking of the Abadan Siege",
+    "calendar": "jalali"
   },
   {
     "month": 7,
@@ -1541,7 +1733,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز آتش نشانی و ایمنی",
-    "title_en": "Firefighting and Safety Day"
+    "title_en": "Firefighting and Safety Day",
+    "calendar": "jalali"
   },
   {
     "month": 7,
@@ -1549,7 +1742,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "سقوط هواپیمای حامل جمعی از فرماندهان جنگ (کلاهدوز، نامجو، فلاحی، فکوری، جهان آرا) در سال 1360",
-    "title_en": "Crash of a Plane Carrying Several War Commanders (Kolahdoz, Namjoo, Falahi, Fakouri, Jahanoara) in 1981"
+    "title_en": "Crash of a Plane Carrying Several War Commanders (Kolahdoz, Namjoo, Falahi, Fakouri, Jahanoara) in 1981",
+    "calendar": "jalali"
   },
   {
     "month": 7,
@@ -1557,7 +1751,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بزرگداشت شمس تبریزی",
-    "title_en": "Commemoration Day of Shams Tabrizi"
+    "title_en": "Commemoration Day of Shams Tabrizi",
+    "calendar": "jalali"
   },
   {
     "month": 7,
@@ -1565,7 +1760,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "بزرگداشت فرماندهان شهید دفاع مقدس",
-    "title_en": "Commemoration of Martyred Commanders of the Sacred Defense"
+    "title_en": "Commemoration of Martyred Commanders of the Sacred Defense",
+    "calendar": "jalali"
   },
   {
     "month": 7,
@@ -1573,7 +1769,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روزبزرگداشت مولوی",
-    "title_en": "Commemoration Day of Rumi"
+    "title_en": "Commemoration Day of Rumi",
+    "calendar": "jalali"
   },
   {
     "month": 7,
@@ -1581,7 +1778,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز همبستگی و همدردی با کودکان و نوجوانان فلسطینی",
-    "title_en": "Day of Solidarity and Sympathy with Palestinian Children and Adolescents"
+    "title_en": "Day of Solidarity and Sympathy with Palestinian Children and Adolescents",
+    "calendar": "jalali"
   },
   {
     "month": 7,
@@ -1589,7 +1787,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز نخبگان",
-    "title_en": "Day of Elites"
+    "title_en": "Day of Elites",
+    "calendar": "jalali"
   },
   {
     "month": 7,
@@ -1597,7 +1796,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "هجرت امام خمینی از عراق به پاریس",
-    "title_en": "Imam Khomeini's Migration from Iraq to Paris"
+    "title_en": "Imam Khomeini's Migration from Iraq to Paris",
+    "calendar": "jalali"
   },
   {
     "month": 7,
@@ -1605,7 +1805,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز نیروی انتظامی",
-    "title_en": "Law Enforcement Force Day"
+    "title_en": "Law Enforcement Force Day",
+    "calendar": "jalali"
   },
   {
     "month": 7,
@@ -1613,7 +1814,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز دامپزشکی",
-    "title_en": "Veterinary Day"
+    "title_en": "Veterinary Day",
+    "calendar": "jalali"
   },
   {
     "month": 7,
@@ -1621,7 +1823,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز روستا و عشایر",
-    "title_en": "Day of Rural Areas and Nomads"
+    "title_en": "Day of Rural Areas and Nomads",
+    "calendar": "jalali"
   },
   {
     "month": 7,
@@ -1629,7 +1832,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز ملی کودک",
-    "title_en": "National Child Day"
+    "title_en": "National Child Day",
+    "calendar": "jalali"
   },
   {
     "month": 7,
@@ -1637,7 +1841,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بزرگداشت حافظ",
-    "title_en": "Commemoration Day of Hafez"
+    "title_en": "Commemoration Day of Hafez",
+    "calendar": "jalali"
   },
   {
     "month": 7,
@@ -1645,7 +1850,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت آیت‌الله اشرفی اصفهانی",
-    "title_en": "Martyrdom of Ayatollah Ashrafi Esfahani"
+    "title_en": "Martyrdom of Ayatollah Ashrafi Esfahani",
+    "calendar": "jalali"
   },
   {
     "month": 7,
@@ -1653,7 +1859,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز ملی پارالمپیک",
-    "title_en": "National Paralympic Day"
+    "title_en": "National Paralympic Day",
+    "calendar": "jalali"
   },
   {
     "month": 7,
@@ -1661,7 +1868,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز پیوند اولیا و مربیان",
-    "title_en": "Parents and Teachers Association Day"
+    "title_en": "Parents and Teachers Association Day",
+    "calendar": "jalali"
   },
   {
     "month": 7,
@@ -1669,7 +1877,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز صنعت آسانسور و پله برقی",
-    "title_en": "Elevator and Escalator Industry Day"
+    "title_en": "Elevator and Escalator Industry Day",
+    "calendar": "jalali"
   },
   {
     "month": 7,
@@ -1677,7 +1886,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز تربیت بدنی و ورزش",
-    "title_en": "Physical Education and Sports Day"
+    "title_en": "Physical Education and Sports Day",
+    "calendar": "jalali"
   },
   {
     "month": 7,
@@ -1685,7 +1895,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز ملی کوهنورد",
-    "title_en": "National Mountaineer Day"
+    "title_en": "National Mountaineer Day",
+    "calendar": "jalali"
   },
   {
     "month": 7,
@@ -1693,7 +1904,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز صادرات",
-    "title_en": "Exports Day"
+    "title_en": "Exports Day",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1701,7 +1913,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز آمار و برنامه ریزی",
-    "title_en": "Statistics and Planning Day"
+    "title_en": "Statistics and Planning Day",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1709,7 +1922,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "آغاز کار نخستین فرستنده تلویزیون دولتی ایران، به نام «شبکه ملی»",
-    "title_en": "Beginning of Iran's First State Television Transmitter, Named \"National Network\""
+    "title_en": "Beginning of Iran's First State Television Transmitter, Named \"National Network\"",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1717,7 +1931,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بزرگداشت ابوالفضل بیهقی، تاریخ‌نگار و نویسنده ایرانی",
-    "title_en": "Commemoration Day of Abolfazl Beyhaqi, Iranian Historiographer and Writer"
+    "title_en": "Commemoration Day of Abolfazl Beyhaqi, Iranian Historiographer and Writer",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1725,7 +1940,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت آیت‌الله سید مصطفی خمینی",
-    "title_en": "Martyrdom of Ayatollah Seyyed Mostafa Khomeini"
+    "title_en": "Martyrdom of Ayatollah Seyyed Mostafa Khomeini",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1733,7 +1949,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز صنعت ساختمان",
-    "title_en": "Construction Industry Day"
+    "title_en": "Construction Industry Day",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1741,7 +1958,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "درگذشت فریدون مشیری شاعر ایرانی",
-    "title_en": "Death of Fereydoun Moshiri, Iranian Poet"
+    "title_en": "Death of Fereydoun Moshiri, Iranian Poet",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1749,7 +1967,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "اعتراض امام خمینی علیه پذیرش کاپیتولاسیون",
-    "title_en": "Imam Khomeini's Protest against Acceptance of Capitulation"
+    "title_en": "Imam Khomeini's Protest against Acceptance of Capitulation",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1757,7 +1976,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز زعفران",
-    "title_en": "Saffron Day"
+    "title_en": "Saffron Day",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1765,7 +1985,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "هجرت محمد (ص) از مکه به مدینه و انتخاب این روز به عنوان مبدأ تاریخ مسلمانان در دو تقویم هجری شمسی و هجری قمری",
-    "title_en": "Hijra of Muhammad (PBUH) from Mecca to Medina and Selection of This Day as the Beginning of Muslim Calendar in Both Solar and Lunar Hijri Calendars"
+    "title_en": "Hijra of Muhammad (PBUH) from Mecca to Medina and Selection of This Day as the Beginning of Muslim Calendar in Both Solar and Lunar Hijri Calendars",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1773,7 +1994,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز انار",
-    "title_en": "Pomegranate Day"
+    "title_en": "Pomegranate Day",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1781,7 +2003,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز نوجوان",
-    "title_en": "Adolescent Day"
+    "title_en": "Adolescent Day",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1789,7 +2012,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت محمدحسین فهمیده (بسیجی ۱۳ ساله)",
-    "title_en": "Martyrdom of Mohammad Hossein Fahmideh (13-Year-Old Basiji)"
+    "title_en": "Martyrdom of Mohammad Hossein Fahmideh (13-Year-Old Basiji)",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1797,7 +2021,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز پدافند غیرعامل",
-    "title_en": "Passive Defense Day"
+    "title_en": "Passive Defense Day",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1805,7 +2030,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز محیط‌‌‌‌‌‌‌‌‌‌‌‌‌ بان",
-    "title_en": "Environment Day"
+    "title_en": "Environment Day",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1813,7 +2039,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "درگذشت محمد زکریای رازی پزشک، فیلسوف و شیمیدان ایرانی.",
-    "title_en": "Death of Muhammad Zakariya al-Razi, Persian Physician, Philosopher, and Chemist"
+    "title_en": "Death of Muhammad Zakariya al-Razi, Persian Physician, Philosopher, and Chemist",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1821,7 +2048,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت آیت‌الله قاضی طباطبایی",
-    "title_en": "Martyrdom of Ayatollah Qazi Tabatabaei"
+    "title_en": "Martyrdom of Ayatollah Qazi Tabatabaei",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1829,7 +2057,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز دانش آموز",
-    "title_en": "Student Day"
+    "title_en": "Student Day",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1837,7 +2066,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "تسخیر سفارت آمریکا",
-    "title_en": "Seizure of the US Embassy"
+    "title_en": "Seizure of the US Embassy",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1845,7 +2075,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز ملی مبارزه با استکبار جهانی",
-    "title_en": "National Day of Struggle against Global Arrogance"
+    "title_en": "National Day of Struggle against Global Arrogance",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1853,7 +2084,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "تبعید امام خمینی از ایران به ترکیه",
-    "title_en": "Exile of Imam Khomeini from Iran to Turkey"
+    "title_en": "Exile of Imam Khomeini from Iran to Turkey",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1861,7 +2093,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز فرهنگ عمومی",
-    "title_en": "Public Culture Day"
+    "title_en": "Public Culture Day",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1869,7 +2102,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز ملّی مازندران",
-    "title_en": "National Mazandaran Day"
+    "title_en": "National Mazandaran Day",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1877,7 +2111,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز ملی کیفیت",
-    "title_en": "National Quality Day"
+    "title_en": "National Quality Day",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1885,7 +2120,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز هوافضا",
-    "title_en": "Aerospace Day"
+    "title_en": "Aerospace Day",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1893,7 +2129,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز کتاب و کتابخوانی",
-    "title_en": "Book and Reading Day"
+    "title_en": "Book and Reading Day",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1901,7 +2138,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "بزرگداشت آیت‌الله سید محمدحسین طباطبایی",
-    "title_en": "Commemoration of Ayatollah Seyyed Mohammad Hossein Tabatabaei"
+    "title_en": "Commemoration of Ayatollah Seyyed Mohammad Hossein Tabatabaei",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1909,7 +2147,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز صنعت نوشت‌افزار",
-    "title_en": "Stationery Industry Day"
+    "title_en": "Stationery Industry Day",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1917,7 +2156,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز اصفهان",
-    "title_en": "Isfahan Day"
+    "title_en": "Isfahan Day",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1925,7 +2165,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "سالروز آزادسازی سوسنگرد",
-    "title_en": "Anniversary of the Liberation of Susangerd"
+    "title_en": "Anniversary of the Liberation of Susangerd",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1933,7 +2174,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز حکمت و فلسفه",
-    "title_en": "Day of Wisdom and Philosophy"
+    "title_en": "Day of Wisdom and Philosophy",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1941,7 +2183,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "بزرگداشت ابونصر فارابی",
-    "title_en": "Commemoration of Abu Nasr Farabi"
+    "title_en": "Commemoration of Abu Nasr Farabi",
+    "calendar": "jalali"
   },
   {
     "month": 8,
@@ -1949,7 +2192,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز قهرمان ملی",
-    "title_en": "National Hero Day"
+    "title_en": "National Hero Day",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -1957,7 +2201,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "آذر جشن",
-    "title_en": "Azar Feast (Feast of Azar)"
+    "title_en": "Azar Feast (Feast of Azar)",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -1965,7 +2210,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز صنعت سرب و روی",
-    "title_en": "Lead and Zinc Industry Day"
+    "title_en": "Lead and Zinc Industry Day",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -1973,7 +2219,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز زیتون",
-    "title_en": "Olive Day"
+    "title_en": "Olive Day",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -1981,7 +2228,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بسیج مستضعفان",
-    "title_en": "Day of Basij of the Oppressed"
+    "title_en": "Day of Basij of the Oppressed",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -1989,7 +2237,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "سالروز قیام مردم گرگان",
-    "title_en": "Anniversary of the Gorgan Uprising"
+    "title_en": "Anniversary of the Gorgan Uprising",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -1997,7 +2246,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "سالروز عملیات مروارید و روز نیروی دریایی",
-    "title_en": "Anniversary of Operation Pearl and Navy Day"
+    "title_en": "Anniversary of Operation Pearl and Navy Day",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -2005,7 +2255,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز نوآوری و فناوری ایران‌ساخت",
-    "title_en": "Day of Innovation and Technology (Iran-Made)"
+    "title_en": "Day of Innovation and Technology (Iran-Made)",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -2013,7 +2264,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "بزرگداشت شیخ مفید",
-    "title_en": "Commemoration of Sheikh Mofid"
+    "title_en": "Commemoration of Sheikh Mofid",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -2021,7 +2273,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جزایر سه‌گانه خلیج فارس (ابوموسی، تنب بزرگ و تنب کوچک)",
-    "title_en": "Day of the Three Islands of the Persian Gulf (Abu Musa, Greater Tunb, Lesser Tunb)"
+    "title_en": "Day of the Three Islands of the Persian Gulf (Abu Musa, Greater Tunb, Lesser Tunb)",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -2029,7 +2282,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز مجلس",
-    "title_en": "Majlis Day (Parliament Day)"
+    "title_en": "Majlis Day (Parliament Day)",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -2037,7 +2291,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت آیت‌الله سید حسن مدرس",
-    "title_en": "Martyrdom of Ayatollah Seyyed Hassan Modarres"
+    "title_en": "Martyrdom of Ayatollah Seyyed Hassan Modarres",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -2045,7 +2300,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "کشته شدن میرزا کوچک خان جنگلی مبارز و رهبر جنبش ملی جنگل",
-    "title_en": "Killing of Mirza Kuchak Khan Jangali, Fighter and Leader of the Jungle National Movement"
+    "title_en": "Killing of Mirza Kuchak Khan Jangali, Fighter and Leader of the Jungle National Movement",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -2053,7 +2309,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "رسمی شدن قانون اساسی جمهوری اسلامی ایران",
-    "title_en": "Ratification of the Constitution of the Islamic Republic of Iran"
+    "title_en": "Ratification of the Constitution of the Islamic Republic of Iran",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -2061,7 +2318,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بیمه",
-    "title_en": "Insurance Day"
+    "title_en": "Insurance Day",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -2069,7 +2327,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز حسابدار",
-    "title_en": "Accountant's Day"
+    "title_en": "Accountant's Day",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -2077,7 +2336,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز دانشجو",
-    "title_en": "Student Day"
+    "title_en": "Student Day",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -2085,7 +2345,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "معرفی عراق به‌عنوان آغازگر جنگ از سوی سازمان ملل",
-    "title_en": "Introduction of Iraq as the Initiator of the War by the UN"
+    "title_en": "Introduction of Iraq as the Initiator of the War by the UN",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -2093,7 +2354,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز سد و نیروگاه برق‌آبی",
-    "title_en": "Day of Dams and Hydropower Plants"
+    "title_en": "Day of Dams and Hydropower Plants",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -2101,7 +2363,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "تشکیل شورای عالی انقلاب فرهنگی",
-    "title_en": "Formation of the Supreme Council of the Cultural Revolution"
+    "title_en": "Formation of the Supreme Council of the Cultural Revolution",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -2109,7 +2372,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت آیت‌الله دستغیب",
-    "title_en": "Martyrdom of Ayatollah Dastgheib"
+    "title_en": "Martyrdom of Ayatollah Dastgheib",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -2117,7 +2381,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "سالروز نجات آذربایجان",
-    "title_en": "Anniversary of the Rescue of Azerbaijan"
+    "title_en": "Anniversary of the Rescue of Azerbaijan",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -2125,7 +2390,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز صنعت مس",
-    "title_en": "Copper Industry Day"
+    "title_en": "Copper Industry Day",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -2133,7 +2399,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز پژوهش و فنآوری",
-    "title_en": "Research and Technology Day"
+    "title_en": "Research and Technology Day",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -2141,7 +2408,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز حمل و نقل",
-    "title_en": "Transportation Day"
+    "title_en": "Transportation Day",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -2149,7 +2417,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت آیت‌الله دکتر محمد مفتح",
-    "title_en": "Martyrdom of Ayatollah Dr. Mohammad Mofatteh"
+    "title_en": "Martyrdom of Ayatollah Dr. Mohammad Mofatteh",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -2157,7 +2426,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز وحدت حوزه و دانشگاه",
-    "title_en": "Day of Unity between Seminary and University"
+    "title_en": "Day of Unity between Seminary and University",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -2165,7 +2435,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهان عاری از خشونت و افراط‌گرایی",
-    "title_en": "World Day without Violence and Extremism"
+    "title_en": "World Day without Violence and Extremism",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -2173,7 +2444,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "تجلیل از شهید تندگویان",
-    "title_en": "Commemoration of Shahid Tondguyan"
+    "title_en": "Commemoration of Shahid Tondguyan",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -2181,7 +2453,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "جشن شب یلدا، شب چلّه",
-    "title_en": "Yalda Night (Chelleh Night)"
+    "title_en": "Yalda Night (Chelleh Night)",
+    "calendar": "jalali"
   },
   {
     "month": 9,
@@ -2189,7 +2462,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز ترویج فرهنگ میهمانی و پیوند با خویشان",
-    "title_en": "Day of Promoting the Culture of Hospitality and Ties with Relatives"
+    "title_en": "Day of Promoting the Culture of Hospitality and Ties with Relatives",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2197,7 +2471,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز میلاد خورشید",
-    "title_en": "Day of the Birth of the Sun (Yalda)"
+    "title_en": "Day of the Birth of the Sun (Yalda)",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2205,7 +2480,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز آرایشگر",
-    "title_en": "Hairdresser's Day"
+    "title_en": "Hairdresser's Day",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2213,7 +2489,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "جشن خرم روز، نخستین جشن دیگان",
-    "title_en": "Khorram Rooz Festival, the First Feast of Deygan"
+    "title_en": "Khorram Rooz Festival, the First Feast of Deygan",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2221,7 +2498,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "زادروز احمد محمود نویسندهٔ معاصر ایرانی",
-    "title_en": "Birthday of Ahmad Mahmoud, Contemporary Iranian Author"
+    "title_en": "Birthday of Ahmad Mahmoud, Contemporary Iranian Author",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2229,7 +2507,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز ثبت احوال",
-    "title_en": "Civil Registry Day"
+    "title_en": "Civil Registry Day",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2237,7 +2516,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "بزرگداشت رودکی",
-    "title_en": "Commemoration of Rudaki"
+    "title_en": "Commemoration of Rudaki",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2245,7 +2525,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز ایمنی در برابر زلزله و کاهش اثرات بلایای طبیعی",
-    "title_en": "Earthquake Safety and Natural Disaster Reduction Day"
+    "title_en": "Earthquake Safety and Natural Disaster Reduction Day",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2253,7 +2534,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "سالروز عملیات کربلای 4 [1365 خورشیدی]",
-    "title_en": "Anniversary of Operation Karbala 4 [1987]"
+    "title_en": "Anniversary of Operation Karbala 4 [1987]",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2261,7 +2543,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز دفاتر اسناد رسمی",
-    "title_en": "Day of Notary Public Offices"
+    "title_en": "Day of Notary Public Offices",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2269,7 +2552,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "تشکیل نهضت سوادآموزی",
-    "title_en": "Formation of the Literacy Movement"
+    "title_en": "Formation of the Literacy Movement",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2277,7 +2561,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت آیت‌الله حسین غفاری",
-    "title_en": "Martyrdom of Ayatollah Hossein Ghaffari"
+    "title_en": "Martyrdom of Ayatollah Hossein Ghaffari",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2285,7 +2570,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "دی به آذر روز، دومین جشن دیگان",
-    "title_en": "Di-ye Āzar Rooz, the Second Feast of Deygan"
+    "title_en": "Di-ye Āzar Rooz, the Second Feast of Deygan",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2293,7 +2579,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "زادروز فروغ فرخزاد شاعر ایرانی",
-    "title_en": "Birthday of Forough Farrokhzad, Iranian Poet"
+    "title_en": "Birthday of Forough Farrokhzad, Iranian Poet",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2301,7 +2588,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز صنعت پتروشیمی",
-    "title_en": "Petrochemical Industry Day"
+    "title_en": "Petrochemical Industry Day",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2309,7 +2597,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز صنعت سیمان",
-    "title_en": "Cement Industry Day"
+    "title_en": "Cement Industry Day",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2317,7 +2606,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بصیرت",
-    "title_en": "Day of Insight (Yom ol-Basirah)"
+    "title_en": "Day of Insight (Yom ol-Basirah)",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2325,7 +2615,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز حافظ",
-    "title_en": "Day of Hafez"
+    "title_en": "Day of Hafez",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2333,7 +2624,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز علوم انسانی اسلامی",
-    "title_en": "Day of Islamic Humanities"
+    "title_en": "Day of Islamic Humanities",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2341,7 +2633,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت سردار حاج قاسم سلیمانی [1398 خورشیدی]",
-    "title_en": "Martyrdom of General Haj Qasem Soleimani [2020]"
+    "title_en": "Martyrdom of General Haj Qasem Soleimani [2020]",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2349,7 +2642,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز جهانی مقاومت",
-    "title_en": "World Resistance Day"
+    "title_en": "World Resistance Day",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2357,7 +2651,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت منصور ستاری از فرماندهان نیروی هوایی ارتش جمهوری اسلامی ایران",
-    "title_en": "Martyrdom of Mansour Sattari, Commander of the Islamic Republic of Iran Air Force"
+    "title_en": "Martyrdom of Mansour Sattari, Commander of the Islamic Republic of Iran Air Force",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2365,7 +2660,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز شهدای دانشجو",
-    "title_en": "Day of Student Martyrs"
+    "title_en": "Day of Student Martyrs",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2373,7 +2669,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "بزرگداشت خواجوی کرمانی",
-    "title_en": "Commemoration of Khwaju Kermani"
+    "title_en": "Commemoration of Khwaju Kermani",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2381,7 +2678,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز کرمان",
-    "title_en": "Kerman Day"
+    "title_en": "Kerman Day",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2389,7 +2687,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "قیام خونین مردم قم",
-    "title_en": "Bloody Uprising of the People of Qom"
+    "title_en": "Bloody Uprising of the People of Qom",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2397,7 +2696,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "قتل امیرکبیر به دستور ناصرالدین شاه قاجار [1230 خورشیدی]",
-    "title_en": "Murder of Amir Kabir by Order of Naser al-Din Shah Qajar [1852]"
+    "title_en": "Murder of Amir Kabir by Order of Naser al-Din Shah Qajar [1852]",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2405,7 +2705,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز قناد، صنعت شیرینی و شکلات",
-    "title_en": "Day of Confectionery, Sweets, and Chocolate Industry"
+    "title_en": "Day of Confectionery, Sweets, and Chocolate Industry",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2413,7 +2714,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "تشکیل شورای انقلاب",
-    "title_en": "Formation of the Revolution Council"
+    "title_en": "Formation of the Revolution Council",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2421,7 +2723,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "اجرای توافق نامه‌ی برجام",
-    "title_en": "Implementation of the JCPOA"
+    "title_en": "Implementation of the JCPOA",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2429,7 +2732,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شهادت نواب صفوی، طهماسبی، برادران واحدی و ذوالقدر",
-    "title_en": "Martyrdom of Navvab Safavi, Tahmassebi, Baradaran-e Vahidi, and Zolqadr"
+    "title_en": "Martyrdom of Navvab Safavi, Tahmassebi, Baradaran-e Vahidi, and Zolqadr",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2437,7 +2741,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز غزه",
-    "title_en": "Gaza Day"
+    "title_en": "Gaza Day",
+    "calendar": "jalali"
   },
   {
     "month": 10,
@@ -2445,7 +2750,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز معاینه فنی خودرو",
-    "title_en": "Vehicle Inspection Day"
+    "title_en": "Vehicle Inspection Day",
+    "calendar": "jalali"
   },
   {
     "month": 11,
@@ -2453,7 +2759,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "زادروز فردوسی",
-    "title_en": "Birthday of Ferdowsi"
+    "title_en": "Birthday of Ferdowsi",
+    "calendar": "jalali"
   },
   {
     "month": 11,
@@ -2461,7 +2768,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بزرگداشت خاقانی شروانی",
-    "title_en": "Commemoration Day of Khaqani Shervani"
+    "title_en": "Commemoration Day of Khaqani Shervani",
+    "calendar": "jalali"
   },
   {
     "month": 11,
@@ -2469,7 +2777,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "بزرگداشت صفی‌الدین اُرمَوی و روز موسیقی ایرانی",
-    "title_en": "Commemoration of Safi od-Din Ormavi and Day of Persian Music"
+    "title_en": "Commemoration of Safi od-Din Ormavi and Day of Persian Music",
+    "calendar": "jalali"
   },
   {
     "month": 11,
@@ -2477,7 +2786,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "سالروز حماسه مردم آمل",
-    "title_en": "Anniversary of the Amol Epic"
+    "title_en": "Anniversary of the Amol Epic",
+    "calendar": "jalali"
   },
   {
     "month": 11,
@@ -2485,7 +2795,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز ویراستار",
-    "title_en": "Editor's Day"
+    "title_en": "Editor's Day",
+    "calendar": "jalali"
   },
   {
     "month": 11,
@@ -2493,7 +2804,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "بازگشت امام خمینی (ره) به ایران",
-    "title_en": "Return of Imam Khomeini (RA) to Iran"
+    "title_en": "Return of Imam Khomeini (RA) to Iran",
+    "calendar": "jalali"
   },
   {
     "month": 11,
@@ -2501,7 +2813,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "آغاز دهه فجر انقلاب اسلامی",
-    "title_en": "Beginning of the Ten-Day Dawn (Daheye Fajr)"
+    "title_en": "Beginning of the Ten-Day Dawn (Daheye Fajr)",
+    "calendar": "jalali"
   },
   {
     "month": 11,
@@ -2509,7 +2822,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز فناوری فضایی",
-    "title_en": "Space Technology Day"
+    "title_en": "Space Technology Day",
+    "calendar": "jalali"
   },
   {
     "month": 11,
@@ -2517,7 +2831,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز نیروی هوایی",
-    "title_en": "Air Force Day"
+    "title_en": "Air Force Day",
+    "calendar": "jalali"
   },
   {
     "month": 11,
@@ -2525,7 +2840,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز چهارمحال و بختیاری",
-    "title_en": "Chaharmahal and Bakhtiari Day"
+    "title_en": "Chaharmahal and Bakhtiari Day",
+    "calendar": "jalali"
   },
   {
     "month": 11,
@@ -2533,7 +2849,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "شکسته شدن حکومت نظامی به فرمان امام خمینی",
-    "title_en": "Breaking of Martial Law by Order of Imam Khomeini"
+    "title_en": "Breaking of Martial Law by Order of Imam Khomeini",
+    "calendar": "jalali"
   },
   {
     "month": 11,
@@ -2541,7 +2858,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "پیروزی انقلاب اسلامی",
-    "title_en": "Victory of the Islamic Revolution"
+    "title_en": "Victory of the Islamic Revolution",
+    "calendar": "jalali"
   },
   {
     "month": 11,
@@ -2549,7 +2867,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "قیام مردم تبریز",
-    "title_en": "Uprising of the People of Tabriz"
+    "title_en": "Uprising of the People of Tabriz",
+    "calendar": "jalali"
   },
   {
     "month": 11,
@@ -2557,7 +2876,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز اقتصاد مقاومتی و کارآفرینی",
-    "title_en": "Day of Resistance Economy and Entrepreneurship"
+    "title_en": "Day of Resistance Economy and Entrepreneurship",
+    "calendar": "jalali"
   },
   {
     "month": 12,
@@ -2565,7 +2885,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بزرگداشت خواجه نصیر الدین طوسی و روز مهندس",
-    "title_en": "Commemoration Day of Khajeh Nasir od-Din Tusi and Engineer's Day"
+    "title_en": "Commemoration Day of Khajeh Nasir od-Din Tusi and Engineer's Day",
+    "calendar": "jalali"
   },
   {
     "month": 12,
@@ -2573,7 +2894,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز حمایت از بیماران نادر",
-    "title_en": "Day of Supporting Rare Diseases"
+    "title_en": "Day of Supporting Rare Diseases",
+    "calendar": "jalali"
   },
   {
     "month": 12,
@@ -2581,7 +2903,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز امور تربیتی و تربیت اسلامی",
-    "title_en": "Day of Educational Affairs and Islamic Education"
+    "title_en": "Day of Educational Affairs and Islamic Education",
+    "calendar": "jalali"
   },
   {
     "month": 12,
@@ -2589,7 +2912,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "بزرگداشت حکیم هادی سبزواری",
-    "title_en": "Commemoration of Hakim Hadi Sabzevari"
+    "title_en": "Commemoration of Hakim Hadi Sabzevari",
+    "calendar": "jalali"
   },
   {
     "month": 12,
@@ -2597,7 +2921,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز حمایت از حقوق مصرف‌کنندگان",
-    "title_en": "Day of Supporting Consumer Rights"
+    "title_en": "Day of Supporting Consumer Rights",
+    "calendar": "jalali"
   },
   {
     "month": 12,
@@ -2605,7 +2930,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بازاریاب و مدیر فروش",
-    "title_en": "Marketer and Sales Manager Day"
+    "title_en": "Marketer and Sales Manager Day",
+    "calendar": "jalali"
   },
   {
     "month": 12,
@@ -2613,7 +2939,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز احسان و نیکوکاری",
-    "title_en": "Day of Charity and Benevolence"
+    "title_en": "Day of Charity and Benevolence",
+    "calendar": "jalali"
   },
   {
     "month": 12,
@@ -2621,7 +2948,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز ترویج فرهنگ قرض‌الحسنه",
-    "title_en": "Day of Promoting Qard al-Hasanah Culture"
+    "title_en": "Day of Promoting Qard al-Hasanah Culture",
+    "calendar": "jalali"
   },
   {
     "month": 12,
@@ -2629,7 +2957,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز درختکاری",
-    "title_en": "Tree Planting Day"
+    "title_en": "Tree Planting Day",
+    "calendar": "jalali"
   },
   {
     "month": 12,
@@ -2637,7 +2966,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز آموزش همگانی حفظ محیط زیست",
-    "title_en": "Public Education for Environmental Protection Day"
+    "title_en": "Public Education for Environmental Protection Day",
+    "calendar": "jalali"
   },
   {
     "month": 12,
@@ -2645,7 +2975,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز کارشناس و متخصص تغذیه",
-    "title_en": "Day of Specialists and Nutritionists"
+    "title_en": "Day of Specialists and Nutritionists",
+    "calendar": "jalali"
   },
   {
     "month": 12,
@@ -2653,7 +2984,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "بزرگداشت سید جمال‌الدین اسدآبادی",
-    "title_en": "Commemoration of Seyyed Jamal od-Din Asadabadi"
+    "title_en": "Commemoration of Seyyed Jamal od-Din Asadabadi",
+    "calendar": "jalali"
   },
   {
     "month": 12,
@@ -2661,7 +2993,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "تأسیس کانون‌های فرهنگی هنری مساجد کشور",
-    "title_en": "Foundation of Cultural-Artistic Centers of Mosques of the Country"
+    "title_en": "Foundation of Cultural-Artistic Centers of Mosques of the Country",
+    "calendar": "jalali"
   },
   {
     "month": 12,
@@ -2669,7 +3002,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بوشهر",
-    "title_en": "Bushehr Day"
+    "title_en": "Bushehr Day",
+    "calendar": "jalali"
   },
   {
     "month": 12,
@@ -2677,7 +3011,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز راهیان نور",
-    "title_en": "Rahian-e Noor Day (Commemoration of War Zone Pilgrimages)"
+    "title_en": "Rahian-e Noor Day (Commemoration of War Zone Pilgrimages)",
+    "calendar": "jalali"
   },
   {
     "month": 12,
@@ -2685,7 +3020,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "بزرگداشت نظامی گنجوی",
-    "title_en": "Commemoration of Nezami Ganjavi"
+    "title_en": "Commemoration of Nezami Ganjavi",
+    "calendar": "jalali"
   },
   {
     "month": 12,
@@ -2693,7 +3029,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز خادمان آرامستان",
-    "title_en": "Day of Cemetery Servants"
+    "title_en": "Day of Cemetery Servants",
+    "calendar": "jalali"
   },
   {
     "month": 12,
@@ -2701,7 +3038,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بزرگداشت شهدا",
-    "title_en": "Day of Honoring the Martyrs"
+    "title_en": "Day of Honoring the Martyrs",
+    "calendar": "jalali"
   },
   {
     "month": 12,
@@ -2709,7 +3047,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "تأسیس بنیاد شهید انقلاب اسلامی",
-    "title_en": "Foundation of Martyrs Foundation of the Islamic Revolution"
+    "title_en": "Foundation of Martyrs Foundation of the Islamic Revolution",
+    "calendar": "jalali"
   },
   {
     "month": 12,
@@ -2717,7 +3056,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز صنعت طلا، جواهر، نقره و گوهرسنگ‌ها",
-    "title_en": "Gold, Jewelry, Silver, and Gemstones Industry Day"
+    "title_en": "Gold, Jewelry, Silver, and Gemstones Industry Day",
+    "calendar": "jalali"
   },
   {
     "month": 12,
@@ -2725,7 +3065,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "درگذشت علی تجویدی، نوازندهٔ ویولن و سه‌تار و آهنگساز ایرانی",
-    "title_en": "Death of Ali Tajvidi, Iranian Violin and Setar Player and Composer"
+    "title_en": "Death of Ali Tajvidi, Iranian Violin and Setar Player and Composer",
+    "calendar": "jalali"
   },
   {
     "month": 12,
@@ -2733,7 +3074,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "روز بزرگداشت اختر چرخ ادب، پروین اعتصامی",
-    "title_en": "Commemoration Day of the Star of Persian Literature, Parvin E'tesami"
+    "title_en": "Commemoration Day of the Star of Persian Literature, Parvin E'tesami",
+    "calendar": "jalali"
   },
   {
     "month": 12,
@@ -2741,7 +3083,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "بمباران شیمیایی حلبچه به دست ارتش بعث عراق",
-    "title_en": "Chemical Bombing of Halabja by the Iraqi Ba'athist Army"
+    "title_en": "Chemical Bombing of Halabja by the Iraqi Ba'athist Army",
+    "calendar": "jalali"
   },
   {
     "month": 12,
@@ -2749,7 +3092,8 @@
     "holiday": false,
     "remind": false,
     "title_fa": "زادروز پروین اعتصامی شاعر ایرانی",
-    "title_en": "Birthday of Parvin E'tesami, Iranian Poet"
+    "title_en": "Birthday of Parvin E'tesami, Iranian Poet",
+    "calendar": "jalali"
   },
   {
     "month": 12,
@@ -2757,7 +3101,8 @@
     "holiday": true,
     "remind": false,
     "title_fa": "روز ملی شدن صنعت نفت ایران",
-    "title_en": "Nationalization of the Iranian Oil Industry"
+    "title_en": "Nationalization of the Iranian Oil Industry",
+    "calendar": "jalali"
   },
   {
     "month": 12,
@@ -2765,6 +3110,7 @@
     "holiday": true,
     "remind": false,
     "title_fa": "آخرین روز سال",
-    "title_en": "Last Day of the Year"
+    "title_en": "Last Day of the Year",
+    "calendar": "jalali"
   }
 ]
