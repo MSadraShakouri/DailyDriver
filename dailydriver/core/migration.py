@@ -162,11 +162,45 @@ def _migration_4(conn):
     """)
     conn.commit()
 
+def _migration_5(conn):
+    """Stem all existing keywords and merge duplicates."""
+    from porter2stemmer import Porter2Stemmer
+    stemmer = Porter2Stemmer()
+    cur = conn.cursor()
+
+    # Step 1 – stem every word in the keywords table
+    rows = cur.execute("SELECT id, word FROM keywords").fetchall()
+    for r in rows:
+        cur.execute(
+            "UPDATE keywords SET word = ? WHERE id = ?",
+            (stemmer.stem(r["word"]), r["id"])
+        )
+
+    # Step 2 – merge duplicates: same (word, category_id) -> keep smallest id, sum counts
+    cur.execute("""
+        SELECT word, category_id, MIN(id) AS keep_id, SUM(count) AS total_count
+        FROM keywords
+        GROUP BY word, category_id
+        HAVING COUNT(*) > 1
+    """)
+    for row in cur.fetchall():
+        cur.execute(
+            "UPDATE keywords SET count = ? WHERE id = ?",
+            (row["total_count"], row["keep_id"])
+        )
+        cur.execute(
+            "DELETE FROM keywords WHERE word = ? AND category_id = ? AND id != ?",
+            (row["word"], row["category_id"], row["keep_id"])
+        )
+
+    conn.commit()
+
 _MIGRATIONS = {
     1: _migration_1,
     2: _migration_2,
     3: _migration_3,
     4: _migration_4,
+    5: _migration_5,
 }
 
 def _get_current_version(conn):
