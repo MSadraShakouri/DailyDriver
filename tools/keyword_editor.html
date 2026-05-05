@@ -22,7 +22,7 @@
       top: 0;
       z-index: 10;
     }
-    header h1 { margin: 0; font-size: 24px; }
+    header h1 { margin: 0 0 8px 0; font-size: 24px; }
     .toolbar {
       padding: 8px 16px;
       background: white;
@@ -49,6 +49,30 @@
       border: 1px solid #ccc;
       border-radius: 8px;
       margin-top: 8px;
+    }
+    .sort-toolbar {
+      padding: 4px 16px 8px;
+      background: white;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      border-bottom: 1px solid #ddd;
+      font-size: 14px;
+    }
+    .sort-toolbar select {
+      font-size: 14px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    .sort-toolbar button {
+      font-size: 14px;
+      padding: 4px 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: white;
+      cursor: pointer;
     }
     .keyword-list {
       padding: 8px 16px;
@@ -177,19 +201,76 @@
     <span class="selected-count"><span id="stopCount">0</span> stop / <span id="delCount">0</span> del</span>
   </div>
 
+  <div class="sort-toolbar">
+    <label>Sort:</label>
+    <select id="sortPrimary" onchange="onSortChange()">
+      <option value="count-desc">Most Used</option>
+      <option value="word-asc">Alphabetical</option>
+      <option value="category-asc">Category</option>
+      <option value="id-desc">Recently Added</option>
+    </select>
+    <label style="margin-left:8px">Then:</label>
+    <select id="sortSecondary" onchange="onSortChange()">
+      <option value="">None</option>
+      <option value="count-desc">Count</option>
+      <option value="word-asc">Alphabetical</option>
+      <option value="category-asc">Category</option>
+    </select>
+  </div>
+
   <div class="keyword-list" id="keywordList"></div>
 
   <button class="floating-apply" id="applyBtn" onclick="applyChanges()" disabled>Apply (0)</button>
 
   <script>
     let allKeywords = [];
-    let selectedStop = new Set();   // keyword IDs
+    let selectedStop = new Set();
     let selectedDel = new Set();
 
+    // ---------- sorting ----------
+    function getSortFields() {
+      const primary = document.getElementById('sortPrimary').value;
+      const secondary = document.getElementById('sortSecondary').value;
+      const fields = [primary];
+      if (secondary) fields.push(secondary);
+      return fields;
+    }
+
+    function compareValues(a, b, fieldSpec) {
+      // fieldSpec like "count-desc", "word-asc", "category-asc", "id-desc"
+      const [field, dir] = fieldSpec.split('-');
+      let va = a[field];
+      let vb = b[field];
+      if (typeof va === 'string') va = va.toLowerCase();
+      if (typeof vb === 'string') vb = vb.toLowerCase();
+      if (va < vb) return dir === 'asc' ? -1 : 1;
+      if (va > vb) return dir === 'asc' ? 1 : -1;
+      return 0;
+    }
+
+    function sortKeywords() {
+      const fields = getSortFields();
+      allKeywords.sort((a, b) => {
+        for (const f of fields) {
+          const cmp = compareValues(a, b, f);
+          if (cmp !== 0) return cmp;
+        }
+        // tiebreaker: id ascending
+        return a.id - b.id;
+      });
+    }
+
+    function onSortChange() {
+      sortKeywords();
+      filter();
+    }
+
+    // ---------- data fetching ----------
     async function loadKeywords() {
       const resp = await fetch('/keywords');
       allKeywords = await resp.json();
-      allKeywords.sort((a,b) => a.category.localeCompare(b.category) || b.count - a.count);
+      // initial sort (most used)
+      sortKeywords();
       filter();
     }
 
