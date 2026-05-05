@@ -4,14 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dailydriver"
-version = "1.0.0"
-description = "Personal terminal‑based life tracker (prayer, sleep, journal, calendar)"
+version = "1.1.0"
+description = "Personal terminal‑based life tracker (prayer, sleep, journal, calendar, search)"
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.8"
 dependencies = [
     "jdatetime",
     "hijridate",
+    "porter2stemmer",
 ]
 
 [project.scripts]

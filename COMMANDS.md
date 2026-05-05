@@ -171,6 +171,38 @@ Creates a human‑readable text file with sections for Sleep, Prayers, and Journ
 
 ---
 
+### Search `search`
+
+| Usage | Description |
+|-------|-------------|
+| `search programming` | Find entries containing “programming” (description or category) |
+| `search morning` | Entries with start time in the morning (02‑12) – fuzzy time boost |
+| `search yesterday` | Entries from the last 3 days – relative date boost |
+| `search monday` | Entries from the most recent Monday ±1 day |
+| `search programming night` | Scored combination: text match + time/category boosts |
+
+Search uses SQLite FTS5 for instant text indexing, with a LIKE fallback for substring matches.
+Fuzzy scoring automatically boosts results matching time‑of‑day, relative dates, weekdays,
+month names (Jalali, Gregorian, Hijri), and category paths.  
+Misspellings are tolerated (e.g. `mornig` → morning).
+
+Results are paginated; press `n`/`p` to navigate, `q` to quit, or enter an entry ID to edit it.
+
+---
+
+### Nap `nap`
+
+| Usage | Description |
+|-------|-------------|
+| `nap` | Interactive: enter start time and duration |
+| `nap 30m` | Nap of 30 minutes, starting 30 minutes ago |
+| `nap 14:00 14:25` | Nap from 14:00 to 14:25 |
+| `nap 14:00 30m` | Nap starting at 14:00, duration 30 minutes |
+
+Naps are shown in the daily header (total nap time) and `today` summary.
+
+---
+
 ### Multi‑Line Input
 
 1. Type `:m` and press Enter.

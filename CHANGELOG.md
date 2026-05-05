@@ -1,5 +1,36 @@
 # Changelog
 
+## 1.1.0 (2026‑05‑05)
+
+### Added
+- **Full‑text search** (`search` command) using SQLite FTS5 with LIKE fallback and fuzzy scoring.
+- **Fuzzy search boosts** for time‑of‑day (morning/afternoon/night), relative dates (yesterday, last week, weekdays, months), and categories.
+- **Nap logging** (`nap` command) to track short sleep periods – start time, duration, and optional description.
+- **Keyword editor** (`tools/keyword_editor.py` + `keyword_editor.html`) for pruning keywords and adding stopwords.
+- **Event editor save fix** – deletes now persist immediately.
+- **Stemming** (`porter2stemmer`) for keyword learning and search queries – handles plurals, possessives, and contractions.
+- **Morphological tokenizer** – properly splits hyphenated words, removes possessives, and stems tokens.
+
+### Changed
+- **Keyword system overhaul** – replaced raw frequency with TF‑IDF + exact‑path boost (up to 10 suggestions).
+- **Search** uses `OR` logic for forgiving multi‑word queries.
+- **Calendar event display** switched to English titles (`title_en`), with Persian preserved as `title_fa`.
+- **`nap` export** shows start‑end times (like sleep).
+- **Naps** now appear in daily header and `today` summary.
+
+### Fixed
+- `ege` no longer clears the great event when logging is cancelled.
+- `cge` command now accepts an optional argument (dispatch compatibility).
+- Entry viewer shows Jalali dates in `YYYY‑MM‑DD` format.
+- `last X mins` time parsing now works correctly.
+- Various import and pagination fixes in `search` and `view`.
+
+### Dependencies
+- Added `porter2stemmer` to `pyproject.toml`.
+@@@bash
+pip install .
+@@@
+
 ## 1.0.0 (2026‑05‑02)
 
 ### Added
@@ -38,6 +69,6 @@
 - Calendar event display improved (one event per line in header)
 
 ### Dependencies
-```bash
+@@@bash
 pip install jdatetime hijridate
-```
+@@@

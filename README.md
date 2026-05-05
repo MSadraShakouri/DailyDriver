@@ -1,7 +1,7 @@
-# DailyDriver v1.0.0
+# DailyDriver v1.1.0
 
-Your personal, terminal‑based life tracker.
-Log prayers, sleep, hygiene routines, birthdays, intentions, and free‑form journal entries – all from a fast, keyboard‑driven REPL.
+Your personal, terminal‑based life tracker.  
+Log prayers, sleep, hygiene routines, birthdays, intentions, and free‑form journal entries – all from a fast, keyboard‑driven REPL.  
 Built with Python, SQLite, and Jalali calendar support.
 
 ---
@@ -9,52 +9,51 @@ Built with Python, SQLite, and Jalali calendar support.
 ## Features
 
 - **Prayer tracking** – Fajr, Dhuhr/Asr, Maghrib/Isha with jamaat and shak options, dynamic Tehran times.
-- **Sleep logging** – bed/wake times, auto‑calculated duration.
+- **Sleep & nap logging** – bed/wake times, auto‑calculated duration; track short naps separately.
 - **Hygiene reminders** – define intervals for habits, get nudges when overdue.
 - **Birthday list** – Jalali dates, upcoming birthday alerts with age.
 - **Intentions** – to‑dos with deadlines and expected durations.
 - **Journal entries** – free‑text with smart time parsing (e.g. `13:00`, `2‑3`, `yesterday`).
 - **Great events & chaining** – start a long activity, later end and log it.
-- **Smart categories** – automatic keyword learning from your entries.
+- **Smart categories** – TF‑IDF keyword learning from your entries (exact path‑match boost).
 - **Statistics** – prayer adherence, sleep averages, hygiene conformance, top categories.
 - **Three‑calendar events** – Jalali, Gregorian, and Hijri events displayed dynamically.
+- **Full‑text search** (`search` command) with fuzzy time/date/category boosting.
 - **Reminders** – mark events with `remind: true` and see them in the header two weeks ahead.
 - **Beautiful header** – today’s prayers, sleep, birthdays, hygiene, events, and reminders at a glance.
-- **Minimal dependencies** – Python 3.8+, SQLite, `jdatetime`, `hijridate`.
+- **Minimal dependencies** – Python 3.8+, SQLite, `jdatetime`, `hijridate`, `porter2stemmer`.
 
 ---
 
 ## Installation
 
-1. **Clone the repository**  
-   ```bash
+1. Clone the repository:
+   @@@bash
    git clone https://github.com/MSadraShakouri/DailyDriver.git
    cd DailyDriver
-   ```
+   @@@
 
-2. **Install the project and dependencies**  
-   ```bash
+2. Install the project and all dependencies:
+   @@@bash
    pip install .
-   ```
+   @@@
 
-   This will automatically install `jdatetime` and `hijridate`.
+   This automatically installs `jdatetime`, `hijridate`, and `porter2stemmer`.
 
-   *(Alternatively, you can install the dependencies manually: `pip install jdatetime hijridate`)*
-
-3. **(Optional) Make the entry point executable**  
-   ```bash
+3. (Optional) Make the entry point executable:
+   @@@bash
    chmod +x main.py
-   ```
+   @@@
 
-4. **(Optional) Create a convenient command**  
-   - **Symlink**  
-     ```bash
+4. Create a convenient command (optional):
+   - Symlink:
+     @@@bash
      ln -s /full/path/to/DailyDriver/main.py ~/.local/bin/daily
-     ```
-   - **Alias** (add to `~/.bashrc` or `~/.zshrc`)  
-     ```bash
+     @@@
+   - Alias (add to `~/.bashrc` or `~/.zshrc`):
+     @@@bash
      alias daily='python /path/to/DailyDriver/main.py'
-     ```
+     @@@
 
 ---
 
@@ -62,17 +61,17 @@ Built with Python, SQLite, and Jalali calendar support.
 
 Launch the app:
 
-```bash
+@@@bash
 ./main.py
 # or if you set up the symlink:
 daily
-```
+@@@
 
 You’ll see the daily header and a prompt `>`. Type `?` for a command overview, or just start writing a journal entry.
 
-```
+@@@
 > today was a productive day
-```
+@@@
 
 ---
 
@@ -82,7 +81,9 @@ You’ll see the daily header and a prompt `>`. Type `?` for a command overview,
 |---------|-------------|
 | `p` | Log a prayer |
 | `s` | Log sleep |
+| `nap` | Log a short nap |
 | `view` | Browse journal entries |
+| `search` | Full‑text search with fuzzy boosts |
 | `today` | Today’s summary |
 | `stats` | Statistics (30 days) |
 | `cal` | Clean month calendar |
@@ -91,7 +92,7 @@ You’ll see the daily header and a prompt `>`. Type `?` for a command overview,
 | `?` | Full help and keyword list |
 | `q` | Quit |
 
-For a complete command reference, see **[COMMANDS.md](COMMANDS.md)**.
+For the complete command reference, see **[COMMANDS.md](COMMANDS.md)**.
 
 ---
 
@@ -100,27 +101,27 @@ For a complete command reference, see **[COMMANDS.md](COMMANDS.md)**.
 All your data is stored in **`data/daily.db`** (SQLite). No network calls, no third‑party analytics.
 To inspect the database directly:
 
-```bash
+@@@bash
 sqlite3 data/daily.db ".tables"
 sqlite3 data/daily.db "SELECT * FROM entries;"
-```
+@@@
 
 ---
 
-## Project Structure
+## Project Structure (abbreviated)
 
-```
+@@@
 dailydriver/
 ├── core/          # database, parser, logger, keyword learning
-├── domains/       # prayer, sleep, hygiene, birthday, intention, prayer times
+├── domains/       # prayer, sleep, nap, hygiene, birthday, intention, prayer times
 ├── display/       # header, stats, today view, hygiene nudges
-├── cli/           # REPL, commands, calendar, export
+├── cli/           # REPL, commands, search, calendar, export
 ├── ui/            # terminal abstraction
 └── utils/         # time helpers, calendar events
 data/              # database, stopwords, event JSON files
-tools/             # event editor (mobile‑friendly web UI)
+tools/             # event editor, keyword editor
 tests/             # test files
-```
+@@@
 
 ---
 
@@ -131,6 +132,9 @@ tests/             # test files
 
 **`ModuleNotFoundError: No module named 'hijridate'`**
 → `pip install hijridate`
+
+**`ModuleNotFoundError: No module named 'porter2stemmer'`**
+→ `pip install porter2stemmer`
 
 **Header looks misaligned or truncated**
 → Resize your terminal to at least 80 columns.
@@ -152,5 +156,5 @@ MIT License. See `LICENSE` file for details.
 
 ---
 
-Made with ❤️ for a mindful, organised life.
+Made with ❤️ for a mindful, organised life.  
 May your prayers be on time and your sleep restful.
