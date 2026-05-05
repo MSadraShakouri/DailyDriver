@@ -1,4 +1,6 @@
 import os
+import sys
+import shutil
 import subprocess
 import time
 import jdatetime
@@ -96,8 +98,21 @@ def edit_entry(entry_id):
         with open(tmp_file, 'w') as f:
             f.write(row['description'] or '')
 
-        editor = os.environ.get('EDITOR', 'nano')
-        subprocess.call([editor, tmp_file])
+        # Prefer nvim (Termux‑specific path, then global)
+        termux_nvim = '/data/data/com.termux/files/usr/bin/nvim'
+        if os.path.exists(termux_nvim):
+            editor = termux_nvim
+        elif shutil.which('nvim'):
+            editor = 'nvim'
+        else:
+            editor = 'nano'
+
+        subprocess.call(
+            [editor, tmp_file],
+            stdin=sys.stdin,
+            stdout=sys.stdout,
+            stderr=sys.stderr,
+        )
 
         with open(tmp_file, 'r') as f:
             new_desc = f.read().strip()
