@@ -1,16 +1,15 @@
 # dailydriver/cli/search_view.py
-"""Full‑text search with FTS5 and LIKE fallback."""
+"""Full‑text search with FTS5, LIKE fallback, and fuzzy time/date/category boosting."""
 import sqlite3
 from dailydriver.core.database import get_connection_cm
 from dailydriver.core.keyword_learner import tokenize
 from dailydriver.ui.terminal_ui import current_ui
+from dailydriver.cli.search.scoring import compute_final_scores
 
-def _build_query(text):
-    tokens = tokenize(text, stem_words=True)
-    if not tokens:
-        return None, None
-    fts_query = " AND ".join(tok + "*" for tok in tokens)
-    return fts_query, tokens
+def _get_jalali_date(ts):
+    import jdatetime
+    jdt = jdatetime.datetime.fromtimestamp(ts)
+    return jdt.strftime('%Y-%m-%d %H:%M')
 
 def search(cmd):
     parts = cmd.strip().split(maxsplit=1)
@@ -18,23 +17,27 @@ def search(cmd):
         current_ui.print_line("Usage: search <terms>")
         return None
 
-    fts_query, tokens = _build_query(parts[1])
-    if fts_query is None:
+    raw_tokens = tokenize(parts[1], stem_words=False)
+    stemmed_tokens = tokenize(parts[1], stem_words=True)
+
+    if not raw_tokens:
         current_ui.print_line("No valid search terms (need at least one word).")
         return None
 
+    fts_query = " OR ".join(tok + "*" for tok in stemmed_tokens)
     page_size = 10
     offset = 0
 
     with get_connection_cm() as conn:
         cur = conn.cursor()
 
-        # Collect results from FTS5
-        fts_ids = set()
-        fts_results = []  # list of dicts
+        all_rows = []          # merged before final scoring
+        seen_ids = set()
+
+        # ----- FTS5 search (descriptions) -----
         try:
             cur.execute("""
-                SELECT e.id, e.description, e.created_at,
+                SELECT e.id, e.description, e.created_at, e.started_at,
                        COALESCE(GROUP_CONCAT(c.path, ', '), '(no category)') as categories,
                        rank as relevance
                 FROM entries_fts
@@ -46,20 +49,19 @@ def search(cmd):
                 ORDER BY rank
             """, (fts_query,))
             for row in cur.fetchall():
-                fts_ids.add(row['id'])
-                fts_results.append(dict(row))
+                if row['id'] not in seen_ids:
+                    seen_ids.add(row['id'])
+                    all_rows.append(dict(row))
         except sqlite3.OperationalError:
-            pass  # if FTS query fails, continue to LIKE
+            pass
 
-        # LIKE fallback for substring matches
-        like_results = []  # list of dicts
-        if tokens:
-            # Build multiple LIKE conditions with AND
-            like_clauses = " AND ".join("e.description LIKE ?" for _ in tokens)
-            like_params = [f"%{t}%" for t in tokens]
+        # ----- LIKE fallback on descriptions -----
+        if stemmed_tokens:
+            like_clauses = " OR ".join("e.description LIKE ?" for _ in stemmed_tokens)
+            like_params = [f"%{t}%" for t in stemmed_tokens]
             try:
                 cur.execute(f"""
-                    SELECT e.id, e.description, e.created_at,
+                    SELECT e.id, e.description, e.created_at, e.started_at,
                            COALESCE(GROUP_CONCAT(c.path, ', '), '(no category)') as categories,
                            NULL as relevance
                     FROM entries e
@@ -70,21 +72,48 @@ def search(cmd):
                     ORDER BY e.created_at DESC
                 """, like_params)
                 for row in cur.fetchall():
-                    if row['id'] not in fts_ids:
-                        like_results.append(dict(row))
-                        fts_ids.add(row['id'])  # prevent duplicates
+                    if row['id'] not in seen_ids:
+                        seen_ids.add(row['id'])
+                        all_rows.append(dict(row))
             except sqlite3.OperationalError:
                 pass
 
-        # Merge: FTS results first (ranked), then LIKE results (newest first)
-        all_rows = fts_results + like_results
+        # ----- Category path LIKE search (using raw tokens) -----
+        if raw_tokens:
+            cat_clauses = " OR ".join("c.path LIKE ?" for _ in raw_tokens)
+            cat_params = [f"%{t}%" for t in raw_tokens]
+            try:
+                cur.execute(f"""
+                    SELECT e.id, e.description, e.created_at, e.started_at,
+                           COALESCE(GROUP_CONCAT(c.path, ', '), '(no category)') as categories,
+                           NULL as relevance
+                    FROM entries e
+                    JOIN entry_categories ec ON e.id = ec.entry_id
+                    JOIN categories c ON ec.category_id = c.id
+                    WHERE {cat_clauses}
+                    GROUP BY e.id
+                    ORDER BY e.created_at DESC
+                """, cat_params)
+                for row in cur.fetchall():
+                    if row['id'] not in seen_ids:
+                        seen_ids.add(row['id'])
+                        # Mark these as category-only matches (still scored)
+                        record = dict(row)
+                        record['relevance'] = None  # no FTS rank
+                        all_rows.append(record)
+            except sqlite3.OperationalError:
+                pass
+
+        # ----- final scoring (using raw_tokens for fuzzy boosts) -----
+        all_rows = compute_final_scores(all_rows, [], raw_tokens)
+
         total = len(all_rows)
 
         if total == 0:
             current_ui.print_line("No matching entries found.")
             return
 
-        # Paginate manually
+        # Paginate (same as before)
         while True:
             page = all_rows[offset:offset + page_size]
             if not page and offset == 0:
@@ -92,16 +121,16 @@ def search(cmd):
                 return
 
             current_ui.clear()
-            display_terms = " ".join(tokens)
+            display_terms = " ".join(raw_tokens)
             current_ui.print_line(f"🔍 Search results for: {display_terms}")
             current_ui.print_line("─" * 40)
             for row in page:
-                from datetime import datetime
-                import jdatetime
-                jdt = jdatetime.datetime.fromtimestamp(row['created_at'])
-                date_str = jdt.strftime('%Y-%m-%d %H:%M')
-                rel = row['relevance']
-                rel_str = f"(relevance {rel:.3f})" if rel is not None else "(LIKE match)"
+                date_str = _get_jalali_date(row['created_at'])
+                fts_rel = row.get('relevance')
+                if fts_rel is not None:
+                    rel_str = f"(FTS {fts_rel:.3f}, final {row['final_score']:.3f})"
+                else:
+                    rel_str = f"(cat match, final {row['final_score']:.3f})"
                 desc_preview = (row['description'] or '')[:100].replace('\n', ' ')
                 current_ui.print_line(f"[{row['id']:4d}] {date_str}  {row['categories']}  {rel_str}")
                 current_ui.print_line(f"      {desc_preview}")
