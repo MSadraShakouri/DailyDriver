@@ -4,6 +4,9 @@ import re
 import math
 import os
 from dailydriver.core.database import get_connection_cm, get_connection
+from porter2stemmer import Porter2Stemmer
+
+_stemmer = Porter2Stemmer()
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
@@ -27,22 +30,54 @@ EXACT_MATCH_BOOST = 5.0
 MIN_SCORE = 0.1
 MAX_RESULTS = 10
 
-def tokenize(text: str):
-    """Return lowercased list of words after basic cleaning."""
-    # split, lower, keep only letters/hyphens
-    words = text.lower().split()
+def tokenize(text: str, stem_words: bool = True) -> list[str]:
+    """
+    Clean and tokenize text.
+    Returns a list of lowercased, stemmed tokens suitable for keyword matching.
+    """
+    if not text:
+        return []
+    raw_tokens = text.lower().split()
     cleaned = []
-    for w in words:
-        w = re.sub(r'^[^a-zA-Z]+|[^a-zA-Z]+$', '', w)
-        if w and len(w) >= 3 and re.fullmatch(r'[a-zA-Z-]+', w):
-            cleaned.append(w)
-    return cleaned
+    for token in raw_tokens:
+        # Split hyphenated words
+        sub_tokens = token.split('-')
+        for sub in sub_tokens:
+            # Remove possessive 's (e.g. Sadra's -> Sadra)
+            sub = re.sub(r"'s$", '', sub)
+            # Remove trailing apostrophe from contractions (don't -> dont)
+            sub = re.sub(r"'t$", 't', sub)
+            sub = re.sub(r"'re$", 're', sub)
+            sub = re.sub(r"'ve$", 've', sub)
+            sub = re.sub(r"'ll$", 'll', sub)
+            sub = re.sub(r"'d$", 'd', sub)
+            # Strip non-alphanumeric from ends, keep internal apostrophes
+            sub = re.sub(r'^[^a-z0-9]+', '', sub)
+            sub = re.sub(r'[^a-z0-9]+$', '', sub)
+            # Discard if too short or pure digits
+            if len(sub) < 2 or sub.isdigit():
+                continue
+            if sub in STOP_WORDS:
+                continue
+            # Apply stemming
+            if stem_words:
+                try:
+                    sub = _stemmer.stem(sub)
+                except Exception:
+                    pass  # If stemming fails, keep original
+            cleaned.append(sub)
+    # Deduplicate while preserving order
+    seen = set()
+    unique = []
+    for t in cleaned:
+        if t not in seen:
+            seen.add(t)
+            unique.append(t)
+    return unique
 
 def find_matching_categories(text: str):
     """Return up to MAX_RESULTS categories scored by TF‑IDF + exact path boost."""
     tokens = tokenize(text)
-    # filter stop words
-    tokens = [t for t in tokens if t not in STOP_WORDS]
     if not tokens:
         return []
 
@@ -58,15 +93,12 @@ def find_matching_categories(text: str):
         # get all category paths for exact‑match boost
         cur.execute("SELECT id, path FROM categories")
         all_cats = {row['id']: row['path'] for row in cur.fetchall()}
-        # also map path -> id for quick boost lookup
-        path_to_id = {p: i for i, p in all_cats.items()}
 
         # category scores: id -> score
         scores = {}
 
         # 1. exact path‑match boost
         for token in tokens:
-            # categories where token appears in any part of the path
             token_lower = token.lower()
             for cat_id, path in all_cats.items():
                 if token_lower in path.lower():
@@ -85,7 +117,6 @@ def find_matching_categories(text: str):
                 cat_id = row['category_id']
                 tf = row['count']
                 df = row['df']
-                # smooth to avoid division by zero
                 idf = math.log(total_cats / (df + 1))
                 tfidf = tf * idf
                 scores[cat_id] = scores.get(cat_id, 0) + tfidf
@@ -106,9 +137,7 @@ def learn_keywords(text, category_paths, conn=None):
     """Store or increment keyword counts for selected categories."""
     if not text or not category_paths:
         return
-    words = tokenize(text)
-    # filter stop words again
-    words = [w for w in words if w not in STOP_WORDS]
+    words = tokenize(text, stem_words=True)
     if not words:
         return
 
@@ -125,7 +154,6 @@ def learn_keywords(text, category_paths, conn=None):
             continue
         cat_id = row['id']
         for word in words:
-            # try to update existing keyword count
             cur.execute("SELECT id FROM keywords WHERE word=? AND category_id=?", (word, cat_id))
             existing = cur.fetchone()
             if existing:
