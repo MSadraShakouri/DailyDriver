@@ -4,3 +4,5 @@ __pycache__/
 .daily_pending
 .daily_edit.txt
 .daily_great_event
+export_*.txt
+data/events_*_titles.txt
