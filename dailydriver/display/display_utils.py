@@ -89,6 +89,9 @@ def print_header(data: dict):
     nap_str = data.get('nap_str', '')
     if nap_str:
         pline(nap_str)
+    weather_str = data.get('weather_str', '')
+    if weather_str:
+        pline(weather_str)
 
     # Great event
     if ge_str := data.get('great_event_str', ''):

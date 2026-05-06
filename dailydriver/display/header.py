@@ -1,4 +1,5 @@
 # dailydriver/display/header.py
+import time
 import jdatetime
 from datetime import datetime
 from dailydriver.core.database import get_connection_cm
@@ -7,6 +8,7 @@ from dailydriver.utils.time_utils import today_jalali, format_jalali
 from dailydriver.core.logger import get_pending_start, get_active_great_event
 from dailydriver.ui.terminal_ui import current_ui
 from dailydriver.utils.calendar_events import get_events, get_todays_events, get_upcoming_events
+from dailydriver.utils.weather import get_weather
 
 def build_header_data():
     """Collect all data needed for the daily header and return a dict."""
@@ -54,6 +56,17 @@ def build_header_data():
             nap_str = f"😴 Nap: {total_nap//60}h {total_nap%60}m"
         else:
             nap_str = ""
+
+        # ---------- weather ----------
+        weather = get_weather()
+        weather_str = ""
+        if weather:
+            cond = weather['condition_en'] if weather['condition_en'] else weather['condition_fa']
+            weather_str = f"🌡️ {weather['temp_c']}°C {cond}"
+            # Show timestamp only if older than 1 hour
+            if time.time() - weather['timestamp'] > 3600:
+                jd = jdatetime.datetime.fromtimestamp(weather['timestamp'])
+                weather_str += f" {jd.strftime('%H:%M')}"
 
         # ---------- birthdays (next 7 days) ----------
         today_j = jdatetime.date.today()
@@ -137,4 +150,5 @@ def build_header_data():
             'great_event_str': great_event_str,
             'last_entry_time': last_entry_time,
             'nap_str': nap_str,
+            'weather_str': weather_str,
         }

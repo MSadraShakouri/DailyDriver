@@ -195,12 +195,26 @@ def _migration_5(conn):
 
     conn.commit()
 
+def _migration_6(conn):
+    cur = conn.cursor()
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS weather_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            city TEXT NOT NULL DEFAULT 'Tehran',
+            temp_c INTEGER NOT NULL,
+            condition_fa TEXT NOT NULL,
+            timestamp INTEGER NOT NULL
+        )
+    ''')
+    conn.commit()
+
 _MIGRATIONS = {
     1: _migration_1,
     2: _migration_2,
     3: _migration_3,
     4: _migration_4,
     5: _migration_5,
+    6: _migration_6,
 }
 
 def _get_current_version(conn):
