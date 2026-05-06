@@ -18,6 +18,14 @@ def build_header_data():
         today = today_jalali()
         formatted = format_jalali(today)
 
+        # Add abbreviated English weekday (e.g., Sat)
+        weekdays_en = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        # Get Gregorian weekday from today's Jalali date
+        today_j = jdatetime.date(*map(int, today.split('-')))
+        gdate = today_j.togregorian()
+        wday = weekdays_en[gdate.weekday()]   # 0=Monday
+        formatted = f"{wday}, {formatted}"
+
         # ---------- prayer status ----------
         slot_info = [
             ('fajr', '🌅', 'F'),
