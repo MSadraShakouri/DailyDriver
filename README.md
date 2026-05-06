@@ -28,32 +28,32 @@ Built with Python, SQLite, and Jalali calendar support.
 ## Installation
 
 1. Clone the repository:
-   @@@bash
+   ```bash
    git clone https://github.com/MSadraShakouri/DailyDriver.git
    cd DailyDriver
-   @@@
+   ```
 
 2. Install the project and all dependencies:
-   @@@bash
+   ```bash
    pip install .
-   @@@
+   ```
 
    This automatically installs `jdatetime`, `hijridate`, and `porter2stemmer`.
 
 3. (Optional) Make the entry point executable:
-   @@@bash
+   ```bash
    chmod +x main.py
-   @@@
+   ```
 
 4. Create a convenient command (optional):
    - Symlink:
-     @@@bash
+     ```bash
      ln -s /full/path/to/DailyDriver/main.py ~/.local/bin/daily
-     @@@
+     ```
    - Alias (add to `~/.bashrc` or `~/.zshrc`):
-     @@@bash
+     ```bash
      alias daily='python /path/to/DailyDriver/main.py'
-     @@@
+     ```
 
 ---
 
@@ -61,17 +61,17 @@ Built with Python, SQLite, and Jalali calendar support.
 
 Launch the app:
 
-@@@bash
+```bash
 ./main.py
 # or if you set up the symlink:
 daily
-@@@
+```
 
 You’ll see the daily header and a prompt `>`. Type `?` for a command overview, or just start writing a journal entry.
 
-@@@
+```
 > today was a productive day
-@@@
+```
 
 ---
 
@@ -101,16 +101,16 @@ For the complete command reference, see **[COMMANDS.md](COMMANDS.md)**.
 All your data is stored in **`data/daily.db`** (SQLite). No network calls, no third‑party analytics.
 To inspect the database directly:
 
-@@@bash
+```bash
 sqlite3 data/daily.db ".tables"
 sqlite3 data/daily.db "SELECT * FROM entries;"
-@@@
+```
 
 ---
 
 ## Project Structure (abbreviated)
 
-@@@
+```
 dailydriver/
 ├── core/          # database, parser, logger, keyword learning
 ├── domains/       # prayer, sleep, nap, hygiene, birthday, intention, prayer times
@@ -121,7 +121,7 @@ dailydriver/
 data/              # database, stopwords, event JSON files
 tools/             # event editor, keyword editor
 tests/             # test files
-@@@
+```
 
 ---
 

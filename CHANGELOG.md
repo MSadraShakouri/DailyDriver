@@ -27,9 +27,9 @@
 
 ### Dependencies
 - Added `porter2stemmer` to `pyproject.toml`.
-@@@bash
+```bash
 pip install .
-@@@
+```
 
 ## 1.0.0 (2026‑05‑02)
 
@@ -69,6 +69,6 @@ pip install .
 - Calendar event display improved (one event per line in header)
 
 ### Dependencies
-@@@bash
+```bash
 pip install jdatetime hijridate
-@@@
+```
