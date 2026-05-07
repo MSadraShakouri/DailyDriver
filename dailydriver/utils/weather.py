@@ -7,6 +7,8 @@ import ssl
 import time
 import urllib.request
 from dailydriver.core.database import get_connection_cm
+# Per‑session flag to avoid repeated failed fetches
+_fetch_failed_this_session = False
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
@@ -65,8 +67,10 @@ def _fetch_weather():
     return temp_c, condition
 
 def _update_weather(conn):
+    global _fetch_failed_this_session
     data = _fetch_weather()
     if data is None:
+        _fetch_failed_this_session = True
         return None
     temp_c, condition_fa = data
     ts = int(time.time())
@@ -77,16 +81,29 @@ def _update_weather(conn):
     return temp_c, condition_fa
 
 def get_weather():
-    """Return dict with keys: temp_c, condition_fa, condition_en (or None), city, timestamp.
-    Handles offline gracefully by returning the last cached row.
-    """
+    if _fetch_failed_this_session:
+        # Don't even try – return the last cached row (if any)
+        with get_connection_cm() as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT temp_c, condition_fa, timestamp FROM weather_log ORDER BY id DESC LIMIT 1")
+            row = cur.fetchone()
+            if row is None:
+                return None
+            condition_en = _translate_condition(row['condition_fa'])
+            return {
+                'temp_c': row['temp_c'],
+                'condition_fa': row['condition_fa'],
+                'condition_en': condition_en,
+                'city': 'Tehran',
+                'timestamp': row['timestamp'],
+            }
+
     with get_connection_cm() as conn:
         cur = conn.cursor()
         cur.execute("SELECT temp_c, condition_fa, timestamp FROM weather_log ORDER BY id DESC LIMIT 1")
         row = cur.fetchone()
         now = int(time.time())
         if row is None or (now - row['timestamp']) > CACHE_HOURS * 3600:
-            # Try to update
             data = _update_weather(conn)
             if data is not None:
                 temp_c, condition_fa = data
