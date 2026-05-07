@@ -29,15 +29,16 @@ def _save_translations(trans):
         json.dump(trans, f, ensure_ascii=False, indent=2)
 
 def _translate_condition(condition_fa):
+    """Return dict with 'en' and 'emoji', or None if untranslated."""
     trans = _load_translations()
     if condition_fa not in trans:
-        trans[condition_fa] = "NOT TRANSLATED"
+        trans[condition_fa] = {"en": "NOT TRANSLATED", "emoji": "❓"}
         _save_translations(trans)
         return None
-    en = trans[condition_fa]
-    if en == "NOT TRANSLATED":
+    entry = trans[condition_fa]
+    if entry["en"] == "NOT TRANSLATED":
         return None
-    return en
+    return entry
 
 def _fetch_weather():
     """Return (temp_c, condition_fa) or None on failure."""
@@ -81,19 +82,22 @@ def _update_weather(conn):
     return temp_c, condition_fa
 
 def get_weather():
+    global _fetch_failed_this_session
     if _fetch_failed_this_session:
-        # Don't even try – return the last cached row (if any)
         with get_connection_cm() as conn:
             cur = conn.cursor()
             cur.execute("SELECT temp_c, condition_fa, timestamp FROM weather_log ORDER BY id DESC LIMIT 1")
             row = cur.fetchone()
             if row is None:
                 return None
-            condition_en = _translate_condition(row['condition_fa'])
+            cond_info = _translate_condition(row['condition_fa'])
+            condition_en = cond_info['en'] if cond_info else None
+            condition_emoji = cond_info['emoji'] if cond_info else '🌡️'
             return {
                 'temp_c': row['temp_c'],
                 'condition_fa': row['condition_fa'],
                 'condition_en': condition_en,
+                'condition_emoji': condition_emoji,
                 'city': 'Tehran',
                 'timestamp': row['timestamp'],
             }
@@ -119,11 +123,14 @@ def get_weather():
             condition_fa = row['condition_fa']
             ts = row['timestamp']
 
-        condition_en = _translate_condition(condition_fa)
+        cond_info = _translate_condition(condition_fa)
+        condition_en = cond_info['en'] if cond_info else None
+        condition_emoji = cond_info['emoji'] if cond_info else '🌡️'
         return {
             'temp_c': temp_c,
             'condition_fa': condition_fa,
             'condition_en': condition_en,
+            'condition_emoji': condition_emoji,
             'city': 'Tehran',
             'timestamp': ts,
         }

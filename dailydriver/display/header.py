@@ -70,7 +70,8 @@ def build_header_data():
         weather_str = ""
         if weather:
             cond = weather['condition_en'] if weather['condition_en'] else weather['condition_fa']
-            weather_str = f"🌡️ {weather['temp_c']}°C {cond}"
+            emoji = weather.get('condition_emoji', '🌡️')
+            weather_str = f"{emoji} {weather['temp_c']}°C {cond}"
             # Show timestamp only if older than 1 hour
             if time.time() - weather['timestamp'] > 3600:
                 jd = jdatetime.datetime.fromtimestamp(weather['timestamp'])

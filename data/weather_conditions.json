@@ -1,4 +1,10 @@
 {
-  "قسمتی ابری": "partially cloudy",
-  "صاف": "clear"
+  "قسمتی ابری": {
+    "en": "partially cloudy",
+    "emoji": "⛅"
+  },
+  "صاف": {
+    "en": "clear",
+    "emoji": "☀️"
+  }
 }
