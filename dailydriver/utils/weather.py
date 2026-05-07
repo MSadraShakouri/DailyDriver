@@ -84,7 +84,7 @@ def _update_weather(conn):
 def get_weather():
     global _fetch_failed_this_session
     if _fetch_failed_this_session:
-        with get_connection_cm() as conn:
+        with get_connection_cm(auto=False) as conn:
             cur = conn.cursor()
             cur.execute("SELECT temp_c, condition_fa, timestamp FROM weather_log ORDER BY id DESC LIMIT 1")
             row = cur.fetchone()
@@ -102,7 +102,7 @@ def get_weather():
                 'timestamp': row['timestamp'],
             }
 
-    with get_connection_cm() as conn:
+    with get_connection_cm(auto=False) as conn:
         cur = conn.cursor()
         cur.execute("SELECT temp_c, condition_fa, timestamp FROM weather_log ORDER BY id DESC LIMIT 1")
         row = cur.fetchone()
