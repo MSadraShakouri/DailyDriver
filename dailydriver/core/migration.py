@@ -208,6 +208,11 @@ def _migration_6(conn):
     ''')
     conn.commit()
 
+def _migration_7(conn):
+    """Rebuild the FTS5 index to include any entries that were missed during v4."""
+    conn.execute("INSERT INTO entries_fts(entries_fts) VALUES('rebuild')")
+    conn.commit()
+
 _MIGRATIONS = {
     1: _migration_1,
     2: _migration_2,
@@ -215,6 +220,7 @@ _MIGRATIONS = {
     4: _migration_4,
     5: _migration_5,
     6: _migration_6,
+    7: _migration_7,
 }
 
 def _get_current_version(conn):

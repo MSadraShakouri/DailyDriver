@@ -105,7 +105,7 @@ def search(cmd):
                 pass
 
         # ----- final scoring (using raw_tokens for fuzzy boosts) -----
-        all_rows = compute_final_scores(all_rows, [], raw_tokens)
+        all_rows = compute_final_scores(all_rows, [], raw_tokens, stemmed_tokens)
 
         total = len(all_rows)
 
