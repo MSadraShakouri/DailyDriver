@@ -67,6 +67,8 @@ def show_help():
     current_ui.print_line("  stats")
     current_ui.print_line("     Prayer/sleep/hygiene stats")
     current_ui.print_line()
+    current_ui.print_line("  last")
+    current_ui.print_line("     Show the last 5 journal entries")
 
     # ── Tools ──
     current_ui.print_line("⚙ Tools & Configuration")

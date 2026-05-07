@@ -22,6 +22,7 @@ from dailydriver.cli.year_view import show_year
 from dailydriver.cli.export_log import export
 from dailydriver.domains.nap import log_nap
 from dailydriver.cli.search_view import search
+from dailydriver.cli.last_view import show_last
 
 def make_dispatch():
     dispatch = {
@@ -46,6 +47,7 @@ def make_dispatch():
         'export': lambda cmd: export(cmd),
         'nap': log_nap,
         'search': search,
+        'last': lambda _: show_last(),
     }
     dispatch['sge'] = start_great_event_cmd
     dispatch['ege'] = end_great_event_cmd
