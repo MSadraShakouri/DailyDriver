@@ -86,12 +86,15 @@ def build_header_data(day=None, is_past=False):
 
         # ---------- today's events from calendar ----------
         from dailydriver.utils.calendar_events import get_events, get_events_for_date
+        cal_icons = {'jalali': '🔆', 'gregorian': '🌐', 'hijri': '🌙'}
         if is_past:
             todays_events = get_events_for_date(target_date)
             calendar_lines = []
             if todays_events:
                 for e in todays_events:
-                    prefix = "🎌" if e.get("holiday") else "📌"
+                    cal = e.get('calendar', 'jalali')
+                    icon = cal_icons.get(cal, '📌')
+                    prefix = icon + ('🎊' if e.get("holiday") else '')
                     calendar_lines.append(f"{prefix} {e['title_en']}")
         else:
             events = get_events()
@@ -99,7 +102,9 @@ def build_header_data(day=None, is_past=False):
             calendar_lines = []
             if todays:
                 for e in todays:
-                    prefix = "🎌" if e.get("holiday") else "📌"
+                    cal = e.get('calendar', 'jalali')
+                    icon = cal_icons.get(cal, '📌')
+                    prefix = icon + ('🎊' if e.get("holiday") else '')
                     calendar_lines.append(f"{prefix} {e['title_en']}")
 
         # ---------- reminders (only for today) ----------
