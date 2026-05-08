@@ -1,4 +1,6 @@
+# dailydriver/cli/help.py
 from dailydriver.ui.terminal_ui import current_ui
+
 def show_help():
     current_ui.print_line("═" * 50)
     current_ui.print_line("  DailyDriver — Quick Reference")
@@ -54,21 +56,30 @@ def show_help():
     current_ui.print_line("     ln replied to emails")
     current_ui.print_line()
 
-    # ── Viewing ──
+    # ── Viewing & Summaries ──
     current_ui.print_line("👁 Viewing & Summaries")
-    current_ui.print_line("  today")
-    current_ui.print_line("     Show everything logged today")
+    current_ui.print_line("  day [YYYY-MM-DD | -1]")
+    current_ui.print_line("     Show day view (today by default)")
+    current_ui.print_line("     day -1         → yesterday")
+    current_ui.print_line("     day 1405-02-12 → specific date")
+    current_ui.print_line("     Inside: p/n/q to navigate, also YYYY-MM-DD or 5n/5p")
+    current_ui.print_line()
     current_ui.print_line("  view [filter]")
-    current_ui.print_line("     Browse entries (n=next p=prev)")
+    current_ui.print_line("     Browse entries (n=next p=prev, n/p can have a count like 5n)")
     current_ui.print_line("     view project")
-    current_ui.print_line("     Inside view: id=edit entry")
+    current_ui.print_line("     Inside: id=edit entry, d <id> = open day of that entry")
+    current_ui.print_line()
     current_ui.print_line("  search [query]")
-    current_ui.print_line("     Full‑text search journal entries")
-    current_ui.print_line("  stats")
-    current_ui.print_line("     Prayer/sleep/hygiene stats")
+    current_ui.print_line("     Full‑text search journal entries (also 5n/5p for multi-page)")
+    current_ui.print_line("     search programming")
+    current_ui.print_line("     search morning")
     current_ui.print_line()
     current_ui.print_line("  last")
     current_ui.print_line("     Show the last 5 journal entries")
+    current_ui.print_line()
+    current_ui.print_line("  stats")
+    current_ui.print_line("     Prayer/sleep/hygiene stats")
+    current_ui.print_line()
 
     # ── Tools ──
     current_ui.print_line("⚙ Tools & Configuration")
@@ -83,6 +94,14 @@ def show_help():
     current_ui.print_line("     Manage hygiene intervals")
     current_ui.print_line()
 
+    # ── Calendar ──
+    current_ui.print_line("📅 Calendar")
+    current_ui.print_line("  cal [month] [year]")
+    current_ui.print_line("     Show month grid + upcoming events")
+    current_ui.print_line("  year")
+    current_ui.print_line("     Show full‑year grid (adaptive columns)")
+    current_ui.print_line()
+
     # ── Multi‑line ──
     current_ui.print_line("📄 Multi‑line entries")
     current_ui.print_line("  :m")
@@ -91,8 +110,16 @@ def show_help():
     current_ui.print_line("     (alone) End & log collected lines")
     current_ui.print_line()
 
+    # ── Export ──
+    current_ui.print_line("📤 Export")
+    current_ui.print_line("  export <duration>")
+    current_ui.print_line("     export 7d   export 2w   export 3m   export 1y")
+    current_ui.print_line("     Creates a human‑readable text file.")
+    current_ui.print_line()
+
     # ── Other ──
     current_ui.print_line("❓ Other")
     current_ui.print_line("  ?          This help")
     current_ui.print_line("  q          Quit")
     current_ui.print_line()
+    current_ui.print_line("Weather is shown automatically in the header (IRIMO, Tehran).")

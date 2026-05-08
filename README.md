@@ -1,4 +1,4 @@
-# DailyDriver v1.1.0
+# DailyDriver v1.2.0
 
 Your personal, terminal‑based life tracker.  
 Log prayers, sleep, hygiene routines, birthdays, intentions, and free‑form journal entries – all from a fast, keyboard‑driven REPL.  
@@ -10,6 +10,8 @@ Built with Python, SQLite, and Jalali calendar support.
 
 - **Prayer tracking** – Fajr, Dhuhr/Asr, Maghrib/Isha with jamaat and shak options, dynamic Tehran times.
 - **Sleep & nap logging** – bed/wake times, auto‑calculated duration; track short naps separately.
+- **Weather** – Tehran weather scraped from IRIMO, displayed in the header with emoji (cached hourly).
+- **Day navigation** – browse past days with `day YYYY-MM-DD` or `-1`, and jump multiple days (e.g. `5n`, `5p`).
 - **Hygiene reminders** – define intervals for habits, get nudges when overdue.
 - **Birthday list** – Jalali dates, upcoming birthday alerts with age.
 - **Intentions** – to‑dos with deadlines and expected durations.
@@ -17,10 +19,10 @@ Built with Python, SQLite, and Jalali calendar support.
 - **Great events & chaining** – start a long activity, later end and log it.
 - **Smart categories** – TF‑IDF keyword learning from your entries (exact path‑match boost).
 - **Statistics** – prayer adherence, sleep averages, hygiene conformance, top categories.
-- **Three‑calendar events** – Jalali, Gregorian, and Hijri events displayed dynamically.
-- **Full‑text search** (`search` command) with fuzzy time/date/category boosting.
+- **Three‑calendar events** – Jalali, Gregorian, and Hijri events with per‑calendar icons (🔆🌐🌙) and holiday confetti (🎊).
+- **Full‑text search** (`search` command) with fuzzy time/date/category boosting, and multi‑page navigation (`5n`).
 - **Reminders** – mark events with `remind: true` and see them in the header two weeks ahead.
-- **Beautiful header** – today’s prayers, sleep, birthdays, hygiene, events, and reminders at a glance.
+- **Beautiful header** – today’s prayers, sleep, weather, birthdays, hygiene, events, and reminders at a glance.
 - **Minimal dependencies** – Python 3.8+, SQLite, `jdatetime`, `hijridate`, `porter2stemmer`.
 
 ---
@@ -82,9 +84,11 @@ You’ll see the daily header and a prompt `>`. Type `?` for a command overview,
 | `p` | Log a prayer |
 | `s` | Log sleep |
 | `nap` | Log a short nap |
+| `day` or `today` | View today or any past day (with navigation) |
+| `last` | Show last 5 journal entries |
 | `view` | Browse journal entries |
 | `search` | Full‑text search with fuzzy boosts |
-| `today` | Today’s summary |
+| `today` | Today’s summary (alias for `day`) |
 | `stats` | Statistics (30 days) |
 | `cal` | Clean month calendar |
 | `year` | Responsive year calendar |
@@ -117,7 +121,7 @@ dailydriver/
 ├── display/       # header, stats, today view, hygiene nudges
 ├── cli/           # REPL, commands, search, calendar, export
 ├── ui/            # terminal abstraction
-└── utils/         # time helpers, calendar events
+└── utils/         # time helpers, calendar events, weather
 data/              # database, stopwords, event JSON files
 tools/             # event editor, keyword editor
 tests/             # test files

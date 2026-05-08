@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.2.0 (2026‑05‑08)
+
+### Added
+- **Weather integration** – Tehran weather scraped from IRIMO, cached hourly, with offline fallback.  
+  Shows temperature, condition emoji, and timestamp in the daily header.  
+  Past‑day views display the cached weather for that date.
+- **`day` / `today` command** – view any past day with navigation (`p`/`n`) and direct date input (`YYYY‑MM‑DD`).  
+  Header adapts to the target date (prayers, sleep, weather, events).  
+  Added `d` shortcut in `view` and `search` to jump to an entry’s day.
+- **Per‑calendar icons** – Jalali 🔆, Gregorian 🌐, Hijri 🌙, with holiday confetti 🎊, now used in header, `cal`, and year view.
+- **Multi‑page navigation** in `view` and `search` – use `n`/`p` with optional count (e.g. `5n` jumps 5 pages) and prompts now show `n/p = next/prev page, 5n = 5 pages`.
+
+### Changed
+- **Search scoring overhaul** – FTS rank formula strengthened (10/abs(rank)), exact‑word matches get +2.0 bonus, category boosts split (exact word +5.0, substring +1.0), LIKE fallback uses OR.
+- **Keyword system** – stemmed existing keywords via Porter2 stemmer (migration v5), removed pending‑keywords table, added `count` column for TF‑IDF.
+- **Sleep display** – duration now shown before the time range in the header.
+- **Header bottom bar** – now shown for past days too.
+- English weekday abbreviation prepended to the date in the header (e.g., `Sat, 18 Ordibehesht 1405`).
+
+### Fixed
+- `cge` command now accepts optional argument (dispatch compatibility).
+- Editor save now persists deletes immediately.
+- `ege` no longer clears great event when logging is cancelled.
+- Export now shows naps and correctly formatted prayer times.
+- Various import and pagination glitches in search/view.
+
 ## 1.1.0 (2026‑05‑05)
 
 ### Added
