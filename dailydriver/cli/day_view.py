@@ -1,5 +1,6 @@
 # dailydriver/cli/day_view.py
 """Unified day view – shows today or any past day."""
+import re
 import jdatetime
 from datetime import datetime, timedelta
 from dailydriver.core.database import get_connection_cm
@@ -56,16 +57,29 @@ def show_day(cmd=None):
 
         _show_day_body(target, is_past)
 
-        current_ui.print_line("(p)rev  (n)ext  (q)uit")
+        current_ui.print_line("(p)rev  (n)ext  (q)uit  or YYYY-MM-DD")
+        current_ui.print_line("n/p = next/prev day, 5n = 5 days")
         choice = current_ui.prompt("> ").strip().lower()
 
         if choice == 'q':
             break
-        elif choice == 'p':
-            target = target - jdatetime.timedelta(days=1)
-            is_past = (target != today)
-        elif choice == 'n':
-            target = target + jdatetime.timedelta(days=1)
+        # YYYY-MM-DD jump
+        elif re.match(r'^\d{4}-\d{2}-\d{2}$', choice):
+            try:
+                y, m, d = map(int, choice.split('-'))
+                target = jdatetime.date(y, m, d)
+                is_past = (target != today)
+            except ValueError:
+                current_ui.print_line("Invalid Jalali date.")
+                current_ui.prompt("Press Enter to continue.")
+        # Nn or Np jump (N optional, default 1)
+        elif re.match(r'^\d*[np]$', choice):
+            if choice[-1] == 'n':
+                steps = int(choice[:-1]) if choice[:-1] else 1
+                target = target + jdatetime.timedelta(days=steps)
+            else:  # 'p'
+                steps = int(choice[:-1]) if choice[:-1] else 1
+                target = target - jdatetime.timedelta(days=steps)
             is_past = (target != today)
 
 def _show_day_body(target, is_past):

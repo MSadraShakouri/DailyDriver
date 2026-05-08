@@ -1,5 +1,6 @@
 # dailydriver/cli/search_view.py
 """Full‑text search with FTS5, LIKE fallback, and fuzzy time/date/category boosting."""
+import re
 import sqlite3
 import jdatetime
 from dailydriver.core.database import get_connection_cm
@@ -139,22 +140,25 @@ def search(cmd):
 
             current_ui.print_line(f"Showing {offset+1}‑{min(offset+page_size, total)} of {total}")
             current_ui.print_line("\n(n)ext  (p)rev  (q)uit  [id] edit  (d)ay <id>")
+            current_ui.print_line("n/p = next/prev page, 5n = 5 pages")
             choice = current_ui.prompt("> ").strip().lower()
 
             if choice == 'q':
                 break
-            elif choice == 'n':
-                if offset + page_size < total:
-                    offset += page_size
-                else:
-                    current_ui.print_line("No more results.")
-                    current_ui.prompt("Press Enter to continue.")
-            elif choice == 'p':
-                if offset > 0:
-                    offset -= page_size
-                else:
-                    current_ui.print_line("Already on first page.")
-                    current_ui.prompt("Press Enter to continue.")
+            elif re.match(r'^\d*[np]$', choice):
+                steps = int(choice[:-1]) if choice[:-1] else 1
+                if choice[-1] == 'n':
+                    if offset + page_size < total:
+                        offset += steps * page_size
+                    else:
+                        current_ui.print_line("No more results.")
+                        current_ui.prompt("Press Enter to continue.")
+                else:  # 'p'
+                    if offset > 0:
+                        offset = max(0, offset - steps * page_size)
+                    else:
+                        current_ui.print_line("Already on first page.")
+                        current_ui.prompt("Press Enter to continue.")
 
             elif choice.startswith('d'):
                 parts = choice.split(maxsplit=1)

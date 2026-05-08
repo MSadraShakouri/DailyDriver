@@ -3,6 +3,7 @@ import sys
 import shutil
 import subprocess
 import time
+import re
 import jdatetime
 from dailydriver.core.database import get_connection_cm
 from dailydriver.core.logger import log_free_text
@@ -62,18 +63,21 @@ def view_entries(category_filter=None):
                 current_ui.print_line(f"    {desc_snippet}")
 
             current_ui.print_line("\n(n)ext  (p)rev  (q)uit  [id] edit  (d)ay <id>")
+            current_ui.print_line("n/p = next/prev page, 5n = 5 pages")
             choice = current_ui.prompt("> ").strip().lower()
 
             if choice == 'q':
-                break                     # connection closed by context manager
-            elif choice == 'n':
-                if len(rows) == page_size:
-                    offset += page_size
-                else:
-                    current_ui.print_line("No more pages.")
-                    current_ui.prompt()
-            elif choice == 'p':
-                offset = max(0, offset - page_size)
+                break
+            elif re.match(r'^\d*[np]$', choice):
+                steps = int(choice[:-1]) if choice[:-1] else 1
+                if choice[-1] == 'n':
+                    if len(rows) == page_size:
+                        offset += steps * page_size
+                    else:
+                        current_ui.print_line("No more pages.")
+                        current_ui.prompt("Press Enter to continue.")
+                else:  # 'p'
+                    offset = max(0, offset - steps * page_size)
 
             elif choice.startswith('d'):
                 parts = choice.split(maxsplit=1)
