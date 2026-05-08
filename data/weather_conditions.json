@@ -14,5 +14,9 @@
   "نیمه ابری": {
     "en": "half cloudy",
     "emoji": "⛅"
+  },
+  "ابری": {
+    "en": "cloudy",
+    "emoji": "☁️"
   }
 }
