@@ -112,14 +112,16 @@ def print_header(data: dict):
     if reminders_str:
         pline(reminders_str)
 
-    # Bottom separator with last entry time (right‑aligned)
-    last_time = data.get('last_entry_time', '')
-    if last_time:
-        text = f" Last: {last_time} "
-        dash_count = w - display_width(text)
-        if dash_count > 0:
-            current_ui.print_line('─' * dash_count + text)
-        else:
-            pline(text)          # terminal too narrow, just print the text
-    else:
+    if data.get('is_past', False):
         current_ui.print_line('─' * w)
+    else:
+        last_time = data.get('last_entry_time', '')
+        if last_time:
+            text = f" Last: {last_time} "
+            dash_count = w - display_width(text)
+            if dash_count > 0:
+                current_ui.print_line('─' * dash_count + text)
+            else:
+                pline(text)
+        else:
+            current_ui.print_line('─' * w)

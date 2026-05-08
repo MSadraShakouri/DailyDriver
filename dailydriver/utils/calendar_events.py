@@ -155,3 +155,8 @@ def get_upcoming_events(events=None, days=15):
             upcoming.append((d, ev))
     upcoming.sort(key=lambda x: x[0])
     return upcoming
+
+def get_events_for_date(jalali_date):
+    """Return list of event dicts for a specific Jalali date."""
+    all_events = get_events()
+    return [ev for d, ev in all_events if d == jalali_date]

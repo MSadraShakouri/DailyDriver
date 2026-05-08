@@ -23,6 +23,7 @@ from dailydriver.cli.export_log import export
 from dailydriver.domains.nap import log_nap
 from dailydriver.cli.search_view import search
 from dailydriver.cli.last_view import show_last
+from dailydriver.cli.day_view import show_day
 
 def make_dispatch():
     dispatch = {
@@ -37,7 +38,8 @@ def make_dispatch():
         'hygiene': lambda _: manage_hygiene(),
         't': add_intention,
         'stats': lambda _: show_stats(),
-        'today': lambda _: show_today(),
+        'day': show_day,
+        'today': show_day,
         'se': lambda _: save_pending_start(),
         'ce': lambda _: discard_pending_start(),
         'ee': log_event_end,
@@ -199,7 +201,7 @@ def repl():
             handler = dispatch.get(first)
             if handler:
                 try:
-                    result = handler(line) if first in ('p','s','bd','t','ee','ln','sge','ege','export','nap', 'search') else handler(parts)
+                    result = handler(line) if first in ('p','s','bd','t','ee','ln','sge','ege','export','nap', 'search', 'day', 'today') else handler(parts)
                     if result:
                         clear()
                         data = build_header_data()
@@ -241,7 +243,7 @@ def run_single_command(line):
     handler = dispatch.get(first)
     if handler:
         try:
-            result = handler(line) if first in ('p','s','bd','t','ee','ln','sge','ege','export','nap', 'search') else handler(parts)
+            result = handler(line) if first in ('p','s','bd','t','ee','ln','sge','ege','export','nap', 'search', 'day', 'today') else handler(parts)
             if result:
                 clear()
                 data = build_header_data()

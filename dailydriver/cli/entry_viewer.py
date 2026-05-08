@@ -61,7 +61,7 @@ def view_entries(category_filter=None):
                 current_ui.print_line(f"[{row['id']}] {jdt.strftime('%Y-%m-%d %H:%M')}  {cat_str}")
                 current_ui.print_line(f"    {desc_snippet}")
 
-            current_ui.print_line("\n(n)ext  (p)rev  (q)uit  [id] edit")
+            current_ui.print_line("\n(n)ext  (p)rev  (q)uit  [id] edit  (d)ay <id>")
             choice = current_ui.prompt("> ").strip().lower()
 
             if choice == 'q':
@@ -74,6 +74,27 @@ def view_entries(category_filter=None):
                     current_ui.prompt()
             elif choice == 'p':
                 offset = max(0, offset - page_size)
+
+            elif choice.startswith('d'):
+                parts = choice.split(maxsplit=1)
+                if len(parts) == 2:
+                    eid = parts[1].strip()
+                else:
+                    eid = current_ui.prompt("Entry ID: ").strip()
+                if eid.isdigit():
+                    from dailydriver.cli.day_view import show_day
+                    with get_connection_cm() as conn2:
+                        cur2 = conn2.cursor()
+                        cur2.execute("SELECT created_at FROM entries WHERE id=?", (int(eid),))
+                        row2 = cur2.fetchone()
+                        if row2:
+                            jd = jdatetime.datetime.fromtimestamp(row2['created_at'])
+                            show_day(jd.strftime('%Y-%m-%d'))
+                            return
+                        else:
+                            current_ui.print_line("Entry not found.")
+                            current_ui.prompt("Press Enter to continue.")
+
             elif choice.isdigit():
                 entry_id = int(choice)
                 result = edit_entry(entry_id)

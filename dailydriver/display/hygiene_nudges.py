@@ -1,16 +1,26 @@
 # dailydriver/display/hygiene_nudges.py
 import time
+from datetime import datetime
 from dailydriver.core.database import get_last_hygiene_time
 
-def compute_hygiene_nudges(conn):
+def compute_hygiene_nudges(conn, relative_to=None):
     """
     Return a list of human‑readable nudge strings based on hygiene_config.
+    If `relative_to` is a jdatetime.date, compute nudges relative to that date
+    (for past‑day views); otherwise use today.
     """
     cur = conn.cursor()
     cur.execute("SELECT id, item, desired_interval_days, early_warning_enabled, show_due_today FROM hygiene_config ORDER BY item")
     hygiene_items = cur.fetchall()
     nudge_lines = []
-    now_ts = int(time.time())
+
+    # Determine the "now" for comparison
+    if relative_to is not None:
+        # Convert Jalali date to the end of that day (23:59:59)
+        gdate = relative_to.togregorian()
+        now_ts = int(datetime(gdate.year, gdate.month, gdate.day, 23, 59, 59).timestamp())
+    else:
+        now_ts = int(time.time())
 
     for item_row in hygiene_items:
         item = item_row['item']
@@ -24,7 +34,7 @@ def compute_hygiene_nudges(conn):
         if days_since is None:
             continue
 
-        # Early warning thresholds
+        # Early warning thresholds (hardcoded)
         if desired >= 15:
             early_threshold = 3
         elif desired >= 7:

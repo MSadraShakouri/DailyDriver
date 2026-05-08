@@ -1,6 +1,7 @@
 # dailydriver/cli/search_view.py
 """Full‑text search with FTS5, LIKE fallback, and fuzzy time/date/category boosting."""
 import sqlite3
+import jdatetime
 from dailydriver.core.database import get_connection_cm
 from dailydriver.core.keyword_learner import tokenize
 from dailydriver.ui.terminal_ui import current_ui
@@ -137,7 +138,7 @@ def search(cmd):
                 current_ui.print_line()
 
             current_ui.print_line(f"Showing {offset+1}‑{min(offset+page_size, total)} of {total}")
-            current_ui.print_line("(n)ext  (p)rev  (q)uit  [id] view")
+            current_ui.print_line("\n(n)ext  (p)rev  (q)uit  [id] edit  (d)ay <id>")
             choice = current_ui.prompt("> ").strip().lower()
 
             if choice == 'q':
@@ -154,6 +155,27 @@ def search(cmd):
                 else:
                     current_ui.print_line("Already on first page.")
                     current_ui.prompt("Press Enter to continue.")
+
+            elif choice.startswith('d'):
+                parts = choice.split(maxsplit=1)
+                if len(parts) == 2:
+                    eid = parts[1].strip()
+                else:
+                    eid = current_ui.prompt("Entry ID: ").strip()
+                if eid.isdigit():
+                    from dailydriver.cli.day_view import show_day
+                    with get_connection_cm() as conn2:
+                        cur2 = conn2.cursor()
+                        cur2.execute("SELECT created_at FROM entries WHERE id=?", (int(eid),))
+                        row2 = cur2.fetchone()
+                        if row2:
+                            jd = jdatetime.datetime.fromtimestamp(row2['created_at'])
+                            show_day(jd.strftime('%Y-%m-%d'))
+                            return
+                        else:
+                            current_ui.print_line("Entry not found.")
+                            current_ui.prompt("Press Enter to continue.")
+
             elif choice.isdigit():
                 from dailydriver.cli.entry_viewer import edit_entry
                 from dailydriver.core.logger import log_free_text
