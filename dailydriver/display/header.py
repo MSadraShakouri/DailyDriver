@@ -23,7 +23,9 @@ def build_header_data(day=None, is_past=False):
             y, m, d = map(int, day.split('-'))
             target_date = jdatetime.date(y, m, d)
 
-        formatted = format_jalali(today)
+        gdate = target_date.togregorian()
+        weekday_abbr = gdate.strftime('%a')
+        formatted = f"{weekday_abbr}, {format_jalali(today)}"
 
         # ---------- prayer status ----------
         slot_info = [
