@@ -1,8 +1,6 @@
 # TODO
 
 ## High Priority
-- **Tagging people (`@name` → `people/name` category)**  
-  Automatically create a `people/name` category when `@name` is detected in a journal entry. Parser already handles free text; minimal UI change.
 - **HTML editor for categories (merging, etc.)**  
   Extend the existing keyword editor to merge, rename, or delete categories. Useful for long‑term maintenance.
 
