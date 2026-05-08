@@ -15,24 +15,20 @@ def show_day(cmd=None):
 
     if cmd is not None:
         cmd = cmd.strip()
-        # If the entire string is a Jalali date (contains two hyphens), use it directly
-        if cmd.count('-') == 2:
-            arg = cmd
-            command = None
-        else:
-            parts = cmd.split(maxsplit=1)
-            command = parts[0].lower()
-            if command == 'today':
-                # Show today’s detail without extra header
-                _show_day_body(today, False)
-                return
-            else:
-                if len(parts) > 1:
-                    arg = parts[1].strip()
-                else:
-                    arg = None
+        parts = cmd.split(maxsplit=1)
+        command = parts[0].lower() if parts else ''
+        arg = parts[1].strip() if len(parts) > 1 else ''
 
-        if command != 'today' and arg is not None:
+        if command == 'today':
+            _show_day_body(today, False)
+            return
+
+        # If no command recognised, treat the entire string as a possible date
+        if command not in ('day', 'today') and cmd.count('-') == 2:
+            arg = cmd
+            command = 'day'
+
+        if command == 'day' and arg:
             if arg.startswith('-'):
                 try:
                     offset = int(arg)
