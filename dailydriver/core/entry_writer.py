@@ -13,6 +13,7 @@ def _save_entry(conn, cmd, started_at, duration, selected_paths):
         (now_ts, started_at, duration, cmd)
     )
     entry_id = cur.lastrowid
+    cur.execute("INSERT INTO entries_fts(rowid, description) VALUES (?, ?)", (entry_id, cmd))
 
     for path in selected_paths:
         cur.execute("SELECT id FROM categories WHERE path=?", (path,))

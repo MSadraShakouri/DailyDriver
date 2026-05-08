@@ -146,6 +146,7 @@ def edit_entry(entry_id):
             current_ui.print_line("No changes.")
             return None
 
+        cur.execute("DELETE FROM entries_fts WHERE rowid=?", (entry_id,))
         # Delete child rows first
         cur.execute("DELETE FROM entry_categories WHERE entry_id=?", (entry_id,))
         # Delete the entry itself
