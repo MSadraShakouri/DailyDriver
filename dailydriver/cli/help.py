@@ -24,9 +24,10 @@ def show_help():
     current_ui.print_line("  Any other text = free‑form journal")
     current_ui.print_line("     worked on project 9-12")
     current_ui.print_line()
-    current_ui.print_line("  nap [duration]")
-    current_ui.print_line("     Log a nap")
-    current_ui.print_line("     nap 30m   nap 14:00 14:25")
+    current_ui.print_line("  nap <start> <end>")
+    current_ui.print_line("     Log a nap (like sleep)")
+    current_ui.print_line("     nap 14:00 14:25")
+    current_ui.print_line("     nap 14-14:25  (compact form)")
     current_ui.print_line()
 
     # ── Prayer management ──
