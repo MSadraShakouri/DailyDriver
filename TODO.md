@@ -5,8 +5,19 @@
   Extend the existing keyword editor to merge, rename, or delete categories. Useful for long‑term maintenance.
 
 ## Medium Priority
+- **Enhanced statistics (word counts, chronotype, sleep consistency, prayer times, category trends)**  
+  - Average words per journal entry over 7/14 days.  
+  - Tiny bar chart of entries per day (7 days).  
+  - Histogram of most‑logged hours (chronotype).  
+  - Sleep regularity: avg sleep‑start and wake time ± variance (7/14 days).  
+  - Prayer time distribution for each slot (avg, earliest, latest) over 7/14 days.  
+  - Category trend arrows comparing last 7/14 days to previous period.
+- **Recall command**  
+  Randomly display a past journal entry, automatically excluding categories like `hygiene/*`.  
+  Configurable exclude list in `meta` table. Simple `r`=next, `v`=full view, `q`=quit.
 - **Mood tracking (random prompts a few times a day)**  
-  Lightweight mood logging with optional note. Random timer or prompt at next interaction after a cooldown.
+  Lightweight mood logging with optional note. Random timer or prompt at next interaction after a cooldown.  
+  *(Mood stats will be added after this base is implemented.)*
 - **Quick notes (temporary entry, not saved to DB)**  
   A scratchpad that holds a draft, reviewable and optionally saveable later. Needs a small state file and commands like `sn` / `save` / `discard`.
 - **More built‑in aliases (no user‑defined aliases)**  
@@ -23,6 +34,7 @@
   Major refactor to a full terminal UI library (e.g., Textual, ncurses). Defer to a later major version.
 - **Generic reminders / deadlines**  
   Allow adding a remind‑me flag to any entry, not just calendar events. Builds on existing intentions and `remind` logic.
-
-
-log other weather stuff but not display, its priceless
+- **Log additional weather data (wind, humidity, etc.)**  
+  Scrape extra fields from IRIMO and store them in the `weather_log` table.  
+  Keep the header clean; data is for future reference, stats, or export.  
+  No UI change except a possible `weather full` command to view details.
