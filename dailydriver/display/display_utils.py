@@ -1,6 +1,15 @@
+# dailydriver/display/display_utils.py
 import shutil
 import unicodedata
+import re
 from dailydriver.ui.terminal_ui import current_ui
+
+# ANSI escape sequence pattern
+ANSI_ESCAPE = re.compile(r'\x1b\[[0-9;]*[a-zA-Z]')
+
+def strip_ansi(s: str) -> str:
+    """Remove ANSI escape codes from a string."""
+    return ANSI_ESCAPE.sub('', s)
 
 def get_width():
     """Return terminal width in columns, default 80."""
@@ -17,8 +26,9 @@ def char_width(c: str) -> int:
     return 1
 
 def display_width(s: str) -> int:
-    """Total display width of a string."""
-    return sum(char_width(ch) for ch in s)
+    """Total display width of a string (ANSI codes ignored)."""
+    s_clean = strip_ansi(s)
+    return sum(char_width(ch) for ch in s_clean)
 
 def pline(s: str):
     """Print a line, truncating to terminal width based on display width."""
@@ -26,15 +36,36 @@ def pline(s: str):
     if display_width(s) <= tw:
         current_ui.print_line(s)
         return
+    s_clean = strip_ansi(s)
     result = []
     current_width = 0
-    for ch in s:
+    for ch in s_clean:
         w = char_width(ch)
-        if current_width + w  > tw:
+        if current_width + w > tw:
             break
         result.append(ch)
         current_width += w
+    # Preserve any ANSI codes from the original – we just truncate the visible part
+    # For simplicity, we'll just print the truncated clean version; ANSI codes at the ends would be messy.
+    # But for pline(), we can just output the truncated clean text. ANSI codes typically don't change width.
     current_ui.print_line(''.join(result) + '…')
+
+def pline_wrap(s: str, indent: int = 0):
+    """Print a line, wrapping at word boundaries to fit terminal width."""
+    tw = get_width()
+    if display_width(s) <= tw - indent:
+        current_ui.print_line(' ' * indent + s)
+        return
+
+    words = s.split()
+    line = ' ' * indent
+    for word in words:
+        if display_width(line + word) > tw - 1:
+            current_ui.print_line(line.rstrip())
+            line = ' ' * indent
+        line += word + ' '
+    if line.strip():
+        current_ui.print_line(line.rstrip())
 
 def spread_line(items, width=None, prefix=""):
     """Distribute items evenly across the terminal using display widths."""
@@ -112,7 +143,7 @@ def print_header(data: dict):
 
     calendar_lines = data.get('calendar_lines', [])
     for line in calendar_lines:
-        pline(line)
+        pline_wrap(line)
     reminders_str = data.get('reminders_str', '')
     if reminders_str:
         pline(reminders_str)

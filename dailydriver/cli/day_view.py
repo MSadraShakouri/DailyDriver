@@ -56,8 +56,8 @@ def show_day(cmd=None):
 
         _show_day_body(target, is_today)
 
-        current_ui.print_line("(p)rev  (n)ext  (q)uit  or YYYY-MM-DD")
-        current_ui.print_line("n/p = next/prev day, 5n = 5 days")
+        current_ui.print_line("\033[1m(p)rev  (n)ext  (q)uit  or YYYY-MM-DD\033[0m")
+        current_ui.print_line("\033[1mn/p = next/prev day, 5n = 5 days\033[0m")
         choice = current_ui.prompt("> ").strip().lower()
 
         if choice == 'q':

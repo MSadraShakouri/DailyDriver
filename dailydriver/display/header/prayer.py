@@ -26,7 +26,6 @@ def get_prayer_parts(conn, today):
             parts.append(f"{emoji} —")
     return parts
 
-
 def get_prayer_nudges(conn, target_date, today_str, is_today, now=None):
     """Return list of nudge strings (pre‑alert or overdue). Only active for today."""
     if not is_today:
@@ -34,6 +33,10 @@ def get_prayer_nudges(conn, target_date, today_str, is_today, now=None):
 
     if now is None:
         now = datetime.now()
+
+    RED = '\033[31m'
+    YELLOW = '\033[33m'
+    RESET = '\033[0m'
 
     nudges = []
 
@@ -63,7 +66,7 @@ def get_prayer_nudges(conn, target_date, today_str, is_today, now=None):
         if 0 <= minutes_until <= 60:
             rounded = max(5, int(round(minutes_until / 5) * 5))
             label = slot.replace('_', ' & ').title()
-            nudges.append(f"🕌 {label} in ~{rounded} min")
+            nudges.append(f"{YELLOW}🕌 {label} in ~{rounded} min{RESET}")
         elif minutes_until < 0:
             cur.execute(
                 "SELECT id FROM prayer_logs WHERE prayer_slot=? AND jalali_date=?",
@@ -71,7 +74,7 @@ def get_prayer_nudges(conn, target_date, today_str, is_today, now=None):
             )
             if not cur.fetchone():
                 label = slot.replace('_', ' & ').title()
-                nudges.append(f"⚠️ {label} not logged (today)")
+                nudges.append(f"{RED}⚠️ {label} not logged (today){RESET}")
 
     # Past overdue scan (up to 5)
     complete_until = _get_complete_until(cur)
@@ -110,7 +113,7 @@ def get_prayer_nudges(conn, target_date, today_str, is_today, now=None):
                 if not cur.fetchone():
                     label = slot.replace('_', ' & ').title()
                     day_label = d.strftime('%d %b')
-                    nudges.append(f"⚠️ {label} not logged ({day_label})")
+                    nudges.append(f"{RED}⚠️ {label} not logged ({day_label}){RESET}")
                     past_count += 1
                     if past_count >= 5:
                         break

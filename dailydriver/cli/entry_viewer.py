@@ -62,8 +62,8 @@ def view_entries(category_filter=None):
                 current_ui.print_line(f"[{row['id']}] {jdt.strftime('%Y-%m-%d %H:%M')}  {cat_str}")
                 current_ui.print_line(f"    {desc_snippet}")
 
-            current_ui.print_line("\n(n)ext  (p)rev  (q)uit  [id] edit  (d)ay <id>")
-            current_ui.print_line("n/p = next/prev page, 5n = 5 pages")
+            current_ui.print_line("\n\033[1m(n)ext  (p)rev  (q)uit  [id] edit  (d)ay <id>\033[0m")
+            current_ui.print_line("\033[1mn/p = next/prev page, 5n = 5 pages\033[0m")
             choice = current_ui.prompt("> ").strip().lower()
 
             if choice == 'q':

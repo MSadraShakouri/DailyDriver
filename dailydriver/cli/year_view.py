@@ -10,7 +10,7 @@ _JALALI_MONTHS_EN = [
     "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"
 ]
 
-def _build_month_lines(year, month):
+def _build_month_lines(year, month, today=None):
     """Return a list of strings representing one month's clean grid.
     Each line is exactly 20 characters wide (7*2 + 6 spaces).
     """
@@ -36,8 +36,12 @@ def _build_month_lines(year, month):
 
     # day cells
     day_cells = ["  "] * start_col
+
     for day in range(1, num_days + 1):
-        day_cells.append(f"{day:2d}")
+        if today and year == today.year and month == today.month and day == today.day:
+            day_cells.append(f"\033[7m{day:2d}\033[0m")
+        else:
+            day_cells.append(f"{day:2d}")
 
     # wrap into rows of 7
     for i in range(0, len(day_cells), 7):
@@ -83,7 +87,7 @@ def show_year():
     # Print months in rows
     for row_start in range(1, 13, months_per_row):
         months = list(range(row_start, min(row_start + months_per_row, 13)))
-        grids = [_build_month_lines(year, m) for m in months]
+        grids = [_build_month_lines(year, m, today) for m in months]
 
         # Pad all grids to same number of lines
         max_lines = max(len(g) for g in grids)

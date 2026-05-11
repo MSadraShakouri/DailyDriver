@@ -24,6 +24,8 @@ def build_header_data(day=None, is_today=True):
             target_date = jdatetime.date(y, m, d)
 
         formatted = format_jalali(today)
+        if not is_today:
+            formatted = f"\033[2m{formatted}\033[0m"
 
         prayer_parts = get_prayer_parts(conn, today)
         sleep_str = get_sleep_str(conn, today)

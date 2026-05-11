@@ -134,14 +134,19 @@ def search(cmd):
                     rel_str = f"(FTS {fts_rel:.3f}, final {row['final_score']:.3f})"
                 else:
                     rel_str = f"(cat match, final {row['final_score']:.3f})"
-                desc_preview = (row['description'] or '')[:100].replace('\n', ' ')
+                desc_raw = (row['description'] or '')[:100].replace('\n', ' ')
+                # Highlight matching tokens using reverse video
+                highlighted = desc_raw
+                for token in stemmed_tokens:
+                    pattern = re.compile(re.escape(token), re.IGNORECASE)
+                    highlighted = pattern.sub(lambda m: f"\033[7m{m.group()}\033[0m", highlighted)
                 current_ui.print_line(f"[{row['id']:4d}] {date_str}  {row['categories']}  {rel_str}")
-                current_ui.print_line(f"      {desc_preview}")
+                current_ui.print_line(f"      {highlighted}")
                 current_ui.print_line()
 
             current_ui.print_line(f"Showing {offset+1}‑{min(offset+page_size, total)} of {total}")
-            current_ui.print_line("\n(n)ext  (p)rev  (q)uit  [id] edit  (d)ay <id>")
-            current_ui.print_line("n/p = next/prev page, 5n = 5 pages")
+            current_ui.print_line("\n\033[1m(n)ext  (p)rev  (q)uit  [id] edit  (d)ay <id>\033[0m")
+            current_ui.print_line("\033[1mn/p = next/prev page, 5n = 5 pages\033[0m")
             choice = current_ui.prompt("> ").strip().lower()
 
             if choice == 'q':

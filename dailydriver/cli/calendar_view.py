@@ -82,8 +82,12 @@ def _print_month_grid(year, month):
     for _ in range(start_col):
         days.append("  ")          # two spaces per empty cell
 
+    today = jdatetime.date.today()
     for day in range(1, num_days + 1):
-        days.append(f"{day:2d}")   # right‑aligned in 2 chars
+        if year == today.year and month == today.month and day == today.day:
+            days.append(f"\033[7m{day:2d}\033[0m")
+        else:
+            days.append(f"{day:2d}")
 
     # print rows of 7
     for i in range(0, len(days), 7):
