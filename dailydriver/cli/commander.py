@@ -5,7 +5,6 @@ from dailydriver.ui.terminal_ui import current_ui
 from dailydriver.display.header import build_header_data
 from dailydriver.display.display_utils import print_header
 from dailydriver.domains.prayer_log import log_prayer
-from dailydriver.domains.prayer_backlog import log_rq, log_mp
 from dailydriver.domains.sleep import log_sleep
 from dailydriver.core.logger import (log_free_text, save_pending_start, discard_pending_start,
                                      get_pending_start, clear_pending_start,
@@ -29,8 +28,6 @@ def make_dispatch():
     dispatch = {
         'q': lambda _: exit(),
         'p': log_prayer,
-        'rq': lambda _: log_rq(),
-        'mp': lambda _: log_mp(),
         's': log_sleep,
         'view': lambda args: view_entries(args[1] if len(args) > 1 else None),
         '?': lambda _: show_help(),

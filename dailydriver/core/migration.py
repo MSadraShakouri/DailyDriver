@@ -218,6 +218,17 @@ def _migration_8(conn):
     conn.execute("INSERT INTO entries_fts(entries_fts) VALUES('rebuild')")
     conn.commit()
 
+def _migration_9(conn):
+    """Add meta table for persistent settings."""
+    cur = conn.cursor()
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS meta (
+            key TEXT PRIMARY KEY,
+            value TEXT
+        )
+    ''')
+    conn.commit()
+
 _MIGRATIONS = {
     1: _migration_1,
     2: _migration_2,
@@ -227,6 +238,7 @@ _MIGRATIONS = {
     6: _migration_6,
     7: _migration_7,
     8: _migration_8,
+    9: _migration_9,
 }
 
 def _get_current_version(conn):

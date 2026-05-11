@@ -105,6 +105,8 @@ def print_header(data: dict):
         pline(bday_str)
     if hygiene_str:
         pline(hygiene_str)
+    for nudge in data.get('prayer_nudges', []):
+        pline(nudge)
     calendar_lines = data.get('calendar_lines', [])
     for line in calendar_lines:
         pline(line)

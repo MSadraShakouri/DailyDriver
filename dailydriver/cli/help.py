@@ -32,10 +32,14 @@ def show_help():
 
     # ── Prayer management ──
     current_ui.print_line("🕌 Prayer Management")
-    current_ui.print_line("  rq")
-    current_ui.print_line("     Mark missing prayer as qada")
-    current_ui.print_line("  mp")
-    current_ui.print_line("     Mark missing as missed or qada")
+    current_ui.print_line("  p [time/offset]")
+    current_ui.print_line("     Log a prayer (Enter confirms)")
+    current_ui.print_line("     p          → current slot")
+    current_ui.print_line("     p -15      → 15m before fixed time")
+    current_ui.print_line("     p 05:30    → explicitly at 05:30")
+    current_ui.print_line("     p q        → mark a past unlogged prayer as qada")
+    current_ui.print_line("     p q -15    → mark with 15 min ago")
+    current_ui.print_line("     p q 03:11  → mark at 03:11 on past date")
     current_ui.print_line()
 
     # ── Events ──

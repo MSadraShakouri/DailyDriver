@@ -9,6 +9,8 @@ from dailydriver.core.logger import get_pending_start, get_active_great_event
 from dailydriver.ui.terminal_ui import current_ui
 from dailydriver.utils.calendar_events import get_events, get_todays_events, get_upcoming_events
 from dailydriver.utils.weather import get_weather
+from dailydriver.domains.prayer_times import get_approximate_times
+from dailydriver.domains.prayer_core import PRAYER_SLOTS
 
 def build_header_data(day=None, is_past=False):
     """Collect all data needed for the daily header and return a dict."""
@@ -67,6 +69,87 @@ def build_header_data(day=None, is_past=False):
             nap_str = f"😴 Nap: {total_nap//60}h {total_nap%60}m"
         else:
             nap_str = ""
+
+        # ---------- prayer nudges (pre‑alert & overdue) ----------
+        prayer_nudges = []
+        if not is_past:
+            def _get_prayer_complete_until(conn):
+                cur = conn.cursor()
+                cur.execute("SELECT value FROM meta WHERE key='prayer_complete_until'")
+                row = cur.fetchone()
+                return row['value'] if row else None
+
+            now = datetime.now()
+            today_j = jdatetime.date.today()
+            approx = get_approximate_times(today_j.month, today_j.day)
+            g = today_j.togregorian()
+            fajr_dt = datetime(g.year, g.month, g.day, approx['fajr'][0], approx['fajr'][1], 0)
+            dhuhr_dt = datetime(g.year, g.month, g.day, approx['dhuhr'][0], approx['dhuhr'][1], 0)
+            maghrib_dt = datetime(g.year, g.month, g.day, approx['maghrib'][0], approx['maghrib'][1], 0)
+            slot_times = {
+                'fajr': fajr_dt,
+                'dhuhr_asr': dhuhr_dt,
+                'maghrib_isha': maghrib_dt,
+            }
+            cur = conn.cursor()
+            for slot, dt in slot_times.items():
+                minutes_until = (dt - now).total_seconds() // 60
+                if 0 <= minutes_until <= 60:
+                    rounded = max(5, int(round(minutes_until / 5) * 5))
+                    label = slot.replace('_', ' & ').title()
+                    prayer_nudges.append(f"🕌 {label} in ~{rounded} min")
+                elif minutes_until < 0:
+                    cur.execute(
+                        "SELECT id FROM prayer_logs WHERE prayer_slot=? AND jalali_date=?",
+                        (slot, today)
+                    )
+                    if not cur.fetchone():
+                        label = slot.replace('_', ' & ').title()
+                        prayer_nudges.append(f"⚠️ {label} not logged (today)")
+
+        # Past overdue scan (up to 5 most recent)
+        complete_until = _get_prayer_complete_until(conn)
+        if complete_until:
+            cu_y, cu_m, cu_d = map(int, complete_until.split('-'))
+            complete_j = jdatetime.date(cu_y, cu_m, cu_d)
+        else:
+            # fallback: scan up to 5 days back if no meta yet
+            complete_j = target_date - jdatetime.timedelta(days=6)
+        d = target_date - jdatetime.timedelta(days=1)
+        past_count = 0
+        while d > complete_j and past_count < 5:
+            date_str = d.strftime('%Y-%m-%d')
+            approx_past = get_approximate_times(d.month, d.day)
+            gd = d.togregorian()
+            try:
+                fajr_dt_p = datetime(gd.year, gd.month, gd.day,
+                                    approx_past['fajr'][0], approx_past['fajr'][1], 0)
+                dhuhr_dt_p = datetime(gd.year, gd.month, gd.day,
+                                     approx_past['dhuhr'][0], approx_past['dhuhr'][1], 0)
+                maghrib_dt_p = datetime(gd.year, gd.month, gd.day,
+                                        approx_past['maghrib'][0], approx_past['maghrib'][1], 0)
+            except ValueError:
+                d -= jdatetime.timedelta(days=1)
+                continue
+            past_slots = {
+                'fajr': fajr_dt_p,
+                'dhuhr_asr': dhuhr_dt_p,
+                'maghrib_isha': maghrib_dt_p,
+            }
+            for slot, slot_dt in past_slots.items():
+                if slot_dt <= now:
+                    cur.execute(
+                        "SELECT id FROM prayer_logs WHERE prayer_slot=? AND jalali_date=?",
+                        (slot, date_str)
+                    )
+                    if not cur.fetchone():
+                        label = slot.replace('_', ' & ').title()
+                        day_label = d.strftime('%d %b')
+                        prayer_nudges.append(f"⚠️ {label} not logged ({day_label})")
+                        past_count += 1
+                        if past_count >= 5:
+                            break
+            d -= jdatetime.timedelta(days=1)
 
         # ---------- birthdays (next 7 days) ----------
         bday_lines = []
@@ -191,4 +274,5 @@ def build_header_data(day=None, is_past=False):
             'last_entry_time': last_entry_time,
             'weather_str': weather_str,
             'is_past': is_past,
+            'prayer_nudges': prayer_nudges,
         }
