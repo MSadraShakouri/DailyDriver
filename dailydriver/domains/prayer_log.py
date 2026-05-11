@@ -1,5 +1,6 @@
 # dailydriver/domains/prayer_log.py
 import time
+import jdatetime
 from datetime import datetime, timedelta
 from dailydriver.core.database import get_connection_cm
 from dailydriver.utils.time_utils import today_jalali
@@ -33,7 +34,6 @@ def log_prayer(cmd: str):
         shak_count = parsed['shak_count']
 
         # Get today's prayer times (interpolated)
-        import jdatetime
         today_j = jdatetime.date.today()
         approx = get_approximate_times(today_j.month, today_j.day)
         now = datetime.now()

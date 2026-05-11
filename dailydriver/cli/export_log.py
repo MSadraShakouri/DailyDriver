@@ -4,6 +4,7 @@ import time, os, re
 from dailydriver.core.database import get_connection_cm
 from dailydriver.ui.terminal_ui import current_ui
 import jdatetime
+from itertools import groupby
 
 def _jdate_str(ts):
     """Return (jalali_date_str, HH:MM) from a Unix timestamp (local time)."""
@@ -86,7 +87,6 @@ def _to_markdown(days, sleep_rows, nap_rows, prayer_rows, entry_rows):
     lines.append('\n## Journal Entries\n')
     if entry_rows:
         # Group by date (first part of 'date_str' which is 'DD Mon YYYY')
-        from itertools import groupby
         # entry_rows are already sorted by created_at, so they will be in chronological order
         for date, group in groupby(entry_rows, key=lambda r: r['date_str']):
             lines.append(f'### {date}\n')
@@ -136,7 +136,6 @@ def _to_text(days, sleep_rows, nap_rows, prayer_rows, entry_rows):
     lines.append('')
     lines.append('── Journal Entries ──')
     if entry_rows:
-        from itertools import groupby
         for date, group in groupby(entry_rows, key=lambda r: r['date_str']):
             lines.append(f'── {date} ──')
             for r in group:

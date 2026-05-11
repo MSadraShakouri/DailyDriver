@@ -7,9 +7,10 @@ from dailydriver.core.database import get_connection_cm
 from dailydriver.core.keyword_learner import tokenize
 from dailydriver.ui.terminal_ui import current_ui
 from dailydriver.cli.search.scoring import compute_final_scores
+from dailydriver.cli.entry_viewer import edit_entry
+from dailydriver.core.logger import log_free_text
 
 def _get_jalali_date(ts):
-    import jdatetime
     jdt = jdatetime.datetime.fromtimestamp(ts)
     return jdt.strftime('%Y-%m-%d %H:%M')
 
@@ -181,8 +182,6 @@ def search(cmd):
                             current_ui.prompt("Press Enter to continue.")
 
             elif choice.isdigit():
-                from dailydriver.cli.entry_viewer import edit_entry
-                from dailydriver.core.logger import log_free_text
                 entry_id = int(choice)
                 new_desc = edit_entry(entry_id)
                 if new_desc is not None:

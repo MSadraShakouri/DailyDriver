@@ -9,6 +9,7 @@ from dailydriver.domains.sleep import log_sleep
 from dailydriver.core.logger import (log_free_text, save_pending_start, discard_pending_start,
                                      get_pending_start, clear_pending_start,
                                      start_great_event, get_active_great_event, clear_great_event)
+from dailydriver.core.logger import get_last_action_time
 from dailydriver.cli.entry_viewer import view_entries
 from dailydriver.domains.birthday import add_birthday
 from dailydriver.domains.hygiene import manage_hygiene
@@ -72,7 +73,6 @@ def log_event_end(cmd):
     return None
 
 def log_chain_now(line):
-    from dailydriver.core.logger import get_last_action_time
     last_ts = get_last_action_time()
     if last_ts is None:
         current_ui.print_line("No previous action to chain from.")

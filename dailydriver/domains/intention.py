@@ -1,4 +1,6 @@
 import time
+import jdatetime
+from datetime import datetime
 from dailydriver.core.database import get_connection_cm
 from dailydriver.ui.terminal_ui import current_ui
 
@@ -20,11 +22,9 @@ def add_intention(cmd: str):
         deadline_str = current_ui.prompt("Deadline (Jalali YYYY/MM/DD, or Enter=skip): ").strip()
         if deadline_str:
             try:
-                import jdatetime
                 y, m, d = map(int, deadline_str.split('/'))
                 jdate = jdatetime.date(y, m, d)
                 gdate = jdate.togregorian()
-                from datetime import datetime
                 deadline = int(datetime(gdate.year, gdate.month, gdate.day, 12, 0).timestamp())
             except:
                 current_ui.print_line("Invalid date. Ignoring deadline.")
@@ -52,7 +52,6 @@ def add_intention(cmd: str):
     result = "Intention added:\n"
     result += f"  {description}\n"
     if deadline:
-        from datetime import datetime
         result += f"  Deadline: {datetime.fromtimestamp(deadline).strftime('%Y-%m-%d %H:%M')}\n"
     if expected:
         result += f"  Expected: {expected} min"

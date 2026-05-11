@@ -54,7 +54,6 @@ def show_today():
         if nap_rows:
             current_ui.print_line("😴 Naps:")
             for r in nap_rows:
-                from datetime import timedelta
                 start_dt = datetime.fromtimestamp(r['start_time'])
                 dur = r['duration_minutes']
                 end_dt = start_dt + timedelta(minutes=dur)

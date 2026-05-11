@@ -1,5 +1,6 @@
 # DailyDriver/ui.py
 from abc import ABC, abstractmethod
+import os
 
 class UI(ABC):
     """Abstract interface for user interaction."""
@@ -40,7 +41,6 @@ class TerminalUI(UI):
     """Plain terminal UI using print/input."""
 
     def clear(self):
-        import os
         os.system('clear')
 
     def print_line(self, text: str = ""):

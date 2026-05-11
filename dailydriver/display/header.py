@@ -1,6 +1,8 @@
 # dailydriver/display/header.py
 import time
 import jdatetime
+from dailydriver.utils.weather import _translate_condition
+from dailydriver.utils.weather import get_weather
 from datetime import datetime, timedelta
 from dailydriver.core.database import get_connection_cm
 from dailydriver.display.hygiene_nudges import compute_hygiene_nudges
@@ -162,13 +164,11 @@ def build_header_data(day=None, is_today=True):
                 (int(gstart.timestamp()), int(gend.timestamp()))
             ).fetchone()
             if wrow:
-                from dailydriver.utils.weather import _translate_condition
                 cond_info = _translate_condition(wrow['condition_fa'])
                 cond_en = cond_info['en'] if cond_info and cond_info.get('en') != 'NOT TRANSLATED' else wrow['condition_fa']
                 emoji = cond_info.get('emoji', '🌡️') if cond_info else '🌡️'
                 weather_str = f"{emoji} {wrow['temp_c']}°C {cond_en}"
         else:
-            from dailydriver.utils.weather import get_weather
             weather = get_weather()
             if weather:
                 cond = weather['condition_en'] if weather['condition_en'] else weather['condition_fa']

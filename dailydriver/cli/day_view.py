@@ -6,6 +6,7 @@ from dailydriver.core.database import get_connection_cm
 from dailydriver.display.header import build_header_data
 from dailydriver.display.display_utils import print_header
 from dailydriver.ui.terminal_ui import current_ui
+import re
 
 def show_day(cmd=None):
     """Entry point: 'day', 'day -1', 'day 1405-02-15', 'today', or just a date string."""
@@ -59,7 +60,6 @@ def show_day(cmd=None):
         current_ui.print_line("n/p = next/prev day, 5n = 5 days")
         choice = current_ui.prompt("> ").strip().lower()
 
-        import re
         if choice == 'q':
             break
         elif re.match(r'^\d{4}-\d{2}-\d{2}$', choice):
