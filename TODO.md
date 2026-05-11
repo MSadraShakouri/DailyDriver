@@ -26,5 +26,3 @@
 
 
 log other weather stuff but not display, its priceless
-fix prayers, remove rq and mp or whatever it was, replace with a q tag which searches all the db, maybe with an index, automatically gets missed ones, option to log something late as not qada, but default to qada since ive been actually using the app
-so usage would be something like `da p q` which searches for all prayers that havent been marked as read
