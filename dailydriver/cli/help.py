@@ -117,9 +117,10 @@ def show_help():
 
     # ── Export ──
     current_ui.print_line("📤 Export")
-    current_ui.print_line("  export <duration>")
-    current_ui.print_line("     export 7d   export 2w   export 3m   export 1y")
-    current_ui.print_line("     Creates a human‑readable text file.")
+    current_ui.print_line("  export <duration> [--txt|--md]")
+    current_ui.print_line("     export 7d        → Markdown (default)")
+    current_ui.print_line("     export 2w --txt  → plain text")
+    current_ui.print_line("     Creates a human‑readable file.")
     current_ui.print_line()
 
     # ── Other ──
