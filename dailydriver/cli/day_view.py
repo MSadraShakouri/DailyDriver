@@ -1,6 +1,5 @@
 # dailydriver/cli/day_view.py
-"""Unified day view – shows today or any past day."""
-import re
+"""Unified day view – shows today or any past/future day."""
 import jdatetime
 from datetime import datetime, timedelta
 from dailydriver.core.database import get_connection_cm
@@ -12,7 +11,7 @@ def show_day(cmd=None):
     """Entry point: 'day', 'day -1', 'day 1405-02-15', 'today', or just a date string."""
     today = jdatetime.date.today()
     target = today
-    is_past = False
+    is_today = True
 
     if cmd is not None:
         cmd = cmd.strip()
@@ -21,7 +20,7 @@ def show_day(cmd=None):
         arg = parts[1].strip() if len(parts) > 1 else ''
 
         if command == 'today':
-            _show_day_body(today, False)
+            _show_day_body(today, True)
             return
 
         # If no command recognised, treat the entire string as a possible date
@@ -45,34 +44,31 @@ def show_day(cmd=None):
                     current_ui.print_line("Invalid Jalali date. Use YYYY-MM-DD.")
                     return
 
-    if target != today:
-        is_past = True
+    is_today = (target == today)
 
-    # Past‑day view: clear screen, draw adapted header and body, then allow navigation
+    # Day view loop
     while True:
         current_ui.clear()
         date_str = target.strftime('%Y-%m-%d')
-        data = build_header_data(day=date_str, is_past=is_past)
+        data = build_header_data(day=date_str, is_today=is_today)
         print_header(data)
 
-        _show_day_body(target, is_past)
+        _show_day_body(target, is_today)
 
         current_ui.print_line("(p)rev  (n)ext  (q)uit  or YYYY-MM-DD")
         current_ui.print_line("n/p = next/prev day, 5n = 5 days")
         choice = current_ui.prompt("> ").strip().lower()
 
+        import re
         if choice == 'q':
             break
-        # YYYY-MM-DD jump
         elif re.match(r'^\d{4}-\d{2}-\d{2}$', choice):
             try:
                 y, m, d = map(int, choice.split('-'))
                 target = jdatetime.date(y, m, d)
-                is_past = (target != today)
             except ValueError:
                 current_ui.print_line("Invalid Jalali date.")
                 current_ui.prompt("Press Enter to continue.")
-        # Nn or Np jump (N optional, default 1)
         elif re.match(r'^\d*[np]$', choice):
             if choice[-1] == 'n':
                 steps = int(choice[:-1]) if choice[:-1] else 1
@@ -80,9 +76,9 @@ def show_day(cmd=None):
             else:  # 'p'
                 steps = int(choice[:-1]) if choice[:-1] else 1
                 target = target - jdatetime.timedelta(days=steps)
-            is_past = (target != today)
+        is_today = (target == today)
 
-def _show_day_body(target, is_past):
+def _show_day_body(target, is_today):
     """Print naps, entries for a given date. (Prayers and sleep are in the header.)"""
     date_str = target.strftime('%Y-%m-%d')
     with get_connection_cm() as conn:

@@ -105,8 +105,11 @@ def print_header(data: dict):
         pline(bday_str)
     if hygiene_str:
         pline(hygiene_str)
+
+    # Prayer nudges
     for nudge in data.get('prayer_nudges', []):
         pline(nudge)
+
     calendar_lines = data.get('calendar_lines', [])
     for line in calendar_lines:
         pline(line)
@@ -114,9 +117,8 @@ def print_header(data: dict):
     if reminders_str:
         pline(reminders_str)
 
-    if data.get('is_past', False):
-        current_ui.print_line('─' * w)
-    else:
+    # Bottom bar – last entry time for today, plain dash otherwise
+    if data.get('is_today', True):
         last_time = data.get('last_entry_time', '')
         if last_time:
             text = f" Last: {last_time} "
@@ -127,3 +129,5 @@ def print_header(data: dict):
                 pline(text)
         else:
             current_ui.print_line('─' * w)
+    else:
+        current_ui.print_line('─' * w)
