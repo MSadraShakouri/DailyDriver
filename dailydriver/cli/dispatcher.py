@@ -16,6 +16,7 @@ from dailydriver.cli.commands.export_cmd import export
 from dailydriver.cli.commands.help_cmd import show_help
 from dailydriver.ui.terminal_ui import current_ui
 from dailydriver.core.logger import save_pending_start, discard_pending_start
+from dailydriver.cli.commands.hijri_cmd import hijri_command
 
 def make_dispatch():
     dispatch = {
@@ -47,5 +48,6 @@ def make_dispatch():
         'sleep': log_sleep,
         'h': lambda _: show_help(),
         'qada': lambda line: log_prayer(f'p q {line.split(maxsplit=1)[1]}' if len(line.split(maxsplit=1))>1 else 'p q'),
+        'hijri': lambda _: hijri_command(),
     }
     return dispatch

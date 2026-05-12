@@ -105,6 +105,8 @@ def show_help():
     current_ui.print_line("     Show month grid + upcoming events")
     current_ui.print_line("  year")
     current_ui.print_line("     Show full‑year grid (adaptive columns)")
+    current_ui.print_line("  hijri")
+    current_ui.print_line("     Show/adjust Hijri date offset interactively")
     current_ui.print_line()
 
     # ── Multi‑line ──

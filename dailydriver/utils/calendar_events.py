@@ -56,6 +56,25 @@ def _get_hijri_year_for_jalali_year(jalali_year):
     # Also next Hijri year may cover later part of Jalali year
     return [cur_hijri_year, cur_hijri_year + 1]
 
+def get_hijri_offset() -> int:
+    """Read the current Hijri offset from data/hijri_offset.txt. Default 0."""
+    offset_file = os.path.join(DATA_DIR, 'hijri_offset.txt')
+    try:
+        with open(offset_file, 'r') as f:
+            return int(f.readline().strip())
+    except (FileNotFoundError, ValueError):
+        return 0
+
+def set_hijri_offset(offset: int):
+    """Set the Hijri offset and write it to data/hijri_offset.txt alongside today's Jalali date."""
+    offset_file = os.path.join(DATA_DIR, 'hijri_offset.txt')
+    today_str = jdatetime.date.today().strftime('%Y-%m-%d')
+    with open(offset_file, 'w') as f:
+        f.write(f"{offset}\n{today_str}\n")
+    # Invalidate the event cache so the new offset takes effect immediately
+    global _cached_events
+    _cached_events = None
+
 def _convert_all_events(target_jalali_year):
     """
     Load and convert events from all three calendar files to Jalali dates
@@ -99,6 +118,9 @@ def _convert_all_events(target_jalali_year):
         for hy in hijri_years:
             try:
                 gdate = _hijri_to_gregorian(hy, m, d)
+                offset = get_hijri_offset()
+                if offset:
+                    gdate = gdate - timedelta(days=offset)
                 jdate = _gregorian_to_jalali(gdate)
                 if jdate.year == target_jalali_year or jdate.year == target_jalali_year + 1:
                     possible.append(jdate)
