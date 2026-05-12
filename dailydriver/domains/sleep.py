@@ -18,6 +18,10 @@ def log_sleep(cmd: str):
         current_ui.print_line("Could not parse sleep/wake times.")
         return None
 
+    assert sleep_dt is not None
+    assert wake_dt is not None
+    assert duration is not None
+
     if not current_ui.confirm(
         f"Sleep:  {sleep_dt.strftime('%H:%M')}\n"
         f"Wake:   {wake_dt.strftime('%H:%M')}\n"

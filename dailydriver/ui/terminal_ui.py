@@ -71,10 +71,10 @@ class TerminalUI(UI):
         answer = self.prompt("> ").strip().lower()
         return answer == '' or answer == 'y'
 
-    def choose_from_list(self, items, prompt_text="Select:"):
+    def choose_from_list(self, items, prompt="Select:"):
         for i, item in enumerate(items, 1):
             self.print_line(f"  [{i}] {item}")
-        choice = self.prompt(prompt_text + " ")
+        choice = self.prompt(prompt + " ")
         try:
             idx = int(choice) - 1
             if 0 <= idx < len(items):

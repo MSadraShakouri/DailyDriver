@@ -15,6 +15,7 @@ from dailydriver.cli.commands.intention_cmd import add_intention
 from dailydriver.cli.commands.export_cmd import export
 from dailydriver.cli.commands.help_cmd import show_help
 from dailydriver.ui.terminal_ui import current_ui
+from dailydriver.core.logger import save_pending_start, discard_pending_start
 
 def make_dispatch():
     dispatch = {

@@ -140,6 +140,8 @@ def get_todays_events(events=None):
     """Return events happening today (as Jalali date)."""
     if events is None:
         events = get_events()
+    if events is None:
+        return []
     today = jdatetime.date.today()
     return [ev for d, ev in events if d == today]
 
@@ -147,6 +149,8 @@ def get_upcoming_events(events=None, days=15):
     """Return list of (jalali_date, event_dict) for the next `days` days."""
     if events is None:
         events = get_events()
+    if events is None:
+        return []
     today = jdatetime.date.today()
     end = today + jdatetime.timedelta(days=days)
     upcoming = []
@@ -159,4 +163,6 @@ def get_upcoming_events(events=None, days=15):
 def get_events_for_date(jalali_date):
     """Return list of event dicts for a specific Jalali date."""
     all_events = get_events()
+    if all_events is None:
+        return []
     return [ev for d, ev in all_events if d == jalali_date]

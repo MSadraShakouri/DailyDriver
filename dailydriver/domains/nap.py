@@ -21,6 +21,10 @@ def log_nap(cmd: str):
         current_ui.print_line("Could not parse start/end times.")
         return None
 
+    assert start_dt is not None
+    assert end_dt is not None
+    assert duration is not None
+
     if duration is not None and duration < 1:
         current_ui.print_line("Duration must be positive.")
         return None

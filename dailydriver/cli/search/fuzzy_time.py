@@ -20,7 +20,7 @@ TIME_RANGES = {
     "night": (16, 4),   # 16:00 to 04:00 next day
 }
 
-def _hour_in_range(hour: int, start: int, end: int) -> float:
+def _hour_in_range(hour: float, start: int, end: int) -> float:
     """Return distance in hours from hour to the range, 0 if inside."""
     if start <= end:
         if start <= hour < end:

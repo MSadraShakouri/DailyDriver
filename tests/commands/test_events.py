@@ -84,6 +84,7 @@ class TestEventCommands(unittest.TestCase):
         mock_active.return_value = None
         mock_start.return_value = 999
         result = start_great_event_cmd('sge work focus')
+        self.assertIsNotNone(result)
         self.assertIn('work', result)
         self.assertIn('focus', result)
 
@@ -95,6 +96,7 @@ class TestEventCommands(unittest.TestCase):
         mock_ui.prompt.return_value = 'project'
         mock_start.return_value = 100
         result = start_great_event_cmd('sge')
+        self.assertIsNotNone(result)
         self.assertIn('project', result)
 
     # ---------- end_great_event_cmd ----------
