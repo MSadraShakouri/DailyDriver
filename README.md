@@ -1,4 +1,4 @@
-# DailyDriver v1.2.0
+# DailyDriver v1.3.0
 
 Your personal, terminal‑based life tracker.  
 Log prayers, sleep, hygiene routines, birthdays, intentions, and free‑form journal entries – all from a fast, keyboard‑driven REPL.  
@@ -9,9 +9,10 @@ Built with Python, SQLite, and Jalali calendar support.
 ## Features
 
 - **Prayer tracking** – Fajr, Dhuhr/Asr, Maghrib/Isha with jamaat and shak options, dynamic Tehran times.
+  Includes **backlog marking (`p q`)** for overdue prayers and smart header nudges.
 - **Sleep & nap logging** – bed/wake times, auto‑calculated duration; track short naps separately.
 - **Weather** – Tehran weather scraped from IRIMO, displayed in the header with emoji (cached hourly).
-- **Day navigation** – browse past days with `day YYYY-MM-DD` or `-1`, and jump multiple days (e.g. `5n`, `5p`).
+- **Day navigation** – browse any day with `day YYYY-MM-DD` or `-1`, and jump multiple days (e.g. `5n`, `5p`).
 - **Hygiene reminders** – define intervals for habits, get nudges when overdue.
 - **Birthday list** – Jalali dates, upcoming birthday alerts with age.
 - **Intentions** – to‑dos with deadlines and expected durations.
@@ -20,9 +21,12 @@ Built with Python, SQLite, and Jalali calendar support.
 - **Smart categories** – TF‑IDF keyword learning from your entries (exact path‑match boost).
 - **Statistics** – prayer adherence, sleep averages, hygiene conformance, top categories.
 - **Three‑calendar events** – Jalali, Gregorian, and Hijri events with per‑calendar icons (🔆🌐🌙) and holiday confetti (🎊).
+- **Global Hijri date offset** – interactive `hijri` command to apply a correction for moon‑sighting differences. Stored in a version‑controlled file.
 - **Full‑text search** (`search` command) with fuzzy time/date/category boosting, and multi‑page navigation (`5n`).
 - **Reminders** – mark events with `remind: true` and see them in the header two weeks ahead.
-- **Beautiful header** – today’s prayers, sleep, weather, birthdays, hygiene, events, and reminders at a glance.
+- **Beautiful header** – today’s prayers, sleep, weather, birthdays, hygiene, events, reminders, and prayer nudges at a glance. Color‑coded overdue/pre‑alert, reverse‑video today in calendars.
+- **State files moved into the database** – no more hidden dot‑files.
+- **Built‑in aliases** – `pray` → `p`, `sleep` → `s`, `h` → `?`, `qada` → `p q`.
 - **Minimal dependencies** – Python 3.8+, SQLite, `jdatetime`, `hijridate`, `porter2stemmer`.
 
 ---
@@ -82,19 +86,22 @@ You’ll see the daily header and a prompt `>`. Type `?` for a command overview,
 | Command | Description |
 |---------|-------------|
 | `p` | Log a prayer |
+| `p q` | Mark a past unlogged prayer as qada |
 | `s` | Log sleep |
 | `nap` | Log a short nap |
-| `day` or `today` | View today or any past day (with navigation) |
+| `day` or `today` | View today or any past/future day (with navigation) |
 | `last` | Show last 5 journal entries |
 | `view` | Browse journal entries |
 | `search` | Full‑text search with fuzzy boosts |
-| `today` | Today’s summary (alias for `day`) |
 | `stats` | Statistics (30 days) |
-| `cal` | Clean month calendar |
+| `cal` | Clean month calendar (today highlighted) |
 | `year` | Responsive year calendar |
-| `export` | Export sleep/prayers/entries to a file |
+| `export` | Export sleep/prayers/entries to a Markdown file (use `--txt` for plain text) |
+| `hijri` | Show/adjust Hijri date offset |
 | `?` | Full help and keyword list |
 | `q` | Quit |
+
+**Aliases:** `pray` → `p`, `sleep` → `s`, `h` → `?`, `qada` → `p q`.
 
 For the complete command reference, see **[COMMANDS.md](COMMANDS.md)**.
 
@@ -118,13 +125,13 @@ sqlite3 data/daily.db "SELECT * FROM entries;"
 dailydriver/
 ├── core/          # database, parser, logger, keyword learning
 ├── domains/       # prayer, sleep, nap, hygiene, birthday, intention, prayer times
-├── display/       # header, stats, today view, hygiene nudges
-├── cli/           # REPL, commands, search, calendar, export
+├── display/       # header (sub‑modules), stats, today view, hygiene nudges
+├── cli/           # REPL, commands, dispatcher, search, calendar, export
 ├── ui/            # terminal abstraction
-└── utils/         # time helpers, calendar events, weather
-data/              # database, stopwords, event JSON files
+└── utils/         # time helpers, calendar events, weather, hijri offset
+data/              # database, stopwords, event JSON files, hijri offset
 tools/             # event editor, keyword editor
-tests/             # test files
+tests/             # test files (header, commands, logger state, etc.)
 ```
 
 ---

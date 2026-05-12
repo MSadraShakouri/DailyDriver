@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.3.0 (2026‑05‑13)
+
+### Added
+- **State files moved into database** – `.daily_last_action`, `.daily_pending`, and `.daily_great_event` are now stored in the `meta` table. Migration v10 imports existing state and deletes the old dot‑files.
+- **Commander split into command modules** – `cli/commands/` directory with one file per feature group, plus a clean `dispatcher.py` mapping commands to handlers. Greatly simplifies maintenance and testing.
+- **Built‑in aliases** – `pray` → `p`, `sleep` → `s`, `h` → `?`, `qada` → `p q`.
+- **Global Hijri date offset** – stored in `data/hijri_offset.txt` (version‑controlled). New interactive `hijri` command shows today’s Hijri date with offsets and applies the chosen correction to all Hijri calendar events. Events cache is invalidated immediately on change.
+- **Terminal UI polish** – color‑coded prayer nudges (red overdue, yellow pre‑alert), reverse‑video calendar today highlight (`cal` and `year`), dimmed past‑day header, bold navigation prompts, search result text highlighting, soft‑wrapped calendar event lines.
+- **Nap command simplified** – now only accepts start/end times (like `s`), no interactive prompts.
+- **Calendar event additions** – Dahw al‑Ard added to Hijri events; weather condition translations for dusty / blowing dust.
+- **Test coverage** – new test suites for the modularized header (10 files), database‑backed logger state, dispatcher, and event commands. All tests use in‑memory databases.
+
+### Changed
+- **Header modularized** – `build_header_data` split into dedicated helper modules (`prayer`, `sleep`, `birthdays`, `hygiene`, `calendar`, `events`, `weather`) under `display/header/`.
+- **is_past → is_today refactor** – cleaner logic for past/present/future day views; nudges are constrained to today.
+- **Export defaults to Markdown** – `export 7d` now produces a `.md` file with formatted tables, emojis, and day separators. Plain text available via `--txt`.
+- **Prayer backlog overhaul** – `rq` / `mp` replaced by `p q` with flexible time arguments (`-15`, `03:11`), smart overdue detection, and auto‑advancing `prayer_complete_until` meta key. Pre‑alert and overdue nudges now appear in the header.
+- **ANSI‑aware display width** – `pline`, `spread_line`, and header centering now strip escape codes before measuring, so colors and formatting never misalign.
+- Various Pyright type‑safety fixes (optional member access, missing imports, parameter name mismatches).
+
+### Fixed
+- Auto‑commit in `get_connection_cm` now ensures all database‑backed state helpers (`se`, `ce`, `sge`, `ege`, `cge`) persist immediately.
+- FTS index now kept in sync with new and edited entries (migration v8 for final rebuild).
+- Search scoring fixes (FTS rank formula, exact‑word bonus, category boost split).
+- Calendar event import corrected to use Gregorian dates for slot‑time comparisons.
+
 ## 1.2.0 (2026‑05‑08)
 
 ### Added

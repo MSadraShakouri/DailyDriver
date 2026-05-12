@@ -5,7 +5,7 @@ Arguments are separated by spaces.
 
 ---
 
-### Prayer Logging `p`
+### Prayer Logging `p` (and `qada` alias)
 
 | Usage | Description |
 |-------|-------------|
@@ -15,20 +15,18 @@ Arguments are separated by spaces.
 | `p j` | With jamaat (no location) |
 | `p j masjid` | With jamaat at a given location |
 | `p s 3` | With shak count of 3 |
+| `p q` | Mark a past unlogged prayer as qada (interactive list) |
+| `p q -15` | Mark past with 15 min ago |
+| `p q 03:11` | Mark past at 03:11 on that day |
 
 Prayer times are dynamically interpolated for Tehran based on monthly data
 (configurable in `dailydriver/domains/prayer_times.py`).
 
----
-
-### Qada / Missed Prayers `rq`, `mp`
-
-- `rq` – List unlogged slots (newest first) and mark one as **qada**.
-- `mp` – Same listing, but you can mark as **missed** or **qada**.
+The `qada` alias does exactly the same as `p q`.
 
 ---
 
-### Sleep Logging `s`
+### Sleep Logging `s` (and `sleep` alias)
 
 | Usage | Description |
 |-------|-------------|
@@ -56,6 +54,19 @@ Examples:
 
 ---
 
+### Day View `day`, `today`
+
+| Usage | Description |
+|-------|-------------|
+| `day` | Show today’s view |
+| `day -1` | Yesterday |
+| `day 1405-02-15` | Specific Jalali date |
+
+Navigation inside the view: `(p)rev`, `(n)ext`, `YYYY-MM-DD` to jump, `5n`/`5p` to move multiple days, `q` to quit.
+From `view` or `search`, use `d <id>` to open the day of that entry.
+
+---
+
 ### Viewing Entries `view`
 
 | Usage | Description |
@@ -63,7 +74,7 @@ Examples:
 | `view` | Show all entries, newest first |
 | `view project` | Filter by category containing “project” |
 
-Navigation: `n` next, `p` previous, `q` quit. Type an entry ID to edit it.
+Navigation: `n` next, `p` previous, `q` quit, multi‑page jump with `5n`. Type an entry ID to edit it, or `d <id>` to open that entry’s day.
 
 ---
 
@@ -106,12 +117,6 @@ Shows:
 
 ---
 
-### Today’s Summary `today`
-
-Displays today’s prayer status, sleep, and all journal entries.
-
----
-
 ### Great Events `sge`, `ege`, `cge`
 
 - `sge work` – Start a great event with category “work”
@@ -142,7 +147,7 @@ Fine‑grained event timing:
 
 | Usage | Description |
 |-------|-------------|
-| `cal` | Current month grid |
+| `cal` | Current month grid (today highlighted) |
 | `cal 6` | Month 6 (Shahrivar) of current year |
 | `cal 6 1405` | Month 6 of year 1405 |
 
@@ -153,6 +158,7 @@ The grid follows the Unix `cal` style with Saturday–Friday week.
 ### Year Calendar `year`
 
 Displays the full Jalali year in a responsive multi‑column grid.
+Today’s date is displayed in reverse video in each month grid.
 Column count adapts to terminal width (1, 2, or 3 per row).
 Official holidays are listed below the grid.
 
@@ -162,12 +168,13 @@ Official holidays are listed below the grid.
 
 | Usage | Description |
 |-------|-------------|
-| `export 7d` | Export last 7 days |
-| `export 2w` | Export last 2 weeks |
+| `export 7d` | Export last 7 days (Markdown) |
+| `export 2w --txt` | Export last 2 weeks as plain text |
 | `export 3m` | Export last 3 months |
 | `export 1y` | Export last 1 year |
 
-Creates a human‑readable text file with sections for Sleep, Prayers, and Journal Entries.
+By default, creates a Markdown (`.md`) file with tables, emojis, and day separators.
+Use `--txt` for the old plain‑text format.
 
 ---
 
@@ -186,7 +193,7 @@ Fuzzy scoring automatically boosts results matching time‑of‑day, relative da
 month names (Jalali, Gregorian, Hijri), and category paths.  
 Misspellings are tolerated (e.g. `mornig` → morning).
 
-Results are paginated; press `n`/`p` to navigate, `q` to quit, or enter an entry ID to edit it.
+Results are paginated; press `n`/`p` to navigate (multi‑page with `5n`), `q` to quit, enter an entry ID to edit it, or `d <id>` to open that entry’s day view.
 
 ---
 
@@ -194,12 +201,21 @@ Results are paginated; press `n`/`p` to navigate, `q` to quit, or enter an entry
 
 | Usage | Description |
 |-------|-------------|
-| `nap` | Interactive: enter start time and duration |
-| `nap 30m` | Nap of 30 minutes, starting 30 minutes ago |
 | `nap 14:00 14:25` | Nap from 14:00 to 14:25 |
-| `nap 14:00 30m` | Nap starting at 14:00, duration 30 minutes |
+| `nap 14-14:25` | Compact form (like sleep) |
 
 Naps are shown in the daily header (total nap time) and `today` summary.
+Typing `nap` alone prints usage and exits.
+
+---
+
+### Hijri Offset `hijri`
+
+| Usage | Description |
+|-------|-------------|
+| `hijri` | Interactive menu to choose Hijri date offset |
+
+The offset (‑2..+2) is stored in `data/hijri_offset.txt` and applied to all Hijri calendar events immediately.
 
 ---
 
