@@ -5,13 +5,14 @@
   Extend the existing keyword editor to merge, rename, or delete categories. Useful for long‑term maintenance.
 
 ## Medium Priority
-- **Enhanced statistics (word counts, chronotype, sleep consistency, prayer times, category trends)**  
+- **Enhanced statistics (word counts, chronotype, sleep consistency, prayer times, category trends, year progress)**  
   - Average words per journal entry over 7/14 days.  
   - Tiny bar chart of entries per day (7 days).  
   - Histogram of most‑logged hours (chronotype).  
   - Sleep regularity: avg sleep‑start and wake time ± variance (7/14 days).  
   - Prayer time distribution for each slot (avg, earliest, latest) over 7/14 days.  
-  - Category trend arrows comparing last 7/14 days to previous period.
+  - Category trend arrows comparing last 7/14 days to previous period.  
+  - Year progress bar (Jalali) in stats (not header).
 - **Recall command**  
   Randomly display a past journal entry, automatically excluding categories like `hygiene/*`.  
   Configurable exclude list in `meta` table. Simple `r`=next, `v`=full view, `q`=quit.
@@ -20,12 +21,20 @@
   *(Mood stats will be added after this base is implemented.)*
 - **Quick notes (temporary entry, not saved to DB)**  
   A scratchpad that holds a draft, reviewable and optionally saveable later. Needs a small state file and commands like `sn` / `save` / `discard`.
-- **More built‑in aliases (no user‑defined aliases)**  
-  Add aliases like `pray` → `p`, `sleep` → `s`, etc. Trivial dispatch map extension.
 - **In‑app viewing of past data (export‑like but interactive)**  
   Richer day view that also shows summaries, logs, and stats inline without exporting to a file.
+- **Show Hijri and Gregorian dates in header**  
+  Display equivalent Gregorian and Hijri dates below the main Jalali header border (dimmed, one row).
+- **Reminders overhaul (birthdays & events)**  
+  Currently `remind: true` shows every day for 14 days – too noisy.  
+  Birthdays: configurable importance level → shows at intervals (e.g., important: 1 month, 3 weeks, 2 weeks, 1 week, last 3 days; normal: 2 weeks, 1 week, last 3 days).  
+  Calendar events: similar schedule, not daily for two weeks.
+- **Random fun stats**  
+  Show a fun statistic (word count record, longest entry, top category, sleep record…) a few times a day (max 3) without time pressure. Colorful, not tied to header refresh.
 
 ## Low Priority
+- **“now” command**  
+  Quick one‑shot status: next prayer countdown, today’s entry count, maybe active great event. Useful for `da now`.
 - **Prayer times for other cities**  
   Add data for additional cities similar to Tehran’s lookup. Likely needs a settings/configuration file.
 - **Weather for other cities (or other sources)**  

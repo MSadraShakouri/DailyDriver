@@ -6,12 +6,6 @@ Ideas for making DailyDriver faster, cleaner, and more maintainable.
 
 ## 🔴 High Priority (immediate impact, low risk)
 
-### Move state files into the database
-- Currently `.daily_last_action`, `.daily_pending`, and `.daily_great_event` are separate files.
-- Move them into the `meta` table (like `prayer_complete_until`).
-- **Effort:** Small migration + small changes in `logger.py`.  
-  **Benefit:** Fewer disk operations, all state in one place, no hidden dotfiles.
-
 ### Enable SQLite WAL mode
 - One‑line change: `PRAGMA journal_mode=WAL;` after opening the DB.
 - Write‑Ahead Logging makes writes faster and reduces locking, even for a single‑user app.
@@ -59,11 +53,6 @@ Ideas for making DailyDriver faster, cleaner, and more maintainable.
 - Move frequently used regexes (time parsing, `@` tagging) to module‑level `re.compile()`.
 - **Effort:** Tiny. **Benefit:** Micro‑optimization, cleaner code.
 
-### Terminal width reactive layout (basic colour/format done)
-- Basic ANSI‑aware display, bold prompts, dimmed dates, and wrapped lines are already in place.
-- Further improvements: auto‑collapse header on very narrow screens (<60 cols), drop weekday prefix, etc.
-- **Effort:** Small. **Benefit:** Better mobile/Termux experience.
-
 ### Lazy‑load calendar event JSON files
 - Currently all three event files are loaded when the module is first imported.
 - Defer loading until `get_events()` is actually called.
@@ -100,3 +89,15 @@ Ideas for making DailyDriver faster, cleaner, and more maintainable.
 - Run `EXPLAIN QUERY PLAN` on header queries.
 - Add indexes if needed (e.g., `prayer_logs(jalali_date, prayer_slot)` for backlog scanning).
 - **Effort:** Tiny. **Benefit:** Prevents future slowness.
+
+### UI polish & wrapping overhaul
+- Replace `pline()` truncation with soft‑wrapping `pline_wrap()` for all long text (hygiene, reminders, birthdays, weather, prayer nudges, calendar events)
+- Add consistent blank lines between header sections, before prompt, and between entries in view/search/day
+- Reduce indentation in day‑view entries to 1 space
+- Truncate / wrap multi‑category lines in view/search instead of letting them overflow
+- Justify stats prayer percentages to fit terminal width
+- Combine sleep + nap into one line in header
+- Show each hygiene warning on its own line instead of joining with spaces
+- Add Hijri and Gregorian date below main header border (dimmed, single row)
+- Add a separator line between the `n/p = …` hint and the `>` prompt in view/search/day
+- Ensure all views respect `tput cols` and gracefully wrap or truncate content
