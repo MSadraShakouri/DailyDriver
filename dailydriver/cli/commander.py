@@ -1,138 +1,10 @@
 # dailydriver/cli/commander.py
 import sys
-from datetime import datetime
+from dailydriver.cli.dispatcher import make_dispatch
 from dailydriver.ui.terminal_ui import current_ui
 from dailydriver.display.header import build_header_data
 from dailydriver.display.display_utils import print_header
-from dailydriver.domains.prayer_log import log_prayer
-from dailydriver.domains.sleep import log_sleep
-from dailydriver.core.logger import (log_free_text, save_pending_start, discard_pending_start,
-                                     get_pending_start, clear_pending_start,
-                                     start_great_event, get_active_great_event, clear_great_event)
-from dailydriver.core.logger import get_last_action_time
-from dailydriver.cli.entry_viewer import view_entries
-from dailydriver.domains.birthday import add_birthday
-from dailydriver.domains.hygiene import manage_hygiene
-from dailydriver.domains.intention import add_intention
-from dailydriver.display.stats import show_stats
-from dailydriver.display.today import show_today
-from dailydriver.cli.help import show_help
-from dailydriver.cli.calendar_view import show_calendar
-from dailydriver.cli.year_view import show_year
-from dailydriver.cli.export_log import export
-from dailydriver.domains.nap import log_nap
-from dailydriver.cli.search_view import search
-from dailydriver.cli.last_view import show_last
-from dailydriver.cli.day_view import show_day
-
-def make_dispatch():
-    dispatch = {
-        'q': lambda _: exit(),
-        'p': log_prayer,
-        's': log_sleep,
-        'view': lambda args: view_entries(args[1] if len(args) > 1 else None),
-        '?': lambda _: show_help(),
-        'bd': add_birthday,
-        'hygiene': lambda _: manage_hygiene(),
-        't': add_intention,
-        'stats': lambda _: show_stats(),
-        'day': show_day,
-        'today': show_day,
-        'se': lambda _: save_pending_start(),
-        'ce': lambda _: discard_pending_start(),
-        'ee': log_event_end,
-        'ln': log_chain_now,
-        'cal': lambda args: show_calendar(args[1:] if len(args) > 1 else []),
-        'year': lambda _: show_year(),
-        'export': lambda cmd: export(cmd),
-        'nap': log_nap,
-        'search': search,
-        'last': lambda _: show_last(),
-    }
-    dispatch['sge'] = start_great_event_cmd
-    dispatch['ege'] = end_great_event_cmd
-    dispatch['cge'] = cancel_great_event_cmd
-    return dispatch
-
-def log_event_end(cmd):
-    started_at = get_pending_start()
-    if started_at is None:
-        current_ui.print_line("No running event to end.")
-        return
-
-    parts = cmd.strip().split(maxsplit=1)
-    text = parts[1] if len(parts) > 1 else ""
-
-    result = log_free_text(text, started_at=started_at)
-    if result is not None:
-        clear_pending_start()
-        current_ui.clear()
-        data = build_header_data()
-        print_header(data)
-        current_ui.print_line(result)
-    return None
-
-def log_chain_now(line):
-    last_ts = get_last_action_time()
-    if last_ts is None:
-        current_ui.print_line("No previous action to chain from.")
-        return None
-
-    parts = line.strip().split(maxsplit=1)
-    text = parts[1] if len(parts) > 1 else ""
-    return log_free_text(text, started_at=last_ts)
-
-def start_great_event_cmd(line):
-    if get_active_great_event() is not None:
-        current_ui.print_line("A great event is already active. Cancel it first (cge).")
-        return None
-
-    parts = line.strip().split(maxsplit=1)
-    if len(parts) > 1:
-        cat_str = parts[1].strip()
-        cats = cat_str.split() if cat_str else []
-    else:
-        cat_input = current_ui.prompt("Great event categories (space‑separated): ").strip()
-        cats = cat_input.split() if cat_input else []
-
-    if not cats:
-        current_ui.print_line("No categories entered. Great event not started.")
-        return None
-
-    cats = [c.lower() for c in cats]
-    try:
-        ts = start_great_event(cats)
-    except RuntimeError as e:
-        current_ui.print_line(str(e))
-        return None
-
-    time_str = datetime.fromtimestamp(ts).strftime('%H:%M')
-    return f"Great event started at {time_str} with: {', '.join(cats)}"
-
-def end_great_event_cmd(line):
-    """ege [description] – End the great event and log like ee."""
-    ge = get_active_great_event()
-    if ge is None:
-        current_ui.print_line("No great event is active.")
-        return None
-    start_ts, _ = ge
-
-    parts = line.strip().split(maxsplit=1)
-    text = parts[1] if len(parts) > 1 else ""
-
-    result = log_free_text(text, started_at=start_ts)
-
-    if result is not None:
-        clear_great_event()
-    return result
-
-def cancel_great_event_cmd(_=None):
-    ge = get_active_great_event()
-    if ge is None:
-        current_ui.print_line("No great event active.")
-        return None
-    clear_great_event()
-    return "Great event cancelled."
+from dailydriver.core.logger import log_free_text
 
 def clear():
     current_ui.clear()
@@ -173,8 +45,10 @@ def repl():
                             new_lines = multi_buf[1:]
                         desc = '\n'.join(new_lines) if new_lines else ''
                         if cmd_check == 'ln':
+                            from dailydriver.cli.commands.events import log_chain_now
                             log_chain_now(f'ln {desc}')
                         else:
+                            from dailydriver.cli.commands.events import log_event_end
                             log_event_end(f'ee {desc}')
                     else:
                         log_free_text(full_text)
