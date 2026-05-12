@@ -51,6 +51,7 @@ def get_connection_cm(auto=True):
     conn = get_connection(auto=auto)
     try:
         yield conn
+        if auto:
+            conn.commit()   # records last_action via the wrapper
     finally:
         conn.close()
-
