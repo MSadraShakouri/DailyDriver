@@ -72,7 +72,7 @@ def repl():
             handler = dispatch.get(first)
             if handler:
                 try:
-                    result = handler(line) if first in ('p','s','bd','t','ee','ln','sge','ege','export','nap', 'search', 'day', 'today') else handler(parts)
+                    result = handler(line) if first in ('p','s','bd','t','ee','ln','sge','ege','export','nap', 'search', 'day', 'today', 'pray', 'sleep', 'qada') else handler(parts)
                     if result:
                         clear()
                         data = build_header_data()
@@ -114,7 +114,7 @@ def run_single_command(line):
     handler = dispatch.get(first)
     if handler:
         try:
-            result = handler(line) if first in ('p','s','bd','t','ee','ln','sge','ege','export','nap', 'search', 'day', 'today') else handler(parts)
+            result = handler(line) if first in ('p','s','bd','t','ee','ln','sge','ege','export','nap', 'search', 'day', 'today', 'pray', 'sleep', 'qada') else handler(parts)
             if result:
                 clear()
                 data = build_header_data()

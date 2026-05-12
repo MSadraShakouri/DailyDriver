@@ -42,5 +42,9 @@ def make_dispatch():
         'sge': start_great_event_cmd,
         'ege': end_great_event_cmd,
         'cge': cancel_great_event_cmd,
+        'pray': log_prayer,
+        'sleep': log_sleep,
+        'h': lambda _: show_help(),
+        'qada': lambda line: log_prayer(f'p q {line.split(maxsplit=1)[1]}' if len(line.split(maxsplit=1))>1 else 'p q'),
     }
     return dispatch
