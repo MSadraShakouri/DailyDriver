@@ -604,6 +604,15 @@
   },
   {
     "month": 11,
+    "day": 25,
+    "holiday": false,
+    "remind": false,
+    "title_fa": "روز دحو الارض",
+    "title_en": "Dahw al-Ard (Spreading of the Earth)",
+    "calendar": "hijri"
+  },
+  {
+    "month": 11,
     "day": 30,
     "holiday": false,
     "remind": false,
