@@ -1,6 +1,5 @@
 # dailydriver/core/logger.py
 import time
-import os
 from datetime import datetime
 from dailydriver.core.database import get_connection_cm, get_connection
 from dailydriver.core.parser import extract_time
@@ -8,84 +7,84 @@ from dailydriver.core.keyword_learner import find_matching_categories
 from dailydriver.core.entry_writer import _save_entry, inject_great_categories
 from dailydriver.ui.terminal_ui import current_ui
 
-BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-PENDING_FILE = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), '.daily_pending')
-LAST_ACTION_FILE = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), '.daily_last_action')
-GREAT_EVENT_FILE = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), '.daily_great_event')
+# ----------------------------------------------------------------------
+#  Database‑backed state helpers (replaces dot‑file I/O)
+# ----------------------------------------------------------------------
 
-# ----------------------------------------------------------------------
-#  Last‑action file helpers
-# ----------------------------------------------------------------------
 def get_last_action_time():
     """Return the Unix timestamp of the last successful write, or None."""
-    try:
-        with open(LAST_ACTION_FILE, 'r') as f:
-            return int(f.read().strip())
-    except (FileNotFoundError, ValueError):
-        return None
+    with get_connection_cm(auto=False) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT value FROM meta WHERE key='last_action'")
+        row = cur.fetchone()
+        return int(row['value']) if row and row['value'] else None
 
-# ----------------------------------------------------------------------
-#  Pending start helpers (se / ee / ce)
-# ----------------------------------------------------------------------
 def save_pending_start():
     ts = int(time.time())
-    with open(PENDING_FILE, 'w') as f:
-        f.write(str(ts))
+    with get_connection_cm() as conn:
+        cur = conn.cursor()
+        cur.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('pending_start', ?)", (str(ts),))
     time_str = datetime.fromtimestamp(ts).strftime('%H:%M')
     current_ui.print_line(f"Start saved: {time_str}")
 
 def discard_pending_start():
-    if not os.path.exists(PENDING_FILE):
-        current_ui.print_line("No saved start to discard.")
-        return
-    ts = get_pending_start()
-    time_str = datetime.fromtimestamp(ts).strftime('%H:%M') if ts else "unknown"
-    clear_pending_start()
-    current_ui.print_line(f"Saved start ({time_str}) discarded.")
+    with get_connection_cm() as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT value FROM meta WHERE key='pending_start'")
+        row = cur.fetchone()
+        if not row:
+            current_ui.print_line("No saved start to discard.")
+            return
+        ts = int(row['value'])
+        time_str = datetime.fromtimestamp(ts).strftime('%H:%M') if ts else "unknown"
+        cur.execute("DELETE FROM meta WHERE key='pending_start'")
+        current_ui.print_line(f"Saved start ({time_str}) discarded.")
 
 def get_pending_start():
-    if not os.path.exists(PENDING_FILE):
-        return None
-    with open(PENDING_FILE, 'r') as f:
-        return int(f.read().strip())
+    with get_connection_cm(auto=False) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT value FROM meta WHERE key='pending_start'")
+        row = cur.fetchone()
+        return int(row['value']) if row and row['value'] else None
 
 def clear_pending_start():
-    if os.path.exists(PENDING_FILE):
-        os.remove(PENDING_FILE)
+    with get_connection_cm() as conn:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM meta WHERE key='pending_start'")
 
-# ----------------------------------------------------------------------
-#  Great‑event helpers (sge / ege / cge)
-# ----------------------------------------------------------------------
 def start_great_event(categories: list):
-    """Save a great event start timestamp and its categories."""
-    if os.path.exists(GREAT_EVENT_FILE):
-        raise RuntimeError("A great event is already active.")
-    ts = int(time.time())
-    with open(GREAT_EVENT_FILE, 'w') as f:
-        f.write(f"{ts}\n")
-        f.write(" ".join(categories))
+    with get_connection_cm() as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT value FROM meta WHERE key='great_event_start'")
+        if cur.fetchone():
+            raise RuntimeError("A great event is already active.")
+        ts = int(time.time())
+        cur.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('great_event_start', ?)", (str(ts),))
+        cur.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('great_event_categories', ?)", (" ".join(categories),))
     return ts
 
 def get_active_great_event():
-    """Return (start_ts, [category_path, ...]) or None."""
-    if not os.path.exists(GREAT_EVENT_FILE):
-        return None
-    with open(GREAT_EVENT_FILE, 'r') as f:
-        lines = f.read().splitlines()
-    if len(lines) < 2:
-        return None
-    start_ts = int(lines[0])
-    cats = lines[1].split() if lines[1].strip() else []
-    return start_ts, cats
+    with get_connection_cm(auto=False) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT value FROM meta WHERE key='great_event_start'")
+        row_start = cur.fetchone()
+        if not row_start:
+            return None
+        cur.execute("SELECT value FROM meta WHERE key='great_event_categories'")
+        row_cats = cur.fetchone()
+        start_ts = int(row_start['value'])
+        cats = row_cats['value'].split() if row_cats and row_cats['value'].strip() else []
+        return start_ts, cats
 
 def clear_great_event():
-    """Delete the great event state file."""
-    if os.path.exists(GREAT_EVENT_FILE):
-        os.remove(GREAT_EVENT_FILE)
+    with get_connection_cm() as conn:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM meta WHERE key IN ('great_event_start', 'great_event_categories')")
 
 # ----------------------------------------------------------------------
 #  Core free‑text logging
 # ----------------------------------------------------------------------
+
 def log_free_text(cmd, started_at=None):
     with get_connection_cm() as conn:
         cur = conn.cursor()

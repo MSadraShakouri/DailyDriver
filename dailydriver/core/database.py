@@ -5,7 +5,6 @@ from contextlib import contextmanager
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 DB_NAME = os.path.join(PROJECT_ROOT, "data", "daily.db")
-LAST_ACTION_FILE = os.path.join(PROJECT_ROOT, '.daily_last_action')
 
 def get_last_hygiene_time(conn, item):
     cur = conn.cursor()
@@ -24,12 +23,14 @@ class _AutoCommitConnection:
         self._conn = conn
 
     def commit(self):
-        self._conn.commit()
+        # Record the last action timestamp before committing everything
         try:
-            with open(LAST_ACTION_FILE, 'w') as f:
-                f.write(str(int(time.time())))
+            cur = self._conn.cursor()
+            cur.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('last_action', ?)",
+                        (str(int(time.time())),))
         except Exception:
             pass
+        self._conn.commit()
 
     def close(self):
         self._conn.close()

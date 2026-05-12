@@ -229,6 +229,44 @@ def _migration_9(conn):
     ''')
     conn.commit()
 
+def _migration_10(conn):
+    """Import state files into meta table and delete them."""
+    import os
+    cur = conn.cursor()
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+
+    # last_action
+    last_action_file = os.path.join(project_root, '.daily_last_action')
+    if os.path.exists(last_action_file):
+        with open(last_action_file, 'r') as f:
+            ts = f.read().strip()
+            if ts:
+                cur.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('last_action', ?)", (ts,))
+        os.remove(last_action_file)
+
+    # pending_start
+    pending_file = os.path.join(project_root, '.daily_pending')
+    if os.path.exists(pending_file):
+        with open(pending_file, 'r') as f:
+            ts = f.read().strip()
+            if ts:
+                cur.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('pending_start', ?)", (ts,))
+        os.remove(pending_file)
+
+    # great_event
+    great_event_file = os.path.join(project_root, '.daily_great_event')
+    if os.path.exists(great_event_file):
+        with open(great_event_file, 'r') as f:
+            lines = f.read().splitlines()
+            if len(lines) >= 2:
+                start_ts = lines[0].strip()
+                cats = lines[1].strip()
+                cur.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('great_event_start', ?)", (start_ts,))
+                cur.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('great_event_categories', ?)", (cats,))
+        os.remove(great_event_file)
+
+    conn.commit()
+
 _MIGRATIONS = {
     1: _migration_1,
     2: _migration_2,
@@ -239,6 +277,7 @@ _MIGRATIONS = {
     7: _migration_7,
     8: _migration_8,
     9: _migration_9,
+    10: _migration_10,
 }
 
 def _get_current_version(conn):
