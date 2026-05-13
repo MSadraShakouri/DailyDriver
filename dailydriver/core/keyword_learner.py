@@ -33,43 +33,30 @@ MAX_RESULTS = 10
 def tokenize(text: str, stem_words: bool = True) -> list[str]:
     """
     Clean and tokenize text.
-    Returns a list of lowercased, stemmed tokens suitable for keyword matching.
+    Returns a list of lowercased, stemmed alphabetic tokens of length >= 3.
     """
     if not text:
         return []
-    raw_tokens = text.lower().split()
-    cleaned = []
+    # Replace any non-alphabetic character with a space
+    cleaned = re.sub(r'[^a-zA-Z]', ' ', text.lower())
+    raw_tokens = cleaned.split()
+    tokens = []
     for token in raw_tokens:
-        # Split hyphenated words
-        sub_tokens = token.split('-')
-        for sub in sub_tokens:
-            # Remove possessive 's (e.g. Sadra's -> Sadra)
-            sub = re.sub(r"'s$", '', sub)
-            # Remove trailing apostrophe from contractions (don't -> dont)
-            sub = re.sub(r"'t$", 't', sub)
-            sub = re.sub(r"'re$", 're', sub)
-            sub = re.sub(r"'ve$", 've', sub)
-            sub = re.sub(r"'ll$", 'll', sub)
-            sub = re.sub(r"'d$", 'd', sub)
-            # Strip non-alphanumeric from ends, keep internal apostrophes
-            sub = re.sub(r'^[^a-z0-9]+', '', sub)
-            sub = re.sub(r'[^a-z0-9]+$', '', sub)
-            # Discard if too short or pure digits
-            if len(sub) < 2 or sub.isdigit():
-                continue
-            if sub in STOP_WORDS:
-                continue
-            # Apply stemming
-            if stem_words:
-                try:
-                    sub = _stemmer.stem(sub)
-                except Exception:
-                    pass  # If stemming fails, keep original
-            cleaned.append(sub)
+        if len(token) < 3:          # discard short tokens
+            continue
+        if token in STOP_WORDS:     # discard stop words
+            continue
+        # Apply stemming
+        if stem_words:
+            try:
+                token = _stemmer.stem(token)
+            except Exception:
+                pass
+        tokens.append(token)
     # Deduplicate while preserving order
     seen = set()
     unique = []
-    for t in cleaned:
+    for t in tokens:
         if t not in seen:
             seen.add(t)
             unique.append(t)
