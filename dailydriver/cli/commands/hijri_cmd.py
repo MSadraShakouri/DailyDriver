@@ -1,8 +1,7 @@
 # dailydriver/cli/commands/hijri_cmd.py
 """Command to view and adjust the global Hijri date offset."""
-import jdatetime
 from datetime import date, timedelta
-from hijridate import Hijri, Gregorian as HijriGregorian
+from hijridate import Gregorian as HijriGregorian
 from dailydriver.utils.calendar_events import get_hijri_offset, set_hijri_offset
 from dailydriver.ui.terminal_ui import current_ui
 

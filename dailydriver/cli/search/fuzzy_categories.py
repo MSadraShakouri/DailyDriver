@@ -1,7 +1,6 @@
 # dailydriver/cli/search/fuzzy_categories.py
 """Category path boosting with optional synonym map."""
 import re
-from dailydriver.core.database import get_connection_cm
 
 # Small synonym map (manually editable)
 SYNONYMS = {

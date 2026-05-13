@@ -3,8 +3,6 @@ from dailydriver.core.logger import (
     log_free_text,
     get_pending_start,
     clear_pending_start,
-    save_pending_start,
-    discard_pending_start,
     get_active_great_event,
     clear_great_event,
     start_great_event,

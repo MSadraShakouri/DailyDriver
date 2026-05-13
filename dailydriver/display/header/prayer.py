@@ -2,7 +2,6 @@
 """Prayer status line and pre‑alert / overdue nudges."""
 from datetime import datetime
 import jdatetime
-from dailydriver.domains.prayer_core import PRAYER_SLOTS
 from dailydriver.domains.prayer_times import get_approximate_times
 
 def get_prayer_parts(conn, today):

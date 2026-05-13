@@ -2,7 +2,7 @@
 """Relative date, weekday, and month scoring with fuzzy token matching."""
 import jdatetime
 from datetime import datetime, timedelta
-from hijridate import Hijri, Gregorian as HijriGregorian
+from hijridate import Gregorian as HijriGregorian
 from .fuzzy_utils import fuzzy_match
 
 # English weekday names (Monday=0 ... Sunday=6)

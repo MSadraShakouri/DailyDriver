@@ -1,7 +1,6 @@
 import unittest
 from unittest.mock import patch, MagicMock
 import sqlite3
-from datetime import datetime
 
 from dailydriver.cli.commands.events import (
     log_event_end,

@@ -1,6 +1,6 @@
 # dailydriver/cli/export_log.py
 """Export command: write sleep, prayers, and entries to a Markdown or plain‑text file."""
-import time, os, re
+import time
 from dailydriver.core.database import get_connection_cm
 from dailydriver.ui.terminal_ui import current_ui
 import jdatetime

@@ -1,5 +1,4 @@
 # dailydriver/domains/nap.py
-import time
 from datetime import datetime
 from dailydriver.core.database import get_connection_cm
 from dailydriver.utils.time_utils import today_jalali

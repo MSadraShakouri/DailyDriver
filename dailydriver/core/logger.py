@@ -1,7 +1,7 @@
 # dailydriver/core/logger.py
 import time
 from datetime import datetime
-from dailydriver.core.database import get_connection_cm, get_connection
+from dailydriver.core.database import get_connection_cm
 from dailydriver.core.parser import extract_time
 from dailydriver.core.keyword_learner import find_matching_categories
 from dailydriver.core.entry_writer import _save_entry, inject_great_categories

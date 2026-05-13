@@ -3,9 +3,8 @@
 import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from datetime import datetime, timedelta
+from datetime import datetime
 from dailydriver.domains.prayer_times import get_approximate_times
-from dailydriver.domains.prayer_core import _today_times, current_slot
 
 def test_get_approximate_times():
     """Check interpolation returns reasonable values for known dates."""

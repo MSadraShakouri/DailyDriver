@@ -1,7 +1,6 @@
 import time
 import jdatetime
 from datetime import datetime
-from dailydriver.ui.terminal_ui import current_ui
 
 def days_ago(n: int) -> int:
     """Return Unix timestamp for exactly n days ago (now - n*86400)."""

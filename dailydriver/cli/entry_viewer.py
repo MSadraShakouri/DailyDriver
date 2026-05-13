@@ -2,7 +2,6 @@ import os
 import sys
 import shutil
 import subprocess
-import time
 import re
 import jdatetime
 from dailydriver.core.database import get_connection_cm

@@ -1,4 +1,3 @@
-import time
 import jdatetime
 from datetime import datetime, timedelta
 from dailydriver.core.database import get_connection_cm

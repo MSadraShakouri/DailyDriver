@@ -6,16 +6,8 @@ from dailydriver.cli.commands.events import (
     log_event_end, log_chain_now,
     start_great_event_cmd, end_great_event_cmd, cancel_great_event_cmd,
 )
-from dailydriver.cli.commands.journal import log_free_text
-from dailydriver.cli.commands.viewing import view_entries, show_day, show_last, show_today
 from dailydriver.cli.commands.search import search
-from dailydriver.cli.commands.calendar_cmd import show_calendar, show_year
-from dailydriver.cli.commands.stats_cmd import show_stats
-from dailydriver.cli.commands.birthday_cmd import add_birthday
-from dailydriver.cli.commands.hygiene_cmd import manage_hygiene
-from dailydriver.cli.commands.intention_cmd import add_intention
 from dailydriver.cli.commands.export_cmd import export
-from dailydriver.cli.commands.help_cmd import show_help
 
 class TestDispatcher(unittest.TestCase):
     def setUp(self):
