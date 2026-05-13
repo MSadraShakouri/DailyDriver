@@ -6,6 +6,8 @@ from hijridate import Hijri, Gregorian as HijriGregorian
 from dailydriver.utils.calendar_events import get_hijri_offset, set_hijri_offset
 from dailydriver.ui.terminal_ui import current_ui
 
+__all__ = ['hijri_command']
+
 _MONTH_NAMES = [
     "Muharram", "Safar", "Rabi al-Awwal", "Rabi al-Thani",
     "Jumada al-Ula", "Jumada al-Thani", "Rajab", "Sha'ban",
