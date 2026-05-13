@@ -24,6 +24,7 @@ def save_pending_start():
     with get_connection_cm() as conn:
         cur = conn.cursor()
         cur.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('pending_start', ?)", (str(ts),))
+        conn.commit()
     time_str = datetime.fromtimestamp(ts).strftime('%H:%M')
     current_ui.print_line(f"Start saved: {time_str}")
 
@@ -38,6 +39,7 @@ def discard_pending_start():
         ts = int(row['value'])
         time_str = datetime.fromtimestamp(ts).strftime('%H:%M') if ts else "unknown"
         cur.execute("DELETE FROM meta WHERE key='pending_start'")
+        conn.commit()
         current_ui.print_line(f"Saved start ({time_str}) discarded.")
 
 def get_pending_start():
@@ -51,6 +53,7 @@ def clear_pending_start():
     with get_connection_cm() as conn:
         cur = conn.cursor()
         cur.execute("DELETE FROM meta WHERE key='pending_start'")
+        conn.commit()
 
 def start_great_event(categories: list):
     with get_connection_cm() as conn:
@@ -61,6 +64,7 @@ def start_great_event(categories: list):
         ts = int(time.time())
         cur.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('great_event_start', ?)", (str(ts),))
         cur.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('great_event_categories', ?)", (" ".join(categories),))
+        conn.commit()
     return ts
 
 def get_active_great_event():
@@ -80,6 +84,7 @@ def clear_great_event():
     with get_connection_cm() as conn:
         cur = conn.cursor()
         cur.execute("DELETE FROM meta WHERE key IN ('great_event_start', 'great_event_categories')")
+        conn.commit()
 
 # ----------------------------------------------------------------------
 #  Core free‑text logging
