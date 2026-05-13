@@ -16,6 +16,17 @@ Ideas for making DailyDriver faster, cleaner, and more maintainable.
 
 ## 🟡 Medium Priority (add when convenient)
 
+### UI polish & wrapping overhaul
+- Replace `pline()` truncation with soft‑wrapping `pline_wrap()` for all long text (hygiene, reminders, birthdays, weather, prayer nudges, calendar events)
+- Add consistent blank lines between header sections, before prompt, and between entries in view/search/day
+- Reduce indentation in day‑view entries to 1 space
+- Truncate / wrap multi‑category lines in view/search instead of letting them overflow
+- Justify stats prayer percentages to fit terminal width
+- Combine sleep + nap into one line in header
+- Show each hygiene warning on its own line instead of joining with spaces
+- Add a separator line between the `n/p = …` hint and the `>` prompt in view/search/day
+- Ensure all views respect `tput cols` and gracefully wrap or truncate content
+
 ### Smarter `_update_complete_until`
 - After logging a qada far in the past, avoid scanning all intermediate days.
 - Check only if the logged date is now complete, then advance only as far as contiguous completed dates go.
@@ -90,14 +101,26 @@ Ideas for making DailyDriver faster, cleaner, and more maintainable.
 - Add indexes if needed (e.g., `prayer_logs(jalali_date, prayer_slot)` for backlog scanning).
 - **Effort:** Tiny. **Benefit:** Prevents future slowness.
 
-### UI polish & wrapping overhaul
-- Replace `pline()` truncation with soft‑wrapping `pline_wrap()` for all long text (hygiene, reminders, birthdays, weather, prayer nudges, calendar events)
-- Add consistent blank lines between header sections, before prompt, and between entries in view/search/day
-- Reduce indentation in day‑view entries to 1 space
-- Truncate / wrap multi‑category lines in view/search instead of letting them overflow
-- Justify stats prayer percentages to fit terminal width
-- Combine sleep + nap into one line in header
-- Show each hygiene warning on its own line instead of joining with spaces
-- Add Hijri and Gregorian date below main header border (dimmed, single row)
-- Add a separator line between the `n/p = …` hint and the `>` prompt in view/search/day
-- Ensure all views respect `tput cols` and gracefully wrap or truncate content
+---
+
+## 🟣 Very Low Priority (maybe someday)
+
+### Full FTS stemming of the index
+- Currently we stem the search query but not the indexed description text. Stemming both sides could improve recall.
+- **Effort:** Medium. **Benefit:** Slightly better search matches.
+
+### Synonym expansion for search
+- Add a `synonyms.json` map to expand search queries (e.g., “coding” → “programming”).
+- **Effort:** Small. **Benefit:** More forgiving search.
+
+### Toggle to disable ANSI colors
+- Allow a plain‑text mode for terminals that don't support ANSI escapes.
+- **Effort:** Small. **Benefit:** Accessibility / compatibility.
+
+### Review Hijri year‑boundary edge cases
+- Some Hijri events may not map correctly to the correct Jalali year due to the year‑boundary logic. Needs testing with real dates.
+- **Effort:** Small investigation. **Benefit:** Correct calendar display.
+
+### Refactor to a central `DailyDriverApp` class
+- Move the REPL loop, database connection, dispatcher, and state into a single app class for cleaner architecture and easier testing.
+- **Effort:** Large refactor. **Benefit:** Better structure for future TUI integration.
