@@ -50,21 +50,55 @@ def pline(s: str):
     # But for pline(), we can just output the truncated clean text. ANSI codes typically don't change width.
     current_ui.print_line(''.join(result) + '…')
 
-def pline_wrap(s: str, indent: int = 0):
-    """Print a line, wrapping at word boundaries to fit terminal width."""
+def pline_wrap(s: str, indent: int = 0, max_lines: int = 0, first_indent: int | None = None):
+    """Print a line, wrapping at word boundaries to fit terminal width.
+    If max_lines > 0, print at most that many lines; the last printed
+    line will end with '…' if truncation occurs.
+    first_indent overrides the indent for the first line only."""
+    if first_indent is None:
+        first_indent = indent
+
     tw = get_width()
-    if display_width(s) <= tw - indent:
-        current_ui.print_line(' ' * indent + s)
+    if display_width(s) <= tw - first_indent:
+        current_ui.print_line(' ' * first_indent + s)
         return
 
     words = s.split()
-    line = ' ' * indent
+    lines = []
+    line = ' ' * first_indent
+    first = True
     for word in words:
         if display_width(line + word) > tw - 1:
-            current_ui.print_line(line.rstrip())
+            lines.append(line.rstrip())
             line = ' ' * indent
+            first = False
         line += word + ' '
     if line.strip():
+        lines.append(line.rstrip())
+
+    if max_lines > 0 and len(lines) > max_lines:
+        lines = lines[:max_lines]
+        last = lines[-1].rstrip()
+        if display_width(last) + 3 <= tw:
+            last += '…'
+        else:
+            last = last[:max(0, display_width(last) - 3)] + '…'
+        lines[-1] = last
+
+    for line in lines:
+        current_ui.print_line(line)
+
+def wrap_line(prefix: str, text: str, indent: str):
+    """Print prefix + text, wrapping at word boundaries.
+    Continuation lines start with `indent` (same width as prefix)."""
+    words = text.split()
+    line = prefix
+    for w in words:
+        if display_width(line + w) >= get_width():
+            current_ui.print_line(line.rstrip())
+            line = indent
+        line += w + ' '
+    if line.rstrip():
         current_ui.print_line(line.rstrip())
 
 def spread_line(items, width=None, prefix=""):

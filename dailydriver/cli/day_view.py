@@ -4,7 +4,7 @@ import jdatetime
 from datetime import datetime, timedelta
 from dailydriver.core.database import get_connection_cm
 from dailydriver.display.header import build_header_data
-from dailydriver.display.display_utils import print_header
+from dailydriver.display.display_utils import print_header, pline_wrap, display_width, get_width, wrap_line
 from dailydriver.ui.terminal_ui import current_ui
 import re
 
@@ -94,7 +94,7 @@ def _show_day_body(target, is_today):
         current_ui.print_line("\n📝 Entries:")
         cur.execute("""
             SELECT e.id, e.description, e.created_at,
-                   GROUP_CONCAT(DISTINCT c.path) AS cats
+                   GROUP_CONCAT(c.path, ', ') AS cats
             FROM entries e
             LEFT JOIN entry_categories ec ON e.id = ec.entry_id
             LEFT JOIN categories c ON ec.category_id = c.id
@@ -107,10 +107,18 @@ def _show_day_body(target, is_today):
             current_ui.print_line("   No entries.")
         else:
             for e in entries:
+                current_ui.print_line()
                 dt = datetime.fromtimestamp(e['created_at'])
                 time_str = dt.strftime('%H:%M')
+
                 cats = e['cats'] or '(no category)'
-                desc = (e['description'] or '')[:50].replace('\n', ' ')
-                current_ui.print_line(f"   {time_str}  {cats}")
+                desc = (e['description'] or '').replace('\n', ' ')
+
+                # Categories: prefix = "  HH:MM    ", continuation indent = same width
+                prefix = f"  {time_str}    "
+                indent = ' ' * len(prefix)
+                wrap_line(prefix, cats, indent)
+
+                # --- description (8‑space indent, max 2 lines) ---
                 if desc:
-                    current_ui.print_line(f"         {desc}")
+                    pline_wrap(desc, indent=8, max_lines=2)
