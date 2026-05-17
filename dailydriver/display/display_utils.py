@@ -115,10 +115,15 @@ def print_header(data: dict, add_separator: bool = True):
     current_ui.print_line('═' * left + text + '═' * right)
 
     pline(prayer_str)
-    pline(sleep_str)
+
     nap_str = data.get('nap_str', '')
-    if nap_str:
-        pline(nap_str)
+    if sleep_str and nap_str:
+        pline(spread_line([sleep_str, nap_str]))
+    else:
+        pline(sleep_str)
+        if nap_str:
+            pline(nap_str)
+
     weather_str = data.get('weather_str', '')
     if weather_str:
         pline(weather_str)
