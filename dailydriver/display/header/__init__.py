@@ -7,7 +7,7 @@ import jdatetime
 from .prayer import get_prayer_parts, get_prayer_nudges
 from .sleep import get_sleep_str, get_nap_str
 from .birthdays import get_birthday_str
-from .hygiene import get_hygiene_str
+from .hygiene import get_hygiene_lines
 from .calendar import get_calendar_lines, get_reminders_str
 from .events import get_great_event_str, get_running_event_str, get_last_entry_time
 from .weather import get_weather_str
@@ -31,7 +31,7 @@ def build_header_data(day=None, is_today=True):
         sleep_str = get_sleep_str(conn, today)
         nap_str = get_nap_str(conn, today)
         bday_str = get_birthday_str(conn, target_date)
-        hygiene_str = get_hygiene_str(conn, target_date, is_today)
+        hygiene_lines = get_hygiene_lines(conn, target_date, is_today)
         calendar_lines = get_calendar_lines(target_date, is_today)
         reminders_str = get_reminders_str(target_date, is_today)
         great_event_str = get_great_event_str(is_today)
@@ -46,7 +46,7 @@ def build_header_data(day=None, is_today=True):
             'sleep_str': sleep_str,
             'nap_str': nap_str,
             'bday_str': bday_str,
-            'hygiene_str': hygiene_str,
+            'hygiene_lines': hygiene_lines,
             'calendar_lines': calendar_lines,
             'reminders_str': reminders_str,
             'event_str': event_str,

@@ -32,7 +32,7 @@ class TestIntegration(unittest.TestCase):
                 data = build_header_data(day=None, is_today=True)
 
         expected_keys = ['date_str', 'prayer_parts', 'sleep_str', 'nap_str', 'bday_str',
-                         'hygiene_str', 'calendar_lines', 'reminders_str', 'event_str',
+                         'hygiene_lines', 'calendar_lines', 'reminders_str', 'event_str',
                          'great_event_str', 'last_entry_time', 'weather_str',
                          'prayer_nudges', 'is_today']
         for key in expected_keys:

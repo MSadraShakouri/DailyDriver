@@ -107,7 +107,6 @@ def print_header(data: dict, add_separator: bool = True):
 
     sleep_str = data['sleep_str']
     bday_str = data.get('bday_str', '')
-    hygiene_str = data.get('hygiene_str', '')
 
     # Top border with centered date
     text = f" {date_str} "
@@ -134,8 +133,8 @@ def print_header(data: dict, add_separator: bool = True):
 
     if bday_str:
         pline(bday_str)
-    if hygiene_str:
-        pline(hygiene_str)
+    for line in data.get('hygiene_lines', []):
+        pline(line)
 
     # Prayer nudges
     for nudge in data.get('prayer_nudges', []):
