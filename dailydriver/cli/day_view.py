@@ -107,7 +107,6 @@ def _show_day_body(target, is_today):
             current_ui.print_line("   No entries.")
         else:
             for e in entries:
-                current_ui.print_line()
                 dt = datetime.fromtimestamp(e['created_at'])
                 time_str = dt.strftime('%H:%M')
 
@@ -122,3 +121,4 @@ def _show_day_body(target, is_today):
                 # --- description (8‑space indent, max 2 lines) ---
                 if desc:
                     pline_wrap(desc, indent=8, max_lines=2)
+                current_ui.print_line()

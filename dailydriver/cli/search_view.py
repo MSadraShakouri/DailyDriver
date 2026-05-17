@@ -9,6 +9,7 @@ from dailydriver.ui.terminal_ui import current_ui
 from dailydriver.cli.search.scoring import compute_final_scores
 from dailydriver.cli.entry_viewer import edit_entry
 from dailydriver.core.logger import log_free_text
+from dailydriver.display.display_utils import pline_wrap, wrap_line
 
 def _get_jalali_date(ts):
     jdt = jdatetime.datetime.fromtimestamp(ts)
@@ -134,14 +135,25 @@ def search(cmd):
                     rel_str = f"(FTS {fts_rel:.3f}, final {row['final_score']:.3f})"
                 else:
                     rel_str = f"(cat match, final {row['final_score']:.3f})"
-                desc_raw = (row['description'] or '')[:100].replace('\n', ' ')
+                desc_raw = (row['description'] or '').replace('\n', ' ')
                 # Highlight matching tokens using reverse video
                 highlighted = desc_raw
                 for token in stemmed_tokens:
                     pattern = re.compile(re.escape(token), re.IGNORECASE)
                     highlighted = pattern.sub(lambda m: f"\033[7m{m.group()}\033[0m", highlighted)
-                current_ui.print_line(f"[{row['id']:4d}] {date_str}  {row['categories']}  {rel_str}")
-                current_ui.print_line(f"      {highlighted}")
+                # Header line: ID + date + relevance
+                header_line = f"[{row['id']}] {date_str} {rel_str}"
+                current_ui.print_line(header_line)
+
+                # Categories: indented under the date line (same width as header prefix)
+                cats = row['categories'] or '(no category)'
+                cats_indent = ' ' * len(f"[{row['id']}] ")
+                wrap_line(cats_indent, cats, cats_indent)
+
+                # Description: 2‑space indent, up to 3 lines
+                pline_wrap(highlighted, indent=2, max_lines=3)
+
+                # Blank line between entries
                 current_ui.print_line()
 
             current_ui.print_line(f"Showing {offset+1}‑{min(offset+page_size, total)} of {total}")

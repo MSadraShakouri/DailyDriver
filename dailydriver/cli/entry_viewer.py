@@ -7,6 +7,7 @@ import jdatetime
 from dailydriver.core.database import get_connection_cm
 from dailydriver.core.logger import log_free_text
 from dailydriver.ui.terminal_ui import current_ui
+from dailydriver.display.display_utils import wrap_line, pline_wrap
 
 def view_entries(category_filter=None):
     with get_connection_cm() as conn:
@@ -56,12 +57,18 @@ def view_entries(category_filter=None):
             current_ui.print_line(f"─────── Journal Entries{filter_str} ───────")
             for row in rows:
                 jdt = jdatetime.datetime.fromtimestamp(row['created_at'])
-                cat_str = row['categories'] if row['categories'] else '(no category)'
-                desc_snippet = (row['description'] or '')[:50].replace('\n', ' ')
-                current_ui.print_line(f"[{row['id']}] {jdt.strftime('%Y-%m-%d %H:%M')}  {cat_str}")
-                current_ui.print_line(f"    {desc_snippet}")
+                # Line 1: ID + date + time
+                current_ui.print_line(f"[{row['id']}] {jdt.strftime('%Y-%m-%d %H:%M')}")
+                # Categories indented under the date
+                cats = row['categories'] or '(no category)'
+                cats_indent = ' ' * len(f"[{row['id']}] ")
+                wrap_line(cats_indent, cats, cats_indent)
+                # Description
+                desc = (row['description'] or '').replace('\n', ' ')
+                pline_wrap(desc, indent=2, max_lines=2)
+                current_ui.print_line()
 
-            current_ui.print_line("\n\033[1m(n)ext  (p)rev  (q)uit  [id] edit  (d)ay <id>\033[0m")
+            current_ui.print_line("\033[1m(n)ext  (p)rev  (q)uit  [id] edit  (d)ay <id>\033[0m")
             current_ui.print_line("\033[1mn/p = next/prev page, 5n = 5 pages\033[0m")
             current_ui.print_line()
             choice = current_ui.prompt("> ").strip().lower()
