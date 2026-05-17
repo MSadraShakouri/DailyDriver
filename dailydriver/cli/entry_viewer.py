@@ -63,6 +63,7 @@ def view_entries(category_filter=None):
 
             current_ui.print_line("\n\033[1m(n)ext  (p)rev  (q)uit  [id] edit  (d)ay <id>\033[0m")
             current_ui.print_line("\033[1mn/p = next/prev page, 5n = 5 pages\033[0m")
+            current_ui.print_line()
             choice = current_ui.prompt("> ").strip().lower()
 
             if choice == 'q':

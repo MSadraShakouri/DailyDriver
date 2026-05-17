@@ -15,6 +15,7 @@ def manage_hygiene():
                 due_str = 'on' if row['show_due_today'] else 'off'
                 current_ui.print_line(f"  {row['item']}: every {row['desired_interval_days']} day(s) | early: {early_str} | due today: {due_str}")
             current_ui.print_line("\n(a)dd  (e)dit  (d)elete  (q)uit")
+            current_ui.print_line()
             choice = current_ui.prompt("> ").strip().lower()
             if choice == 'q':
                 break

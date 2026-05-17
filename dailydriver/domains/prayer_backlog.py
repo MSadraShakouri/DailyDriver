@@ -98,6 +98,7 @@ def log_qada(time_of_day_minutes=None, offset_minutes=None):
         current_ui.print_line("Unlogged past prayers (newest first):")
         for i, (date_str, slot) in enumerate(missing, 1):
             current_ui.print_line(f"  [{i}] {date_str}  {slot}")
+        current_ui.print_line()
         choice = current_ui.prompt("Select number (Enter=latest, q=quit): ").strip().lower()
         if choice == 'q':
             return

@@ -130,6 +130,7 @@ def log_free_text(cmd, started_at=None):
             for i, (path, cnt) in enumerate(matches, 1):
                 current_ui.print_line(f"  [{i}] {path}")
             current_ui.print_line("Enter=1, numbers to select, or type new paths (space‑separated)")
+            current_ui.print_line()
             choice = current_ui.prompt("> ").strip().lower()
             if choice == '':
                 selected_paths = [matches[0][0]]

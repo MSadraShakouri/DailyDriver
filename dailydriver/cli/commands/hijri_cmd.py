@@ -36,6 +36,7 @@ def _show_menu():
             line += "  ← current"
         current_ui.print_line(line)
 
+    current_ui.print_line()
     choice = current_ui.prompt("Enter offset (-2, -1, 0, +1, +2) or q to quit: ").strip()
     if choice.lower() == 'q':
         return
