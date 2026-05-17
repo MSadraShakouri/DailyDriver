@@ -99,7 +99,7 @@ def repl():
 def run_single_command(line):
     current_ui.clear()
     data = build_header_data()
-    current_ui.show_header(data)
+    print_header(data, add_separator=False)
 
     if not line:
         current_ui.prompt("Press Enter to exit.")
@@ -118,7 +118,7 @@ def run_single_command(line):
             if result:
                 clear()
                 data = build_header_data()
-                print_header(data)
+                print_header(data, add_separator=False)
                 current_ui.print_line(result)
         except KeyboardInterrupt:
             current_ui.print_line("\nCancelled.")
@@ -128,7 +128,7 @@ def run_single_command(line):
             if result:
                 clear()
                 data = build_header_data()
-                print_header(data)
+                print_header(data, add_separator=False)
                 current_ui.print_line(result)
         except KeyboardInterrupt:
             current_ui.print_line("\nCancelled.")

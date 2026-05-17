@@ -97,7 +97,7 @@ def spread_line(items, width=None, prefix=""):
             result += " " * spaces + items[i]
     return result
 
-def print_header(data: dict):
+def print_header(data: dict, add_separator: bool = True):
     """Print the daily header from a dictionary built by header_data.build()."""
     w = get_width()
     date_str = data['date_str']
@@ -162,3 +162,6 @@ def print_header(data: dict):
             current_ui.print_line('─' * w)
     else:
         current_ui.print_line('─' * w)
+
+    if add_separator:
+        current_ui.print_line()   # blank line before prompt (REPL only)
