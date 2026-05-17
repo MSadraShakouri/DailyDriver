@@ -2,6 +2,10 @@
 """Daily header data builder – delegated to sub‑modules."""
 from dailydriver.core.database import get_connection_cm
 from dailydriver.utils.time_utils import today_jalali, format_jalali
+from datetime import timedelta
+from hijridate import Hijri, Gregorian as HijriGregorian
+from dailydriver.utils.calendar_events import get_hijri_offset
+from dailydriver.display.display_utils import get_width, spread_line, pline_center
 import jdatetime
 
 from .prayer import get_prayer_parts, get_prayer_nudges
@@ -24,8 +28,23 @@ def build_header_data(day=None, is_today=True):
             target_date = jdatetime.date(y, m, d)
 
         formatted = format_jalali(today)
+
+        # --- new date block ---
+        jalali_line = f"\033[1m{formatted}\033[0m"
+        separator = "─" * (get_width() // 4)
+
+        # Gregorian and Hijri with margins
+        gdate = target_date.togregorian()
+        greg_str = gdate.strftime('%d %B %Y')
+        offset = get_hijri_offset()
+        corrected_greg = gdate - timedelta(days=offset)
+        hijri_obj = HijriGregorian.fromdate(corrected_greg).to_hijri()
+        hijri_str = f"{hijri_obj.day} {hijri_obj.month_name()} {hijri_obj.year}"
+        greg_hijri_line = spread_line([greg_str, hijri_str], margins=1/8)
         if not is_today:
-            formatted = f"\033[2m{formatted}\033[0m"
+            jalali_line = f"\033[2m\033[1m{formatted}\033[0m"
+            separator = f"\033[2m{separator}\033[0m"
+            greg_hijri_line = f"\033[2m{greg_hijri_line}\033[0m"
 
         prayer_parts = get_prayer_parts(conn, today)
         sleep_str = get_sleep_str(conn, today)
@@ -41,6 +60,9 @@ def build_header_data(day=None, is_today=True):
         prayer_nudges = get_prayer_nudges(conn, target_date, today, is_today)
 
         return {
+            'jalali_line': jalali_line,
+            'separator': separator,
+            'greg_hijri_line': greg_hijri_line,
             'date_str': formatted,
             'prayer_parts': prayer_parts,
             'sleep_str': sleep_str,

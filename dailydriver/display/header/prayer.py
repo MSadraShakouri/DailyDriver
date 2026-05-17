@@ -22,7 +22,7 @@ def get_prayer_parts(conn, today):
             time_str = dt.strftime('%H:%M')
             parts.append(f"{emoji} {time_str}")
         else:
-            parts.append(f"{emoji} —")
+            parts.append(f"{emoji}  — ")
     return parts
 
 def get_prayer_nudges(conn, target_date, today_str, is_today, now=None):

@@ -12,8 +12,8 @@ def get_sleep_str(conn, today):
         start_dt = datetime.fromtimestamp(row['sleep_time'])
         end_dt = datetime.fromtimestamp(row['wake_time'])
         d = row['duration_minutes']
-        return f"💤 Sleep: {d//60}h {d%60}m ({start_dt.strftime('%H:%M')} → {end_dt.strftime('%H:%M')})"
-    return "💤 Sleep: —"
+        return f"💤 {d//60}h {d%60}m  {start_dt.strftime('%H:%M')}-{end_dt.strftime('%H:%M')}"
+    return "💤 —"
 
 def get_nap_str(conn, today):
     cur = conn.cursor()
@@ -23,5 +23,5 @@ def get_nap_str(conn, today):
     ).fetchone()
     total = row[0] if row and row[0] is not None else 0
     if total:
-        return f"😴 Nap: {total//60}h {total%60}m"
+        return f"😴 {total//60}h {total%60}m"
     return ""

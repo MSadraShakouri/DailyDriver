@@ -10,9 +10,13 @@ def get_birthday_str(conn, target_date):
         m_day, d_day = check_date.month, check_date.day
         cur.execute("SELECT name, year FROM birthdays WHERE month=? AND day=?", (m_day, d_day))
         for row in cur.fetchall():
-            age = ""
             if row['year']:
-                age = f" ({check_date.year - row['year']})"
-            prefix = "🎂" if i == 0 else f"🎈{i}d"
-            lines.append(f"{prefix} {row['name']}{age}")
+                age = check_date.year - row['year']
+                age_str = f" · {age}"
+            else:
+                age_str = ""
+            if i == 0:
+                lines.append(f"🎂 {row['name']}{age_str}")
+            else:
+                lines.append(f"🎈 {row['name']} {i}d{age_str}")
     return "   ".join(lines[:3])

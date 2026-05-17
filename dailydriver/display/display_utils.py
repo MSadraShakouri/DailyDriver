@@ -50,6 +50,13 @@ def pline(s: str):
     # But for pline(), we can just output the truncated clean text. ANSI codes typically don't change width.
     current_ui.print_line(''.join(result) + '…')
 
+def pline_center(s: str):
+    """Print a string centered on the terminal, ignoring ANSI codes for width."""
+    tw = get_width()
+    sw = display_width(s)
+    left = (tw - sw) // 2
+    current_ui.print_line(' ' * left + s)
+
 def pline_wrap(s: str, indent: int = 0, max_lines: int = 0, first_indent: int | None = None):
     """Print a line, wrapping at word boundaries to fit terminal width.
     If max_lines > 0, print at most that many lines; the last printed
@@ -101,13 +108,24 @@ def wrap_line(prefix: str, text: str, indent: str):
     if line.rstrip():
         current_ui.print_line(line.rstrip())
 
-def spread_line(items, width=None, prefix=""):
-    """Distribute items evenly across the terminal using display widths."""
+def spread_line(items, width=None, prefix="", margins: float = 0.0):
+    """Distribute items evenly across the terminal using display widths.
+    If margins > 0, the spread line is centered with that fraction of the
+    terminal width as left/right margin (e.g., 1/6)."""
     if width is None:
         width = get_width()
+    if margins > 0:
+        effective_width = int(width * (1 - 2 * margins))
+        result = _build_spread(items, effective_width, prefix)
+        # center the built line in the full width
+        pad = (width - display_width(result)) // 2
+        return ' ' * pad + result
+    return _build_spread(items, width, prefix)
+
+def _build_spread(items, width, prefix=""):
+    """Internal helper – builds the spread string without centering."""
     if not items:
         return prefix
-
     n = len(items)
     item_widths = [display_width(s) for s in items]
     total_item_width = sum(item_widths)
@@ -139,24 +157,23 @@ def print_header(data: dict, add_separator: bool = True):
     # Build the full prayer line using the prefix and parts
     prayer_str = spread_line(data['prayer_parts'], prefix="🕌 ")
 
-    sleep_str = data['sleep_str']
     bday_str = data.get('bday_str', '')
 
-    # Top border with centered date
-    text = f" {date_str} "
-    left = (w - display_width(text)) // 2
-    right = w - display_width(text) - left
-    current_ui.print_line('═' * left + text + '═' * right)
+    # New centered date block
+    pline_center(data['jalali_line'])
+    pline_center(data['separator'])
+    current_ui.print_line(data['greg_hijri_line'])   # already centered by spread_line
+    current_ui.print_line()                           # breather
 
     pline(prayer_str)
 
+    sleep_str = data.get('sleep_str', '💤 —')
     nap_str = data.get('nap_str', '')
-    if sleep_str and nap_str:
-        pline(spread_line([sleep_str, nap_str]))
+    if nap_str:
+        combined = spread_line([sleep_str, nap_str])
+        current_ui.print_line(combined)
     else:
         pline(sleep_str)
-        if nap_str:
-            pline(nap_str)
 
     weather_str = data.get('weather_str', '')
     if weather_str:
@@ -179,6 +196,8 @@ def print_header(data: dict, add_separator: bool = True):
     for nudge in data.get('prayer_nudges', []):
         pline(nudge)
 
+    current_ui.print_line()
+
     calendar_lines = data.get('calendar_lines', [])
     for line in calendar_lines:
         pline_wrap(line)
@@ -186,20 +205,30 @@ def print_header(data: dict, add_separator: bool = True):
     if reminders_str:
         pline(reminders_str)
 
-    # Bottom bar – last entry time for today, plain dash otherwise
+    current_ui.print_line()
+
+    # Bottom bar (right‑aligned, total width = w // 3)
+    total_bar_width = w // 5 * 2
     if data.get('is_today', True):
         last_time = data.get('last_entry_time', '')
         if last_time:
-            text = f" Last: {last_time} "
-            dash_count = w - display_width(text)
-            if dash_count > 0:
-                current_ui.print_line('─' * dash_count + text)
-            else:
-                pline(text)
+            suffix = " Last " + last_time
+            dash_len = total_bar_width - display_width(suffix)
+            if dash_len < 0:
+                dash_len = 0
+            visible = '─' * dash_len + suffix
+            pad = w - display_width(visible)
+            current_ui.print_line(' ' * pad + visible)
         else:
-            current_ui.print_line('─' * w)
+            dash_len = total_bar_width
+            visible = '─' * dash_len
+            pad = w - display_width(visible)
+            current_ui.print_line(' ' * pad + visible)
     else:
-        current_ui.print_line('─' * w)
+        dash_len = total_bar_width
+        visible = '─' * dash_len
+        pad = w - display_width(visible)
+        current_ui.print_line(' ' * pad + visible)
 
     if add_separator:
         current_ui.print_line()   # blank line before prompt (REPL only)
