@@ -26,7 +26,7 @@ def save_pending_start():
         cur.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('pending_start', ?)", (str(ts),))
         conn.commit()
     time_str = datetime.fromtimestamp(ts).strftime('%H:%M')
-    current_ui.print_line(f"Start saved: {time_str}")
+    return f"Start saved: {time_str}"
 
 def discard_pending_start():
     with get_connection_cm() as conn:
@@ -34,13 +34,12 @@ def discard_pending_start():
         cur.execute("SELECT value FROM meta WHERE key='pending_start'")
         row = cur.fetchone()
         if not row:
-            current_ui.print_line("No saved start to discard.")
-            return
+            return "No saved start to discard."
         ts = int(row['value'])
         time_str = datetime.fromtimestamp(ts).strftime('%H:%M') if ts else "unknown"
         cur.execute("DELETE FROM meta WHERE key='pending_start'")
         conn.commit()
-        current_ui.print_line(f"Saved start ({time_str}) discarded.")
+        return f"Saved start ({time_str}) discarded."
 
 def get_pending_start():
     with get_connection_cm(auto=False) as conn:

@@ -1,6 +1,8 @@
+# tests/commands/test_events.py
 import unittest
 from unittest.mock import patch, MagicMock
 import sqlite3
+from datetime import datetime
 
 from dailydriver.cli.commands.events import (
     log_event_end,
@@ -29,13 +31,11 @@ class TestEventCommands(unittest.TestCase):
     @patch('dailydriver.cli.commands.events.get_pending_start')
     @patch('dailydriver.cli.commands.events.log_free_text')
     @patch('dailydriver.cli.commands.events.clear_pending_start')
-    @patch('dailydriver.cli.commands.events.build_header_data')
-    @patch('dailydriver.cli.commands.events.print_header')
     @patch('dailydriver.cli.commands.events.current_ui')
-    def test_log_event_end_no_pending(self, mock_ui, mock_print, mock_header, mock_clear, mock_log, mock_pending):
+    def test_log_event_end_no_pending(self, mock_ui, mock_clear, mock_log, mock_pending):
         mock_pending.return_value = None
-        log_event_end('ee test entry')
-        mock_ui.print_line.assert_called_with("No running event to end.")
+        result = log_event_end('ee test entry')
+        self.assertEqual(result, "No running event to end.")
 
     @patch('dailydriver.cli.commands.events.get_pending_start')
     @patch('dailydriver.cli.commands.events.log_free_text')
@@ -56,8 +56,8 @@ class TestEventCommands(unittest.TestCase):
     @patch('dailydriver.cli.commands.events.current_ui')
     def test_log_chain_now_no_previous(self, mock_ui, mock_log, mock_last):
         mock_last.return_value = None
-        log_chain_now('ln test')
-        mock_ui.print_line.assert_called_with("No previous action to chain from.")
+        result = log_chain_now('ln test')
+        self.assertEqual(result, "No previous action to chain from.")
 
     @patch('dailydriver.core.logger.get_last_action_time')
     @patch('dailydriver.cli.commands.events.log_free_text')
@@ -83,7 +83,6 @@ class TestEventCommands(unittest.TestCase):
         mock_active.return_value = None
         mock_start.return_value = 999
         result = start_great_event_cmd('sge work focus')
-        self.assertIsNotNone(result)
         self.assertIn('work', result)
         self.assertIn('focus', result)
 
@@ -95,7 +94,6 @@ class TestEventCommands(unittest.TestCase):
         mock_ui.prompt.return_value = 'project'
         mock_start.return_value = 100
         result = start_great_event_cmd('sge')
-        self.assertIsNotNone(result)
         self.assertIn('project', result)
 
     # ---------- end_great_event_cmd ----------

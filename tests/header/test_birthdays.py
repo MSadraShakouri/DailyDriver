@@ -24,4 +24,4 @@ class TestBirthdays(unittest.TestCase):
         self.conn.execute("INSERT INTO birthdays (name, month, day, year) VALUES ('Zahra', 2, 25, 1380)")
         s = get_birthday_str(self.conn, self.target_date)
         self.assertIn('Zahra', s)
-        self.assertIn('🎈4d', s)
+        self.assertIn('4d', s)

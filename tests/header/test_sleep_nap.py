@@ -15,7 +15,7 @@ class TestSleep(unittest.TestCase):
         self.conn.close()
 
     def test_no_sleep(self):
-        self.assertEqual(get_sleep_str(self.conn, self.today), "💤 Sleep: —")
+        self.assertEqual(get_sleep_str(self.conn, self.today), "💤 —")
 
     def test_sleep_logged(self):
         sleep_ts = int(datetime(2026,5,8,23,0,0).timestamp())

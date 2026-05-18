@@ -14,8 +14,7 @@ from dailydriver.display.display_utils import print_header
 def log_event_end(cmd):
     started_at = get_pending_start()
     if started_at is None:
-        current_ui.print_line("No running event to end.")
-        return
+        return "No running event to end."
 
     parts = cmd.strip().split(maxsplit=1)
     text = parts[1] if len(parts) > 1 else ""
@@ -23,18 +22,14 @@ def log_event_end(cmd):
     result = log_free_text(text, started_at=started_at)
     if result is not None:
         clear_pending_start()
-        current_ui.clear()
-        data = build_header_data()
-        print_header(data)
-        current_ui.print_line(result)
+        return result
     return None
 
 def log_chain_now(line):
     from dailydriver.core.logger import get_last_action_time
     last_ts = get_last_action_time()
     if last_ts is None:
-        current_ui.print_line("No previous action to chain from.")
-        return None
+        return "No previous action to chain from."
 
     parts = line.strip().split(maxsplit=1)
     text = parts[1] if len(parts) > 1 else ""
