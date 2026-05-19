@@ -3,7 +3,7 @@ import sys
 from dailydriver.cli.dispatcher import make_dispatch
 from dailydriver.ui.terminal_ui import current_ui
 from dailydriver.display.header import build_header_data
-from dailydriver.display.display_utils import print_header
+from dailydriver.display.header_renderer import print_header
 from dailydriver.core.logger import log_free_text
 
 def clear():

@@ -33,7 +33,7 @@ class UI(ABC):
 
     def show_header(self, data: dict):
         """Render the daily header. Default implementation prints it."""
-        from dailydriver.display.display_utils import print_header
+        from dailydriver.display.header_renderer import print_header
         print_header(data)
 
 

@@ -4,7 +4,8 @@ import jdatetime
 from datetime import datetime, timedelta
 from dailydriver.core.database import get_connection_cm
 from dailydriver.display.header import build_header_data
-from dailydriver.display.display_utils import print_header, pline_wrap, display_width, get_width, wrap_line
+from dailydriver.display.display_utils import pline_wrap, display_width, get_width, wrap_line
+from dailydriver.display.header_renderer import print_header
 from dailydriver.ui.terminal_ui import current_ui
 import re
 
