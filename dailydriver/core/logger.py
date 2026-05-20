@@ -139,23 +139,31 @@ def log_free_text(cmd, started_at=None):
                     ).strip().lower()
                     if choice == '':
                         selected = interpretations[0]
+                        # User explicitly chose → skip final confirmation
+                        started_at = int(selected.start.timestamp())
+                        duration = selected.duration_minutes
+                        break
                     elif choice == 'n':
                         return None
                     elif choice.isdigit():
                         idx = int(choice) - 1
                         if 0 <= idx < len(interpretations):
                             selected = interpretations[idx]
+                            # User explicitly chose → skip final confirmation
+                            started_at = int(selected.start.timestamp())
+                            duration = selected.duration_minutes
+                            break
                         else:
                             current_ui.print_line("Invalid number.")
                             continue
                     else:
-                        cmd = choice   # re‑parse
+                        cmd = choice   # re‑parse the user's new expression
                         continue
 
                 started_at = int(selected.start.timestamp())
                 duration = selected.duration_minutes
 
-                # confirmation
+                # Final confirmation (only when auto‑selected or after re‑entry)
                 if not current_ui.confirm_time(selected.label, ""):
                     return None
                 break
