@@ -119,7 +119,7 @@ def log_free_text(cmd, started_at=None):
                         "(Enter=now, type a time expression, n=cancel) "
                     ).strip().lower()
                     if choice == '':
-                        started_at = now
+                        started_at = int(now.timestamp())
                         duration = None
                         break
                     elif choice == 'n':
@@ -152,7 +152,7 @@ def log_free_text(cmd, started_at=None):
                         cmd = choice   # re‑parse
                         continue
 
-                started_at = selected.start
+                started_at = int(selected.start.timestamp())
                 duration = selected.duration_minutes
 
                 # confirmation
