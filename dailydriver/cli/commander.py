@@ -37,7 +37,8 @@ def repl():
                     first_line = multi_buf[0].strip() if multi_buf else ''
                     first_parts = first_line.split(maxsplit=1)
                     cmd_check = first_parts[0].lower() if first_parts else ''
-                    if cmd_check in ('ln', 'ee') and len(first_parts) > 0:
+
+                    if cmd_check in ('ln', 'ee', 'ege') and len(first_parts) > 0:
                         rest_first = first_parts[1] if len(first_parts) > 1 else ''
                         if rest_first:
                             new_lines = [rest_first] + multi_buf[1:]
@@ -47,7 +48,10 @@ def repl():
                         if cmd_check == 'ln':
                             from dailydriver.cli.commands.events import log_chain_now
                             log_chain_now(f'ln {desc}')
-                        else:
+                        elif cmd_check == 'ege':
+                            from dailydriver.cli.commands.events import end_great_event_cmd
+                            end_great_event_cmd(f'ege {desc}')
+                        else:   # 'ee'
                             from dailydriver.cli.commands.events import log_event_end
                             log_event_end(f'ee {desc}')
                     else:
