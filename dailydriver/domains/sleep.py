@@ -1,8 +1,9 @@
 # dailydriver/domains/sleep.py
 from datetime import datetime
 from dailydriver.core.database import get_connection_cm
+from dailydriver.core.logger import get_last_action_time
 from dailydriver.utils.time_utils import today_jalali
-from dailydriver.utils.time_parser import parse_time_range
+from dailydriver.utils.time_parser import parse_time_expressions
 from dailydriver.ui.terminal_ui import current_ui
 
 def log_sleep(cmd: str):
@@ -12,14 +13,34 @@ def log_sleep(cmd: str):
         return None
 
     now = datetime.now()
-    sleep_dt, wake_dt, duration = parse_time_range(parts[1:], now)
-    if sleep_dt is None:
-        current_ui.print_line("Could not parse sleep/wake times.")
+    last_ts = get_last_action_time()
+    last_time = datetime.fromtimestamp(last_ts) if last_ts else None
+
+    # Build a single time‑expression string.
+    # Old syntax "S 23:00 07:15" → two tokens, no dash → join with "-".
+    args = parts[1:]
+    if len(args) == 2 and '-' not in args[0] and '-' not in args[1]:
+        time_str = f"{args[0]}-{args[1]}"
+    else:
+        time_str = " ".join(args)
+
+    interpretations = parse_time_expressions(
+        time_str, now, last_time=last_time, mode="required"
+    )
+
+    # Keep only interpretations that have an end time (required for sleep)
+    valid = [i for i in interpretations if i.end is not None]
+
+    if not valid:
+        current_ui.print_line(
+            "Duration required. Use a range (e.g., 23:00-7:00, l-9, 23-n, l--10)."
+        )
         return None
 
-    assert sleep_dt is not None
-    assert wake_dt is not None
-    assert duration is not None
+    selected = valid[0]
+    sleep_dt = selected.start
+    wake_dt = selected.end
+    duration = selected.duration_minutes
 
     if not current_ui.confirm(
         f"Sleep:  {sleep_dt.strftime('%H:%M')}\n"

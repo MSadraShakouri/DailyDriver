@@ -1,11 +1,11 @@
 # dailydriver/core/logger.py
 import time
 from datetime import datetime
-from dailydriver.core.database import get_connection_cm
-from dailydriver.core.parser import extract_time
+from dailydriver.core.database import get_connection_cm, get_connection
 from dailydriver.core.keyword_learner import find_matching_categories
 from dailydriver.core.entry_writer import _save_entry, inject_great_categories
 from dailydriver.ui.terminal_ui import current_ui
+from dailydriver.utils.time_parser import parse_time_expressions
 
 # ----------------------------------------------------------------------
 #  Database‑backed state helpers (replaces dot‑file I/O)
@@ -97,6 +97,7 @@ def log_free_text(cmd, started_at=None):
 
         # ---------- step 0 – time handling ----------
         if started_at is not None:
+            # chaining / great‑event end: keep existing behaviour
             duration = int(time.time() - started_at) // 60
             start_dt = datetime.fromtimestamp(started_at)
             start_str = start_dt.strftime('%H:%M')
@@ -104,22 +105,60 @@ def log_free_text(cmd, started_at=None):
             if not current_ui.confirm_time(start_str, dur_str):
                 return None
         else:
-            parsed_start, parsed_duration = extract_time(cmd)
-            if parsed_start is not None:
-                started_at = parsed_start
-                if parsed_duration is not None:
-                    duration = parsed_duration
-                start_dt = datetime.fromtimestamp(started_at)
-                start_str = start_dt.strftime('%H:%M')
-                dur_str = ""
-                if duration is not None:
-                    h = duration // 60
-                    m = duration % 60
-                    dur_str = f"{h}h {m}m" if h else f"{m}m"
-                if not current_ui.confirm_time(start_str, dur_str):
+            now = datetime.now()
+            last_ts = get_last_action_time()
+            last_time = datetime.fromtimestamp(last_ts) if last_ts else None
+
+            while True:
+                interpretations = parse_time_expressions(
+                    cmd, now, last_time, mode="optional"
+                )
+                if not interpretations:
+                    current_ui.print_line("No time detected.")
+                    choice = current_ui.prompt(
+                        "(Enter=now, type a time expression, n=cancel) "
+                    ).strip().lower()
+                    if choice == '':
+                        started_at = now
+                        duration = None
+                        break
+                    elif choice == 'n':
+                        return None
+                    else:
+                        cmd = choice   # re‑parse the user's new expression
+                        continue
+
+                if len(interpretations) == 1:
+                    selected = interpretations[0]
+                else:
+                    current_ui.print_line("Time suggestions:")
+                    for i, interp in enumerate(interpretations, 1):
+                        current_ui.print_line(f"  [{i}] {interp.label}")
+                    choice = current_ui.prompt(
+                        "Enter=1, numbers to select, or type a new time expression (n=cancel) "
+                    ).strip().lower()
+                    if choice == '':
+                        selected = interpretations[0]
+                    elif choice == 'n':
+                        return None
+                    elif choice.isdigit():
+                        idx = int(choice) - 1
+                        if 0 <= idx < len(interpretations):
+                            selected = interpretations[idx]
+                        else:
+                            current_ui.print_line("Invalid number.")
+                            continue
+                    else:
+                        cmd = choice   # re‑parse
+                        continue
+
+                started_at = selected.start
+                duration = selected.duration_minutes
+
+                # confirmation
+                if not current_ui.confirm_time(selected.label, ""):
                     return None
-            else:
-                started_at = int(time.time())
+                break
 
         # ---------- category suggestion ----------
         matches = find_matching_categories(cmd)
@@ -129,7 +168,6 @@ def log_free_text(cmd, started_at=None):
             for i, (path, cnt) in enumerate(matches, 1):
                 current_ui.print_line(f"  [{i}] {path}")
             current_ui.print_line("Enter=1, numbers to select, or type new paths (space‑separated)")
-            current_ui.print_line()
             choice = current_ui.prompt("> ").strip().lower()
             if choice == '':
                 selected_paths = [matches[0][0]]

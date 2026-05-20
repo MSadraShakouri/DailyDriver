@@ -1,8 +1,9 @@
 # dailydriver/domains/nap.py
 from datetime import datetime
 from dailydriver.core.database import get_connection_cm
+from dailydriver.core.logger import get_last_action_time
 from dailydriver.utils.time_utils import today_jalali
-from dailydriver.utils.time_parser import parse_time_range
+from dailydriver.utils.time_parser import parse_time_expressions
 from dailydriver.ui.terminal_ui import current_ui
 
 def log_nap(cmd: str):
@@ -14,19 +15,31 @@ def log_nap(cmd: str):
         return None
 
     now = datetime.now()
-    start_dt, end_dt, duration = parse_time_range(args, now)
+    last_ts = get_last_action_time()
+    last_time = datetime.fromtimestamp(last_ts) if last_ts else None
 
-    if start_dt is None:
-        current_ui.print_line("Could not parse start/end times.")
+    # Build a single time‑expression string.
+    if len(args) == 2 and '-' not in args[0] and '-' not in args[1]:
+        time_str = f"{args[0]}-{args[1]}"
+    else:
+        time_str = " ".join(args)
+
+    interpretations = parse_time_expressions(
+        time_str, now, last_time=last_time, mode="required"
+    )
+
+    valid = [i for i in interpretations if i.end is not None]
+
+    if not valid:
+        current_ui.print_line(
+            "Duration required. Use a range (e.g., 14:00-14:25, l-14:00, l--5)."
+        )
         return None
 
-    assert start_dt is not None
-    assert end_dt is not None
-    assert duration is not None
-
-    if duration is not None and duration < 1:
-        current_ui.print_line("Duration must be positive.")
-        return None
+    selected = valid[0]
+    start_dt = selected.start
+    end_dt = selected.end
+    duration = selected.duration_minutes
 
     if not current_ui.confirm(
         f"Nap:   {start_dt.strftime('%H:%M')} → {end_dt.strftime('%H:%M')}\n"

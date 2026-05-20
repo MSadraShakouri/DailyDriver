@@ -1,14 +1,15 @@
 # dailydriver/domains/prayer_log.py
 import time
-import jdatetime
 from datetime import datetime, timedelta
+import jdatetime
 from dailydriver.core.database import get_connection_cm
 from dailydriver.utils.time_utils import today_jalali
-from dailydriver.utils.time_parser import parse_prayer_args
-from dailydriver.domains.prayer_core import current_slot
+from dailydriver.utils.time_parser import parse_prayer_args, parse_time_expressions
+from dailydriver.domains.prayer_core import current_slot, PRAYER_SLOTS
 from dailydriver.domains.prayer_times import get_approximate_times
 from dailydriver.domains.prayer_backlog import _update_complete_until
 from dailydriver.ui.terminal_ui import current_ui
+
 
 def log_prayer(cmd: str):
     with get_connection_cm() as conn:
@@ -18,11 +19,12 @@ def log_prayer(cmd: str):
         parts = cmd.strip().split()
         args = parts[1:] if len(parts) > 1 else []
 
+        # Handle qada logging: p q [time]
         if 'q' in args:
             args.remove('q')
             parsed = parse_prayer_args(args)
-            time_min = parsed['explicit_time']
-            offset_min = parsed['offset_min']
+            time_min = parsed['explicit_time']      # None if no time
+            offset_min = parsed['offset_min']        # None if no offset
             from dailydriver.domains.prayer_backlog import log_qada
             log_qada(time_min, offset_min)
             return
@@ -54,12 +56,19 @@ def log_prayer(cmd: str):
         else:
             slot = current_slot()
 
-        if explicit_time:
+        if offset_min is not None:
+            interpretations = parse_time_expressions(
+                f"-{offset_min}", now, last_time=None, mode="no_duration"
+            )
+            if interpretations:
+                prayer_dt = interpretations[0].start
+            else:
+                # Fallback to original behaviour
+                prayer_dt = now - timedelta(minutes=offset_min)
+        elif explicit_time:
             prayer_dt = now.replace(hour=explicit_time // 60,
                                     minute=explicit_time % 60,
                                     second=0, microsecond=0)
-        elif offset_min is not None:
-            prayer_dt = now - timedelta(minutes=offset_min)
         else:
             prayer_dt = now
 
@@ -103,7 +112,7 @@ def log_prayer(cmd: str):
             (slot, today, 'on_time', int(time.time()), int(prayer_dt.timestamp()),
              jamaat_location, shak_count)
         )
-        _update_complete_until(conn)
+        _update_complete_until(conn)   # update meta in same transaction
         conn.commit()
 
     result = f"Logged: {slot_display}\nTime:   {time_str}"

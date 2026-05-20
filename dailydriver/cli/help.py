@@ -79,7 +79,7 @@ def show_help():
     current_ui.print_line("     search programming")
     current_ui.print_line("     search morning")
     current_ui.print_line()
-    current_ui.print_line("  last")
+    current_ui.print_line("  recent")
     current_ui.print_line("     Show the last 5 journal entries")
     current_ui.print_line()
     current_ui.print_line("  stats")

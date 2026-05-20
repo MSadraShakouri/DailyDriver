@@ -17,7 +17,7 @@ class TestDispatcher(unittest.TestCase):
         expected = [
             'q', 'p', 's', 'nap', 'view', '?', 'bd', 'hygiene', 't',
             'stats', 'day', 'today', 'se', 'ce', 'ee', 'ln', 'cal',
-            'year', 'export', 'search', 'last', 'sge', 'ege', 'cge',
+            'year', 'export', 'search', 'recent', 'sge', 'ege', 'cge',
         ]
         for key in expected:
             self.assertIn(key, self.dispatch)
@@ -52,4 +52,4 @@ class TestDispatcher(unittest.TestCase):
         self.assertTrue(callable(self.dispatch['cal']))
         self.assertEqual(self.dispatch['export'], export)
         self.assertEqual(self.dispatch['search'], search)
-        self.assertTrue(callable(self.dispatch['last']))
+        self.assertTrue(callable(self.dispatch['recent']))

@@ -38,7 +38,7 @@ def make_dispatch():
         'export': export,
         'nap': log_nap,
         'search': search,
-        'last': lambda _: show_last(),
+        'recent': lambda _: show_last(),
         'sge': start_great_event_cmd,
         'ege': end_great_event_cmd,
         'cge': cancel_great_event_cmd,
