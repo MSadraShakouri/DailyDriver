@@ -1,12 +1,10 @@
 # TODO
 
 ## High Priority
-- **Show Hijri and Gregorian dates in header**  
-  Display equivalent Gregorian and Hijri dates below the main Jalali header border (dimmed, one row).
-
-## Medium Priority
 - **HTML editor for categories (merging, etc.)**  
   Extend the existing keyword editor to merge, rename, or delete categories. Useful for long‑term maintenance.
+
+## Medium Priority
 - **View entry (read‑only) from view/search**  
   Typing an entry ID shows the entry details without opening the editor.  
   Add a separate `e` or `edit` key to jump into the editor from that view.

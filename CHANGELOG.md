@@ -1,5 +1,27 @@
 # Changelog
 
+## 1.4.0 (2026‑05‑21)
+
+### Added
+- **Unified time‑expression language** – a single, powerful parser (`parse_time_expressions`) for all time input. Supports single times (`09:18`), ranges (`09:18‑09:24`, `‑15‑n`), `l`/`last` and `n`/`now` atoms, durations (`5m`, `1h30m`), and offsets (`‑15`, `‑‑15m`, `l+5m`). AM/PM disambiguation with 24h auto‑detection. Used by journal, sleep, nap, and prayer.
+- **Header redesign** – modern, centered date block with Jalali weekday, thin proportional separator, and Gregorian/Hijri dates. Prayer placeholders fixed to 5‑char width. Sleep and nap combined into one spread line. Birthdays formatted `🎈 Name 2d · 48`. Bottom bar minimal, right‑aligned. Breather lines between sections.
+- **`recent` command** – renamed from `last`; layout now matches `view` and `search` with wrapped categories and descriptions.
+- **120+ new tests** – covering the unified time parser, sleep/nap parser, logger time‑conversion, date parser, hijri offset, hygiene nudges, prayer backlog, terminal UI confirmations, and multiline routing. Total: **148 tests**.
+- **Linting & formatting** – Ruff auto‑fix + manual cleanup (zero warnings). Black and isort applied with 120‑char line length for uniform code style.
+
+### Changed
+- **Event‑command display order** – `se`, `ce`, `ee`, `ln` now follow the same pattern as `sge`/`ege`/`cge`: operation → clear → updated header → confirmation message.
+- **Sleep / nap** now use the unified parser and accept `l`/`n`/`ln` ranges (e.g., `s l‑9`, `s 23‑n`, `s ln`, `nap l‑‑5`). Nap interactive prompts removed.
+- **`p` offset** uses the unified parser (e.g., `p ‑15` logs prayer time minus 15 minutes).
+- **`ege` in multiline mode** (`:m`) is now properly routed to `end_great_event_cmd`.
+- **Time confirmation** no longer repeats when a time is explicitly picked from a suggestion list.
+- **`date_str` removed** from the header data dict; the old top‑border code deleted.
+
+### Fixed
+- `_save_entry` now correctly receives Unix timestamps from the new parser (no more `TypeError` on `l6m` etc.).
+- SQLite FTS index kept in sync with new and edited entries (migration v8 for final rebuild, migration v9 for meta table consolidation).
+- Various import, variable, and dead‑code cleanup across the entire codebase.
+
 ## 1.3.0 (2026‑05‑13)
 
 ### Added

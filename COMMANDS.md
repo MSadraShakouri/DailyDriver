@@ -34,6 +34,43 @@ The `qada` alias does exactly the same as `p q`.
 | `s 23-7:15` | Shorthand form (sleep‑wake) |
 | `s n 08:00` | `n` = now (sleep time is right now) |
 | `s -30 08:00` | Fell asleep 30 minutes ago |
+| `s l-9` | From last action to 09:00 |
+| `s 23-n` | From 23:00 to now |
+| `s ln` | From last action to now |
+| `s l--10` | From last action to 10 minutes ago |
+
+---
+
+### Time Expressions
+
+The app uses a unified time‑expression language that works everywhere
+(journal, sleep, nap, prayer).  
+A time expression can be a single point or a range.
+
+**Single times**
+
+| Example | Meaning |
+|---------|---------|
+| `09:18` | 09:18 today (or yesterday if already passed) |
+| `-15` | 15 minutes ago |
+| `l` / `last` | Last action time |
+| `n` / `now` | Current time |
+
+**Ranges**
+
+| Example | Meaning |
+|---------|---------|
+| `9:18-9:24` | From 09:18 to 09:24 |
+| `-15-n` | From 15 minutes ago until now |
+| `l-18:30` | From last action to 18:30 |
+| `l--15m` | From last action to 15 minutes ago |
+| `l+5m` | From last action + 5 minutes (forward) |
+| `19:00--15m` | From 19:00 to 15 minutes ago |
+| `23-n` | From 23:00 to now |
+| `ln` | From last action to now |
+| `last5m` / `l5m` | Last 5 minutes (range from now‑5m to now) |
+
+Durations can be written as `30m`, `1h`, `1h15m`, or a bare number for minutes.
 
 ---
 
@@ -41,7 +78,7 @@ The `qada` alias does exactly the same as `p q`.
 
 Anything not recognised as a command is treated as a journal entry.
 The app will:
-1. Parse any time expressions (e.g. `13:00`, `2‑3`, `yesterday`) and ask for confirmation.
+1. Parse any time expressions (using the language above) and ask for confirmation.
 2. Suggest categories based on learned keywords.
 3. Ask for a category if none matched.
 
@@ -194,6 +231,7 @@ month names (Jalali, Gregorian, Hijri), and category paths.
 Misspellings are tolerated (e.g. `mornig` → morning).
 
 Results are paginated; press `n`/`p` to navigate (multi‑page with `5n`), `q` to quit, enter an entry ID to edit it, or `d <id>` to open that entry’s day view.
+Matching search terms are highlighted in reverse video.
 
 ---
 
@@ -203,9 +241,17 @@ Results are paginated; press `n`/`p` to navigate (multi‑page with `5n`), `q` t
 |-------|-------------|
 | `nap 14:00 14:25` | Nap from 14:00 to 14:25 |
 | `nap 14-14:25` | Compact form (like sleep) |
+| `nap l-14:00` | From last action to 14:00 |
+| `nap l--5` | From last action to 5 minutes ago |
 
 Naps are shown in the daily header (total nap time) and `today` summary.
 Typing `nap` alone prints usage and exits.
+
+---
+
+### Recent Entries `recent`
+
+Shows the last 5 journal entries in a modern, wrapped layout identical to `view`.
 
 ---
 
@@ -225,6 +271,8 @@ The offset (‑2..+2) is stored in `data/hijri_offset.txt` and applied to all Hi
 2. Each subsequent line is collected.
 3. Finish with three dashes on a line by itself: `---`.
 4. The whole text becomes a single entry.
+
+This also works with `ln`, `ee`, and `ege` commands for chaining or ending events.
 
 ---
 

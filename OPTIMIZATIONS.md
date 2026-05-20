@@ -16,17 +16,6 @@ Ideas for making DailyDriver faster, cleaner, and more maintainable.
 
 ## 🟡 Medium Priority (add when convenient)
 
-### UI polish & wrapping overhaul
-- Replace `pline()` truncation with soft‑wrapping `pline_wrap()` for all long text (hygiene, reminders, birthdays, weather, prayer nudges, calendar events)
-- Add consistent blank lines between header sections, before prompt, and between entries in view/search/day
-- Reduce indentation in day‑view entries to 1 space
-- Truncate / wrap multi‑category lines in view/search instead of letting them overflow
-- Justify stats prayer percentages to fit terminal width
-- Combine sleep + nap into one line in header
-- Show each hygiene warning on its own line instead of joining with spaces
-- Add a separator line between the `n/p = …` hint and the `>` prompt in view/search/day
-- Ensure all views respect `tput cols` and gracefully wrap or truncate content
-
 ### Smarter `_update_complete_until`
 - After logging a qada far in the past, avoid scanning all intermediate days.
 - Check only if the logged date is now complete, then advance only as far as contiguous completed dates go.

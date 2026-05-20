@@ -1,4 +1,4 @@
-# DailyDriver v1.3.0
+# DailyDriver v1.4.0
 
 Your personal, terminal‑based life tracker.  
 Log prayers, sleep, hygiene routines, birthdays, intentions, and free‑form journal entries – all from a fast, keyboard‑driven REPL.  
@@ -25,6 +25,9 @@ Built with Python, SQLite, and Jalali calendar support.
 - **Full‑text search** (`search` command) with fuzzy time/date/category boosting, and multi‑page navigation (`5n`).
 - **Reminders** – mark events with `remind: true` and see them in the header two weeks ahead.
 - **Beautiful header** – today’s prayers, sleep, weather, birthdays, hygiene, events, reminders, and prayer nudges at a glance. Color‑coded overdue/pre‑alert, reverse‑video today in calendars.
+- **Unified time expressions** – a single flexible syntax for all time input: single times, ranges, offsets, durations, `l`/`last`, `n`/`now`. Works across journal, sleep, nap, and prayer.
+- **Header redesign** – modern centered date block with Jalali weekday, thin separator, Gregorian/Hijri dates, improved spacing.
+- **`recent` command** – renamed from `last`; layout matches `view` and `search` with wrapped categories and descriptions.
 - **State files moved into the database** – no more hidden dot‑files.
 - **Built‑in aliases** – `pray` → `p`, `sleep` → `s`, `h` → `?`, `qada` → `p q`.
 - **Minimal dependencies** – Python 3.8+, SQLite, `jdatetime`, `hijridate`, `porter2stemmer`.
@@ -90,7 +93,7 @@ You’ll see the daily header and a prompt `>`. Type `?` for a command overview,
 | `s` | Log sleep |
 | `nap` | Log a short nap |
 | `day` or `today` | View today or any past/future day (with navigation) |
-| `last` | Show last 5 journal entries |
+| `recent` | Show last 5 journal entries (was `last`) |
 | `view` | Browse journal entries |
 | `search` | Full‑text search with fuzzy boosts |
 | `stats` | Statistics (30 days) |
@@ -125,10 +128,10 @@ sqlite3 data/daily.db "SELECT * FROM entries;"
 dailydriver/
 ├── core/          # database, parser, logger, keyword learning
 ├── domains/       # prayer, sleep, nap, hygiene, birthday, intention, prayer times
-├── display/       # header (sub‑modules), stats, today view, hygiene nudges
+├── display/       # header (sub‑modules), header_renderer, stats, today view, hygiene nudges
 ├── cli/           # REPL, commands, dispatcher, search, calendar, export
 ├── ui/            # terminal abstraction
-└── utils/         # time helpers, calendar events, weather, hijri offset
+└── utils/         # time helpers, calendar events, weather, unified time parser
 data/              # database, stopwords, event JSON files, hijri offset
 tools/             # event editor, keyword editor
 tests/             # test files (header, commands, logger state, etc.)
