@@ -1,9 +1,8 @@
 # dailydriver/cli/last_view.py
-"""Quick view: show the last 5 journal entries without the header."""
-
+"""Quick view: show the last 5 journal entries, layout matching view."""
 import jdatetime
-
 from dailydriver.core.database import get_connection_cm
+from dailydriver.display.display_utils import pline_wrap, wrap_line
 from dailydriver.ui.terminal_ui import current_ui
 
 
@@ -28,9 +27,14 @@ def show_last():
 
     current_ui.print_line("─── Last 5 Entries ───")
     for row in rows:
-        jdt = jdatetime.datetime.fromtimestamp(row["created_at"])
-        date_str = jdt.strftime("%Y-%m-%d %H:%M")
-        cat_str = row["categories"] or "(no category)"
-        desc = (row["description"] or "")[:60].replace("\n", " ")
-        current_ui.print_line(f"[{row['id']}] {date_str}  {cat_str}")
-        current_ui.print_line(f"    {desc}")
+        jdt = jdatetime.datetime.fromtimestamp(row['created_at'])
+        # Line 1: ID + date + time
+        current_ui.print_line(f"[{row['id']}] {jdt.strftime('%Y-%m-%d %H:%M')}")
+        # Categories indented under the date
+        cats = row['categories'] or '(no category)'
+        cats_indent = ' ' * len(f"[{row['id']}] ")
+        wrap_line(cats_indent, cats, cats_indent)
+        # Description
+        desc = (row['description'] or '').replace('\n', ' ')
+        pline_wrap(desc, indent=2, max_lines=2)
+        current_ui.print_line()
