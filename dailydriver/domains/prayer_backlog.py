@@ -50,7 +50,9 @@ def _update_complete_until(conn):
     new_until = (d_date - jdatetime.timedelta(days=1)).strftime('%Y-%m-%d')
     _set_complete_until(conn, new_until)
 
-def _get_unlogged_past_slots(conn):
+def _get_unlogged_past_slots(conn, now=None):
+    if now is None:
+        now = datetime.now()
     today = today_jalali()
     complete_until = _get_complete_until(conn)
     if not complete_until:
@@ -61,7 +63,6 @@ def _get_unlogged_past_slots(conn):
     start_y, start_m, start_d = map(int, complete_until.split('-'))
     start_date = jdatetime.date(start_y, start_m, start_d) + jdatetime.timedelta(days=1)
     end_date = jdatetime.date.today()
-    now = datetime.now()
     missing = []
     d = start_date
     while d <= end_date:
