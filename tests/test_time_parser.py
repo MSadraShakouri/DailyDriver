@@ -138,11 +138,13 @@ class TestTimeParser(unittest.TestCase):
     # ---- Bare numbers ignored ----
     def test_bare_number_not_parsed(self):
         r = parse_time_expressions("9", self.now, self.last)
-        # 9 could be parsed as a bare hour (09:00), but the plan says ignore bare numbers
-        # actually we kept bare hour with low priority; let's adjust: the plan says ignore if no colon and no adjacent context.
-        # Our parser returns bare hour as a low-priority atom. We'll keep it for now but may revisit.
-        # For this test, we assert it does something (9:00) but later we can filter in caller.
-        self.assertGreater(len(r), 0)
+        self.assertEqual(len(r), 0)
+
+    def test_hour_range_with_dash(self):
+        r = parse_time_expressions("7-9", self.now, self.last)
+        self.assertGreaterEqual(len(r), 1)
+        self.assertEqual(r[0].start.strftime("%H:%M"), "07:00")
+        self.assertEqual(r[0].end.strftime("%H:%M"), "09:00")
 
 
 if __name__ == "__main__":

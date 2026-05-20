@@ -386,10 +386,13 @@ def parse_time_expressions(
         if token in ("-", "--", "+"):
             continue
         atoms.extend(_time_atom(token, now, last_time))
+    # Suppress bare‑hour interpretations (priority 3) when no dash is present
+    has_dash = any(t in ("-", "--") for t in tokens)
+    if not has_dash:
+        atoms = [a for a in atoms if a.priority != 3]
     if atoms:
         atoms.sort(key=lambda r: abs((r.start - now).total_seconds()))
         return atoms
-
     return []
 
 
