@@ -1,9 +1,12 @@
 # dailydriver/domains/prayer_core.py
 from datetime import datetime
+
 import jdatetime
+
 from dailydriver.domains.prayer_times import get_approximate_times
 
-PRAYER_SLOTS = ['fajr', 'dhuhr_asr', 'maghrib_isha']
+PRAYER_SLOTS = ["fajr", "dhuhr_asr", "maghrib_isha"]
+
 
 def _today_times():
     """Return today's prayer times as datetime objects."""
@@ -16,10 +19,11 @@ def _today_times():
         return now.replace(hour=h, minute=m, second=0, microsecond=0)
 
     return {
-        'fajr': to_dt(times['fajr']),
-        'dhuhr': to_dt(times['dhuhr']),
-        'maghrib': to_dt(times['maghrib']),
+        "fajr": to_dt(times["fajr"]),
+        "dhuhr": to_dt(times["dhuhr"]),
+        "maghrib": to_dt(times["maghrib"]),
     }
+
 
 def current_slot() -> str:
     """Guess which prayer slot is most recent based on today's times."""
@@ -27,12 +31,12 @@ def current_slot() -> str:
     now = datetime.now()
 
     ordered = [
-        ('fajr', times['fajr']),
-        ('dhuhr_asr', times['dhuhr']),
-        ('maghrib_isha', times['maghrib']),
+        ("fajr", times["fajr"]),
+        ("dhuhr_asr", times["dhuhr"]),
+        ("maghrib_isha", times["maghrib"]),
     ]
 
-    current = 'fajr'
+    current = "fajr"
     for slot, dt in ordered:
         if now >= dt:
             current = slot

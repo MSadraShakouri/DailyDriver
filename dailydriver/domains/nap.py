@@ -1,10 +1,12 @@
 # dailydriver/domains/nap.py
 from datetime import datetime
+
 from dailydriver.core.database import get_connection_cm
 from dailydriver.core.logger import get_last_action_time
-from dailydriver.utils.time_utils import today_jalali
-from dailydriver.utils.time_parser import parse_time_expressions
 from dailydriver.ui.terminal_ui import current_ui
+from dailydriver.utils.time_parser import parse_time_expressions
+from dailydriver.utils.time_utils import today_jalali
+
 
 def log_nap(cmd: str):
     parts = cmd.strip().split()
@@ -19,7 +21,7 @@ def log_nap(cmd: str):
     last_time = datetime.fromtimestamp(last_ts) if last_ts else None
 
     # Build a single time‑expression string.
-    if len(args) == 2 and '-' not in args[0] and '-' not in args[1]:
+    if len(args) == 2 and "-" not in args[0] and "-" not in args[1]:
         time_str = f"{args[0]}-{args[1]}"
     else:
         time_str = " ".join(args)
@@ -52,7 +54,7 @@ def log_nap(cmd: str):
         today = today_jalali()
         cur.execute(
             "INSERT INTO nap_logs (jalali_date, start_time, duration_minutes, description) VALUES (?,?,?,?)",
-            (today, int(start_dt.timestamp()), duration, None)
+            (today, int(start_dt.timestamp()), duration, None),
         )
         conn.commit()
 

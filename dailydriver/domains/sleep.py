@@ -1,10 +1,12 @@
 # dailydriver/domains/sleep.py
 from datetime import datetime
+
 from dailydriver.core.database import get_connection_cm
 from dailydriver.core.logger import get_last_action_time
-from dailydriver.utils.time_utils import today_jalali
-from dailydriver.utils.time_parser import parse_time_expressions
 from dailydriver.ui.terminal_ui import current_ui
+from dailydriver.utils.time_parser import parse_time_expressions
+from dailydriver.utils.time_utils import today_jalali
+
 
 def log_sleep(cmd: str):
     parts = cmd.strip().split()
@@ -19,7 +21,7 @@ def log_sleep(cmd: str):
     # Build a single time‑expression string.
     # Old syntax "S 23:00 07:15" → two tokens, no dash → join with "-".
     args = parts[1:]
-    if len(args) == 2 and '-' not in args[0] and '-' not in args[1]:
+    if len(args) == 2 and "-" not in args[0] and "-" not in args[1]:
         time_str = f"{args[0]}-{args[1]}"
     else:
         time_str = " ".join(args)
@@ -54,7 +56,7 @@ def log_sleep(cmd: str):
         today = today_jalali()
         cur.execute(
             "INSERT INTO sleep_logs (jalali_date, sleep_time, wake_time, duration_minutes) VALUES (?,?,?,?)",
-            (today, int(sleep_dt.timestamp()), int(wake_dt.timestamp()), duration)
+            (today, int(sleep_dt.timestamp()), int(wake_dt.timestamp()), duration),
         )
         conn.commit()
 

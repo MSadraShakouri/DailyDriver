@@ -1,15 +1,18 @@
 # dailydriver/display/display_utils.py
+import re
 import shutil
 import unicodedata
-import re
+
 from dailydriver.ui.terminal_ui import current_ui
 
 # ANSI escape sequence pattern
-ANSI_ESCAPE = re.compile(r'\x1b\[[0-9;]*[a-zA-Z]')
+ANSI_ESCAPE = re.compile(r"\x1b\[[0-9;]*[a-zA-Z]")
+
 
 def strip_ansi(s: str) -> str:
     """Remove ANSI escape codes from a string."""
-    return ANSI_ESCAPE.sub('', s)
+    return ANSI_ESCAPE.sub("", s)
+
 
 def get_width():
     """Return terminal width in columns, default 80."""
@@ -18,17 +21,20 @@ def get_width():
     except Exception:
         return 80
 
+
 def char_width(c: str) -> int:
     """Return the display width of a single character (handles emojis)."""
     eaw = unicodedata.east_asian_width(c)
-    if eaw in ('W', 'F'):
+    if eaw in ("W", "F"):
         return 2
     return 1
+
 
 def display_width(s: str) -> int:
     """Total display width of a string (ANSI codes ignored)."""
     s_clean = strip_ansi(s)
     return sum(char_width(ch) for ch in s_clean)
+
 
 def pline(s: str):
     """Print a line, truncating to terminal width based on display width."""
@@ -48,16 +54,20 @@ def pline(s: str):
     # Preserve any ANSI codes from the original – we just truncate the visible part
     # For simplicity, we'll just print the truncated clean version; ANSI codes at the ends would be messy.
     # But for pline(), we can just output the truncated clean text. ANSI codes typically don't change width.
-    current_ui.print_line(''.join(result) + '…')
+    current_ui.print_line("".join(result) + "…")
+
 
 def pline_center(s: str):
     """Print a string centered on the terminal, ignoring ANSI codes for width."""
     tw = get_width()
     sw = display_width(s)
     left = (tw - sw) // 2
-    current_ui.print_line(' ' * left + s)
+    current_ui.print_line(" " * left + s)
 
-def pline_wrap(s: str, indent: int = 0, max_lines: int = 0, first_indent: int | None = None):
+
+def pline_wrap(
+    s: str, indent: int = 0, max_lines: int = 0, first_indent: int | None = None
+):
     """Print a line, wrapping at word boundaries to fit terminal width.
     If max_lines > 0, print at most that many lines; the last printed
     line will end with '…' if truncation occurs.
@@ -67,17 +77,17 @@ def pline_wrap(s: str, indent: int = 0, max_lines: int = 0, first_indent: int | 
 
     tw = get_width()
     if display_width(s) <= tw - first_indent:
-        current_ui.print_line(' ' * first_indent + s)
+        current_ui.print_line(" " * first_indent + s)
         return
 
     words = s.split()
     lines = []
-    line = ' ' * first_indent
+    line = " " * first_indent
     for word in words:
         if display_width(line + word) > tw - 1:
             lines.append(line.rstrip())
-            line = ' ' * indent
-        line += word + ' '
+            line = " " * indent
+        line += word + " "
     if line.strip():
         lines.append(line.rstrip())
 
@@ -85,13 +95,14 @@ def pline_wrap(s: str, indent: int = 0, max_lines: int = 0, first_indent: int | 
         lines = lines[:max_lines]
         last = lines[-1].rstrip()
         if display_width(last) + 3 <= tw:
-            last += '…'
+            last += "…"
         else:
-            last = last[:max(0, display_width(last) - 3)] + '…'
+            last = last[: max(0, display_width(last) - 3)] + "…"
         lines[-1] = last
 
     for line in lines:
         current_ui.print_line(line)
+
 
 def wrap_line(prefix: str, text: str, indent: str):
     """Print prefix + text, wrapping at word boundaries.
@@ -102,9 +113,10 @@ def wrap_line(prefix: str, text: str, indent: str):
         if display_width(line + w) >= get_width():
             current_ui.print_line(line.rstrip())
             line = indent
-        line += w + ' '
+        line += w + " "
     if line.rstrip():
         current_ui.print_line(line.rstrip())
+
 
 def spread_line(items, width=None, prefix="", margins: float = 0.0):
     """Distribute items evenly across the terminal using display widths.
@@ -117,8 +129,9 @@ def spread_line(items, width=None, prefix="", margins: float = 0.0):
         result = _build_spread(items, effective_width, prefix)
         # center the built line in the full width
         pad = (width - display_width(result)) // 2
-        return ' ' * pad + result
+        return " " * pad + result
     return _build_spread(items, width, prefix)
+
 
 def _build_spread(items, width, prefix=""):
     """Internal helper – builds the spread string without centering."""
@@ -146,4 +159,3 @@ def _build_spread(items, width, prefix=""):
             spaces = gap_each + (1 if i <= remainder else 0)
             result += " " * spaces + items[i]
     return result
-

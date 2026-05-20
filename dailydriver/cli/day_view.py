@@ -1,13 +1,17 @@
 # dailydriver/cli/day_view.py
 """Unified day view – shows today or any past/future day."""
-import jdatetime
+
+import re
 from datetime import datetime, timedelta
+
+import jdatetime
+
 from dailydriver.core.database import get_connection_cm
-from dailydriver.display.header import build_header_data
 from dailydriver.display.display_utils import pline_wrap, wrap_line
+from dailydriver.display.header import build_header_data
 from dailydriver.display.header_renderer import print_header
 from dailydriver.ui.terminal_ui import current_ui
-import re
+
 
 def show_day(cmd=None):
     """Entry point: 'day', 'day -1', 'day 1405-02-15', 'today', or just a date string."""
@@ -18,20 +22,20 @@ def show_day(cmd=None):
     if cmd is not None:
         cmd = cmd.strip()
         parts = cmd.split(maxsplit=1)
-        command = parts[0].lower() if parts else ''
-        arg = parts[1].strip() if len(parts) > 1 else ''
+        command = parts[0].lower() if parts else ""
+        arg = parts[1].strip() if len(parts) > 1 else ""
 
-        if command == 'today':
+        if command == "today":
             _show_day_body(today, True)
             return
 
         # If no command recognised, treat the entire string as a possible date
-        if command not in ('day', 'today') and cmd.count('-') == 2:
+        if command not in ("day", "today") and cmd.count("-") == 2:
             arg = cmd
-            command = 'day'
+            command = "day"
 
-        if command == 'day' and arg:
-            if arg.startswith('-'):
+        if command == "day" and arg:
+            if arg.startswith("-"):
                 try:
                     offset = int(arg)
                     target = today + jdatetime.timedelta(days=offset)
@@ -40,18 +44,18 @@ def show_day(cmd=None):
                     return
             else:
                 try:
-                    y, m, d = map(int, arg.split('-'))
+                    y, m, d = map(int, arg.split("-"))
                     target = jdatetime.date(y, m, d)
                 except (ValueError, OverflowError):
                     current_ui.print_line("Invalid Jalali date. Use YYYY-MM-DD.")
                     return
 
-    is_today = (target == today)
+    is_today = target == today
 
     # Day view loop
     while True:
         current_ui.clear()
-        date_str = target.strftime('%Y-%m-%d')
+        date_str = target.strftime("%Y-%m-%d")
         data = build_header_data(day=date_str, is_today=is_today)
         print_header(data)
 
@@ -62,23 +66,24 @@ def show_day(cmd=None):
         current_ui.print_line()
         choice = current_ui.prompt("> ").strip().lower()
 
-        if choice == 'q':
+        if choice == "q":
             break
-        elif re.match(r'^\d{4}-\d{2}-\d{2}$', choice):
+        elif re.match(r"^\d{4}-\d{2}-\d{2}$", choice):
             try:
-                y, m, d = map(int, choice.split('-'))
+                y, m, d = map(int, choice.split("-"))
                 target = jdatetime.date(y, m, d)
             except ValueError:
                 current_ui.print_line("Invalid Jalali date.")
                 current_ui.prompt("Press Enter to continue.")
-        elif re.match(r'^\d*[np]$', choice):
-            if choice[-1] == 'n':
+        elif re.match(r"^\d*[np]$", choice):
+            if choice[-1] == "n":
                 steps = int(choice[:-1]) if choice[:-1] else 1
                 target = target + jdatetime.timedelta(days=steps)
             else:  # 'p'
                 steps = int(choice[:-1]) if choice[:-1] else 1
                 target = target - jdatetime.timedelta(days=steps)
-        is_today = (target == today)
+        is_today = target == today
+
 
 def _show_day_body(target, is_today):
     """Print naps, entries for a given date. (Prayers and sleep are in the header.)"""
@@ -92,7 +97,8 @@ def _show_day_body(target, is_today):
 
         # Entries
         current_ui.print_line("\n📝 Entries:")
-        cur.execute("""
+        cur.execute(
+            """
             SELECT e.id, e.description, e.created_at,
                    GROUP_CONCAT(c.path, ', ') AS cats
             FROM entries e
@@ -101,21 +107,23 @@ def _show_day_body(target, is_today):
             WHERE e.created_at BETWEEN ? AND ?
             GROUP BY e.id
             ORDER BY e.created_at ASC
-        """, (int(gstart.timestamp()), int(gend.timestamp())))
+        """,
+            (int(gstart.timestamp()), int(gend.timestamp())),
+        )
         entries = cur.fetchall()
         if not entries:
             current_ui.print_line("   No entries.")
         else:
             for e in entries:
-                dt = datetime.fromtimestamp(e['created_at'])
-                time_str = dt.strftime('%H:%M')
+                dt = datetime.fromtimestamp(e["created_at"])
+                time_str = dt.strftime("%H:%M")
 
-                cats = e['cats'] or '(no category)'
-                desc = (e['description'] or '').replace('\n', ' ')
+                cats = e["cats"] or "(no category)"
+                desc = (e["description"] or "").replace("\n", " ")
 
                 # Categories: prefix = "  HH:MM    ", continuation indent = same width
                 prefix = f"  {time_str}    "
-                indent = ' ' * len(prefix)
+                indent = " " * len(prefix)
                 wrap_line(prefix, cats, indent)
 
                 # --- description (8‑space indent, max 2 lines) ---

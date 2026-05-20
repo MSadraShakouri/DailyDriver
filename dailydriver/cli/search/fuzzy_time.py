@@ -1,6 +1,8 @@
 # dailydriver/cli/search/fuzzy_time.py
 """Time‑of‑day scoring with wide overlapping ranges and fuzzy token matching."""
+
 from datetime import datetime
+
 from .fuzzy_utils import fuzzy_match
 
 # Canonical time tokens (lowercase)
@@ -17,8 +19,9 @@ TIME_RANGES = {
     "morning": (2, 12),
     "noon": (9, 16),
     "afternoon": (12, 19),
-    "night": (16, 4),   # 16:00 to 04:00 next day
+    "night": (16, 4),  # 16:00 to 04:00 next day
 }
+
 
 def _hour_in_range(hour: float, start: int, end: int) -> float:
     """Return distance in hours from hour to the range, 0 if inside."""
@@ -35,6 +38,7 @@ def _hour_in_range(hour: float, start: int, end: int) -> float:
         dist_to_start = (hour - start) % 24
         dist_to_end = (end - hour) % 24
         return min(dist_to_start, dist_to_end)
+
 
 def score_time(entry_started_at_unix: int | None, query_tokens: list[str]) -> float:
     """Return a time‑of‑day score for an entry based on query tokens.

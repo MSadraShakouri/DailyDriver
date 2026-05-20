@@ -1,14 +1,28 @@
 # dailydriver/cli/year_view.py
 """Responsive year calendar view (like cal -y) for DailyDriver."""
+
 import shutil
+
 import jdatetime
+
 from dailydriver.ui.terminal_ui import current_ui
 from dailydriver.utils.calendar_events import get_events
 
 _JALALI_MONTHS_EN = [
-    "Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar",
-    "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"
+    "Farvardin",
+    "Ordibehesht",
+    "Khordad",
+    "Tir",
+    "Mordad",
+    "Shahrivar",
+    "Mehr",
+    "Aban",
+    "Azar",
+    "Dey",
+    "Bahman",
+    "Esfand",
 ]
+
 
 def _build_month_lines(year, month, today=None):
     """Return a list of strings representing one month's clean grid.
@@ -45,7 +59,7 @@ def _build_month_lines(year, month, today=None):
 
     # wrap into rows of 7
     for i in range(0, len(day_cells), 7):
-        row = " ".join(day_cells[i:i+7])
+        row = " ".join(day_cells[i : i + 7])
         # pad row to exactly 20 chars for consistent alignment
         row = row.ljust(20)
         lines.append(row)
@@ -54,6 +68,7 @@ def _build_month_lines(year, month, today=None):
     while len(lines) < 6:
         lines.append(" " * 20)
     return lines
+
 
 def show_year():
     """Display a responsive year calendar."""
@@ -105,9 +120,9 @@ def show_year():
     if holidays:
         current_ui.print_line("─── تعطیلات رسمی ───")
         holidays.sort(key=lambda h: (h[0], h[1]))
-        cal_icons = {'jalali': '🔆', 'gregorian': '🌐', 'hijri': '🌙'}
-        holiday_icon = '🎊'
+        cal_icons = {"jalali": "🔆", "gregorian": "🌐", "hijri": "🌙"}
+        holiday_icon = "🎊"
         for m, d, ev in holidays:
-            cal = ev.get('calendar', 'jalali')
-            prefix = cal_icons.get(cal, '📌') + holiday_icon
+            cal = ev.get("calendar", "jalali")
+            prefix = cal_icons.get(cal, "📌") + holiday_icon
             current_ui.print_line(f"  {m:02d}/{d:02d}  {prefix} {ev['title_en']}")

@@ -4,13 +4,18 @@ Dynamic calendar events from three calendar systems (Jalali, Gregorian, Hijri).
 Stores events in separate JSON files under data/.
 Converts all events to the current Jalali date using jdatetime and hijridate.
 """
+
 import json
 import os
 from datetime import date, timedelta
-from hijridate import Hijri, Gregorian as HijriGregorian   # avoid name clash
-import jdatetime
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+import jdatetime
+from hijridate import Gregorian as HijriGregorian  # avoid name clash
+from hijridate import Hijri
+
+PROJECT_ROOT = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+)
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 
 JALALI_FILE = os.path.join(DATA_DIR, "events_jalali.json")
@@ -21,28 +26,34 @@ HIJRI_FILE = os.path.join(DATA_DIR, "events_hijri.json")
 _cached_events = None
 _cache_year = None
 
+
 def _load_json(filepath):
     if not os.path.exists(filepath):
         return []
     with open(filepath, "r", encoding="utf-8") as f:
         return json.load(f)
 
+
 def _gregorian_to_jalali(gdate):
     """Convert Gregorian date (datetime.date) to Jalali date (jdatetime.date)."""
     return jdatetime.date.fromgregorian(date=gdate)
+
 
 def _jalali_to_gregorian(jdate):
     """Convert Jalali date to Gregorian."""
     return jdate.togregorian()
 
+
 def _hijri_to_gregorian(hijri_year, hijri_month, hijri_day):
     """Convert Hijri date to Gregorian using hijridate (Umm al-Qura)."""
     h = Hijri(hijri_year, hijri_month, hijri_day)
-    return h.to_gregorian()   # returns datetime.date
+    return h.to_gregorian()  # returns datetime.date
+
 
 def _gregorian_to_hijri(gdate):
     """Convert Gregorian date to Hijri (returns Hijri object)."""
     return HijriGregorian.fromdate(gdate).to_hijri()
+
 
 def _get_hijri_year_for_jalali_year(jalali_year):
     """Return the most likely Hijri year(s) that overlap with the given Jalali year.
@@ -56,24 +67,27 @@ def _get_hijri_year_for_jalali_year(jalali_year):
     # Also next Hijri year may cover later part of Jalali year
     return [cur_hijri_year, cur_hijri_year + 1]
 
+
 def get_hijri_offset() -> int:
     """Read the current Hijri offset from data/hijri_offset.txt. Default 0."""
-    offset_file = os.path.join(DATA_DIR, 'hijri_offset.txt')
+    offset_file = os.path.join(DATA_DIR, "hijri_offset.txt")
     try:
-        with open(offset_file, 'r') as f:
+        with open(offset_file, "r") as f:
             return int(f.readline().strip())
     except (FileNotFoundError, ValueError):
         return 0
 
+
 def set_hijri_offset(offset: int):
     """Set the Hijri offset and write it to data/hijri_offset.txt alongside today's Jalali date."""
-    offset_file = os.path.join(DATA_DIR, 'hijri_offset.txt')
-    today_str = jdatetime.date.today().strftime('%Y-%m-%d')
-    with open(offset_file, 'w') as f:
+    offset_file = os.path.join(DATA_DIR, "hijri_offset.txt")
+    today_str = jdatetime.date.today().strftime("%Y-%m-%d")
+    with open(offset_file, "w") as f:
         f.write(f"{offset}\n{today_str}\n")
     # Invalidate the event cache so the new offset takes effect immediately
     global _cached_events
     _cached_events = None
+
 
 def _convert_all_events(target_jalali_year):
     """
@@ -122,7 +136,10 @@ def _convert_all_events(target_jalali_year):
                 if offset:
                     gdate = gdate - timedelta(days=offset)
                 jdate = _gregorian_to_jalali(gdate)
-                if jdate.year == target_jalali_year or jdate.year == target_jalali_year + 1:
+                if (
+                    jdate.year == target_jalali_year
+                    or jdate.year == target_jalali_year + 1
+                ):
                     possible.append(jdate)
             except ValueError:
                 pass
@@ -135,11 +152,12 @@ def _convert_all_events(target_jalali_year):
     seen = set()
     unique = []
     for jdate, ev in sorted(events, key=lambda x: x[0]):
-        key = (jdate, ev['title_en'])
+        key = (jdate, ev["title_en"])
         if key not in seen:
             seen.add(key)
             unique.append((jdate, ev))
     return unique
+
 
 def _refresh_cache():
     """Update cached events for the current Jalali year."""
@@ -151,12 +169,14 @@ def _refresh_cache():
     _cached_events = _convert_all_events(current_year)
     _cache_year = current_year
 
+
 def get_events():
     """Return a list of (jalali_date, event_dict) for the current year."""
     global _cached_events
     if _cached_events is None or _cache_year != jdatetime.date.today().year:
         _refresh_cache()
     return _cached_events
+
 
 def get_todays_events(events=None):
     """Return events happening today (as Jalali date)."""
@@ -166,6 +186,7 @@ def get_todays_events(events=None):
         return []
     today = jdatetime.date.today()
     return [ev for d, ev in events if d == today]
+
 
 def get_upcoming_events(events=None, days=15):
     """Return list of (jalali_date, event_dict) for the next `days` days."""
@@ -181,6 +202,7 @@ def get_upcoming_events(events=None, days=15):
             upcoming.append((d, ev))
     upcoming.sort(key=lambda x: x[0])
     return upcoming
+
 
 def get_events_for_date(jalali_date):
     """Return list of event dicts for a specific Jalali date."""

@@ -1,6 +1,7 @@
 # dailydriver/cli/search/fuzzy_utils.py
 """Levenshtein distance and fuzzy token matching."""
 
+
 def levenshtein(s1: str, s2: str) -> int:
     """Compute edit distance between two strings."""
     if len(s1) < len(s2):
@@ -17,6 +18,7 @@ def levenshtein(s1: str, s2: str) -> int:
             current_row.append(min(insertions, deletions, substitutions))
         previous_row = current_row
     return previous_row[-1]
+
 
 def fuzzy_match(token: str, candidates: list[str], max_dist: int = 2) -> str | None:
     """Return the best matching candidate if within max_dist, else None."""

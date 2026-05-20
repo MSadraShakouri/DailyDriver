@@ -1,6 +1,8 @@
 import re
+
 from dailydriver.core.database import get_connection_cm
 from dailydriver.ui.terminal_ui import current_ui
+
 
 def add_birthday(cmd: str):
     parts = cmd.strip().split()
@@ -20,22 +22,22 @@ def add_birthday(cmd: str):
             current_ui.print_line("Invalid numbers.")
             return None
     else:
-        text = ' '.join(parts[1:])
+        text = " ".join(parts[1:])
         # Try full date first: YYYY/MM/DD or YYYY/M/D
-        date_match = re.search(r'(\d{4})\s*/\s*(\d{1,2})\s*/\s*(\d{1,2})', text)
+        date_match = re.search(r"(\d{4})\s*/\s*(\d{1,2})\s*/\s*(\d{1,2})", text)
         if date_match:
             year = int(date_match.group(1))
             month = int(date_match.group(2))
             day = int(date_match.group(3))
-            name = text[:date_match.start()].strip()
+            name = text[: date_match.start()].strip()
         else:
             # Try short date: MM/DD or M/D
-            short_match = re.search(r'(\d{1,2})\s*/\s*(\d{1,2})', text)
+            short_match = re.search(r"(\d{1,2})\s*/\s*(\d{1,2})", text)
             if short_match:
                 month = int(short_match.group(1))
                 day = int(short_match.group(2))
                 year = None
-                name = text[:short_match.start()].strip()
+                name = text[: short_match.start()].strip()
             else:
                 # No date found – treat all as name, prompt for date
                 name = text.strip()
@@ -61,7 +63,7 @@ def add_birthday(cmd: str):
         cur = conn.cursor()
         cur.execute(
             "INSERT INTO birthdays (name, day, month, year) VALUES (?,?,?,?)",
-            (name, day, month, year)
+            (name, day, month, year),
         )
         conn.commit()
 

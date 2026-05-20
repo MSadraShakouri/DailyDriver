@@ -1,13 +1,15 @@
 from datetime import datetime
+
 from dailydriver.core.logger import (
-    log_free_text,
-    get_pending_start,
+    clear_great_event,
     clear_pending_start,
     get_active_great_event,
-    clear_great_event,
+    get_pending_start,
+    log_free_text,
     start_great_event,
 )
 from dailydriver.ui.terminal_ui import current_ui
+
 
 def log_event_end(cmd):
     started_at = get_pending_start()
@@ -23,8 +25,10 @@ def log_event_end(cmd):
         return result
     return None
 
+
 def log_chain_now(line):
     from dailydriver.core.logger import get_last_action_time
+
     last_ts = get_last_action_time()
     if last_ts is None:
         return "No previous action to chain from."
@@ -32,6 +36,7 @@ def log_chain_now(line):
     parts = line.strip().split(maxsplit=1)
     text = parts[1] if len(parts) > 1 else ""
     return log_free_text(text, started_at=last_ts)
+
 
 def start_great_event_cmd(line):
     if get_active_great_event() is not None:
@@ -43,7 +48,9 @@ def start_great_event_cmd(line):
         cat_str = parts[1].strip()
         cats = cat_str.split() if cat_str else []
     else:
-        cat_input = current_ui.prompt("Great event categories (space‑separated): ").strip()
+        cat_input = current_ui.prompt(
+            "Great event categories (space‑separated): "
+        ).strip()
         cats = cat_input.split() if cat_input else []
 
     if not cats:
@@ -57,8 +64,9 @@ def start_great_event_cmd(line):
         current_ui.print_line(str(e))
         return None
 
-    time_str = datetime.fromtimestamp(ts).strftime('%H:%M')
+    time_str = datetime.fromtimestamp(ts).strftime("%H:%M")
     return f"Great event started at {time_str} with: {', '.join(cats)}"
+
 
 def end_great_event_cmd(line):
     ge = get_active_great_event()
@@ -76,6 +84,7 @@ def end_great_event_cmd(line):
         clear_great_event()
     return result
 
+
 def cancel_great_event_cmd(_=None):
     ge = get_active_great_event()
     if ge is None:
@@ -84,7 +93,11 @@ def cancel_great_event_cmd(_=None):
     clear_great_event()
     return "Great event cancelled."
 
+
 __all__ = [
-    'log_event_end', 'log_chain_now',
-    'start_great_event_cmd', 'end_great_event_cmd', 'cancel_great_event_cmd'
+    "log_event_end",
+    "log_chain_now",
+    "start_great_event_cmd",
+    "end_great_event_cmd",
+    "cancel_great_event_cmd",
 ]

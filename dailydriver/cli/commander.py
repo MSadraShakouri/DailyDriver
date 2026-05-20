@@ -1,13 +1,16 @@
 # dailydriver/cli/commander.py
 import sys
+
 from dailydriver.cli.dispatcher import make_dispatch
-from dailydriver.ui.terminal_ui import current_ui
+from dailydriver.core.logger import log_free_text
 from dailydriver.display.header import build_header_data
 from dailydriver.display.header_renderer import print_header
-from dailydriver.core.logger import log_free_text
+from dailydriver.ui.terminal_ui import current_ui
+
 
 def clear():
     current_ui.clear()
+
 
 def repl():
     multi_buf = []
@@ -28,32 +31,37 @@ def repl():
             else:
                 line = current_ui.prompt("> ").strip()
 
-            if line == '':
+            if line == "":
                 continue
 
-            if line == '---':
+            if line == "---":
                 if collecting:
-                    full_text = '\n'.join(multi_buf)
-                    first_line = multi_buf[0].strip() if multi_buf else ''
+                    full_text = "\n".join(multi_buf)
+                    first_line = multi_buf[0].strip() if multi_buf else ""
                     first_parts = first_line.split(maxsplit=1)
-                    cmd_check = first_parts[0].lower() if first_parts else ''
+                    cmd_check = first_parts[0].lower() if first_parts else ""
 
-                    if cmd_check in ('ln', 'ee', 'ege') and len(first_parts) > 0:
-                        rest_first = first_parts[1] if len(first_parts) > 1 else ''
+                    if cmd_check in ("ln", "ee", "ege") and len(first_parts) > 0:
+                        rest_first = first_parts[1] if len(first_parts) > 1 else ""
                         if rest_first:
                             new_lines = [rest_first] + multi_buf[1:]
                         else:
                             new_lines = multi_buf[1:]
-                        desc = '\n'.join(new_lines) if new_lines else ''
-                        if cmd_check == 'ln':
+                        desc = "\n".join(new_lines) if new_lines else ""
+                        if cmd_check == "ln":
                             from dailydriver.cli.commands.events import log_chain_now
-                            log_chain_now(f'ln {desc}')
-                        elif cmd_check == 'ege':
-                            from dailydriver.cli.commands.events import end_great_event_cmd
-                            end_great_event_cmd(f'ege {desc}')
-                        else:   # 'ee'
+
+                            log_chain_now(f"ln {desc}")
+                        elif cmd_check == "ege":
+                            from dailydriver.cli.commands.events import (
+                                end_great_event_cmd,
+                            )
+
+                            end_great_event_cmd(f"ege {desc}")
+                        else:  # 'ee'
                             from dailydriver.cli.commands.events import log_event_end
-                            log_event_end(f'ee {desc}')
+
+                            log_event_end(f"ee {desc}")
                     else:
                         log_free_text(full_text)
                     multi_buf = []
@@ -61,7 +69,7 @@ def repl():
                     current_ui.prompt("Press Enter to continue.")
                 continue
 
-            if line.lower() == ':m':
+            if line.lower() == ":m":
                 collecting = True
                 multi_buf = []
                 continue
@@ -76,7 +84,29 @@ def repl():
             handler = dispatch.get(first)
             if handler:
                 try:
-                    result = handler(line) if first in ('p','s','bd','t','ee','ln','sge','ege','export','nap', 'search', 'day', 'today', 'pray', 'sleep', 'qada') else handler(parts)
+                    result = (
+                        handler(line)
+                        if first
+                        in (
+                            "p",
+                            "s",
+                            "bd",
+                            "t",
+                            "ee",
+                            "ln",
+                            "sge",
+                            "ege",
+                            "export",
+                            "nap",
+                            "search",
+                            "day",
+                            "today",
+                            "pray",
+                            "sleep",
+                            "qada",
+                        )
+                        else handler(parts)
+                    )
                     if result:
                         clear()
                         data = build_header_data()
@@ -100,6 +130,7 @@ def repl():
         current_ui.print_line("\nGoodbye.")
         sys.exit(0)
 
+
 def run_single_command(line):
     current_ui.clear()
     data = build_header_data()
@@ -118,7 +149,29 @@ def run_single_command(line):
     handler = dispatch.get(first)
     if handler:
         try:
-            result = handler(line) if first in ('p','s','bd','t','ee','ln','sge','ege','export','nap', 'search', 'day', 'today', 'pray', 'sleep', 'qada') else handler(parts)
+            result = (
+                handler(line)
+                if first
+                in (
+                    "p",
+                    "s",
+                    "bd",
+                    "t",
+                    "ee",
+                    "ln",
+                    "sge",
+                    "ege",
+                    "export",
+                    "nap",
+                    "search",
+                    "day",
+                    "today",
+                    "pray",
+                    "sleep",
+                    "qada",
+                )
+                else handler(parts)
+            )
             if result:
                 clear()
                 data = build_header_data()

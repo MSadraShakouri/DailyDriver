@@ -1,7 +1,9 @@
 # dailydriver/display/hygiene_nudges.py
 import time
 from datetime import datetime
+
 from dailydriver.core.database import get_last_hygiene_time
+
 
 def compute_hygiene_nudges(conn, relative_to=None):
     """
@@ -10,7 +12,9 @@ def compute_hygiene_nudges(conn, relative_to=None):
     (for past‑day views); otherwise use today.
     """
     cur = conn.cursor()
-    cur.execute("SELECT id, item, desired_interval_days, early_warning_enabled, show_due_today FROM hygiene_config ORDER BY item")
+    cur.execute(
+        "SELECT id, item, desired_interval_days, early_warning_enabled, show_due_today FROM hygiene_config ORDER BY item"
+    )
     hygiene_items = cur.fetchall()
     nudge_lines = []
 
@@ -18,15 +22,17 @@ def compute_hygiene_nudges(conn, relative_to=None):
     if relative_to is not None:
         # Convert Jalali date to the end of that day (23:59:59)
         gdate = relative_to.togregorian()
-        now_ts = int(datetime(gdate.year, gdate.month, gdate.day, 23, 59, 59).timestamp())
+        now_ts = int(
+            datetime(gdate.year, gdate.month, gdate.day, 23, 59, 59).timestamp()
+        )
     else:
         now_ts = int(time.time())
 
     for item_row in hygiene_items:
-        item = item_row['item']
-        desired = item_row['desired_interval_days']
-        early_enabled = item_row['early_warning_enabled']
-        due_today_enabled = item_row['show_due_today']
+        item = item_row["item"]
+        desired = item_row["desired_interval_days"]
+        early_enabled = item_row["early_warning_enabled"]
+        due_today_enabled = item_row["show_due_today"]
 
         last_time = get_last_hygiene_time(conn, item)
         days_since = (now_ts - last_time) // 86400 if last_time else None
@@ -56,6 +62,8 @@ def compute_hygiene_nudges(conn, relative_to=None):
         elif days_since < desired and early_enabled and early_threshold > 0:
             remaining = desired - days_since
             if remaining <= early_threshold:
-                nudge_lines.append(f"⚠️ {item}: due in {remaining}d (last {days_since}d ago)")
+                nudge_lines.append(
+                    f"⚠️ {item}: due in {remaining}d (last {days_since}d ago)"
+                )
 
     return nudge_lines

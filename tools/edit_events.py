@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 """Simple server for the Event Editor – serves editor.html and handles API."""
+
 import json
 import os
 import webbrowser
 from http.server import HTTPServer, SimpleHTTPRequestHandler
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import parse_qs, urlparse
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data")
 FILES = {
-    "Jalali":    "events_jalali.json",
+    "Jalali": "events_jalali.json",
     "Gregorian": "events_gregorian.json",
-    "Hijri":     "events_hijri.json",
+    "Hijri": "events_hijri.json",
 }
+
 
 def load_file(fname):
     path = os.path.join(DATA_DIR, fname)
@@ -20,10 +22,12 @@ def load_file(fname):
     with open(path, encoding="utf-8") as f:
         return json.load(f)
 
+
 def save_file(fname, events):
     path = os.path.join(DATA_DIR, fname)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(events, f, ensure_ascii=False, indent=2)
+
 
 class EditorHandler(SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -62,6 +66,7 @@ class EditorHandler(SimpleHTTPRequestHandler):
             self.wfile.write(b"OK")
         else:
             self.send_error(404)
+
 
 if __name__ == "__main__":
     port = 8765

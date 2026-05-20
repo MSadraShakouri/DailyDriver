@@ -1,21 +1,35 @@
 # dailydriver/cli/commands/hijri_cmd.py
 """Command to view and adjust the global Hijri date offset."""
-from datetime import date, timedelta
-from hijridate import Gregorian as HijriGregorian
-from dailydriver.utils.calendar_events import get_hijri_offset, set_hijri_offset
-from dailydriver.ui.terminal_ui import current_ui
 
-__all__ = ['hijri_command']
+from datetime import date, timedelta
+
+from hijridate import Gregorian as HijriGregorian
+
+from dailydriver.ui.terminal_ui import current_ui
+from dailydriver.utils.calendar_events import get_hijri_offset, set_hijri_offset
+
+__all__ = ["hijri_command"]
 
 _MONTH_NAMES = [
-    "Muharram", "Safar", "Rabi al-Awwal", "Rabi al-Thani",
-    "Jumada al-Ula", "Jumada al-Thani", "Rajab", "Sha'ban",
-    "Ramadan", "Shawwal", "Dhu al-Qa'dah", "Dhu al-Hijjah"
+    "Muharram",
+    "Safar",
+    "Rabi al-Awwal",
+    "Rabi al-Thani",
+    "Jumada al-Ula",
+    "Jumada al-Thani",
+    "Rajab",
+    "Sha'ban",
+    "Ramadan",
+    "Shawwal",
+    "Dhu al-Qa'dah",
+    "Dhu al-Hijjah",
 ]
+
 
 def hijri_command(*args):
     """Always show the interactive Hijri offset menu (arguments ignored)."""
     _show_menu()
+
 
 def _show_menu():
     """Display a menu to choose Hijri offset."""
@@ -36,11 +50,13 @@ def _show_menu():
         current_ui.print_line(line)
 
     current_ui.print_line()
-    choice = current_ui.prompt("Enter offset (-2, -1, 0, +1, +2) or q to quit: ").strip()
-    if choice.lower() == 'q':
+    choice = current_ui.prompt(
+        "Enter offset (-2, -1, 0, +1, +2) or q to quit: "
+    ).strip()
+    if choice.lower() == "q":
         return
     try:
-        if choice.startswith('+') or choice.startswith('-'):
+        if choice.startswith("+") or choice.startswith("-"):
             offset = int(choice)
         else:
             offset = int(choice)

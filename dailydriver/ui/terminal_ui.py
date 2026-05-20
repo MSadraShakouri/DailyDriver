@@ -1,21 +1,19 @@
 # DailyDriver/ui.py
-from abc import ABC, abstractmethod
 import os
+from abc import ABC, abstractmethod
+
 
 class UI(ABC):
     """Abstract interface for user interaction."""
 
     @abstractmethod
-    def clear(self):
-        ...
+    def clear(self): ...
 
     @abstractmethod
-    def print_line(self, text: str = ""):
-        ...
+    def print_line(self, text: str = ""): ...
 
     @abstractmethod
-    def prompt(self, text: str) -> str:
-        ...
+    def prompt(self, text: str) -> str: ...
 
     @abstractmethod
     def confirm(self, message: str, default_yes: bool = True) -> bool:
@@ -28,12 +26,12 @@ class UI(ABC):
         ...
 
     @abstractmethod
-    def choose_from_list(self, items: list[str], prompt: str = "") -> int:
-        ...
+    def choose_from_list(self, items: list[str], prompt: str = "") -> int: ...
 
     def show_header(self, data: dict):
         """Render the daily header. Default implementation prints it."""
         from dailydriver.display.header_renderer import print_header
+
         print_header(data)
 
 
@@ -41,7 +39,7 @@ class TerminalUI(UI):
     """Plain terminal UI using print/input."""
 
     def clear(self):
-        os.system('clear')
+        os.system("clear")
 
     def print_line(self, text: str = ""):
         print(text)
@@ -58,9 +56,9 @@ class TerminalUI(UI):
             self.print_line("(y=yes, Enter=cancel)")
         answer = self.prompt("> ").strip().lower()
         if default_yes:
-            return answer == '' or answer == 'y'
+            return answer == "" or answer == "y"
         else:
-            return answer == 'y'
+            return answer == "y"
 
     def confirm_time(self, start_str: str, dur_str: str = "") -> bool:
         self.print_line()
@@ -69,7 +67,7 @@ class TerminalUI(UI):
             self.print_line(f"Duration: {dur_str}")
         self.print_line("(Enter=yes, n=cancel)")
         answer = self.prompt("> ").strip().lower()
-        return answer == '' or answer == 'y'
+        return answer == "" or answer == "y"
 
     def choose_from_list(self, items, prompt="Select:"):
         for i, item in enumerate(items, 1):

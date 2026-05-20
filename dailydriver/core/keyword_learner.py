@@ -1,34 +1,42 @@
 # dailydriver/core/keyword_learner.py
 """TF‑IDF based category suggestion with exact path‑match boost."""
-import re
+
 import math
 import os
-from dailydriver.core.database import get_connection_cm, get_connection
+import re
+
 from porter2stemmer import Porter2Stemmer
+
+from dailydriver.core.database import get_connection, get_connection_cm
 
 _stemmer = Porter2Stemmer()
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+PROJECT_ROOT = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+)
+
 
 def load_stopwords():
     """Load stop words from data/stopwords.txt."""
-    stopwords_path = os.path.join(PROJECT_ROOT, 'data', 'stopwords.txt')
+    stopwords_path = os.path.join(PROJECT_ROOT, "data", "stopwords.txt")
     stop_set = set()
     try:
-        with open(stopwords_path, 'r', encoding='utf-8') as f:
+        with open(stopwords_path, "r", encoding="utf-8") as f:
             for line in f:
                 word = line.strip()
-                if word and not word.startswith('#'):
+                if word and not word.startswith("#"):
                     stop_set.add(word.lower())
     except FileNotFoundError:
-        stop_set = {'the', 'and', 'for', 'not', 'you', 'but', 'are'}
+        stop_set = {"the", "and", "for", "not", "you", "but", "are"}
     return stop_set
+
 
 STOP_WORDS = load_stopwords()
 
 EXACT_MATCH_BOOST = 5.0
 MIN_SCORE = 0.1
 MAX_RESULTS = 10
+
 
 def tokenize(text: str, stem_words: bool = True) -> list[str]:
     """
@@ -38,13 +46,13 @@ def tokenize(text: str, stem_words: bool = True) -> list[str]:
     if not text:
         return []
     # Replace any non-alphabetic character with a space
-    cleaned = re.sub(r'[^a-zA-Z]', ' ', text.lower())
+    cleaned = re.sub(r"[^a-zA-Z]", " ", text.lower())
     raw_tokens = cleaned.split()
     tokens = []
     for token in raw_tokens:
-        if len(token) < 3:          # discard short tokens
+        if len(token) < 3:  # discard short tokens
             continue
-        if token in STOP_WORDS:     # discard stop words
+        if token in STOP_WORDS:  # discard stop words
             continue
         # Apply stemming
         if stem_words:
@@ -61,6 +69,7 @@ def tokenize(text: str, stem_words: bool = True) -> list[str]:
             seen.add(t)
             unique.append(t)
     return unique
+
 
 def find_matching_categories(text: str):
     """Return up to MAX_RESULTS categories scored by TF‑IDF + exact path boost."""
@@ -79,7 +88,7 @@ def find_matching_categories(text: str):
 
         # get all category paths for exact‑match boost
         cur.execute("SELECT id, path FROM categories")
-        all_cats = {row['id']: row['path'] for row in cur.fetchall()}
+        all_cats = {row["id"]: row["path"] for row in cur.fetchall()}
 
         # category scores: id -> score
         scores = {}
@@ -93,17 +102,20 @@ def find_matching_categories(text: str):
 
         # 2. TF‑IDF scoring
         for token in tokens:
-            cur.execute("""
+            cur.execute(
+                """
                 SELECT k.category_id, k.count,
                        (SELECT COUNT(DISTINCT k2.category_id) FROM keywords k2 WHERE k2.word = k.word) as df
                 FROM keywords k
                 WHERE k.word = ?
-            """, (token,))
+            """,
+                (token,),
+            )
             rows = cur.fetchall()
             for row in rows:
-                cat_id = row['category_id']
-                tf = row['count']
-                df = row['df']
+                cat_id = row["category_id"]
+                tf = row["count"]
+                df = row["df"]
                 idf = math.log(total_cats / (df + 1))
                 tfidf = tf * idf
                 scores[cat_id] = scores.get(cat_id, 0) + tfidf
@@ -119,6 +131,7 @@ def find_matching_categories(text: str):
             results.append((all_cats[cat_id], score))
 
     return results
+
 
 def learn_keywords(text, category_paths, conn=None):
     """Store or increment keyword counts for selected categories."""
@@ -139,14 +152,22 @@ def learn_keywords(text, category_paths, conn=None):
         row = cur.fetchone()
         if not row:
             continue
-        cat_id = row['id']
+        cat_id = row["id"]
         for word in words:
-            cur.execute("SELECT id FROM keywords WHERE word=? AND category_id=?", (word, cat_id))
+            cur.execute(
+                "SELECT id FROM keywords WHERE word=? AND category_id=?", (word, cat_id)
+            )
             existing = cur.fetchone()
             if existing:
-                cur.execute("UPDATE keywords SET count = count + 1 WHERE id=?", (existing['id'],))
+                cur.execute(
+                    "UPDATE keywords SET count = count + 1 WHERE id=?",
+                    (existing["id"],),
+                )
             else:
-                cur.execute("INSERT INTO keywords (word, category_id, count) VALUES (?, ?, 1)", (word, cat_id))
+                cur.execute(
+                    "INSERT INTO keywords (word, category_id, count) VALUES (?, ?, 1)",
+                    (word, cat_id),
+                )
     if own_conn:
         conn.commit()
         conn.close()

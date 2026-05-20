@@ -1,5 +1,6 @@
 # dailydriver/core/migration.py
 """Lightweight schema migration system."""
+
 from dailydriver.core.database import get_connection
 
 
@@ -8,25 +9,25 @@ def _migration_1(conn):
     cur = conn.cursor()
 
     # ---------- categories ----------
-    cur.execute('''
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS categories (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             path TEXT UNIQUE NOT NULL
         )
-    ''')
+    """)
 
     # ---------- keywords ----------
-    cur.execute('''
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS keywords (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             word TEXT NOT NULL,
             category_id INTEGER NOT NULL,
             FOREIGN KEY (category_id) REFERENCES categories(id)
         )
-    ''')
+    """)
 
     # ---------- entries ----------
-    cur.execute('''
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS entries (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             created_at INTEGER NOT NULL,
@@ -34,10 +35,10 @@ def _migration_1(conn):
             duration_minutes INTEGER,
             description TEXT
         )
-    ''')
+    """)
 
     # ---------- entry_categories ----------
-    cur.execute('''
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS entry_categories (
             entry_id INTEGER NOT NULL,
             category_id INTEGER NOT NULL,
@@ -45,10 +46,10 @@ def _migration_1(conn):
             FOREIGN KEY (entry_id) REFERENCES entries(id),
             FOREIGN KEY (category_id) REFERENCES categories(id)
         )
-    ''')
+    """)
 
     # ---------- prayer_logs ----------
-    cur.execute('''
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS prayer_logs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             prayer_slot TEXT NOT NULL,
@@ -60,10 +61,10 @@ def _migration_1(conn):
             shak_count INTEGER DEFAULT 0,
             UNIQUE(prayer_slot, jalali_date)
         )
-    ''')
+    """)
 
     # ---------- sleep_logs ----------
-    cur.execute('''
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS sleep_logs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             jalali_date TEXT UNIQUE NOT NULL,
@@ -71,10 +72,10 @@ def _migration_1(conn):
             wake_time INTEGER,
             duration_minutes INTEGER
         )
-    ''')
+    """)
 
     # ---------- birthdays ----------
-    cur.execute('''
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS birthdays (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
@@ -82,20 +83,20 @@ def _migration_1(conn):
             month INTEGER NOT NULL,
             year INTEGER
         )
-    ''')
+    """)
 
     # ---------- intentions ----------
-    cur.execute('''
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS intentions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             description TEXT,
             deadline INTEGER,
             expected_duration_minutes INTEGER
         )
-    ''')
+    """)
 
     # ---------- hygiene_config ----------
-    cur.execute('''
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS hygiene_config (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             item TEXT UNIQUE NOT NULL,
@@ -103,10 +104,10 @@ def _migration_1(conn):
             early_warning_enabled INTEGER DEFAULT 1,
             show_due_today INTEGER DEFAULT 1
         )
-    ''')
+    """)
 
     # ---------- pending_keywords ----------
-    cur.execute('''
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS pending_keywords (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             word TEXT NOT NULL,
@@ -115,22 +116,29 @@ def _migration_1(conn):
             FOREIGN KEY (category_id) REFERENCES categories(id),
             UNIQUE(word, category_id)
         )
-    ''')
+    """)
 
     # --- old flag tables removed ---
     cur.execute("DROP TABLE IF EXISTS entry_flags")
     cur.execute("DROP TABLE IF EXISTS flags")
 
     # Performance indexes
-    cur.execute('CREATE INDEX IF NOT EXISTS idx_entries_created_at ON entries(created_at)')
-    cur.execute('CREATE INDEX IF NOT EXISTS idx_entries_started_at ON entries(started_at)')
-    cur.execute('CREATE INDEX IF NOT EXISTS idx_entry_categories_category ON entry_categories(category_id)')
+    cur.execute(
+        "CREATE INDEX IF NOT EXISTS idx_entries_created_at ON entries(created_at)"
+    )
+    cur.execute(
+        "CREATE INDEX IF NOT EXISTS idx_entries_started_at ON entries(started_at)"
+    )
+    cur.execute(
+        "CREATE INDEX IF NOT EXISTS idx_entry_categories_category ON entry_categories(category_id)"
+    )
 
     conn.commit()
 
+
 def _migration_2(conn):
     cur = conn.cursor()
-    cur.execute('''
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS nap_logs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             jalali_date TEXT NOT NULL,
@@ -138,8 +146,9 @@ def _migration_2(conn):
             duration_minutes INTEGER,
             description TEXT
         )
-    ''')
+    """)
     conn.commit()
+
 
 def _migration_3(conn):
     cur = conn.cursor()
@@ -149,6 +158,7 @@ def _migration_3(conn):
     # delete the old pending_keywords table
     cur.execute("DROP TABLE IF EXISTS pending_keywords")
     conn.commit()
+
 
 def _migration_4(conn):
     """Create FTS5 index on entries.description."""
@@ -162,9 +172,11 @@ def _migration_4(conn):
     """)
     conn.commit()
 
+
 def _migration_5(conn):
     """Stem all existing keywords and merge duplicates."""
     from porter2stemmer import Porter2Stemmer
+
     stemmer = Porter2Stemmer()
     cur = conn.cursor()
 
@@ -173,7 +185,7 @@ def _migration_5(conn):
     for r in rows:
         cur.execute(
             "UPDATE keywords SET word = ? WHERE id = ?",
-            (stemmer.stem(r["word"]), r["id"])
+            (stemmer.stem(r["word"]), r["id"]),
         )
 
     # Step 2 – merge duplicates: same (word, category_id) -> keep smallest id, sum counts
@@ -186,18 +198,19 @@ def _migration_5(conn):
     for row in cur.fetchall():
         cur.execute(
             "UPDATE keywords SET count = ? WHERE id = ?",
-            (row["total_count"], row["keep_id"])
+            (row["total_count"], row["keep_id"]),
         )
         cur.execute(
             "DELETE FROM keywords WHERE word = ? AND category_id = ? AND id != ?",
-            (row["word"], row["category_id"], row["keep_id"])
+            (row["word"], row["category_id"], row["keep_id"]),
         )
 
     conn.commit()
 
+
 def _migration_6(conn):
     cur = conn.cursor()
-    cur.execute('''
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS weather_log (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             city TEXT NOT NULL DEFAULT 'Tehran',
@@ -205,67 +218,87 @@ def _migration_6(conn):
             condition_fa TEXT NOT NULL,
             timestamp INTEGER NOT NULL
         )
-    ''')
+    """)
     conn.commit()
+
 
 def _migration_7(conn):
     """Rebuild the FTS5 index to include any entries that were missed during v4."""
     conn.execute("INSERT INTO entries_fts(entries_fts) VALUES('rebuild')")
     conn.commit()
 
+
 def _migration_8(conn):
     """Rebuild FTS index again to catch entries after auto‑sync fix."""
     conn.execute("INSERT INTO entries_fts(entries_fts) VALUES('rebuild')")
     conn.commit()
 
+
 def _migration_9(conn):
     """Add meta table for persistent settings."""
     cur = conn.cursor()
-    cur.execute('''
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS meta (
             key TEXT PRIMARY KEY,
             value TEXT
         )
-    ''')
+    """)
     conn.commit()
+
 
 def _migration_10(conn):
     """Import state files into meta table and delete them."""
     import os
+
     cur = conn.cursor()
-    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+    project_root = os.path.dirname(
+        os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+    )
 
     # last_action
-    last_action_file = os.path.join(project_root, '.daily_last_action')
+    last_action_file = os.path.join(project_root, ".daily_last_action")
     if os.path.exists(last_action_file):
-        with open(last_action_file, 'r') as f:
+        with open(last_action_file, "r") as f:
             ts = f.read().strip()
             if ts:
-                cur.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('last_action', ?)", (ts,))
+                cur.execute(
+                    "INSERT OR REPLACE INTO meta (key, value) VALUES ('last_action', ?)",
+                    (ts,),
+                )
         os.remove(last_action_file)
 
     # pending_start
-    pending_file = os.path.join(project_root, '.daily_pending')
+    pending_file = os.path.join(project_root, ".daily_pending")
     if os.path.exists(pending_file):
-        with open(pending_file, 'r') as f:
+        with open(pending_file, "r") as f:
             ts = f.read().strip()
             if ts:
-                cur.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('pending_start', ?)", (ts,))
+                cur.execute(
+                    "INSERT OR REPLACE INTO meta (key, value) VALUES ('pending_start', ?)",
+                    (ts,),
+                )
         os.remove(pending_file)
 
     # great_event
-    great_event_file = os.path.join(project_root, '.daily_great_event')
+    great_event_file = os.path.join(project_root, ".daily_great_event")
     if os.path.exists(great_event_file):
-        with open(great_event_file, 'r') as f:
+        with open(great_event_file, "r") as f:
             lines = f.read().splitlines()
             if len(lines) >= 2:
                 start_ts = lines[0].strip()
                 cats = lines[1].strip()
-                cur.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('great_event_start', ?)", (start_ts,))
-                cur.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('great_event_categories', ?)", (cats,))
+                cur.execute(
+                    "INSERT OR REPLACE INTO meta (key, value) VALUES ('great_event_start', ?)",
+                    (start_ts,),
+                )
+                cur.execute(
+                    "INSERT OR REPLACE INTO meta (key, value) VALUES ('great_event_categories', ?)",
+                    (cats,),
+                )
         os.remove(great_event_file)
 
     conn.commit()
+
 
 _MIGRATIONS = {
     1: _migration_1,
@@ -280,12 +313,13 @@ _MIGRATIONS = {
     10: _migration_10,
 }
 
+
 def _get_current_version(conn):
     cur = conn.cursor()
     cur.execute("CREATE TABLE IF NOT EXISTS schema_version (version INTEGER)")
     cur.execute("SELECT version FROM schema_version ORDER BY version DESC LIMIT 1")
     row = cur.fetchone()
-    return row['version'] if row else 0
+    return row["version"] if row else 0
 
 
 def _set_version(conn, version):
@@ -296,7 +330,7 @@ def _set_version(conn, version):
 
 def run_migrations():
     """Apply all pending schema migrations."""
-    conn = get_connection(auto=False)   # use the un‑wrapped connection directly
+    conn = get_connection(auto=False)  # use the un‑wrapped connection directly
     try:
         current = _get_current_version(conn)
         for version in sorted(_MIGRATIONS.keys()):

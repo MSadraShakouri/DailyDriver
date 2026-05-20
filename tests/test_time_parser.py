@@ -1,13 +1,14 @@
 # tests/test_time_parser.py
 import unittest
 from datetime import datetime, timedelta
+
 from dailydriver.utils.time_parser import parse_time_expressions
 
 
 class TestTimeParser(unittest.TestCase):
     def setUp(self):
-        self.now = datetime(2026, 5, 20, 14, 30, 0)   # 14:30
-        self.last = datetime(2026, 5, 20, 12, 0, 0)    # 12:00
+        self.now = datetime(2026, 5, 20, 14, 30, 0)  # 14:30
+        self.last = datetime(2026, 5, 20, 12, 0, 0)  # 12:00
 
     # ---- Single time points ----
     def test_now(self):
@@ -38,20 +39,20 @@ class TestTimeParser(unittest.TestCase):
         # The closer is 09:18 today? Wait: 09:18 today is before now → valid, 21:18 today is > now → yesterday.
         # So two interpretations, sorted by proximity to now.
         self.assertTrue(len(r) >= 1)
-        self.assertIn(r[0].start.strftime('%H:%M'), ['09:18', '21:18'])
+        self.assertIn(r[0].start.strftime("%H:%M"), ["09:18", "21:18"])
 
     def test_explicit_time_24h(self):
         r = parse_time_expressions("14:00", self.now, self.last)
         self.assertEqual(len(r), 1)
-        self.assertEqual(r[0].start.strftime('%H:%M'), '14:00')
+        self.assertEqual(r[0].start.strftime("%H:%M"), "14:00")
 
     # ---- Ranges ----
     def test_range_single_dash(self):
         r = parse_time_expressions("9:18-9:24", self.now, self.last)
         self.assertGreaterEqual(len(r), 1)
         # first interpretation should be the closest to now
-        self.assertIn(r[0].start.strftime('%H:%M'), ['09:18', '21:18'])
-        self.assertIn(r[0].end.strftime('%H:%M'), ['09:24', '21:24'])
+        self.assertIn(r[0].start.strftime("%H:%M"), ["09:18", "21:18"])
+        self.assertIn(r[0].end.strftime("%H:%M"), ["09:24", "21:24"])
         self.assertEqual(r[0].duration_minutes, 6)
 
     def test_range_with_spaces(self):
@@ -68,7 +69,7 @@ class TestTimeParser(unittest.TestCase):
         r = parse_time_expressions("l-18:30", self.now, self.last)
         self.assertEqual(len(r), 1)
         self.assertEqual(r[0].start, self.last)
-        self.assertIn(r[0].end.strftime('%H:%M'), ['18:30'])
+        self.assertIn(r[0].end.strftime("%H:%M"), ["18:30"])
 
     def test_range_offset_to_now(self):
         r = parse_time_expressions("-15-n", self.now, self.last)
@@ -79,14 +80,14 @@ class TestTimeParser(unittest.TestCase):
     def test_range_hour_to_now(self):
         r = parse_time_expressions("23-n", self.now, self.last)
         self.assertEqual(len(r), 1)
-        self.assertEqual(r[0].start.strftime('%H:%M'), '23:00')
+        self.assertEqual(r[0].start.strftime("%H:%M"), "23:00")
         self.assertEqual(r[0].end, self.now)
 
     # ---- Double-dash ranges ----
     def test_double_dash(self):
         r = parse_time_expressions("19:00--15m", self.now, self.last)
         self.assertEqual(len(r), 1)
-        self.assertEqual(r[0].start.strftime('%H:%M'), '19:00')
+        self.assertEqual(r[0].start.strftime("%H:%M"), "19:00")
         self.assertEqual(r[0].end, self.now - timedelta(minutes=15))
 
     def test_double_dash_last(self):
@@ -144,5 +145,5 @@ class TestTimeParser(unittest.TestCase):
         self.assertGreater(len(r), 0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

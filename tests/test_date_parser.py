@@ -1,6 +1,7 @@
 # tests/test_date_parser.py
 import unittest
 from datetime import datetime
+
 from dailydriver.core.date_parser import _parse_relative_date
 
 
@@ -65,5 +66,5 @@ class TestRelativeDateParser(unittest.TestCase):
         self.assertIsNone(result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

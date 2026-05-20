@@ -1,19 +1,24 @@
 # dailydriver/cli/search_view.py
 """Full‑text search with FTS5, LIKE fallback, and fuzzy time/date/category boosting."""
+
 import re
 import sqlite3
+
 import jdatetime
+
+from dailydriver.cli.entry_viewer import edit_entry
+from dailydriver.cli.search.scoring import compute_final_scores
 from dailydriver.core.database import get_connection_cm
 from dailydriver.core.keyword_learner import tokenize
-from dailydriver.ui.terminal_ui import current_ui
-from dailydriver.cli.search.scoring import compute_final_scores
-from dailydriver.cli.entry_viewer import edit_entry
 from dailydriver.core.logger import log_free_text
 from dailydriver.display.display_utils import pline_wrap, wrap_line
+from dailydriver.ui.terminal_ui import current_ui
+
 
 def _get_jalali_date(ts):
     jdt = jdatetime.datetime.fromtimestamp(ts)
-    return jdt.strftime('%Y-%m-%d %H:%M')
+    return jdt.strftime("%Y-%m-%d %H:%M")
+
 
 def search(cmd):
     parts = cmd.strip().split(maxsplit=1)
@@ -35,12 +40,13 @@ def search(cmd):
     with get_connection_cm() as conn:
         cur = conn.cursor()
 
-        all_rows = []          # merged before final scoring
+        all_rows = []  # merged before final scoring
         seen_ids = set()
 
         # ----- FTS5 search (descriptions) -----
         try:
-            cur.execute("""
+            cur.execute(
+                """
                 SELECT e.id, e.description, e.created_at, e.started_at,
                        COALESCE(GROUP_CONCAT(c.path, ', '), '(no category)') as categories,
                        rank as relevance
@@ -51,10 +57,12 @@ def search(cmd):
                 WHERE entries_fts MATCH ?
                 GROUP BY e.id
                 ORDER BY rank
-            """, (fts_query,))
+            """,
+                (fts_query,),
+            )
             for row in cur.fetchall():
-                if row['id'] not in seen_ids:
-                    seen_ids.add(row['id'])
+                if row["id"] not in seen_ids:
+                    seen_ids.add(row["id"])
                     all_rows.append(dict(row))
         except sqlite3.OperationalError:
             pass
@@ -64,7 +72,8 @@ def search(cmd):
             like_clauses = " OR ".join("e.description LIKE ?" for _ in stemmed_tokens)
             like_params = [f"%{t}%" for t in stemmed_tokens]
             try:
-                cur.execute(f"""
+                cur.execute(
+                    f"""
                     SELECT e.id, e.description, e.created_at, e.started_at,
                            COALESCE(GROUP_CONCAT(c.path, ', '), '(no category)') as categories,
                            NULL as relevance
@@ -74,10 +83,12 @@ def search(cmd):
                     WHERE {like_clauses}
                     GROUP BY e.id
                     ORDER BY e.created_at DESC
-                """, like_params)
+                """,
+                    like_params,
+                )
                 for row in cur.fetchall():
-                    if row['id'] not in seen_ids:
-                        seen_ids.add(row['id'])
+                    if row["id"] not in seen_ids:
+                        seen_ids.add(row["id"])
                         all_rows.append(dict(row))
             except sqlite3.OperationalError:
                 pass
@@ -87,7 +98,8 @@ def search(cmd):
             cat_clauses = " OR ".join("c.path LIKE ?" for _ in raw_tokens)
             cat_params = [f"%{t}%" for t in raw_tokens]
             try:
-                cur.execute(f"""
+                cur.execute(
+                    f"""
                     SELECT e.id, e.description, e.created_at, e.started_at,
                            COALESCE(GROUP_CONCAT(c.path, ', '), '(no category)') as categories,
                            NULL as relevance
@@ -97,13 +109,15 @@ def search(cmd):
                     WHERE {cat_clauses}
                     GROUP BY e.id
                     ORDER BY e.created_at DESC
-                """, cat_params)
+                """,
+                    cat_params,
+                )
                 for row in cur.fetchall():
-                    if row['id'] not in seen_ids:
-                        seen_ids.add(row['id'])
+                    if row["id"] not in seen_ids:
+                        seen_ids.add(row["id"])
                         # Mark these as category-only matches (still scored)
                         record = dict(row)
-                        record['relevance'] = None  # no FTS rank
+                        record["relevance"] = None  # no FTS rank
                         all_rows.append(record)
             except sqlite3.OperationalError:
                 pass
@@ -119,7 +133,7 @@ def search(cmd):
 
         # Paginate (same as before)
         while True:
-            page = all_rows[offset:offset + page_size]
+            page = all_rows[offset : offset + page_size]
             if not page and offset == 0:
                 current_ui.print_line("No matching entries found.")
                 return
@@ -129,25 +143,27 @@ def search(cmd):
             current_ui.print_line(f"🔍 Search results for: {display_terms}")
             current_ui.print_line("─" * 40)
             for row in page:
-                date_str = _get_jalali_date(row['created_at'])
-                fts_rel = row.get('relevance')
+                date_str = _get_jalali_date(row["created_at"])
+                fts_rel = row.get("relevance")
                 if fts_rel is not None:
                     rel_str = f"(FTS {fts_rel:.3f}, final {row['final_score']:.3f})"
                 else:
                     rel_str = f"(cat match, final {row['final_score']:.3f})"
-                desc_raw = (row['description'] or '').replace('\n', ' ')
+                desc_raw = (row["description"] or "").replace("\n", " ")
                 # Highlight matching tokens using reverse video
                 highlighted = desc_raw
                 for token in stemmed_tokens:
                     pattern = re.compile(re.escape(token), re.IGNORECASE)
-                    highlighted = pattern.sub(lambda m: f"\033[7m{m.group()}\033[0m", highlighted)
+                    highlighted = pattern.sub(
+                        lambda m: f"\033[7m{m.group()}\033[0m", highlighted
+                    )
                 # Header line: ID + date + relevance
                 header_line = f"[{row['id']}] {date_str} {rel_str}"
                 current_ui.print_line(header_line)
 
                 # Categories: indented under the date line (same width as header prefix)
-                cats = row['categories'] or '(no category)'
-                cats_indent = ' ' * len(f"[{row['id']}] ")
+                cats = row["categories"] or "(no category)"
+                cats_indent = " " * len(f"[{row['id']}] ")
                 wrap_line(cats_indent, cats, cats_indent)
 
                 # Description: 2‑space indent, up to 3 lines
@@ -156,17 +172,21 @@ def search(cmd):
                 # Blank line between entries
                 current_ui.print_line()
 
-            current_ui.print_line(f"Showing {offset+1}‑{min(offset+page_size, total)} of {total}")
-            current_ui.print_line("\n\033[1m(n)ext  (p)rev  (q)uit  [id] edit  (d)ay <id>\033[0m")
+            current_ui.print_line(
+                f"Showing {offset+1}‑{min(offset+page_size, total)} of {total}"
+            )
+            current_ui.print_line(
+                "\n\033[1m(n)ext  (p)rev  (q)uit  [id] edit  (d)ay <id>\033[0m"
+            )
             current_ui.print_line("\033[1mn/p = next/prev page, 5n = 5 pages\033[0m")
             current_ui.print_line()
             choice = current_ui.prompt("> ").strip().lower()
 
-            if choice == 'q':
+            if choice == "q":
                 break
-            elif re.match(r'^\d*[np]$', choice):
+            elif re.match(r"^\d*[np]$", choice):
                 steps = int(choice[:-1]) if choice[:-1] else 1
-                if choice[-1] == 'n':
+                if choice[-1] == "n":
                     if offset + page_size < total:
                         offset += steps * page_size
                     else:
@@ -179,7 +199,7 @@ def search(cmd):
                         current_ui.print_line("Already on first page.")
                         current_ui.prompt("Press Enter to continue.")
 
-            elif choice.startswith('d'):
+            elif choice.startswith("d"):
                 parts = choice.split(maxsplit=1)
                 if len(parts) == 2:
                     eid = parts[1].strip()
@@ -187,13 +207,16 @@ def search(cmd):
                     eid = current_ui.prompt("Entry ID: ").strip()
                 if eid.isdigit():
                     from dailydriver.cli.day_view import show_day
+
                     with get_connection_cm() as conn2:
                         cur2 = conn2.cursor()
-                        cur2.execute("SELECT created_at FROM entries WHERE id=?", (int(eid),))
+                        cur2.execute(
+                            "SELECT created_at FROM entries WHERE id=?", (int(eid),)
+                        )
                         row2 = cur2.fetchone()
                         if row2:
-                            jd = jdatetime.datetime.fromtimestamp(row2['created_at'])
-                            show_day(jd.strftime('%Y-%m-%d'))
+                            jd = jdatetime.datetime.fromtimestamp(row2["created_at"])
+                            show_day(jd.strftime("%Y-%m-%d"))
                             return
                         else:
                             current_ui.print_line("Entry not found.")
