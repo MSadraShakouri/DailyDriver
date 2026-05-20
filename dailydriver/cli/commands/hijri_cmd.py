@@ -20,7 +20,6 @@ def hijri_command(*args):
 def _show_menu():
     """Display a menu to choose Hijri offset."""
     today_g = date.today()
-    raw_hijri = HijriGregorian.fromdate(today_g).to_hijri()
     current_offset = get_hijri_offset()
 
     # raw_hijri has .year, .month, .day

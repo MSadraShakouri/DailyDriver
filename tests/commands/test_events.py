@@ -2,7 +2,6 @@
 import unittest
 from unittest.mock import patch, MagicMock
 import sqlite3
-from datetime import datetime
 
 from dailydriver.cli.commands.events import (
     log_event_end,
@@ -30,9 +29,7 @@ class TestEventCommands(unittest.TestCase):
     # ---------- log_event_end ----------
     @patch('dailydriver.cli.commands.events.get_pending_start')
     @patch('dailydriver.cli.commands.events.log_free_text')
-    @patch('dailydriver.cli.commands.events.clear_pending_start')
-    @patch('dailydriver.cli.commands.events.current_ui')
-    def test_log_event_end_no_pending(self, mock_ui, mock_clear, mock_log, mock_pending):
+    def test_log_event_end_no_pending(self, mock_log, mock_pending):
         mock_pending.return_value = None
         result = log_event_end('ee test entry')
         self.assertEqual(result, "No running event to end.")
@@ -40,15 +37,13 @@ class TestEventCommands(unittest.TestCase):
     @patch('dailydriver.cli.commands.events.get_pending_start')
     @patch('dailydriver.cli.commands.events.log_free_text')
     @patch('dailydriver.cli.commands.events.clear_pending_start')
-    @patch('dailydriver.cli.commands.events.build_header_data')
-    @patch('dailydriver.cli.commands.events.print_header')
-    @patch('dailydriver.cli.commands.events.current_ui')
-    def test_log_event_end_success(self, mock_ui, mock_print, mock_header, mock_clear, mock_log, mock_pending):
+    def test_log_event_end_success(self, mock_clear, mock_log, mock_pending):
         mock_pending.return_value = 12345
         mock_log.return_value = "Logged"
-        log_event_end('ee test entry')
+        result = log_event_end('ee test entry')
         mock_log.assert_called_with('test entry', started_at=12345)
         mock_clear.assert_called_once()
+        self.assertEqual(result, "Logged")
 
     # ---------- log_chain_now ----------
     @patch('dailydriver.core.logger.get_last_action_time')

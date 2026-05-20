@@ -5,7 +5,7 @@ import jdatetime
 from dailydriver.core.database import get_connection_cm
 from dailydriver.utils.time_utils import today_jalali
 from dailydriver.utils.time_parser import parse_prayer_args, parse_time_expressions
-from dailydriver.domains.prayer_core import current_slot, PRAYER_SLOTS
+from dailydriver.domains.prayer_core import current_slot
 from dailydriver.domains.prayer_times import get_approximate_times
 from dailydriver.domains.prayer_backlog import _update_complete_until
 from dailydriver.ui.terminal_ui import current_ui
@@ -39,7 +39,6 @@ def log_prayer(cmd: str):
         today_j = jdatetime.date.today()
         approx = get_approximate_times(today_j.month, today_j.day)
         now = datetime.now()
-        fajr_dt = now.replace(hour=approx['fajr'][0], minute=approx['fajr'][1], second=0, microsecond=0)
         dhuhr_dt = now.replace(hour=approx['dhuhr'][0], minute=approx['dhuhr'][1], second=0, microsecond=0)
         maghrib_dt = now.replace(hour=approx['maghrib'][0], minute=approx['maghrib'][1], second=0, microsecond=0)
 

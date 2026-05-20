@@ -1,7 +1,7 @@
 # tests/test_time_parser.py
 import unittest
 from datetime import datetime, timedelta
-from dailydriver.utils.time_parser import parse_time_expressions, TimeInterpretation
+from dailydriver.utils.time_parser import parse_time_expressions
 
 
 class TestTimeParser(unittest.TestCase):

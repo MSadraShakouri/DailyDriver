@@ -8,8 +8,6 @@ from dailydriver.core.logger import (
     start_great_event,
 )
 from dailydriver.ui.terminal_ui import current_ui
-from dailydriver.display.header import build_header_data
-from dailydriver.display.header_renderer import print_header
 
 def log_event_end(cmd):
     started_at = get_pending_start()

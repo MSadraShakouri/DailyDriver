@@ -25,7 +25,7 @@ def add_intention(cmd: str):
                 jdate = jdatetime.date(y, m, d)
                 gdate = jdate.togregorian()
                 deadline = int(datetime(gdate.year, gdate.month, gdate.day, 12, 0).timestamp())
-            except:
+            except Exception:
                 current_ui.print_line("Invalid date. Ignoring deadline.")
                 deadline = None
         else:

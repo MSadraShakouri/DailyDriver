@@ -23,12 +23,6 @@ def view_entries(category_filter=None):
             LEFT JOIN entry_categories ec ON e.id = ec.entry_id
             LEFT JOIN categories c ON ec.category_id = c.id
         '''
-        count_sql = '''
-            SELECT COUNT(DISTINCT e.id)
-            FROM entries e
-            LEFT JOIN entry_categories ec ON e.id = ec.entry_id
-            LEFT JOIN categories c ON ec.category_id = c.id
-        '''
         where_clause = ''
         params = []
 

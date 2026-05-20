@@ -1,13 +1,12 @@
 # tests/test_hygiene_nudges.py
 import unittest
 import sqlite3
-from datetime import datetime, timedelta
+from datetime import datetime
 from unittest.mock import patch
 
 import jdatetime
 
 from dailydriver.display.hygiene_nudges import compute_hygiene_nudges
-from dailydriver.core.database import get_last_hygiene_time
 
 
 class TestHygieneNudges(unittest.TestCase):

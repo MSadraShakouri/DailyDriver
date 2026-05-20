@@ -73,12 +73,10 @@ def pline_wrap(s: str, indent: int = 0, max_lines: int = 0, first_indent: int | 
     words = s.split()
     lines = []
     line = ' ' * first_indent
-    first = True
     for word in words:
         if display_width(line + word) > tw - 1:
             lines.append(line.rstrip())
             line = ' ' * indent
-            first = False
         line += word + ' '
     if line.strip():
         lines.append(line.rstrip())

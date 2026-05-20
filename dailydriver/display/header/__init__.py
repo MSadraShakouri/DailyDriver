@@ -3,9 +3,9 @@
 from dailydriver.core.database import get_connection_cm
 from dailydriver.utils.time_utils import today_jalali, format_jalali
 from datetime import timedelta
-from hijridate import Hijri, Gregorian as HijriGregorian
+from hijridate import Gregorian as HijriGregorian
 from dailydriver.utils.calendar_events import get_hijri_offset
-from dailydriver.display.display_utils import get_width, spread_line, pline_center
+from dailydriver.display.display_utils import get_width, spread_line
 import jdatetime
 
 from .prayer import get_prayer_parts, get_prayer_nudges

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Simple server for the Event Editor – serves editor.html and handles API."""
-import json, os, webbrowser
+import json
+import os
+import webbrowser
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 

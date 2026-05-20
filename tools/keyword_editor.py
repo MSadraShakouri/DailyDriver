@@ -1,7 +1,9 @@
 # tools/keyword_editor.py
 #!/usr/bin/env python3
 """Keyword editor server – serves keyword_editor.html and handles API calls."""
-import json, os, webbrowser
+import json
+import os
+import webbrowser
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

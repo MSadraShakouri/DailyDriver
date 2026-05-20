@@ -7,15 +7,10 @@ from dailydriver.display.display_utils import (
 
 # dailydriver/display/header_renderer.py
 """Renders the daily header dictionary to the terminal."""
-from dailydriver.ui.terminal_ui import current_ui
-from dailydriver.display.display_utils import (
-    get_width, display_width, pline, pline_wrap, spread_line, pline_center
-)
 
 def print_header(data: dict, add_separator: bool = True):
     """Print the daily header from a dictionary built by header_data.build()."""
     w = get_width()
-    date_str = data['date_str']
 
     # Build the full prayer line using the prefix and parts
     prayer_str = spread_line(data['prayer_parts'], prefix="🕌 ")

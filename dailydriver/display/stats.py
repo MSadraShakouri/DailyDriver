@@ -1,13 +1,10 @@
-import time
 from dailydriver.core.database import get_connection_cm
-from dailydriver.utils.time_utils import days_ago, today_start_ts
+from dailydriver.utils.time_utils import days_ago
 from dailydriver.ui.terminal_ui import current_ui
 
 def show_stats():
     with get_connection_cm() as conn:
         cur = conn.cursor()
-        now = int(time.time())
-        today_start = today_start_ts()
 
         # --- Prayer: last 30 days ---
         current_ui.print_line("─── Prayer (last 30 days) ───")
@@ -22,9 +19,12 @@ def show_stats():
             rows = cur.fetchall()
             on_time = qada = missed = 0
             for r in rows:
-                if r['status'] == 'on_time': on_time = r['cnt']
-                elif r['status'] == 'qada': qada = r['cnt']
-                elif r['status'] == 'missed': missed = r['cnt']
+                if r['status'] == 'on_time':
+                    on_time = r['cnt']
+                elif r['status'] == 'qada':
+                    qada = r['cnt']
+                elif r['status'] == 'missed':
+                    missed = r['cnt']
             total = on_time + qada + missed
             if total > 0:
                 pct = on_time * 100 // total

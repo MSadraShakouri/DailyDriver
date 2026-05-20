@@ -53,7 +53,6 @@ def _update_complete_until(conn):
 def _get_unlogged_past_slots(conn, now=None):
     if now is None:
         now = datetime.now()
-    today = today_jalali()
     complete_until = _get_complete_until(conn)
     if not complete_until:
         _update_complete_until(conn)

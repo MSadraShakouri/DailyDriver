@@ -89,7 +89,6 @@ def test_explicit_time_guessing():
     now = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
     # Simulate a day with these prayer times
-    fajr = now.replace(hour=4, minute=42)
     dhuhr = now.replace(hour=12, minute=12)
     maghrib = now.replace(hour=18, minute=36)
 
