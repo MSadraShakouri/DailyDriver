@@ -8,6 +8,7 @@ from dailydriver.display.display_utils import (
     pline_center,
     pline_wrap,
     spread_line,
+    wrap_line,
 )
 from dailydriver.ui.terminal_ui import current_ui
 
@@ -21,8 +22,6 @@ def print_header(data: dict, add_separator: bool = True):
 
     # Build the full prayer line using the prefix and parts
     prayer_str = spread_line(data["prayer_parts"], prefix="🕌 ")
-
-    bday_str = data.get("bday_str", "")
 
     # New centered date block
     pline_center(data["jalali_line"])
@@ -52,8 +51,9 @@ def print_header(data: dict, add_separator: bool = True):
     if event_str := data.get("event_str", ""):
         pline(event_str)
 
-    if bday_str:
-        pline(bday_str)
+    for line in data.get("bday_lines", []):
+        pline(line)
+
     for line in data.get("hygiene_lines", []):
         pline(line)
 
@@ -61,14 +61,49 @@ def print_header(data: dict, add_separator: bool = True):
     for nudge in data.get("prayer_nudges", []):
         pline(nudge)
 
-    current_ui.print_line()
+    # Event reminders
+    event_reminder_lines = data.get("event_reminder_lines", [])
+    if event_reminder_lines:
+        current_ui.print_line()
+        for item in event_reminder_lines:
+            if isinstance(item, tuple):
+                prefix, title = item
+                indent = " " * display_width(prefix)
+                wrap_line(prefix, title, indent)
+            else:
+                pline(item)
 
+    # Tomorrow preview
+    tomorrow_lines = data.get("tomorrow_lines", [])
+    if tomorrow_lines:
+        current_ui.print_line()
+        pline(tomorrow_lines[0])
+        for item in tomorrow_lines[1:]:
+            if isinstance(item, tuple):
+                prefix, title = item
+                indent = " " * display_width(prefix)
+                wrap_line(prefix, title, indent)
+            else:
+                pline(item)
+
+    # Calendar events
     calendar_lines = data.get("calendar_lines", [])
-    for line in calendar_lines:
-        pline_wrap(line)
+    if calendar_lines:
+        current_ui.print_line()
+        for item in calendar_lines:
+            if isinstance(item, tuple):
+                prefix, title = item
+                indent = " " * display_width(prefix)
+                wrap_line(prefix, title, indent)
+            else:
+                pline(item)
+
+    # Old reminders string (if still used)
     reminders_str = data.get("reminders_str", "")
     if reminders_str:
         pline(reminders_str)
+
+    # Bottom bar (already present, don't add extra blank line)
 
     current_ui.print_line()
 

@@ -14,10 +14,11 @@ class TestIntegration(unittest.TestCase):
             CREATE TABLE prayer_logs (id INTEGER PRIMARY KEY, prayer_slot TEXT, jalali_date TEXT, prayer_time INTEGER);
             CREATE TABLE sleep_logs (id INTEGER PRIMARY KEY, jalali_date TEXT, sleep_time INTEGER, wake_time INTEGER, duration_minutes INTEGER);
             CREATE TABLE nap_logs (id INTEGER PRIMARY KEY, jalali_date TEXT, start_time INTEGER, duration_minutes INTEGER);
-            CREATE TABLE birthdays (id INTEGER PRIMARY KEY, name TEXT, month INTEGER, day INTEGER, year INTEGER);
+            CREATE TABLE birthdays (id INTEGER PRIMARY KEY, name TEXT, month INTEGER, day INTEGER, year INTEGER, remind_level INTEGER DEFAULT 0);
             CREATE TABLE hygiene_config (id INTEGER PRIMARY KEY, item TEXT, desired_interval_days INTEGER, early_warning_enabled INTEGER, show_due_today INTEGER);
             CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT);
             CREATE TABLE weather_log (id INTEGER PRIMARY KEY, temp_c INTEGER, condition_fa TEXT, timestamp INTEGER);
+            CREATE TABLE event_reminders (event_id INTEGER PRIMARY KEY, level INTEGER NOT NULL DEFAULT 0);
         """)
         cur.execute(
             "INSERT INTO meta (key, value) VALUES ('prayer_complete_until', '1405-02-20')"
@@ -44,14 +45,18 @@ class TestIntegration(unittest.TestCase):
                 data = build_header_data(day=None, is_today=True)
 
         expected_keys = [
-            "date_str",
+            "jalali_line",
+            "separator",
+            "greg_hijri_line",
             "prayer_parts",
             "sleep_str",
             "nap_str",
-            "bday_str",
+            "bday_lines",
             "hygiene_lines",
             "calendar_lines",
             "reminders_str",
+            "event_reminder_lines",
+            "tomorrow_lines",
             "event_str",
             "great_event_str",
             "last_entry_time",

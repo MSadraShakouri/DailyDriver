@@ -300,6 +300,25 @@ def _migration_10(conn):
     conn.commit()
 
 
+def _migration_11(conn):
+    """Add event_reminders table and birthdays.remind_level column."""
+    cur = conn.cursor()
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS event_reminders (
+            event_id INTEGER PRIMARY KEY,
+            level INTEGER NOT NULL DEFAULT 0
+        )
+    """)
+    # Add column only if it doesn't exist (SQLite doesn't support IF NOT EXISTS for ALTER)
+    cur.execute("PRAGMA table_info('birthdays')")
+    columns = [row[1] for row in cur.fetchall()]
+    if "remind_level" not in columns:
+        cur.execute(
+            "ALTER TABLE birthdays ADD COLUMN remind_level INTEGER NOT NULL DEFAULT 0"
+        )
+    conn.commit()
+
+
 _MIGRATIONS = {
     1: _migration_1,
     2: _migration_2,
@@ -311,6 +330,7 @@ _MIGRATIONS = {
     8: _migration_8,
     9: _migration_9,
     10: _migration_10,
+    11: _migration_11,
 }
 
 

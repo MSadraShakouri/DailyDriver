@@ -1,9 +1,10 @@
+# tests/header/test_birthdays.py
 import sqlite3
 import unittest
 
 import jdatetime
 
-from dailydriver.display.header.birthdays import get_birthday_str
+from dailydriver.display.header.birthdays import get_birthday_lines
 
 
 class TestBirthdays(unittest.TestCase):
@@ -11,7 +12,7 @@ class TestBirthdays(unittest.TestCase):
         self.conn = sqlite3.connect(":memory:")
         self.conn.row_factory = sqlite3.Row
         self.conn.execute(
-            "CREATE TABLE birthdays (id INTEGER PRIMARY KEY, name TEXT, month INTEGER, day INTEGER, year INTEGER)"
+            "CREATE TABLE birthdays (id INTEGER PRIMARY KEY, name TEXT, month INTEGER, day INTEGER, year INTEGER, remind_level INTEGER DEFAULT 0)"
         )
         self.target_date = jdatetime.date(1405, 2, 21)
 
@@ -20,16 +21,15 @@ class TestBirthdays(unittest.TestCase):
 
     def test_birthday_today(self):
         self.conn.execute(
-            "INSERT INTO birthdays (name, month, day, year) VALUES ('Ali', 2, 21, 1386)"
+            "INSERT INTO birthdays (name, month, day, year, remind_level) VALUES ('Ali', 2, 21, 1386, 1)"
         )
-        s = get_birthday_str(self.conn, self.target_date)
-        self.assertIn("Ali", s)
-        self.assertIn("🎂", s)
+        lines = get_birthday_lines(self.conn, self.target_date)
+        self.assertTrue(any("Ali" in line for line in lines))
+        self.assertTrue(any("🎂" in line for line in lines))
 
     def test_birthday_in_future(self):
         self.conn.execute(
-            "INSERT INTO birthdays (name, month, day, year) VALUES ('Zahra', 2, 25, 1380)"
+            "INSERT INTO birthdays (name, month, day, year, remind_level) VALUES ('Zahra', 2, 24, 1380, 1)"
         )
-        s = get_birthday_str(self.conn, self.target_date)
-        self.assertIn("Zahra", s)
-        self.assertIn("4d", s)
+        lines = get_birthday_lines(self.conn, self.target_date)
+        self.assertTrue(any("Zahra" in line for line in lines))

@@ -8,10 +8,15 @@ from hijridate import Gregorian as HijriGregorian
 
 from dailydriver.core.database import get_connection_cm
 from dailydriver.display.display_utils import get_width, spread_line
-from dailydriver.utils.calendar_events import get_hijri_offset
+from dailydriver.utils.calendar_events import get_events, get_hijri_offset
+from dailydriver.utils.event_reminders import (
+    EVENT_SCHEDULE,
+    get_event_reminders,
+    get_tomorrow_preview,
+)
 from dailydriver.utils.time_utils import format_jalali, today_jalali
 
-from .birthdays import get_birthday_str
+from .birthdays import get_birthday_lines
 from .calendar import get_calendar_lines, get_reminders_str
 from .events import get_great_event_str, get_last_entry_time, get_running_event_str
 from .hygiene import get_hygiene_lines
@@ -32,10 +37,9 @@ def build_header_data(day=None, is_today=True):
             target_date = jdatetime.date(y, m, d)
 
         formatted = format_jalali(today)
-
         # Prepend weekday abbreviation (e.g., "Sun, ")
         gdate = target_date.togregorian()
-        weekday_abbr = gdate.strftime('%a')
+        weekday_abbr = gdate.strftime("%a")
         formatted = f"{weekday_abbr}, {formatted}"
 
         # --- new date block ---
@@ -43,13 +47,13 @@ def build_header_data(day=None, is_today=True):
         separator = "─" * (get_width() // 4)
 
         # Gregorian and Hijri with margins
-        gdate = target_date.togregorian()
         greg_str = gdate.strftime("%d %B %Y")
         offset = get_hijri_offset()
         corrected_greg = gdate - timedelta(days=offset)
         hijri_obj = HijriGregorian.fromdate(corrected_greg).to_hijri()
         hijri_str = f"{hijri_obj.day} {hijri_obj.month_name()} {hijri_obj.year}"
         greg_hijri_line = spread_line([greg_str, hijri_str], margins=1 / 8)
+
         if not is_today:
             jalali_line = f"\033[2m\033[1m{formatted}\033[0m"
             separator = f"\033[2m{separator}\033[0m"
@@ -58,10 +62,50 @@ def build_header_data(day=None, is_today=True):
         prayer_parts = get_prayer_parts(conn, today)
         sleep_str = get_sleep_str(conn, today)
         nap_str = get_nap_str(conn, today)
-        bday_str = get_birthday_str(conn, target_date)
+        bday_lines = get_birthday_lines(conn, target_date)
         hygiene_lines = get_hygiene_lines(conn, target_date, is_today)
         calendar_lines = get_calendar_lines(target_date, is_today)
         reminders_str = get_reminders_str(target_date, is_today)
+
+        # Event reminders and tomorrow preview
+        all_events = get_events() or []
+        event_reminder_lines = get_event_reminders(conn, all_events, target_date)
+        tomorrow_lines = get_tomorrow_preview(all_events, target_date)
+
+        # Suppress today's events that already appear as reminders
+        reminded_today_ids = set()
+        cur = conn.cursor()
+        for jdate, ev in all_events:
+            ev_id = ev.get("id")
+            if ev_id is not None:
+                cur.execute(
+                    "SELECT level FROM event_reminders WHERE event_id=? AND level > 0",
+                    (ev_id,),
+                )
+                row = cur.fetchone()
+                if row:
+                    level = row["level"]
+                    schedule = EVENT_SCHEDULE.get(level, [])
+                    if 0 in schedule and (jdate - target_date).days == 0:
+                        reminded_today_ids.add(ev_id)
+
+        # Rebuild calendar_lines with suppression
+        cal_icons = {"jalali": "🔆", "gregorian": "🌐", "hijri": "🌙"}
+        if is_today:
+            events_today = [ev for d, ev in all_events if d == target_date]
+            calendar_lines = []
+            has_holiday = any(ev.get("holiday") for ev in events_today)
+            for ev in events_today:
+                if ev.get("id") in reminded_today_ids:
+                    continue
+                cal = ev.get("calendar", "jalali")
+                icon = cal_icons.get(cal, "📌")
+                prefix = icon + ("🎊" if ev.get("holiday") else "")
+                if not ev.get("holiday") and has_holiday:
+                    prefix += "  "
+                prefix += " "
+                calendar_lines.append((prefix, ev["title_en"]))
+
         great_event_str = get_great_event_str(is_today)
         event_str = get_running_event_str(is_today)
         last_entry_time = get_last_entry_time(is_today)
@@ -72,14 +116,15 @@ def build_header_data(day=None, is_today=True):
             "jalali_line": jalali_line,
             "separator": separator,
             "greg_hijri_line": greg_hijri_line,
-            "date_str": formatted,
             "prayer_parts": prayer_parts,
             "sleep_str": sleep_str,
             "nap_str": nap_str,
-            "bday_str": bday_str,
+            "bday_lines": bday_lines,
             "hygiene_lines": hygiene_lines,
             "calendar_lines": calendar_lines,
             "reminders_str": reminders_str,
+            "event_reminder_lines": event_reminder_lines,
+            "tomorrow_lines": tomorrow_lines,
             "event_str": event_str,
             "great_event_str": great_event_str,
             "last_entry_time": last_entry_time,

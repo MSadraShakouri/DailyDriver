@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes">
+  <title>Reminder Editor</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Tahoma', sans-serif;
+      font-size: 18px;
+      margin: 0;
+      background: #f5f5f5;
+      color: #333;
+      direction: rtl;
+      padding-bottom: 80px;
+    }
+    header {
+      background: #007bff;
+      color: white;
+      padding: 12px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    header h1 { margin: 0 0 8px 0; font-size: 24px; }
+    .tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .tab {
+      padding: 8px 14px;
+      background: rgba(255,255,255,0.25);
+      border: none;
+      border-radius: 6px 6px 0 0;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      touch-action: manipulation;
+    }
+    .tab.active { background: white; color: #007bff; font-weight: bold; }
+    #search {
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-top: 8px;
+    }
+    #events-container {
+      padding: 8px 16px;
+    }
+    .event-card {
+      background: white;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      gap: 12px;
+    }
+    .event-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .event-title { font-weight: bold; font-size: 18px; word-break: break-word; }
+    .event-meta { color: #666; font-size: 14px; margin-top: 4px; }
+    .level-buttons {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .level-btn {
+      width: 40px;
+      height: 40px;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      background: white;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    .level-btn.level-0 { border-color: #aaa; }
+    .level-btn.level-1 { border-color: #f0ad4e; color: #f0ad4e; }
+    .level-btn.level-2 { border-color: #007bff; color: #007bff; }
+    .level-btn.active { color: white; }
+    .level-btn.level-0.active { background: #aaa; }
+    .level-btn.level-1.active { background: #f0ad4e; }
+    .level-btn.level-2.active { background: #007bff; }
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      left: 16px;
+      right: 16px;
+      background: #333;
+      color: white;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 14px;
+      text-align: center;
+      opacity: 0.9;
+      z-index: 30;
+      transition: opacity 0.3s;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🔔 Reminder Editor</h1>
+    <div class="tabs">
+      <button class="tab active" data-cal="all">All</button>
+      <button class="tab" data-cal="jalali">Jalali</button>
+      <button class="tab" data-cal="gregorian">Gregorian</button>
+      <button class="tab" data-cal="hijri">Hijri</button>
+    </div>
+    <input type="text" id="search" placeholder="Search..." oninput="renderFiltered()">
+  </header>
+
+  <div id="events-container"></div>
+
+  <script>
+    let allEvents = [];
+    let currentCal = 'all';
+
+    async function fetchEvents() {
+      const resp = await fetch('/events');
+      return await resp.json();
+    }
+
+    async function loadEvents() {
+      allEvents = await fetchEvents();
+      allEvents.sort((a, b) => a.month * 100 + a.day - b.month * 100 - b.day);
+      renderFiltered();
+    }
+
+    function renderFiltered() {
+      const q = document.getElementById('search').value.toLowerCase();
+      const container = document.getElementById('events-container');
+      container.innerHTML = '';
+
+      allEvents.forEach(ev => {
+        if (currentCal !== 'all' && ev.calendar !== currentCal) return;
+        if (q && !ev.title_en.toLowerCase().includes(q) &&
+            !(ev.month + '/' + ev.day).includes(q)) return;
+
+        const card = document.createElement('div');
+        card.className = 'event-card';
+        card.innerHTML = `
+          <div class="event-info">
+            <div class="event-title">${ev.title_en || ev.title_fa}</div>
+            <div class="event-meta">${ev.month}/${ev.day} – ${ev.calendar}</div>
+          </div>
+          <div class="level-buttons">
+            <button class="level-btn level-0${ev.level === 0 ? ' active' : ''}" data-id="${ev.id}" data-level="0">0</button>
+            <button class="level-btn level-1${ev.level === 1 ? ' active' : ''}" data-id="${ev.id}" data-level="1">1</button>
+            <button class="level-btn level-2${ev.level === 2 ? ' active' : ''}" data-id="${ev.id}" data-level="2">2</button>
+          </div>
+        `;
+        card.querySelectorAll('.level-btn').forEach(btn => {
+          btn.addEventListener('click', () => setLevel(parseInt(btn.dataset.id), parseInt(btn.dataset.level)));
+        });
+        container.appendChild(card);
+      });
+    }
+
+    async function setLevel(eventId, level) {
+      await fetch('/set_level', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event_id: eventId, level: level })
+      });
+      // Update the local data and re‑render
+      const ev = allEvents.find(e => e.id === eventId);
+      if (ev) ev.level = level;
+      renderFiltered();
+      showToast(`Level set to ${level}`);
+    }
+
+    function showToast(msg) {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = msg;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2000);
+    }
+
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentCal = tab.dataset.cal;
+        renderFiltered();
+      });
+    });
+
+    loadEvents();
+  </script>
+</body>
+</html>

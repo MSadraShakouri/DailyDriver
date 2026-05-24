@@ -18,12 +18,17 @@ def get_calendar_lines(target_date, is_today):
         todays = get_todays_events(events)
     else:
         todays = get_events_for_date(target_date)
+
+    has_holiday = any(e.get("holiday") for e in todays)
     lines = []
     for e in todays:
         cal = e.get("calendar", "jalali")
         icon = cal_icons.get(cal, "📌")
         prefix = icon + ("🎊" if e.get("holiday") else "")
-        lines.append(f"{prefix} {e['title_en']}")
+        if not e.get("holiday") and has_holiday:
+            prefix += "  "
+        prefix += " "
+        lines.append((prefix, e["title_en"]))
     return lines
 
 

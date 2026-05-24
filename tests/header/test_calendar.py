@@ -1,3 +1,4 @@
+# tests/header/test_calendar.py
 import unittest
 from unittest.mock import patch
 
@@ -19,8 +20,9 @@ class TestCalendarLines(unittest.TestCase):
         mock_events.return_value = []
         lines = get_calendar_lines(self.target_date, is_today=True)
         self.assertEqual(len(lines), 1)
-        self.assertIn("Test Day", lines[0])
-        self.assertIn("🔆", lines[0])
+        prefix, title = lines[0]
+        self.assertIn("🔆", prefix)
+        self.assertIn("Test Day", title)
 
     @patch("dailydriver.display.header.calendar.get_events_for_date")
     def test_past_events(self, mock_get_for_date):
@@ -29,6 +31,7 @@ class TestCalendarLines(unittest.TestCase):
         ]
         lines = get_calendar_lines(self.target_date, is_today=False)
         self.assertEqual(len(lines), 1)
-        self.assertIn("Christmas", lines[0])
-        self.assertIn("🌐", lines[0])
-        self.assertIn("🎊", lines[0])
+        prefix, title = lines[0]
+        self.assertIn("🌐", prefix)
+        self.assertIn("🎊", prefix)
+        self.assertIn("Christmas", title)
