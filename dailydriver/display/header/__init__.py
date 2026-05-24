@@ -33,6 +33,11 @@ def build_header_data(day=None, is_today=True):
 
         formatted = format_jalali(today)
 
+        # Prepend weekday abbreviation (e.g., "Sun, ")
+        gdate = target_date.togregorian()
+        weekday_abbr = gdate.strftime('%a')
+        formatted = f"{weekday_abbr}, {formatted}"
+
         # --- new date block ---
         jalali_line = f"\033[1m{formatted}\033[0m"
         separator = "─" * (get_width() // 4)
