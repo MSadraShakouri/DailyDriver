@@ -6,6 +6,8 @@ from dailydriver.ui.terminal_ui import current_ui
 
 def add_birthday(cmd: str):
     parts = cmd.strip().split()
+    remind_level = 0  # default
+
     if len(parts) == 1:
         # interactive
         name = current_ui.prompt("Name: ").strip()
@@ -14,15 +16,28 @@ def add_birthday(cmd: str):
         day = current_ui.prompt("Day (1-31): ").strip()
         month = current_ui.prompt("Month (1-12): ").strip()
         year = current_ui.prompt("Year (e.g., 1386, Enter=skip): ").strip()
+        remind_str = current_ui.prompt(
+            "Reminder level? (0=default, 1=important, Enter=0): "
+        ).strip()
         try:
             day = int(day)
             month = int(month)
             year = int(year) if year else None
+            if remind_str:
+                remind_level = int(remind_str)
         except ValueError:
             current_ui.print_line("Invalid numbers.")
             return None
     else:
         text = " ".join(parts[1:])
+        # Check if the last token is a numeric level (0 or 1)
+        tokens = text.strip().split()
+        if tokens and tokens[-1].isdigit() and int(tokens[-1]) in (0, 1):
+            remind_level = int(tokens[-1])
+            text = " ".join(
+                tokens[:-1]
+            )  # remove the level token from the name/date part
+
         # Try full date first: YYYY/MM/DD or YYYY/M/D
         date_match = re.search(r"(\d{4})\s*/\s*(\d{1,2})\s*/\s*(\d{1,2})", text)
         if date_match:
@@ -62,8 +77,8 @@ def add_birthday(cmd: str):
     with get_connection_cm() as conn:
         cur = conn.cursor()
         cur.execute(
-            "INSERT INTO birthdays (name, day, month, year) VALUES (?,?,?,?)",
-            (name, day, month, year),
+            "INSERT INTO birthdays (name, day, month, year, remind_level) VALUES (?,?,?,?,?)",
+            (name, day, month, year, remind_level),
         )
         conn.commit()
 
@@ -72,4 +87,6 @@ def add_birthday(cmd: str):
         result += f" ({year}/{month:02d}/{day:02d})"
     else:
         result += f" (????/{month:02d}/{day:02d})"
+    if remind_level > 0:
+        result += f" [important]"
     return result

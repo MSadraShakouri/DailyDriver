@@ -1,4 +1,5 @@
 from dailydriver.cli.commands.birthday_cmd import add_birthday
+from dailydriver.cli.commands.birthday_manager import manage_birthdays
 from dailydriver.cli.commands.calendar_cmd import show_calendar, show_year
 from dailydriver.cli.commands.events import (
     cancel_great_event_cmd,
@@ -28,6 +29,7 @@ def make_dispatch():
         "view": lambda args: view_entries(args[1] if len(args) > 1 else None),
         "?": lambda _: show_help(),
         "bd": add_birthday,
+        "birthdays": lambda _: manage_birthdays(),
         "hygiene": lambda _: manage_hygiene(),
         "t": add_intention,
         "stats": lambda _: show_stats(),

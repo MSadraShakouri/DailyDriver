@@ -97,6 +97,8 @@ def show_help():
     current_ui.print_line("     Add birthday (Jalali)")
     current_ui.print_line("     bd Ali 1386/05/12")
     current_ui.print_line("     bd Zahra 5/12")
+    current_ui.print_line("  birthdays")
+    current_ui.print_line("     Manage birthday list (toggle, add, delete)")
     current_ui.print_line("  t [description]")
     current_ui.print_line("     Add intention / to‑do")
     current_ui.print_line("     t finish report")
