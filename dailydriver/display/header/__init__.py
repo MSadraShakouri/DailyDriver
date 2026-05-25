@@ -64,13 +64,33 @@ def build_header_data(day=None, is_today=True):
         nap_str = get_nap_str(conn, today)
         bday_lines = get_birthday_lines(conn, target_date)
         hygiene_lines = get_hygiene_lines(conn, target_date, is_today)
-        calendar_lines = get_calendar_lines(target_date, is_today)
         reminders_str = get_reminders_str(target_date, is_today)
 
         # Event reminders and tomorrow preview
         all_events = get_events() or []
         event_reminder_lines = get_event_reminders(conn, all_events, target_date)
-        tomorrow_lines = get_tomorrow_preview(all_events, target_date)
+
+        # Compute IDs of events that are reminded for tomorrow (days_until == 1)
+        reminded_tomorrow_ids = set()
+        cur = conn.cursor()
+        for jdate, ev in all_events:
+            ev_id = ev.get("id")
+            if ev_id is not None:
+                cur.execute(
+                    "SELECT level FROM event_reminders WHERE event_id=? AND level > 0",
+                    (ev_id,),
+                )
+                row = cur.fetchone()
+                if row:
+                    level = row["level"]
+                    schedule = EVENT_SCHEDULE.get(level, [])
+                    if 1 in schedule and (jdate - target_date).days == 1:
+                        reminded_tomorrow_ids.add(ev_id)
+
+        # Pass reminded_tomorrow_ids to tomorrow preview
+        tomorrow_lines = get_tomorrow_preview(
+            all_events, target_date, reminded_tomorrow_ids
+        )
 
         # Suppress today's events that already appear as reminders
         reminded_today_ids = set()
@@ -89,22 +109,21 @@ def build_header_data(day=None, is_today=True):
                     if 0 in schedule and (jdate - target_date).days == 0:
                         reminded_today_ids.add(ev_id)
 
-        # Rebuild calendar_lines with suppression
+        # Build calendar lines with reminder suppression for the target day
         cal_icons = {"jalali": "🔆", "gregorian": "🌐", "hijri": "🌙"}
-        if is_today:
-            events_today = [ev for d, ev in all_events if d == target_date]
-            calendar_lines = []
-            has_holiday = any(ev.get("holiday") for ev in events_today)
-            for ev in events_today:
-                if ev.get("id") in reminded_today_ids:
-                    continue
-                cal = ev.get("calendar", "jalali")
-                icon = cal_icons.get(cal, "📌")
-                prefix = icon + ("🎊" if ev.get("holiday") else "")
-                if not ev.get("holiday") and has_holiday:
-                    prefix += "  "
-                prefix += " "
-                calendar_lines.append((prefix, ev["title_en"]))
+        events_target = [ev for d, ev in all_events if d == target_date]
+        # Filter out events that are already reminded for this day
+        display_events = [ev for ev in events_target if ev.get("id") not in reminded_today_ids]
+        has_holiday = any(ev.get("holiday") for ev in display_events)
+        calendar_lines = []
+        for ev in display_events:
+            cal = ev.get("calendar", "jalali")
+            icon = cal_icons.get(cal, "📌")
+            prefix = icon + ("🎊" if ev.get("holiday") else "")
+            if not ev.get("holiday") and has_holiday:
+                prefix += "  "
+            prefix += " "
+            calendar_lines.append((prefix, ev["title_en"]))
 
         great_event_str = get_great_event_str(is_today)
         event_str = get_running_event_str(is_today)

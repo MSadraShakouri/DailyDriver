@@ -4,11 +4,9 @@
 import jdatetime
 
 BIRTHDAY_SCHEDULE = {
-    0: [7, 3, 2, 1, 0],
-    1: [14, 7, 3, 2, 1, 0],
-    2: [28, 21, 14, 7, 3, 2, 1, 0],
+    0: [14, 7, 3, 2, 1, 0],
+    1: [28, 21, 14, 7, 3, 2, 1, 0],
 }
-
 
 def get_birthday_lines(conn, target_date):
     """Return a list of birthday display/reminder lines, sorted by days remaining.
