@@ -113,7 +113,9 @@ def build_header_data(day=None, is_today=True):
         cal_icons = {"jalali": "🔆", "gregorian": "🌐", "hijri": "🌙"}
         events_target = [ev for d, ev in all_events if d == target_date]
         # Filter out events that are already reminded for this day
-        display_events = [ev for ev in events_target if ev.get("id") not in reminded_today_ids]
+        display_events = [
+            ev for ev in events_target if ev.get("id") not in reminded_today_ids
+        ]
         has_holiday = any(ev.get("holiday") for ev in display_events)
         calendar_lines = []
         for ev in display_events:

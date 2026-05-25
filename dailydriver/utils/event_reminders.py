@@ -18,12 +18,12 @@ def get_event_reminders(conn, events, target_date):
     """
     cur = conn.cursor()
     cur.execute("SELECT event_id, level FROM event_reminders WHERE level > 0")
-    reminder_map = {row['event_id']: row['level'] for row in cur.fetchall()}
+    reminder_map = {row["event_id"]: row["level"] for row in cur.fetchall()}
 
     # First pass: collect events that will appear
     reminded_events = []
     for jdate, ev in events:
-        ev_id = ev.get('id')
+        ev_id = ev.get("id")
         if ev_id not in reminder_map:
             continue
         level = reminder_map[ev_id]
@@ -39,8 +39,8 @@ def get_event_reminders(conn, events, target_date):
     # Second pass: build the display lines
     lines = []
     for jdate, ev, days_until in reminded_events:
-        cal = ev.get('calendar', 'jalali')
-        icon = CAL_ICONS.get(cal, '📌')
+        cal = ev.get("calendar", "jalali")
+        icon = CAL_ICONS.get(cal, "📌")
         prefix = f"🔔{icon}"
         if ev.get("holiday"):
             prefix += "🎊"
@@ -48,7 +48,7 @@ def get_event_reminders(conn, events, target_date):
             prefix += "  "
         prefix += " "
 
-        title = ev['title_en']
+        title = ev["title_en"]
         if days_until == 0:
             title += " (today)"
         elif days_until == 1:

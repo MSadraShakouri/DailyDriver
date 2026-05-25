@@ -8,6 +8,7 @@ BIRTHDAY_SCHEDULE = {
     1: [28, 21, 14, 7, 3, 2, 1, 0],
 }
 
+
 def get_birthday_lines(conn, target_date):
     """Return a list of birthday display/reminder lines, sorted by days remaining.
     Uses the BIRTHDAY_SCHEDULE and the remind_level column."""
