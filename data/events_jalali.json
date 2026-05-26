@@ -1954,15 +1954,6 @@
   },
   {
     "month": 8,
-    "day": 3,
-    "holiday": false,
-    "title_fa": "درگذشت فریدون مشیری شاعر ایرانی",
-    "title_en": "Death of Fereydoun Moshiri, Iranian Poet",
-    "calendar": "jalali",
-    "id": 218
-  },
-  {
-    "month": 8,
     "day": 4,
     "holiday": false,
     "title_fa": "اعتراض امام خمینی علیه پذیرش کاپیتولاسیون",
@@ -2496,15 +2487,6 @@
     "month": 10,
     "day": 3,
     "holiday": false,
-    "title_fa": "زادروز احمد محمود نویسندهٔ معاصر ایرانی",
-    "title_en": "Birthday of Ahmad Mahmoud, Contemporary Iranian Author",
-    "calendar": "jalali",
-    "id": 278
-  },
-  {
-    "month": 10,
-    "day": 3,
-    "holiday": false,
     "title_fa": "روز ثبت احوال",
     "title_en": "Civil Registry Day",
     "calendar": "jalali",
@@ -2572,15 +2554,6 @@
     "title_en": "Di-ye Āzar Rooz, the Second Feast of Deygan",
     "calendar": "jalali",
     "id": 286
-  },
-  {
-    "month": 10,
-    "day": 8,
-    "holiday": false,
-    "title_fa": "زادروز فروغ فرخزاد شاعر ایرانی",
-    "title_en": "Birthday of Forough Farrokhzad, Iranian Poet",
-    "calendar": "jalali",
-    "id": 287
   },
   {
     "month": 10,
@@ -3058,15 +3031,6 @@
     "title_en": "Gold, Jewelry, Silver, and Gemstones Industry Day",
     "calendar": "jalali",
     "id": 340
-  },
-  {
-    "month": 12,
-    "day": 25,
-    "holiday": false,
-    "title_fa": "درگذشت علی تجویدی، نوازندهٔ ویولن و سه‌تار و آهنگساز ایرانی",
-    "title_en": "Death of Ali Tajvidi, Iranian Violin and Setar Player and Composer",
-    "calendar": "jalali",
-    "id": 341
   },
   {
     "month": 12,
