@@ -658,6 +658,15 @@
   },
   {
     "month": 12,
+    "day": 9,
+    "holiday": false,
+    "title_fa": "شهادت مسلم بن عقیل علیه السلام",
+    "title_en": "Martyrdom of Muslim ibn Aqil (AS)",
+    "calendar": "hijri",
+    "id": 560
+  },
+  {
+    "month": 12,
     "day": 10,
     "holiday": true,
     "title_fa": "عید سعید قربان",
