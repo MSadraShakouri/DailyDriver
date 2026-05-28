@@ -26,7 +26,9 @@ def make_dispatch():
         "q": lambda _: exit(),
         "p": log_prayer,
         "s": log_sleep,
-        "view": lambda args: view_entries(args[1] if len(args) > 1 else None),
+        "view": lambda line: view_entries(
+            line.split(maxsplit=1)[1] if len(line.split()) > 1 else None
+        ),
         "?": lambda _: show_help(),
         "bd": add_birthday,
         "birthdays": lambda _: manage_birthdays(),
@@ -39,7 +41,9 @@ def make_dispatch():
         "ce": lambda _: discard_pending_start(),
         "ee": log_event_end,
         "ln": log_chain_now,
-        "cal": lambda args: show_calendar(args[1:] if len(args) > 1 else []),
+        "cal": lambda line: show_calendar(
+            line.split()[1:] if len(line.split()) > 1 else []
+        ),
         "year": lambda _: show_year(),
         "export": export,
         "nap": log_nap,
