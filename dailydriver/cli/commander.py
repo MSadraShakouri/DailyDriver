@@ -12,6 +12,14 @@ def clear():
     current_ui.clear()
 
 
+def _show_result(result):
+    """Clear the screen, rebuild the header, and print a result string."""
+    clear()
+    data = build_header_data()
+    print_header(data)
+    current_ui.print_line(result)
+
+
 def repl():
     multi_buf = []
     collecting = False
@@ -86,20 +94,14 @@ def repl():
                 try:
                     result = handler(line)
                     if result:
-                        clear()
-                        data = build_header_data()
-                        print_header(data)
-                        current_ui.print_line(result)
+                        _show_result(result)
                 except KeyboardInterrupt:
                     current_ui.print_line("\nCancelled.")
             else:
                 try:
                     result = log_free_text(line)
                     if result:
-                        clear()
-                        data = build_header_data()
-                        print_header(data)
-                        current_ui.print_line(result)
+                        _show_result(result)
                 except KeyboardInterrupt:
                     current_ui.print_line("\nCancelled.")
 
@@ -129,20 +131,14 @@ def run_single_command(line):
         try:
             result = handler(line)
             if result:
-                clear()
-                data = build_header_data()
-                print_header(data, add_separator=False)
-                current_ui.print_line(result)
+                _show_result(result)
         except KeyboardInterrupt:
             current_ui.print_line("\nCancelled.")
     else:
         try:
             result = log_free_text(line)
             if result:
-                clear()
-                data = build_header_data()
-                print_header(data, add_separator=False)
-                current_ui.print_line(result)
+                _show_result(result)
         except KeyboardInterrupt:
             current_ui.print_line("\nCancelled.")
 

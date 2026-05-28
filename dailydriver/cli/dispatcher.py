@@ -1,3 +1,5 @@
+import sys
+
 from dailydriver.cli.commands.birthday_cmd import add_birthday
 from dailydriver.cli.commands.birthday_manager import manage_birthdays
 from dailydriver.cli.commands.calendar_cmd import show_calendar, show_year
@@ -23,7 +25,7 @@ from dailydriver.core.logger import discard_pending_start, save_pending_start
 
 def make_dispatch():
     dispatch = {
-        "q": lambda _: exit(),
+        "q": lambda _: sys.exit(0),
         "p": log_prayer,
         "s": log_sleep,
         "view": lambda line: view_entries(
