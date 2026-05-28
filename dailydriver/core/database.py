@@ -3,10 +3,15 @@ import sqlite3
 import time
 from contextlib import contextmanager
 
-PROJECT_ROOT = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-)
-DB_NAME = os.path.join(PROJECT_ROOT, "data", "daily.db")
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+
+def get_db_path() -> str:
+    """Return the full path to the SQLite database.
+    The environment variable DAILYDRIVER_DB can override the default location."""
+    override = os.environ.get("DAILYDRIVER_DB")
+    if override:
+        return override
+    return os.path.join(PROJECT_ROOT, "data", "daily.db")
 
 
 def get_last_hygiene_time(conn, item):
@@ -49,7 +54,7 @@ class _AutoCommitConnection:
 
 
 def get_connection(auto=True):
-    conn = sqlite3.connect(DB_NAME)
+    conn = sqlite3.connect(get_db_path())
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
     if not auto:
