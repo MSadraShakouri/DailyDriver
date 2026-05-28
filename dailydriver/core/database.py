@@ -3,7 +3,10 @@ import sqlite3
 import time
 from contextlib import contextmanager
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+PROJECT_ROOT = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+)
+
 
 def get_db_path() -> str:
     """Return the full path to the SQLite database.

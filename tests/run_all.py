@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Discover and run all tests in the tests/ directory."""
-import unittest
-import sys
+
 import os
-import tempfile
 import shutil
+import sys
+import tempfile
+import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -14,6 +15,7 @@ db_path = os.path.join(tmp_dir, "test.db")
 os.environ["DAILYDRIVER_DB"] = db_path
 
 from dailydriver.core.migration import run_migrations
+
 run_migrations()
 
 if __name__ == "__main__":
