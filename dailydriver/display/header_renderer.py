@@ -43,6 +43,10 @@ def print_header(data: dict, add_separator: bool = True):
     if weather_str:
         pline(weather_str)
 
+    # Feature header sections
+    for line in data.get("feature_lines", []):
+        pline(line)
+
     # Great event
     if ge_str := data.get("great_event_str", ""):
         pline(ge_str)

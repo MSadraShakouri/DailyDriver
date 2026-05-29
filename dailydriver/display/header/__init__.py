@@ -6,6 +6,7 @@ from datetime import timedelta
 import jdatetime
 from hijridate import Gregorian as HijriGregorian
 
+import dailydriver.features as features_pkg
 from dailydriver.core.database import get_connection_cm
 from dailydriver.display.display_utils import get_width, spread_line
 from dailydriver.utils.calendar_events import get_events, get_hijri_offset
@@ -132,6 +133,19 @@ def build_header_data(day=None, is_today=True):
         last_entry_time = get_last_entry_time(is_today)
         weather_str = get_weather_str(conn, today, is_today)
         prayer_nudges = get_prayer_nudges(conn, target_date, today, is_today)
+
+        # Collect header lines from enabled feature packages
+        feature_lines = []
+        for feature in features_pkg.ENABLED:
+            if hasattr(feature, "header_sections"):
+                lines = feature.header_sections(conn, today, target_date, is_today)
+                if isinstance(lines, list):
+                    # lines can be plain strings or (priority, text) tuples
+                    feature_lines.extend(lines)
+        # Sort by priority (if tuples), then extract text
+        if feature_lines and isinstance(feature_lines[0], tuple):
+            feature_lines.sort(key=lambda x: x[0])
+            feature_lines = [text for _, text in feature_lines]
 
         return {
             "jalali_line": jalali_line,
