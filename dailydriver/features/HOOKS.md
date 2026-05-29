@@ -39,16 +39,25 @@ def register_commands(dispatch):
     dispatch["pray"] = log_prayer
 ```
 
-## `header_sections() -> list[tuple[int, str]] | list[str]`
+## `header_sections(conn, today: str, target_date, is_today: bool) -> list[tuple[int, str]] | list[str]`
 Return header content.
-- If a list of plain strings, each string is printed as a separate header line.
-- If a list of `(priority, text)` tuples, lower priority numbers appear higher
-  on screen. The core sorts by priority ascending, then prints the text lines.
+- `conn` – an open `sqlite3` connection the feature can use for read queries.
+- `today` – the Jalali date string (`"YYYY-MM-DD"`) being displayed.
+- `target_date` – the `jdatetime.date` object for that day.
+- `is_today` – `True` if the displayed day is the current date.
+
+If a list of plain strings is returned, each string is printed as a separate
+header line. If a list of `(priority, text)` tuples is returned, lower
+priority numbers appear higher on screen. The core sorts by priority
+ascending, then prints the text lines.
 
 Example:
 ```python
-def header_sections():
-    return [(20, "☀️ 24°C clear")]
+def header_sections(conn, today, target_date, is_today):
+    line = get_weather_line(conn, today, is_today)
+    if line:
+        return [(20, line)]
+    return []
 ```
 
 ## `stats_sections() -> dict | None`
