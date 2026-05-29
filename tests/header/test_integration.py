@@ -48,7 +48,7 @@ class TestIntegration(unittest.TestCase):
                     return_value=[],
                 ),
                 patch(
-                    "dailydriver.display.header.weather.get_weather", return_value=None
+                    "dailydriver.features.weather._logic.get_weather", return_value=None
                 ),
             ):
                 data = build_header_data(day=None, is_today=True)
@@ -69,7 +69,7 @@ class TestIntegration(unittest.TestCase):
             "event_str",
             "great_event_str",
             "last_entry_time",
-            "weather_str",
+            "feature_lines",
             "prayer_nudges",
             "is_today",
         ]

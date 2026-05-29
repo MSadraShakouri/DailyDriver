@@ -39,10 +39,6 @@ def print_header(data: dict, add_separator: bool = True):
     else:
         pline(sleep_str)
 
-    weather_str = data.get("weather_str", "")
-    if weather_str:
-        pline(weather_str)
-
     # Feature header sections
     for line in data.get("feature_lines", []):
         pline(line)

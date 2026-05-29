@@ -23,7 +23,6 @@ from .events import get_great_event_str, get_last_entry_time, get_running_event_
 from .hygiene import get_hygiene_lines
 from .prayer import get_prayer_nudges, get_prayer_parts
 from .sleep import get_nap_str, get_sleep_str
-from .weather import get_weather_str
 
 
 def build_header_data(day=None, is_today=True):
@@ -131,7 +130,6 @@ def build_header_data(day=None, is_today=True):
         great_event_str = get_great_event_str(is_today)
         event_str = get_running_event_str(is_today)
         last_entry_time = get_last_entry_time(is_today)
-        weather_str = get_weather_str(conn, today, is_today)
         prayer_nudges = get_prayer_nudges(conn, target_date, today, is_today)
 
         # Collect header lines from enabled feature packages
@@ -163,7 +161,7 @@ def build_header_data(day=None, is_today=True):
             "event_str": event_str,
             "great_event_str": great_event_str,
             "last_entry_time": last_entry_time,
-            "weather_str": weather_str,
+            "feature_lines": feature_lines,
             "prayer_nudges": prayer_nudges,
             "is_today": is_today,
         }

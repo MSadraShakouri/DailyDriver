@@ -1,4 +1,4 @@
-# dailydriver/utils/weather.py
+# dailydriver/features/weather/_logic.py
 """Fetch and cache Tehran weather from IRIMO."""
 
 import json
@@ -14,7 +14,7 @@ from dailydriver.core.database import get_connection_cm
 _fetch_failed_this_session = False
 
 PROJECT_ROOT = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 )
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 TRANSLATION_FILE = os.path.join(DATA_DIR, "weather_conditions.json")

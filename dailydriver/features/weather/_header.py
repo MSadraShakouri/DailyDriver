@@ -1,4 +1,4 @@
-# dailydriver/display/header/weather.py
+# dailydriver/features/weather/_header.py
 """Weather header line (live or cached)."""
 
 import time

@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import jdatetime
 
-from dailydriver.display.header.weather import get_weather_str
+from dailydriver.features.weather._header import get_weather_str
 
 
 class TestWeather(unittest.TestCase):
@@ -21,7 +21,7 @@ class TestWeather(unittest.TestCase):
     def tearDown(self):
         self.conn.close()
 
-    @patch("dailydriver.display.header.weather.get_weather")
+    @patch("dailydriver.features.weather._header.get_weather")
     def test_live_today(self, mock_get_weather):
         mock_get_weather.return_value = {
             "temp_c": 30,
