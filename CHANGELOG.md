@@ -1,5 +1,29 @@
 # Changelog
 
+## 1.5.0 (2026‑05‑29)
+
+### Added
+- **Reminder overhaul** – calendar events have permanent numeric IDs; reminder levels (0/1/2) stored in new `event_reminders` table and `birthdays.remind_level` column. Configurable lead‑time schedules (multiples of 7). Per‑event holiday alignment. Reminder editor (`tools/reminder_editor.py` + HTML) for visual level selection. Tomorrow preview in header.
+- **Birthday manager** – interactive `birthdays` command to list, toggle reminder levels, add, and delete birthdays. `bd` command extended to accept an optional `remind_level` argument.
+- **New Hijri event** – Martyrdom of Muslim ibn Aqil (AS).
+- **Weather translation** – added thunderstorm condition.
+- **Test isolation** – database path configurable via `DAILYDRIVER_DB` env var; `conftest.py` and updated `run_all.py` run all tests against a temporary database. Clean‑clone test runs are green. 161 tests total.
+
+### Changed
+- **Dispatcher unified** – all command handlers now accept the raw `line` string. Removed duplicated `first in (…)` tuple from `repl()` and `run_single_command()`.
+- **Post‑handler logic extracted** – `_show_result()` helper deduplicates header‑redisplay code.
+- **Birthday display** – unified into a single schedule‑based function; all birthdays appear as their own line in the header.
+- **Calendar event display** – duplicate suppression for events already shown as today/tomorrow reminders; holiday alignment only when a visible holiday is present.
+- **Birthday manager layout** – dynamic column widths with word‑wrapped names.
+- **Weekday abbreviation restored** in the header date line.
+- **Eid al‑Adha title** updated to "Eid‑e Qorban / Eid al‑Adha".
+- **Modern cultural figures removed** from Jalali calendar events.
+- **Bumped `requires‑python`** to `>=3.10`.
+
+### Fixed
+- `exit()` replaced with `sys.exit(0)` in the quit handler.
+- Clean‑clone test failures eliminated (database path resolution).
+
 ## 1.4.0 (2026‑05‑21)
 
 ### Added
