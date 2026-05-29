@@ -319,6 +319,17 @@ def _migration_11(conn):
     conn.commit()
 
 
+def _migration_12(conn):
+    """Create feature_versions table for per‑feature migration tracking."""
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS feature_versions (
+            feature_name TEXT PRIMARY KEY,
+            version INTEGER NOT NULL DEFAULT 0
+        )
+    ''')
+    conn.commit()
+
+
 _MIGRATIONS = {
     1: _migration_1,
     2: _migration_2,
@@ -331,6 +342,7 @@ _MIGRATIONS = {
     9: _migration_9,
     10: _migration_10,
     11: _migration_11,
+    12: _migration_12,
 }
 
 
