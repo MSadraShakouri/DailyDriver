@@ -361,13 +361,43 @@ def _set_version(conn, version):
 
 
 def run_migrations():
-    """Apply all pending schema migrations."""
-    conn = get_connection(auto=False)  # use the un‑wrapped connection directly
+    """Apply all pending schema migrations (core + features)."""
+    # --- core migrations ---
+    conn = get_connection(auto=False)
     try:
         current = _get_current_version(conn)
         for version in sorted(_MIGRATIONS.keys()):
             if version > current:
                 _MIGRATIONS[version](conn)
                 _set_version(conn, version)
+    finally:
+        conn.close()
+
+    # --- feature migrations ---
+    conn = get_connection(auto=False)
+    try:
+        import dailydriver.features as features_pkg
+        cur = conn.cursor()
+        for feature in features_pkg.ENABLED:
+            if not hasattr(feature, "migrations"):
+                continue
+            feature_name = getattr(feature, "NAME", feature.__name__)
+            # read current version
+            cur.execute(
+                "SELECT version FROM feature_versions WHERE feature_name=?",
+                (feature_name,),
+            )
+            row = cur.fetchone()
+            current_ver = row[0] if row else 0
+
+            migration_list = feature.migrations()
+            for idx in range(current_ver, len(migration_list)):
+                migration_list[idx](conn)
+            if len(migration_list) > current_ver:
+                cur.execute(
+                    "INSERT OR REPLACE INTO feature_versions (feature_name, version) VALUES (?,?)",
+                    (feature_name, len(migration_list)),
+                )
+                conn.commit()
     finally:
         conn.close()
