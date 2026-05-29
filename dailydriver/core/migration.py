@@ -321,12 +321,12 @@ def _migration_11(conn):
 
 def _migration_12(conn):
     """Create feature_versions table for per‑feature migration tracking."""
-    conn.execute('''
+    conn.execute("""
         CREATE TABLE IF NOT EXISTS feature_versions (
             feature_name TEXT PRIMARY KEY,
             version INTEGER NOT NULL DEFAULT 0
         )
-    ''')
+    """)
     conn.commit()
 
 
@@ -377,6 +377,7 @@ def run_migrations():
     conn = get_connection(auto=False)
     try:
         import dailydriver.features as features_pkg
+
         cur = conn.cursor()
         for feature in features_pkg.ENABLED:
             if not hasattr(feature, "migrations"):

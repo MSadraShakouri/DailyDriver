@@ -27,20 +27,29 @@ class TestIntegration(unittest.TestCase):
 
         with patch("dailydriver.display.header.get_connection_cm") as mock_cm:
             mock_cm.return_value.__enter__.return_value = conn
-            with patch(
-                "dailydriver.display.header.events.get_active_great_event",
-                return_value=None,
-            ), patch(
-                "dailydriver.display.header.events.get_pending_start", return_value=None
-            ), patch(
-                "dailydriver.display.header.calendar.get_events", return_value=[]
-            ), patch(
-                "dailydriver.display.header.calendar.get_todays_events", return_value=[]
-            ), patch(
-                "dailydriver.display.header.calendar.get_upcoming_events",
-                return_value=[],
-            ), patch(
-                "dailydriver.display.header.weather.get_weather", return_value=None
+            with (
+                patch(
+                    "dailydriver.display.header.events.get_active_great_event",
+                    return_value=None,
+                ),
+                patch(
+                    "dailydriver.display.header.events.get_pending_start",
+                    return_value=None,
+                ),
+                patch(
+                    "dailydriver.display.header.calendar.get_events", return_value=[]
+                ),
+                patch(
+                    "dailydriver.display.header.calendar.get_todays_events",
+                    return_value=[],
+                ),
+                patch(
+                    "dailydriver.display.header.calendar.get_upcoming_events",
+                    return_value=[],
+                ),
+                patch(
+                    "dailydriver.display.header.weather.get_weather", return_value=None
+                ),
             ):
                 data = build_header_data(day=None, is_today=True)
 

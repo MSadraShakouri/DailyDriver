@@ -37,9 +37,10 @@ class TestHijriOffset(unittest.TestCase):
         m = mock_open()
         fake_today = MagicMock()
         fake_today.strftime.return_value = "1405-02-30"
-        with patch("dailydriver.utils.calendar_events.open", m, create=True), patch(
-            "dailydriver.utils.calendar_events.jdatetime.date"
-        ) as mock_jd:
+        with (
+            patch("dailydriver.utils.calendar_events.open", m, create=True),
+            patch("dailydriver.utils.calendar_events.jdatetime.date") as mock_jd,
+        ):
             mock_jd.today.return_value = fake_today
             set_hijri_offset(1)
 
@@ -52,9 +53,10 @@ class TestHijriOffset(unittest.TestCase):
     def test_set_offset_invalidates_cache(self):
         # Put a fake object in the cache
         ce_module._cached_events = ["fake"]
-        with patch(
-            "dailydriver.utils.calendar_events.open", mock_open(), create=True
-        ), patch("dailydriver.utils.calendar_events.jdatetime.date") as mock_jd:
+        with (
+            patch("dailydriver.utils.calendar_events.open", mock_open(), create=True),
+            patch("dailydriver.utils.calendar_events.jdatetime.date") as mock_jd,
+        ):
             fake_today = MagicMock()
             fake_today.strftime.return_value = "1405-02-30"
             mock_jd.today.return_value = fake_today

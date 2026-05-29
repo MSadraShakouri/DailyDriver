@@ -1,9 +1,10 @@
 # dailydriver/features/weather/_migrations.py
 """Weather feature migrations."""
 
+
 def _migration_1(conn):
     """Create weather_log table."""
-    conn.execute('''
+    conn.execute("""
         CREATE TABLE IF NOT EXISTS weather_log (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             city TEXT NOT NULL DEFAULT 'Tehran',
@@ -11,8 +12,9 @@ def _migration_1(conn):
             condition_fa TEXT NOT NULL,
             timestamp INTEGER NOT NULL
         )
-    ''')
+    """)
     conn.commit()
+
 
 def migrations():
     return [_migration_1]
