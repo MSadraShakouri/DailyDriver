@@ -1,12 +1,10 @@
 # tests/test_reminder_system.py
 import sqlite3
 import unittest
-from datetime import datetime, timedelta
-from unittest.mock import patch
 
 import jdatetime
 
-from dailydriver.features.birthdays._header import BIRTHDAY_SCHEDULE, get_birthday_lines
+from dailydriver.features.birthdays._header import get_birthday_lines
 from dailydriver.utils.event_reminders import get_event_reminders, get_tomorrow_preview
 
 

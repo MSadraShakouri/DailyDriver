@@ -14,7 +14,7 @@ tmp_dir = tempfile.mkdtemp()
 db_path = os.path.join(tmp_dir, "test.db")
 os.environ["DAILYDRIVER_DB"] = db_path
 
-from dailydriver.core.migration import run_migrations
+from dailydriver.core.migration import run_migrations  # noqa: E402
 
 run_migrations()
 

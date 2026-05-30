@@ -12,7 +12,6 @@ from dailydriver.cli.commands.prayer import log_prayer
 from dailydriver.cli.commands.search import search
 from dailydriver.cli.commands.sleep import log_nap, log_sleep
 from dailydriver.cli.dispatcher import make_dispatch
-from dailydriver.features.birthdays import register_commands as register_birthdays
 
 
 class TestDispatcher(unittest.TestCase):

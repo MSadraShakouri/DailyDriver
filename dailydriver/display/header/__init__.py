@@ -17,7 +17,7 @@ from dailydriver.utils.event_reminders import (
 )
 from dailydriver.utils.time_utils import format_jalali, today_jalali
 
-from .calendar import get_calendar_lines, get_reminders_str
+from .calendar import get_reminders_str
 from .events import get_great_event_str, get_last_entry_time, get_running_event_str
 from .prayer import get_prayer_nudges, get_prayer_parts
 from .sleep import get_nap_str, get_sleep_str

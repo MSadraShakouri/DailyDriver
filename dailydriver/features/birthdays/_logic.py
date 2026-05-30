@@ -2,7 +2,7 @@ import re
 import textwrap
 
 from dailydriver.core.database import get_connection_cm
-from dailydriver.display.display_utils import display_width, get_width
+from dailydriver.display.display_utils import get_width
 from dailydriver.ui.terminal_ui import current_ui
 
 
@@ -86,7 +86,7 @@ def add_birthday(cmd: str):
     else:
         result += f" (????/{month:02d}/{day:02d})"
     if remind_level > 0:
-        result += f" [important]"
+        result += " [important]"
     return result
 
 
