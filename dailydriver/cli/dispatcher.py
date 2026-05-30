@@ -1,5 +1,6 @@
 import sys
 
+import dailydriver.features as features_pkg
 from dailydriver.cli.commands.calendar_cmd import show_calendar, show_year
 from dailydriver.cli.commands.events import (
     cancel_great_event_cmd,
@@ -60,4 +61,10 @@ def make_dispatch():
         ),
         "hijri": lambda _: hijri_command(),
     }
+
+    # Let features register their own commands
+    for feature in features_pkg.ENABLED:
+        if hasattr(feature, "register_commands"):
+            feature.register_commands(dispatch)
+
     return dispatch

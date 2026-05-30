@@ -18,7 +18,6 @@ from dailydriver.features.birthdays import register_commands as register_birthda
 class TestDispatcher(unittest.TestCase):
     def setUp(self):
         self.dispatch = make_dispatch()
-        register_birthdays(self.dispatch)
 
     def test_all_expected_keys_present(self):
         expected = [

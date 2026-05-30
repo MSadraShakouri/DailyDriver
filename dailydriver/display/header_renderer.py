@@ -51,9 +51,6 @@ def print_header(data: dict, add_separator: bool = True):
     if event_str := data.get("event_str", ""):
         pline(event_str)
 
-    for line in data.get("bday_lines", []):
-        pline(line)
-
     for line in data.get("hygiene_lines", []):
         pline(line)
 

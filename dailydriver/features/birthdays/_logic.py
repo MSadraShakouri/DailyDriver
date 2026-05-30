@@ -1,6 +1,8 @@
 import re
+import textwrap
 
 from dailydriver.core.database import get_connection_cm
+from dailydriver.display.display_utils import display_width, get_width
 from dailydriver.ui.terminal_ui import current_ui
 
 
@@ -90,15 +92,6 @@ def add_birthday(cmd: str):
     if remind_level > 0:
         result += f" [important]"
     return result
-
-
-import textwrap
-
-from dailydriver.core.database import get_connection_cm
-from dailydriver.display.display_utils import display_width, get_width
-from dailydriver.ui.terminal_ui import current_ui
-
-__all__ = ["manage_birthdays"]
 
 
 def _word_wrap(text: str, width: int) -> list[str]:
