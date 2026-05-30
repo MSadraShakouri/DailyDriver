@@ -35,8 +35,7 @@ class TestPrayerBacklog(unittest.TestCase):
         if prayer_dt is None:
             prayer_dt = NOW_DT
         self.conn.execute(
-            "INSERT INTO prayer_logs (prayer_slot, jalali_date, status, logged_at, prayer_time)"
-            " VALUES (?,?,?,?,?)",
+            "INSERT INTO prayer_logs (prayer_slot, jalali_date, status, logged_at, prayer_time)" " VALUES (?,?,?,?,?)",
             (
                 slot,
                 date_str,

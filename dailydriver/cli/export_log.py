@@ -87,9 +87,7 @@ def _to_markdown(days, sleep_rows, nap_rows, prayer_rows, entry_rows):
             icon = r["icon"]
             time_str = r["time_str"]
             notes = r["notes"]
-            lines.append(
-                f'| {date} | {slot} | {icon} {r["status"]} | {time_str} | {notes} |'
-            )
+            lines.append(f'| {date} | {slot} | {icon} {r["status"]} | {time_str} | {notes} |')
     else:
         lines.append("No prayer data.\n")
     # Journal entries grouped by day
@@ -179,9 +177,7 @@ def export(cmd):
         i += 1
 
     if not duration_arg:
-        current_ui.print_line(
-            "Usage: export <duration> [--txt|--md]  (e.g., export 7d, export 2w --txt)"
-        )
+        current_ui.print_line("Usage: export <duration> [--txt|--md]  (e.g., export 7d, export 2w --txt)")
         return None
 
     days = _parse_duration(duration_arg)
@@ -208,12 +204,12 @@ def export(cmd):
         for r in sleep_rows:
             parts_date = r["jalali_date"].split("-") if r["jalali_date"] else None
             if parts_date and len(parts_date) == 3:
-                date_md = jdatetime.date(
-                    int(parts_date[0]), int(parts_date[1]), int(parts_date[2])
-                ).strftime("%d %b %Y")
-                date_txt = jdatetime.date(
-                    int(parts_date[0]), int(parts_date[1]), int(parts_date[2])
-                ).strftime("%d %B %Y")
+                date_md = jdatetime.date(int(parts_date[0]), int(parts_date[1]), int(parts_date[2])).strftime(
+                    "%d %b %Y"
+                )
+                date_txt = jdatetime.date(int(parts_date[0]), int(parts_date[1]), int(parts_date[2])).strftime(
+                    "%d %B %Y"
+                )
             else:
                 date_md = date_txt = "unknown"
             _, start_t = _jdate_str(r["sleep_time"])
@@ -241,12 +237,12 @@ def export(cmd):
         for r in nap_rows:
             parts_date = r["jalali_date"].split("-") if r["jalali_date"] else None
             if parts_date and len(parts_date) == 3:
-                date_md = jdatetime.date(
-                    int(parts_date[0]), int(parts_date[1]), int(parts_date[2])
-                ).strftime("%d %b %Y")
-                date_txt = jdatetime.date(
-                    int(parts_date[0]), int(parts_date[1]), int(parts_date[2])
-                ).strftime("%d %B %Y")
+                date_md = jdatetime.date(int(parts_date[0]), int(parts_date[1]), int(parts_date[2])).strftime(
+                    "%d %b %Y"
+                )
+                date_txt = jdatetime.date(int(parts_date[0]), int(parts_date[1]), int(parts_date[2])).strftime(
+                    "%d %B %Y"
+                )
             else:
                 date_md = date_txt = "unknown"
             _, start_t = _jdate_str(r["start_time"])
@@ -286,12 +282,12 @@ def export(cmd):
         for r in prayer_rows:
             parts_date = r["jalali_date"].split("-")
             if len(parts_date) == 3:
-                date_md = jdatetime.date(
-                    int(parts_date[0]), int(parts_date[1]), int(parts_date[2])
-                ).strftime("%d %b %Y")
-                date_txt = jdatetime.date(
-                    int(parts_date[0]), int(parts_date[1]), int(parts_date[2])
-                ).strftime("%d %B %Y")
+                date_md = jdatetime.date(int(parts_date[0]), int(parts_date[1]), int(parts_date[2])).strftime(
+                    "%d %b %Y"
+                )
+                date_txt = jdatetime.date(int(parts_date[0]), int(parts_date[1]), int(parts_date[2])).strftime(
+                    "%d %B %Y"
+                )
             else:
                 date_md = date_txt = "unknown"
             slot = slot_names[r["prayer_slot"]]
@@ -338,9 +334,7 @@ def export(cmd):
             c_date, c_time = _jdate_str(r["created_at"])
             if r["started_at"]:
                 _, s_time = _jdate_str(r["started_at"])
-                dur_str = (
-                    _fmt_dur(r["duration_minutes"]) if r["duration_minutes"] else ""
-                )
+                dur_str = _fmt_dur(r["duration_minutes"]) if r["duration_minutes"] else ""
                 if r["duration_minutes"] is not None:
                     finish = r["started_at"] + r["duration_minutes"] * 60
                     _, f_time = _jdate_str(finish)

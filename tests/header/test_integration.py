@@ -20,9 +20,7 @@ class TestIntegration(unittest.TestCase):
             CREATE TABLE weather_log (id INTEGER PRIMARY KEY, temp_c INTEGER, condition_fa TEXT, timestamp INTEGER);
             CREATE TABLE event_reminders (event_id INTEGER PRIMARY KEY, level INTEGER NOT NULL DEFAULT 0);
         """)
-        cur.execute(
-            "INSERT INTO meta (key, value) VALUES ('prayer_complete_until', '1405-02-20')"
-        )
+        cur.execute("INSERT INTO meta (key, value) VALUES ('prayer_complete_until', '1405-02-20')")
         conn.commit()
 
         with patch("dailydriver.display.header.get_connection_cm") as mock_cm:
@@ -36,9 +34,7 @@ class TestIntegration(unittest.TestCase):
                     "dailydriver.display.header.events.get_pending_start",
                     return_value=None,
                 ),
-                patch(
-                    "dailydriver.display.header.calendar.get_events", return_value=[]
-                ),
+                patch("dailydriver.display.header.calendar.get_events", return_value=[]),
                 patch(
                     "dailydriver.display.header.calendar.get_todays_events",
                     return_value=[],

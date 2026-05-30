@@ -23,9 +23,7 @@ class TestLogFreeTextTimeConversion(unittest.TestCase):
         self.mock_cm.__exit__.return_value = False
 
         # Mock _save_entry (to capture arguments)
-        self.patch_save = patch(
-            "dailydriver.core.logger._save_entry", return_value="Logged OK"
-        )
+        self.patch_save = patch("dailydriver.core.logger._save_entry", return_value="Logged OK")
         self.mock_save_entry = self.patch_save.start()
 
         # Mock find_matching_categories to return some categories
@@ -44,15 +42,11 @@ class TestLogFreeTextTimeConversion(unittest.TestCase):
 
         # Mock get_last_action_time (used for `l` based expressions)
         self.last_ts = int(datetime(2026, 5, 20, 12, 0, 0).timestamp())
-        self.patch_last = patch(
-            "dailydriver.core.logger.get_last_action_time", return_value=self.last_ts
-        )
+        self.patch_last = patch("dailydriver.core.logger.get_last_action_time", return_value=self.last_ts)
         self.patch_last.start()
 
         # Mock get_connection_cm
-        self.patch_db = patch(
-            "dailydriver.core.logger.get_connection_cm", return_value=self.mock_cm
-        )
+        self.patch_db = patch("dailydriver.core.logger.get_connection_cm", return_value=self.mock_cm)
         self.patch_db.start()
 
     def tearDown(self):

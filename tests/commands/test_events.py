@@ -70,9 +70,7 @@ class TestEventCommands(unittest.TestCase):
     def test_start_great_event_already_active(self, mock_ui, mock_start, mock_active):
         mock_active.return_value = (123, ["work"])
         start_great_event_cmd("sge extra")
-        mock_ui.print_line.assert_called_with(
-            "A great event is already active. Cancel it first (cge)."
-        )
+        mock_ui.print_line.assert_called_with("A great event is already active. Cancel it first (cge).")
 
     @patch("dailydriver.cli.commands.events.get_active_great_event")
     @patch("dailydriver.cli.commands.events.start_great_event")
@@ -99,9 +97,7 @@ class TestEventCommands(unittest.TestCase):
     @patch("dailydriver.cli.commands.events.log_free_text")
     @patch("dailydriver.cli.commands.events.clear_great_event")
     @patch("dailydriver.cli.commands.events.current_ui")
-    def test_end_great_event_no_active(
-        self, mock_ui, mock_clear, mock_log, mock_active
-    ):
+    def test_end_great_event_no_active(self, mock_ui, mock_clear, mock_log, mock_active):
         mock_active.return_value = None
         end_great_event_cmd("ege done")
         mock_ui.print_line.assert_called_with("No great event is active.")

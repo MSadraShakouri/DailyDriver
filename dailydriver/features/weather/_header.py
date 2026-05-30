@@ -13,11 +13,7 @@ def get_weather_str(conn, today, is_today):
     if is_today:
         weather = get_weather()
         if weather:
-            cond = (
-                weather["condition_en"]
-                if weather["condition_en"]
-                else weather["condition_fa"]
-            )
+            cond = weather["condition_en"] if weather["condition_en"] else weather["condition_fa"]
             emoji = weather.get("condition_emoji", "🌡️")
             text = f"{emoji} {weather['temp_c']}°C {cond}"
             if time.time() - weather["timestamp"] > 3600:
@@ -38,11 +34,7 @@ def get_weather_str(conn, today, is_today):
         ).fetchone()
         if row:
             cond_info = _translate_condition(row["condition_fa"])
-            cond_en = (
-                cond_info["en"]
-                if cond_info and cond_info.get("en") != "NOT TRANSLATED"
-                else row["condition_fa"]
-            )
+            cond_en = cond_info["en"] if cond_info and cond_info.get("en") != "NOT TRANSLATED" else row["condition_fa"]
             emoji = cond_info.get("emoji", "🌡️") if cond_info else "🌡️"
             return f"{emoji} {row['temp_c']}°C {cond_en}"
         return ""

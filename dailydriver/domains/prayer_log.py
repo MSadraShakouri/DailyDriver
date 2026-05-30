@@ -42,9 +42,7 @@ def log_prayer(cmd: str):
         today_j = jdatetime.date.today()
         approx = get_approximate_times(today_j.month, today_j.day)
         now = datetime.now()
-        dhuhr_dt = now.replace(
-            hour=approx["dhuhr"][0], minute=approx["dhuhr"][1], second=0, microsecond=0
-        )
+        dhuhr_dt = now.replace(hour=approx["dhuhr"][0], minute=approx["dhuhr"][1], second=0, microsecond=0)
         maghrib_dt = now.replace(
             hour=approx["maghrib"][0],
             minute=approx["maghrib"][1],
@@ -66,9 +64,7 @@ def log_prayer(cmd: str):
             slot = current_slot()
 
         if offset_min is not None:
-            interpretations = parse_time_expressions(
-                f"-{offset_min}", now, last_time=None, mode="no_duration"
-            )
+            interpretations = parse_time_expressions(f"-{offset_min}", now, last_time=None, mode="no_duration")
             if interpretations:
                 prayer_dt = interpretations[0].start
             else:

@@ -27,9 +27,7 @@ def make_dispatch():
         "q": lambda _: sys.exit(0),
         "p": log_prayer,
         "s": log_sleep,
-        "view": lambda line: view_entries(
-            line.split(maxsplit=1)[1] if len(line.split()) > 1 else None
-        ),
+        "view": lambda line: view_entries(line.split(maxsplit=1)[1] if len(line.split()) > 1 else None),
         "?": lambda _: show_help(),
         "hygiene": lambda _: manage_hygiene(),
         "t": add_intention,
@@ -40,9 +38,7 @@ def make_dispatch():
         "ce": lambda _: discard_pending_start(),
         "ee": log_event_end,
         "ln": log_chain_now,
-        "cal": lambda line: show_calendar(
-            line.split()[1:] if len(line.split()) > 1 else []
-        ),
+        "cal": lambda line: show_calendar(line.split()[1:] if len(line.split()) > 1 else []),
         "year": lambda _: show_year(),
         "export": export,
         "nap": log_nap,
@@ -55,9 +51,7 @@ def make_dispatch():
         "sleep": log_sleep,
         "h": lambda _: show_help(),
         "qada": lambda line: log_prayer(
-            f"p q {line.split(maxsplit=1)[1]}"
-            if len(line.split(maxsplit=1)) > 1
-            else "p q"
+            f"p q {line.split(maxsplit=1)[1]}" if len(line.split(maxsplit=1)) > 1 else "p q"
         ),
         "hijri": lambda _: hijri_command(),
     }

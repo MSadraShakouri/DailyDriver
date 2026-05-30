@@ -123,15 +123,9 @@ def _migration_1(conn):
     cur.execute("DROP TABLE IF EXISTS flags")
 
     # Performance indexes
-    cur.execute(
-        "CREATE INDEX IF NOT EXISTS idx_entries_created_at ON entries(created_at)"
-    )
-    cur.execute(
-        "CREATE INDEX IF NOT EXISTS idx_entries_started_at ON entries(started_at)"
-    )
-    cur.execute(
-        "CREATE INDEX IF NOT EXISTS idx_entry_categories_category ON entry_categories(category_id)"
-    )
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_entries_created_at ON entries(created_at)")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_entries_started_at ON entries(started_at)")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_entry_categories_category ON entry_categories(category_id)")
 
     conn.commit()
 
@@ -251,9 +245,7 @@ def _migration_10(conn):
     import os
 
     cur = conn.cursor()
-    project_root = os.path.dirname(
-        os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-    )
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
     # last_action
     last_action_file = os.path.join(project_root, ".daily_last_action")
@@ -313,9 +305,7 @@ def _migration_11(conn):
     cur.execute("PRAGMA table_info('birthdays')")
     columns = [row[1] for row in cur.fetchall()]
     if "remind_level" not in columns:
-        cur.execute(
-            "ALTER TABLE birthdays ADD COLUMN remind_level INTEGER NOT NULL DEFAULT 0"
-        )
+        cur.execute("ALTER TABLE birthdays ADD COLUMN remind_level INTEGER NOT NULL DEFAULT 0")
     conn.commit()
 
 

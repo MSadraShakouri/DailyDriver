@@ -61,9 +61,7 @@ def show_calendar(args=None):
             prefix = cal_icons.get(cal, "📌")
             if e.get("holiday"):
                 prefix += holiday_icon
-            current_ui.print_line(
-                f"  {date.strftime('%d %B')}: {prefix} {e['title_en']}"
-            )
+            current_ui.print_line(f"  {date.strftime('%d %B')}: {prefix} {e['title_en']}")
     else:
         current_ui.print_line("No events for the next 15 days.")
 

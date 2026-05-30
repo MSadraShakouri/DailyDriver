@@ -122,9 +122,7 @@ def score_dates(entry_created_at_unix: int | None, query_tokens: list[str]) -> f
                 days_behind = 7  # most recent past occurrence
             target_date = today - timedelta(days=days_behind)
             # Allow ±1 day
-            days_diff = _days_away(
-                entry_dt, datetime.combine(target_date, datetime.min.time())
-            )
+            days_diff = _days_away(entry_dt, datetime.combine(target_date, datetime.min.time()))
             if days_diff <= 1:
                 score += 1.0 / (1 + days_diff)
 

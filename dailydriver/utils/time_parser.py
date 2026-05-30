@@ -149,9 +149,7 @@ def _tokenise(text: str) -> list[str]:
 # ---------------------------------------------------------------------------
 
 
-def _time_atom(
-    token: str, now: datetime, last_time: datetime | None
-) -> list[TimeInterpretation]:
+def _time_atom(token: str, now: datetime, last_time: datetime | None) -> list[TimeInterpretation]:
     """
     Interpret a single token as a time point.
     Returns a list of interpretations (empty, 1, or 2 for AM/PM).
@@ -341,9 +339,7 @@ def parse_time_expressions(
                 if end <= left.start:
                     continue
                 dur = int((end - left.start).total_seconds() // 60)
-                label = (
-                    f"{left.start.strftime('%H:%M')} → {end.strftime('%H:%M')} ({dur}m)"
-                )
+                label = f"{left.start.strftime('%H:%M')} → {end.strftime('%H:%M')} ({dur}m)"
                 return [
                     TimeInterpretation(
                         start=left.start,
@@ -413,11 +409,7 @@ def parse_prayer_args(args: list[str]) -> dict:
             result["offset_min"] = int(a[1:])
             i += 1
         elif a.lower() == "j":
-            if (
-                i + 1 < len(args)
-                and not args[i + 1].startswith("-")
-                and args[i + 1].lower() not in ("j", "s")
-            ):
+            if i + 1 < len(args) and not args[i + 1].startswith("-") and args[i + 1].lower() not in ("j", "s"):
                 result["jamaat_location"] = args[i + 1]
                 i += 2
             else:

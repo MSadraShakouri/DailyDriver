@@ -55,12 +55,8 @@ def get_prayer_nudges(conn, target_date, today_str, is_today, now=None):
     approx = get_approximate_times(today_j.month, today_j.day)
     g = today_j.togregorian()
     fajr_dt = datetime(g.year, g.month, g.day, approx["fajr"][0], approx["fajr"][1], 0)
-    dhuhr_dt = datetime(
-        g.year, g.month, g.day, approx["dhuhr"][0], approx["dhuhr"][1], 0
-    )
-    maghrib_dt = datetime(
-        g.year, g.month, g.day, approx["maghrib"][0], approx["maghrib"][1], 0
-    )
+    dhuhr_dt = datetime(g.year, g.month, g.day, approx["dhuhr"][0], approx["dhuhr"][1], 0)
+    maghrib_dt = datetime(g.year, g.month, g.day, approx["maghrib"][0], approx["maghrib"][1], 0)
 
     slot_times = {
         "fajr": fajr_dt,

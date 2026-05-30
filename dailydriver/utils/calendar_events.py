@@ -13,9 +13,7 @@ import jdatetime
 from hijridate import Gregorian as HijriGregorian  # avoid name clash
 from hijridate import Hijri
 
-PROJECT_ROOT = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-)
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 
 JALALI_FILE = os.path.join(DATA_DIR, "events_jalali.json")
@@ -136,10 +134,7 @@ def _convert_all_events(target_jalali_year):
                 if offset:
                     gdate = gdate - timedelta(days=offset)
                 jdate = _gregorian_to_jalali(gdate)
-                if (
-                    jdate.year == target_jalali_year
-                    or jdate.year == target_jalali_year + 1
-                ):
+                if jdate.year == target_jalali_year or jdate.year == target_jalali_year + 1:
                     possible.append(jdate)
             except ValueError:
                 pass

@@ -26,16 +26,12 @@ def log_nap(cmd: str):
     else:
         time_str = " ".join(args)
 
-    interpretations = parse_time_expressions(
-        time_str, now, last_time=last_time, mode="required"
-    )
+    interpretations = parse_time_expressions(time_str, now, last_time=last_time, mode="required")
 
     valid = [i for i in interpretations if i.end is not None]
 
     if not valid:
-        current_ui.print_line(
-            "Duration required. Use a range (e.g., 14:00-14:25, l-14:00, l--5)."
-        )
+        current_ui.print_line("Duration required. Use a range (e.g., 14:00-14:25, l-14:00, l--5).")
         return None
 
     selected = valid[0]

@@ -29,36 +29,24 @@ class TestBirthdaySchedule(unittest.TestCase):
 
     def test_level_0_at_14_days(self):
         """Birthday 14 days away (9 Khordad) with level 0 should appear."""
-        self.conn.execute(
-            "INSERT INTO birthdays (name, month, day, year, remind_level) VALUES ('Test', 3, 9, 1380, 0)"
-        )
+        self.conn.execute("INSERT INTO birthdays (name, month, day, year, remind_level) VALUES ('Test', 3, 9, 1380, 0)")
         # 25 Ord → 9 Khordad = 14 days
         lines = get_birthday_lines(self.conn, self.target)
-        self.assertTrue(
-            any("Test" in line for line in lines), "Birthday at 14d should be shown"
-        )
+        self.assertTrue(any("Test" in line for line in lines), "Birthday at 14d should be shown")
 
     def test_level_1_at_28_days(self):
         """Birthday 28 days away (23 Khordad) with level 1 should appear."""
-        self.conn.execute(
-            "INSERT INTO birthdays (name, month, day, year, remind_level) VALUES ('VIP', 3, 23, 1370, 1)"
-        )
+        self.conn.execute("INSERT INTO birthdays (name, month, day, year, remind_level) VALUES ('VIP', 3, 23, 1370, 1)")
         # 25 Ord → 23 Khordad = 28 days
         lines = get_birthday_lines(self.conn, self.target)
-        self.assertTrue(
-            any("VIP" in line for line in lines), "VIP birthday at 28d should be shown"
-        )
+        self.assertTrue(any("VIP" in line for line in lines), "VIP birthday at 28d should be shown")
 
     def test_not_shown_outside_schedule(self):
         """A birthday not matching the schedule should not appear."""
-        self.conn.execute(
-            "INSERT INTO birthdays (name, month, day, year, remind_level) VALUES ('Far', 4, 1, 1390, 0)"
-        )
+        self.conn.execute("INSERT INTO birthdays (name, month, day, year, remind_level) VALUES ('Far', 4, 1, 1390, 0)")
         # 25 Ord → 1 Tir is far, shouldn't appear
         lines = get_birthday_lines(self.conn, self.target)
-        self.assertFalse(
-            any("Far" in line for line in lines), "Far away birthday should not appear"
-        )
+        self.assertFalse(any("Far" in line for line in lines), "Far away birthday should not appear")
 
 
 class TestEventReminders(unittest.TestCase):

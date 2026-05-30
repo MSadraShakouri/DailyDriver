@@ -65,9 +65,7 @@ def pline_center(s: str):
     current_ui.print_line(" " * left + s)
 
 
-def pline_wrap(
-    s: str, indent: int = 0, max_lines: int = 0, first_indent: int | None = None
-):
+def pline_wrap(s: str, indent: int = 0, max_lines: int = 0, first_indent: int | None = None):
     """Print a line, wrapping at word boundaries to fit terminal width.
     If max_lines > 0, print at most that many lines; the last printed
     line will end with '…' if truncation occurs.

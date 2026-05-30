@@ -24,13 +24,9 @@ class TestPrayerNudges(unittest.TestCase):
     def test_overdue_today(self):
         # Fixed "now": after maghrib on this date
         fixed_now = datetime(2026, 5, 11, 20, 0, 0)
-        nudges = get_prayer_nudges(
-            self.conn, self.target_date, self.today_str, is_today=True, now=fixed_now
-        )
+        nudges = get_prayer_nudges(self.conn, self.target_date, self.today_str, is_today=True, now=fixed_now)
         self.assertTrue(any("Maghrib" in n and "not logged" in n for n in nudges))
 
     def test_no_nudges_when_not_today(self):
-        nudges = get_prayer_nudges(
-            self.conn, self.target_date, self.today_str, is_today=False
-        )
+        nudges = get_prayer_nudges(self.conn, self.target_date, self.today_str, is_today=False)
         self.assertEqual(nudges, [])

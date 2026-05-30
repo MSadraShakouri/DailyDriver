@@ -21,25 +21,19 @@ def add_intention(cmd: str):
         description = current_ui.prompt("Description: ").strip()
         if not description:
             return None
-        deadline_str = current_ui.prompt(
-            "Deadline (Jalali YYYY/MM/DD, or Enter=skip): "
-        ).strip()
+        deadline_str = current_ui.prompt("Deadline (Jalali YYYY/MM/DD, or Enter=skip): ").strip()
         if deadline_str:
             try:
                 y, m, d = map(int, deadline_str.split("/"))
                 jdate = jdatetime.date(y, m, d)
                 gdate = jdate.togregorian()
-                deadline = int(
-                    datetime(gdate.year, gdate.month, gdate.day, 12, 0).timestamp()
-                )
+                deadline = int(datetime(gdate.year, gdate.month, gdate.day, 12, 0).timestamp())
             except Exception:
                 current_ui.print_line("Invalid date. Ignoring deadline.")
                 deadline = None
         else:
             deadline = None
-        expected_str = current_ui.prompt(
-            "Expected duration (min, Enter=skip): "
-        ).strip()
+        expected_str = current_ui.prompt("Expected duration (min, Enter=skip): ").strip()
         if expected_str:
             try:
                 expected = int(expected_str)

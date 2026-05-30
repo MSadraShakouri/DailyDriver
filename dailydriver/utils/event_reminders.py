@@ -71,9 +71,7 @@ def get_tomorrow_preview(events, target_date, reminded_ids=None):
     tomorrow_events = [(d, ev) for d, ev in events if d == tomorrow]
 
     # Filter out events that are already reminded for tomorrow
-    tomorrow_events = [
-        (d, ev) for d, ev in tomorrow_events if ev.get("id") not in reminded_ids
-    ]
+    tomorrow_events = [(d, ev) for d, ev in tomorrow_events if ev.get("id") not in reminded_ids]
 
     if not tomorrow_events:
         return []

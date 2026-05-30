@@ -16,9 +16,7 @@ def _save_entry(conn, cmd, started_at, duration, selected_paths):
         (now_ts, started_at, duration, cmd),
     )
     entry_id = cur.lastrowid
-    cur.execute(
-        "INSERT INTO entries_fts(rowid, description) VALUES (?, ?)", (entry_id, cmd)
-    )
+    cur.execute("INSERT INTO entries_fts(rowid, description) VALUES (?, ?)", (entry_id, cmd))
 
     for path in selected_paths:
         cur.execute("SELECT id FROM categories WHERE path=?", (path,))
@@ -48,9 +46,9 @@ def _save_entry(conn, cmd, started_at, duration, selected_paths):
 
 def inject_great_categories(selected_paths: list):
     """If a great event is active, append its categories to selected_paths (no duplicates)."""
-    from dailydriver.core.logger import (
+    from dailydriver.core.logger import (  # late import to avoid circular
         get_active_great_event,
-    )  # late import to avoid circular
+    )
 
     active = get_active_great_event()
     if active:

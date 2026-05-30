@@ -13,9 +13,7 @@ class TestReminders(unittest.TestCase):
     @patch("dailydriver.display.header.calendar.get_events")
     @patch("dailydriver.display.header.calendar.get_upcoming_events")
     def test_today_with_reminders(self, mock_upcoming, mock_events):
-        mock_events.return_value = [
-            {"title": "dummy"}
-        ]  # non-empty to avoid early return
+        mock_events.return_value = [{"title": "dummy"}]  # non-empty to avoid early return
         mock_upcoming.return_value = [
             (
                 self.target_date + jdatetime.timedelta(days=2),

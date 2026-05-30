@@ -41,15 +41,11 @@ def _parse_relative_date(text: str, now: datetime):
     text = text.lower().strip()
     # yesterday/today/tomorrow
     if "yesterday" in text:
-        return (now - timedelta(days=1)).replace(
-            hour=0, minute=0, second=0, microsecond=0
-        )
+        return (now - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
     if "today" in text:
         return now.replace(hour=0, minute=0, second=0, microsecond=0)
     if "tomorrow" in text:
-        return (now + timedelta(days=1)).replace(
-            hour=0, minute=0, second=0, microsecond=0
-        )
+        return (now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
 
     # last <weekday> / next <weekday> / <weekday>
     for name, wd in _WEEKDAYS.items():
@@ -57,37 +53,27 @@ def _parse_relative_date(text: str, now: datetime):
             days_ago = (now.weekday() - wd) % 7
             if days_ago == 0:
                 days_ago = 7
-            return (now - timedelta(days=days_ago)).replace(
-                hour=0, minute=0, second=0, microsecond=0
-            )
+            return (now - timedelta(days=days_ago)).replace(hour=0, minute=0, second=0, microsecond=0)
         if f"next {name}" in text:
             days_ahead = (wd - now.weekday()) % 7
             if days_ahead == 0:
                 days_ahead = 7
-            return (now + timedelta(days=days_ahead)).replace(
-                hour=0, minute=0, second=0, microsecond=0
-            )
+            return (now + timedelta(days=days_ahead)).replace(hour=0, minute=0, second=0, microsecond=0)
         # plain <weekday> – nearest past
         if name in text and f"last {name}" not in text and f"next {name}" not in text:
             days_ago = (now.weekday() - wd) % 7
             if days_ago == 0:
                 days_ago = 7
-            return (now - timedelta(days=days_ago)).replace(
-                hour=0, minute=0, second=0, microsecond=0
-            )
+            return (now - timedelta(days=days_ago)).replace(hour=0, minute=0, second=0, microsecond=0)
 
     # N days ago / in N days
     m = re.search(r"(\d+)\s*days?\s*ago", text)
     if m:
         n = int(m.group(1))
-        return (now - timedelta(days=n)).replace(
-            hour=0, minute=0, second=0, microsecond=0
-        )
+        return (now - timedelta(days=n)).replace(hour=0, minute=0, second=0, microsecond=0)
     m = re.search(r"in\s+(\d+)\s*days?", text)
     if m:
         n = int(m.group(1))
-        return (now + timedelta(days=n)).replace(
-            hour=0, minute=0, second=0, microsecond=0
-        )
+        return (now + timedelta(days=n)).replace(hour=0, minute=0, second=0, microsecond=0)
 
     return None

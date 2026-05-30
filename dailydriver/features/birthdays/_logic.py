@@ -18,9 +18,7 @@ def add_birthday(cmd: str):
         day = current_ui.prompt("Day (1-31): ").strip()
         month = current_ui.prompt("Month (1-12): ").strip()
         year = current_ui.prompt("Year (e.g., 1386, Enter=skip): ").strip()
-        remind_str = current_ui.prompt(
-            "Reminder level? (0=default, 1=important, Enter=0): "
-        ).strip()
+        remind_str = current_ui.prompt("Reminder level? (0=default, 1=important, Enter=0): ").strip()
         try:
             day = int(day)
             month = int(month)
@@ -36,9 +34,7 @@ def add_birthday(cmd: str):
         tokens = text.strip().split()
         if tokens and tokens[-1].isdigit() and int(tokens[-1]) in (0, 1):
             remind_level = int(tokens[-1])
-            text = " ".join(
-                tokens[:-1]
-            )  # remove the level token from the name/date part
+            text = " ".join(tokens[:-1])  # remove the level token from the name/date part
 
         # Try full date first: YYYY/MM/DD or YYYY/M/D
         date_match = re.search(r"(\d{4})\s*/\s*(\d{1,2})\s*/\s*(\d{1,2})", text)
@@ -103,9 +99,7 @@ def manage_birthdays():
     with get_connection_cm() as conn:
         cur = conn.cursor()
         while True:
-            cur.execute(
-                "SELECT id, name, month, day, year, remind_level FROM birthdays ORDER BY month, day"
-            )
+            cur.execute("SELECT id, name, month, day, year, remind_level FROM birthdays ORDER BY month, day")
             rows = cur.fetchall()
 
             current_ui.clear()
@@ -156,7 +150,9 @@ def manage_birthdays():
                 rest_name_lines = name_lines[1:] if len(name_lines) > 1 else []
 
                 # First line
-                line = f"{id_str:>{max_id_width}}  {first_name_line:<{name_width}}  {date_str:<{date_width}}  {level_str}"
+                line = (
+                    f"{id_str:>{max_id_width}}  {first_name_line:<{name_width}}  {date_str:<{date_width}}  {level_str}"
+                )
                 current_ui.print_line(line)
 
                 # Continuation lines – only the name, indented to the name column
@@ -173,9 +169,7 @@ def manage_birthdays():
             elif choice.startswith("t "):
                 try:
                     bid = int(choice.split()[1])
-                    cur.execute(
-                        "SELECT id, remind_level FROM birthdays WHERE id=?", (bid,)
-                    )
+                    cur.execute("SELECT id, remind_level FROM birthdays WHERE id=?", (bid,))
                     row = cur.fetchone()
                     if not row:
                         current_ui.print_line("ID not found.")
@@ -187,9 +181,7 @@ def manage_birthdays():
                         )
                         conn.commit()
                         level_name = "important" if new_level else "default"
-                        current_ui.print_line(
-                            f"Level toggled to {new_level} ({level_name})."
-                        )
+                        current_ui.print_line(f"Level toggled to {new_level} ({level_name}).")
                 except (ValueError, IndexError):
                     current_ui.print_line("Usage: t <id>")
             elif choice == "a":
@@ -204,11 +196,7 @@ def manage_birthdays():
                     if not row:
                         current_ui.print_line("ID not found.")
                     else:
-                        confirm = (
-                            current_ui.prompt(f"Delete {row['name']}? (y/n): ")
-                            .strip()
-                            .lower()
-                        )
+                        confirm = current_ui.prompt(f"Delete {row['name']}? (y/n): ").strip().lower()
                         if confirm == "y":
                             cur.execute("DELETE FROM birthdays WHERE id=?", (bid,))
                             conn.commit()

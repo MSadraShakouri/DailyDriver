@@ -6,9 +6,7 @@ from unittest.mock import patch
 class TestMultiLineBlock(unittest.TestCase):
     """Test that the '---' handler routes ln/ee/ege correctly."""
 
-    def _simulate_multi_line_end(
-        self, first_line, rest_lines, mock_ln, mock_ee, mock_ege
-    ):
+    def _simulate_multi_line_end(self, first_line, rest_lines, mock_ln, mock_ee, mock_ege):
         """
         Reproduce the exact logic from the '---' block in commander.py.
         """
@@ -36,9 +34,7 @@ class TestMultiLineBlock(unittest.TestCase):
     @patch("dailydriver.cli.commands.events.log_chain_now")
     def test_ege_multi_line(self, mock_ln, mock_ee, mock_ege):
         """ege with description in multi‑line should call end_great_event_cmd."""
-        self._simulate_multi_line_end(
-            "ege finished report", ["extra details"], mock_ln, mock_ee, mock_ege
-        )
+        self._simulate_multi_line_end("ege finished report", ["extra details"], mock_ln, mock_ee, mock_ege)
         mock_ege.assert_called_once_with("ege finished report\nextra details")
         mock_ln.assert_not_called()
         mock_ee.assert_not_called()
@@ -58,9 +54,7 @@ class TestMultiLineBlock(unittest.TestCase):
     @patch("dailydriver.cli.commands.events.log_chain_now")
     def test_ee_multi_line(self, mock_ln, mock_ee, mock_ege):
         """ee should still call log_event_end (existing behaviour)."""
-        self._simulate_multi_line_end(
-            "ee some task", ["more work"], mock_ln, mock_ee, mock_ege
-        )
+        self._simulate_multi_line_end("ee some task", ["more work"], mock_ln, mock_ee, mock_ege)
         mock_ee.assert_called_once_with("ee some task\nmore work")
         mock_ln.assert_not_called()
         mock_ege.assert_not_called()
@@ -70,9 +64,7 @@ class TestMultiLineBlock(unittest.TestCase):
     @patch("dailydriver.cli.commands.events.log_chain_now")
     def test_ln_multi_line(self, mock_ln, mock_ee, mock_ege):
         """ln should still call log_chain_now (existing behaviour)."""
-        self._simulate_multi_line_end(
-            "ln replied to emails", ["sent follow‑up"], mock_ln, mock_ee, mock_ege
-        )
+        self._simulate_multi_line_end("ln replied to emails", ["sent follow‑up"], mock_ln, mock_ee, mock_ege)
         mock_ln.assert_called_once_with("ln replied to emails\nsent follow‑up")
         mock_ee.assert_not_called()
         mock_ege.assert_not_called()
@@ -82,9 +74,7 @@ class TestMultiLineBlock(unittest.TestCase):
     @patch("dailydriver.cli.commands.events.log_chain_now")
     def test_plain_text_multi_line_not_routed(self, mock_ln, mock_ee, mock_ege):
         """A normal multi‑line journal entry should NOT route to any event handler."""
-        result = self._simulate_multi_line_end(
-            "just some thoughts", ["more thinking"], mock_ln, mock_ee, mock_ege
-        )
+        result = self._simulate_multi_line_end("just some thoughts", ["more thinking"], mock_ln, mock_ee, mock_ege)
         self.assertFalse(result)
         mock_ln.assert_not_called()
         mock_ee.assert_not_called()

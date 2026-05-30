@@ -26,17 +26,13 @@ def log_sleep(cmd: str):
     else:
         time_str = " ".join(args)
 
-    interpretations = parse_time_expressions(
-        time_str, now, last_time=last_time, mode="required"
-    )
+    interpretations = parse_time_expressions(time_str, now, last_time=last_time, mode="required")
 
     # Keep only interpretations that have an end time (required for sleep)
     valid = [i for i in interpretations if i.end is not None]
 
     if not valid:
-        current_ui.print_line(
-            "Duration required. Use a range (e.g., 23:00-7:00, l-9, 23-n, l--10)."
-        )
+        current_ui.print_line("Duration required. Use a range (e.g., 23:00-7:00, l-9, 23-n, l--10).")
         return None
 
     selected = valid[0]

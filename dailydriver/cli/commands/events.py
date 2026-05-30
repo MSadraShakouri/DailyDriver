@@ -48,9 +48,7 @@ def start_great_event_cmd(line):
         cat_str = parts[1].strip()
         cats = cat_str.split() if cat_str else []
     else:
-        cat_input = current_ui.prompt(
-            "Great event categories (space‑separated): "
-        ).strip()
+        cat_input = current_ui.prompt("Great event categories (space‑separated): ").strip()
         cats = cat_input.split() if cat_input else []
 
     if not cats:

@@ -93,18 +93,14 @@ def get_active_great_event():
         cur.execute("SELECT value FROM meta WHERE key='great_event_categories'")
         row_cats = cur.fetchone()
         start_ts = int(row_start["value"])
-        cats = (
-            row_cats["value"].split() if row_cats and row_cats["value"].strip() else []
-        )
+        cats = row_cats["value"].split() if row_cats and row_cats["value"].strip() else []
         return start_ts, cats
 
 
 def clear_great_event():
     with get_connection_cm() as conn:
         cur = conn.cursor()
-        cur.execute(
-            "DELETE FROM meta WHERE key IN ('great_event_start', 'great_event_categories')"
-        )
+        cur.execute("DELETE FROM meta WHERE key IN ('great_event_start', 'great_event_categories')")
         conn.commit()
 
 
@@ -125,11 +121,7 @@ def log_free_text(cmd, started_at=None):
             duration = int(time.time() - started_at) // 60
             start_dt = datetime.fromtimestamp(started_at)
             start_str = start_dt.strftime("%H:%M")
-            dur_str = (
-                f"{duration // 60}h {duration % 60}m"
-                if duration // 60
-                else f"{duration}m"
-            )
+            dur_str = f"{duration // 60}h {duration % 60}m" if duration // 60 else f"{duration}m"
             if not current_ui.confirm_time(start_str, dur_str):
                 return None
         else:
@@ -138,18 +130,10 @@ def log_free_text(cmd, started_at=None):
             last_time = datetime.fromtimestamp(last_ts) if last_ts else None
 
             while True:
-                interpretations = parse_time_expressions(
-                    cmd, now, last_time, mode="optional"
-                )
+                interpretations = parse_time_expressions(cmd, now, last_time, mode="optional")
                 if not interpretations:
                     current_ui.print_line("No time detected.")
-                    choice = (
-                        current_ui.prompt(
-                            "(Enter=now, type a time expression, n=cancel) "
-                        )
-                        .strip()
-                        .lower()
-                    )
+                    choice = current_ui.prompt("(Enter=now, type a time expression, n=cancel) ").strip().lower()
                     if choice == "":
                         started_at = int(now.timestamp())
                         duration = None
@@ -167,9 +151,7 @@ def log_free_text(cmd, started_at=None):
                     for i, interp in enumerate(interpretations, 1):
                         current_ui.print_line(f"  [{i}] {interp.label}")
                     choice = (
-                        current_ui.prompt(
-                            "Enter=1, numbers to select, or type a new time expression (n=cancel) "
-                        )
+                        current_ui.prompt("Enter=1, numbers to select, or type a new time expression (n=cancel) ")
                         .strip()
                         .lower()
                     )
@@ -211,9 +193,7 @@ def log_free_text(cmd, started_at=None):
             current_ui.print_line("Suggested categories:")
             for i, (path, cnt) in enumerate(matches, 1):
                 current_ui.print_line(f"  [{i}] {path}")
-            current_ui.print_line(
-                "Enter=1, numbers to select, or type new paths (space‑separated)"
-            )
+            current_ui.print_line("Enter=1, numbers to select, or type new paths (space‑separated)")
             choice = current_ui.prompt("> ").strip().lower()
             if choice == "":
                 selected_paths = [matches[0][0]]
@@ -234,13 +214,7 @@ def log_free_text(cmd, started_at=None):
                         conn.commit()
                         selected_paths.append(token)
         else:
-            cat_choice = (
-                current_ui.prompt(
-                    "No suggestions. Enter category path (or Enter to skip): "
-                )
-                .strip()
-                .lower()
-            )
+            cat_choice = current_ui.prompt("No suggestions. Enter category path (or Enter to skip): ").strip().lower()
             if cat_choice:
                 for token in cat_choice.split():
                     if token:

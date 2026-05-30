@@ -32,9 +32,7 @@ def show_stats():
             total = on_time + qada + missed
             if total > 0:
                 pct = on_time * 100 // total
-                current_ui.print_line(
-                    f"  {slot}: ✅{on_time}  🕯️{qada}  ❌{missed}  ({pct}% on time)"
-                )
+                current_ui.print_line(f"  {slot}: ✅{on_time}  🕯️{qada}  ❌{missed}  ({pct}% on time)")
             else:
                 current_ui.print_line(f"  {slot}: no logs")
 
@@ -53,9 +51,7 @@ def show_stats():
         if durations:
             avg = sum(durations) / len(durations)
             current_ui.print_line(f"  Average: {avg/60:.1f}h ({len(durations)} nights)")
-            current_ui.print_line(
-                f"  Best: {max(durations)/60:.1f}h  Worst: {min(durations)/60:.1f}h"
-            )
+            current_ui.print_line(f"  Best: {max(durations)/60:.1f}h  Worst: {min(durations)/60:.1f}h")
         else:
             current_ui.print_line("  No sleep data.")
 
@@ -80,9 +76,7 @@ def show_stats():
             log_count = cur.fetchone()["cnt"]
             expected_count = 30 // desired if desired > 0 else 30
             pct = int(log_count / expected_count * 100) if expected_count > 0 else 0
-            current_ui.print_line(
-                f"  {item}: {log_count} logs (expected ~{expected_count}, {pct}%)"
-            )
+            current_ui.print_line(f"  {item}: {log_count} logs (expected ~{expected_count}, {pct}%)")
 
         # --- Entries per category (last 30 days) ---
         current_ui.print_line("\n─── Top Categories (last 30 days) ───")

@@ -136,9 +136,7 @@ def log_qada(time_of_day_minutes=None, offset_minutes=None):
         for i, (date_str, slot) in enumerate(missing, 1):
             current_ui.print_line(f"  [{i}] {date_str}  {slot}")
         current_ui.print_line()
-        choice = (
-            current_ui.prompt("Select number (Enter=latest, q=quit): ").strip().lower()
-        )
+        choice = current_ui.prompt("Select number (Enter=latest, q=quit): ").strip().lower()
         if choice == "q":
             return
         if choice == "":
@@ -163,9 +161,7 @@ def log_qada(time_of_day_minutes=None, offset_minutes=None):
         elif offset_minutes is not None:
             now_dt = datetime.now()
             prayer_dt = now_dt - timedelta(minutes=offset_minutes)
-            prayer_dt = prayer_dt.replace(
-                year=gdate.year, month=gdate.month, day=gdate.day
-            )
+            prayer_dt = prayer_dt.replace(year=gdate.year, month=gdate.month, day=gdate.day)
         else:
             approx = get_approximate_times(m, d)
             if slot == "fajr":
@@ -182,8 +178,6 @@ def log_qada(time_of_day_minutes=None, offset_minutes=None):
         )
         conn.commit()
         time_str = prayer_dt.strftime("%H:%M")
-        current_ui.print_line(
-            f"Marked {slot} on {date_str} as qada (time: {time_str})."
-        )
+        current_ui.print_line(f"Marked {slot} on {date_str} as qada (time: {time_str}).")
         _update_complete_until(conn)
         conn.commit()

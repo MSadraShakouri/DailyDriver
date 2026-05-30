@@ -11,9 +11,7 @@ def days_ago(n: int) -> int:
 
 def today_start_ts() -> int:
     """Return Unix timestamp for the start of today (00:00:00)."""
-    return int(
-        datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).timestamp()
-    )
+    return int(datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).timestamp())
 
 
 def today_jalali() -> str:

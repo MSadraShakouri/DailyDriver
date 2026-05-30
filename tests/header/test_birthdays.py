@@ -20,9 +20,7 @@ class TestBirthdays(unittest.TestCase):
         self.conn.close()
 
     def test_birthday_today(self):
-        self.conn.execute(
-            "INSERT INTO birthdays (name, month, day, year, remind_level) VALUES ('Ali', 2, 21, 1386, 1)"
-        )
+        self.conn.execute("INSERT INTO birthdays (name, month, day, year, remind_level) VALUES ('Ali', 2, 21, 1386, 1)")
         lines = get_birthday_lines(self.conn, self.target_date)
         self.assertTrue(any("Ali" in line for line in lines))
         self.assertTrue(any("🎂" in line for line in lines))

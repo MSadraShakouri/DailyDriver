@@ -14,6 +14,4 @@ def register_commands(dispatch):
 
 def header_sections(conn, today, target_date, is_today):
     lines = _header.get_birthday_lines(conn, target_date)
-    return [
-        (25, line) for line in lines
-    ]  # priority 25 – between weather (20) and hygiene (30)
+    return [(25, line) for line in lines]  # priority 25 – between weather (20) and hygiene (30)

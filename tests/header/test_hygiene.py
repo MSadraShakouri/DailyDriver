@@ -19,11 +19,7 @@ class TestHygiene(unittest.TestCase):
         self.conn.close()
 
     def test_not_today_empty(self):
-        self.assertEqual(
-            get_hygiene_lines(self.conn, self.target_date, is_today=False), []
-        )
+        self.assertEqual(get_hygiene_lines(self.conn, self.target_date, is_today=False), [])
 
     def test_today_no_items(self):
-        self.assertEqual(
-            get_hygiene_lines(self.conn, self.target_date, is_today=True), []
-        )
+        self.assertEqual(get_hygiene_lines(self.conn, self.target_date, is_today=True), [])

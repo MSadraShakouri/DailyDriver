@@ -13,9 +13,7 @@ from dailydriver.core.database import get_connection_cm
 # Per‑session flag to avoid repeated failed fetches
 _fetch_failed_this_session = False
 
-PROJECT_ROOT = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-)
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 TRANSLATION_FILE = os.path.join(DATA_DIR, "weather_conditions.json")
 
@@ -53,9 +51,7 @@ def _fetch_weather():
     """Return (temp_c, condition_fa) or None on failure."""
     ctx = ssl.create_default_context()
     ctx.set_ciphers("DEFAULT:@SECLEVEL=1")
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-    }
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
     try:
         req = urllib.request.Request(IRIMO_URL, headers=headers)
         with urllib.request.urlopen(req, context=ctx, timeout=15) as resp:
@@ -104,9 +100,7 @@ def get_weather():
     if _fetch_failed_this_session:
         with get_connection_cm(auto=False) as conn:
             cur = conn.cursor()
-            cur.execute(
-                "SELECT temp_c, condition_fa, timestamp FROM weather_log ORDER BY id DESC LIMIT 1"
-            )
+            cur.execute("SELECT temp_c, condition_fa, timestamp FROM weather_log ORDER BY id DESC LIMIT 1")
             row = cur.fetchone()
             if row is None:
                 return None
@@ -124,9 +118,7 @@ def get_weather():
 
     with get_connection_cm(auto=False) as conn:
         cur = conn.cursor()
-        cur.execute(
-            "SELECT temp_c, condition_fa, timestamp FROM weather_log ORDER BY id DESC LIMIT 1"
-        )
+        cur.execute("SELECT temp_c, condition_fa, timestamp FROM weather_log ORDER BY id DESC LIMIT 1")
         row = cur.fetchone()
         now = int(time.time())
         if row is None or (now - row["timestamp"]) > CACHE_HOURS * 3600:

@@ -22,9 +22,7 @@ def compute_hygiene_nudges(conn, relative_to=None):
     if relative_to is not None:
         # Convert Jalali date to the end of that day (23:59:59)
         gdate = relative_to.togregorian()
-        now_ts = int(
-            datetime(gdate.year, gdate.month, gdate.day, 23, 59, 59).timestamp()
-        )
+        now_ts = int(datetime(gdate.year, gdate.month, gdate.day, 23, 59, 59).timestamp())
     else:
         now_ts = int(time.time())
 
@@ -62,9 +60,7 @@ def compute_hygiene_nudges(conn, relative_to=None):
         elif days_since < desired and early_enabled and early_threshold > 0:
             remaining = desired - days_since
             if remaining <= early_threshold:
-                nudge_lines.append(
-                    f"⚠️ {item}: due in {remaining}d (last {days_since}d ago)"
-                )
+                nudge_lines.append(f"⚠️ {item}: due in {remaining}d (last {days_since}d ago)")
 
     return nudge_lines
 

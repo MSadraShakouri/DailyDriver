@@ -20,9 +20,7 @@ def get_sleep_str(conn, today):
 
 def get_nap_str(conn, today):
     cur = conn.cursor()
-    row = cur.execute(
-        "SELECT SUM(duration_minutes) FROM nap_logs WHERE jalali_date=?", (today,)
-    ).fetchone()
+    row = cur.execute("SELECT SUM(duration_minutes) FROM nap_logs WHERE jalali_date=?", (today,)).fetchone()
     total = row[0] if row and row[0] is not None else 0
     if total:
         return f"😴 {total//60}h {total%60}m"

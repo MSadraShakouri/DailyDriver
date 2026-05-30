@@ -154,9 +154,7 @@ def search(cmd):
                 highlighted = desc_raw
                 for token in stemmed_tokens:
                     pattern = re.compile(re.escape(token), re.IGNORECASE)
-                    highlighted = pattern.sub(
-                        lambda m: f"\033[7m{m.group()}\033[0m", highlighted
-                    )
+                    highlighted = pattern.sub(lambda m: f"\033[7m{m.group()}\033[0m", highlighted)
                 # Header line: ID + date + relevance
                 header_line = f"[{row['id']}] {date_str} {rel_str}"
                 current_ui.print_line(header_line)
@@ -172,12 +170,8 @@ def search(cmd):
                 # Blank line between entries
                 current_ui.print_line()
 
-            current_ui.print_line(
-                f"Showing {offset+1}‑{min(offset+page_size, total)} of {total}"
-            )
-            current_ui.print_line(
-                "\n\033[1m(n)ext  (p)rev  (q)uit  [id] edit  (d)ay <id>\033[0m"
-            )
+            current_ui.print_line(f"Showing {offset+1}‑{min(offset+page_size, total)} of {total}")
+            current_ui.print_line("\n\033[1m(n)ext  (p)rev  (q)uit  [id] edit  (d)ay <id>\033[0m")
             current_ui.print_line("\033[1mn/p = next/prev page, 5n = 5 pages\033[0m")
             current_ui.print_line()
             choice = current_ui.prompt("> ").strip().lower()
@@ -210,9 +204,7 @@ def search(cmd):
 
                     with get_connection_cm() as conn2:
                         cur2 = conn2.cursor()
-                        cur2.execute(
-                            "SELECT created_at FROM entries WHERE id=?", (int(eid),)
-                        )
+                        cur2.execute("SELECT created_at FROM entries WHERE id=?", (int(eid),))
                         row2 = cur2.fetchone()
                         if row2:
                             jd = jdatetime.datetime.fromtimestamp(row2["created_at"])

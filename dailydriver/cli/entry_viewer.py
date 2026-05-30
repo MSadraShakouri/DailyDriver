@@ -65,9 +65,7 @@ def view_entries(category_filter=None):
                 pline_wrap(desc, indent=2, max_lines=2)
                 current_ui.print_line()
 
-            current_ui.print_line(
-                "\033[1m(n)ext  (p)rev  (q)uit  [id] edit  (d)ay <id>\033[0m"
-            )
+            current_ui.print_line("\033[1m(n)ext  (p)rev  (q)uit  [id] edit  (d)ay <id>\033[0m")
             current_ui.print_line("\033[1mn/p = next/prev page, 5n = 5 pages\033[0m")
             current_ui.print_line()
             choice = current_ui.prompt("> ").strip().lower()
@@ -96,9 +94,7 @@ def view_entries(category_filter=None):
 
                     with get_connection_cm() as conn2:
                         cur2 = conn2.cursor()
-                        cur2.execute(
-                            "SELECT created_at FROM entries WHERE id=?", (int(eid),)
-                        )
+                        cur2.execute("SELECT created_at FROM entries WHERE id=?", (int(eid),))
                         row2 = cur2.fetchone()
                         if row2:
                             jd = jdatetime.datetime.fromtimestamp(row2["created_at"])

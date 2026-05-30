@@ -40,11 +40,7 @@ class TestHygieneNudges(unittest.TestCase):
     def _set_last_time(self, item, delta_days):
         """Mock get_last_hygiene_time to return a timestamp *delta_days* before today."""
         ts = (
-            int(
-                datetime(
-                    self.today_g.year, self.today_g.month, self.today_g.day, 12, 0, 0
-                ).timestamp()
-            )
+            int(datetime(self.today_g.year, self.today_g.month, self.today_g.day, 12, 0, 0).timestamp())
             - delta_days * 86400
         )
         return ts

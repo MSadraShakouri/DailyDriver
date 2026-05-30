@@ -44,7 +44,5 @@ def get_reminders_str(target_date, is_today):
         return ""
     rparts = []
     for d, e in reminders[:5]:
-        rparts.append(
-            f"🔔 {d.day} {jdatetime.date.j_months_fa[d.month-1]}: {e['title_en']}"
-        )
+        rparts.append(f"🔔 {d.day} {jdatetime.date.j_months_fa[d.month-1]}: {e['title_en']}")
     return " | ".join(rparts)

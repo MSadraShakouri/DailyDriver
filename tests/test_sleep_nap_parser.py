@@ -24,9 +24,7 @@ class TestSleepNapParser(unittest.TestCase):
 
         # Mock get_connection_cm context manager
         self.mock_cm = MagicMock()
-        self.mock_cm.__enter__.return_value = (
-            self.sleep_conn
-        )  # will be overridden per test
+        self.mock_cm.__enter__.return_value = self.sleep_conn  # will be overridden per test
         self.mock_cm.__exit__.return_value = False
 
     # ---------- helpers ----------
@@ -34,9 +32,7 @@ class TestSleepNapParser(unittest.TestCase):
         duration = None
         if end:
             duration = int((end - start).total_seconds() // 60)
-        return TimeInterpretation(
-            start=start, end=end, duration_minutes=duration, label=label, priority=1
-        )
+        return TimeInterpretation(start=start, end=end, duration_minutes=duration, label=label, priority=1)
 
     # ---------- log_sleep tests ----------
     @patch("dailydriver.domains.sleep.get_connection_cm")
@@ -150,9 +146,7 @@ class TestSleepNapParser(unittest.TestCase):
         mock_parser.return_value = [self._make_interpretation(start)]
         result = log_sleep("s l")
         self.assertIsNone(result)
-        mock_ui.print_line.assert_called_with(
-            "Duration required. Use a range (e.g., 23:00-7:00, l-9, 23-n, l--10)."
-        )
+        mock_ui.print_line.assert_called_with("Duration required. Use a range (e.g., 23:00-7:00, l-9, 23-n, l--10).")
 
     @patch("dailydriver.domains.sleep.parse_time_expressions")
     @patch("dailydriver.domains.sleep.current_ui")
@@ -160,17 +154,13 @@ class TestSleepNapParser(unittest.TestCase):
         mock_parser.return_value = []
         result = log_sleep("s abc")
         self.assertIsNone(result)
-        mock_ui.print_line.assert_called_with(
-            "Duration required. Use a range (e.g., 23:00-7:00, l-9, 23-n, l--10)."
-        )
+        mock_ui.print_line.assert_called_with("Duration required. Use a range (e.g., 23:00-7:00, l-9, 23-n, l--10).")
 
     @patch("dailydriver.domains.sleep.current_ui")
     def test_sleep_no_args(self, mock_ui):
         result = log_sleep("s")
         self.assertIsNone(result)
-        mock_ui.print_line.assert_called_with(
-            "Usage: S <sleep> <wake>   or   S <sleep>-<wake>"
-        )
+        mock_ui.print_line.assert_called_with("Usage: S <sleep> <wake>   or   S <sleep>-<wake>")
 
     @patch("dailydriver.domains.sleep.get_connection_cm")
     @patch("dailydriver.domains.sleep.parse_time_expressions")
@@ -228,17 +218,13 @@ class TestSleepNapParser(unittest.TestCase):
         mock_parser.return_value = [self._make_interpretation(start)]
         result = log_nap("nap l")
         self.assertIsNone(result)
-        mock_ui.print_line.assert_called_with(
-            "Duration required. Use a range (e.g., 14:00-14:25, l-14:00, l--5)."
-        )
+        mock_ui.print_line.assert_called_with("Duration required. Use a range (e.g., 14:00-14:25, l-14:00, l--5).")
 
     @patch("dailydriver.domains.nap.current_ui")
     def test_nap_no_args(self, mock_ui):
         result = log_nap("nap")
         self.assertIsNone(result)
-        mock_ui.print_line.assert_called_with(
-            "Usage: nap <start> <end>   or   nap <start>-<end>"
-        )
+        mock_ui.print_line.assert_called_with("Usage: nap <start> <end>   or   nap <start>-<end>")
 
     @patch("dailydriver.domains.nap.get_connection_cm")
     @patch("dailydriver.domains.nap.parse_time_expressions")

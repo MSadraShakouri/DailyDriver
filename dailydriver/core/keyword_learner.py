@@ -11,9 +11,7 @@ from dailydriver.core.database import get_connection, get_connection_cm
 
 _stemmer = Porter2Stemmer()
 
-PROJECT_ROOT = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-)
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 
 def load_stopwords():
@@ -154,9 +152,7 @@ def learn_keywords(text, category_paths, conn=None):
             continue
         cat_id = row["id"]
         for word in words:
-            cur.execute(
-                "SELECT id FROM keywords WHERE word=? AND category_id=?", (word, cat_id)
-            )
+            cur.execute("SELECT id FROM keywords WHERE word=? AND category_id=?", (word, cat_id))
             existing = cur.fetchone()
             if existing:
                 cur.execute(

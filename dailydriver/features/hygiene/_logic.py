@@ -25,11 +25,7 @@ def manage_hygiene():
             if choice == "q":
                 break
             elif choice == "a":
-                item = (
-                    current_ui.prompt("Item name (e.g., shaving, brushing_teeth): ")
-                    .strip()
-                    .lower()
-                )
+                item = current_ui.prompt("Item name (e.g., shaving, brushing_teeth): ").strip().lower()
                 if not item:
                     continue
                 try:
@@ -46,19 +42,11 @@ def manage_hygiene():
                     continue
 
                 # early warning prompt (Enter=yes, n=no)
-                ew = (
-                    current_ui.prompt("Early warning? (Enter=yes, n=no): ")
-                    .strip()
-                    .lower()
-                )
+                ew = current_ui.prompt("Early warning? (Enter=yes, n=no): ").strip().lower()
                 early_enabled = 0 if ew == "n" else 1
 
                 # due today prompt
-                dt = (
-                    current_ui.prompt("Show due today? (Enter=yes, n=no): ")
-                    .strip()
-                    .lower()
-                )
+                dt = current_ui.prompt("Show due today? (Enter=yes, n=no): ").strip().lower()
                 due_today_enabled = 0 if dt == "n" else 1
 
                 cur.execute(
@@ -83,9 +71,7 @@ def manage_hygiene():
                     f"Current: interval={row['desired_interval_days']}d, early={'on' if row['early_warning_enabled'] else 'off'}, due today={'on' if row['show_due_today'] else 'off'}"
                 )
 
-                days_str = current_ui.prompt(
-                    "New interval (days, Enter=keep): "
-                ).strip()
+                days_str = current_ui.prompt("New interval (days, Enter=keep): ").strip()
                 if days_str:
                     try:
                         days = int(days_str)

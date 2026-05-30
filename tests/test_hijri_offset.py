@@ -20,9 +20,7 @@ class TestHijriOffset(unittest.TestCase):
             self.assertEqual(get_hijri_offset(), 2)
 
     def test_get_offset_file_missing(self):
-        with patch(
-            "dailydriver.utils.calendar_events.open", side_effect=FileNotFoundError
-        ):
+        with patch("dailydriver.utils.calendar_events.open", side_effect=FileNotFoundError):
             self.assertEqual(get_hijri_offset(), 0)
 
     def test_get_offset_corrupted(self):

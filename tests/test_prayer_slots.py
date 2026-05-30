@@ -26,9 +26,7 @@ def test_get_approximate_times():
     t = get_approximate_times(1, 12)
     # Should be between (4,31) and (4,20) -> roughly 4:26 or 4:25
     fajr_min = t["fajr"][0] * 60 + t["fajr"][1]
-    assert (
-        265 <= fajr_min <= 275
-    ), f"Farvardin 12: fajr {t['fajr']} (expected around 4:26-4:35)"
+    assert 265 <= fajr_min <= 275, f"Farvardin 12: fajr {t['fajr']} (expected around 4:26-4:35)"
 
     # Test first day of each month returns something valid
     for m in range(1, 13):
@@ -38,9 +36,7 @@ def test_get_approximate_times():
         dhuhr_h, dhuhr_m = t["dhuhr"]
         assert 11 <= dhuhr_h <= 13, f"Month {m}: dhuhr hour {dhuhr_h} out of range"
         maghrib_h, maghrib_m = t["maghrib"]
-        assert (
-            17 <= maghrib_h <= 21
-        ), f"Month {m}: maghrib hour {maghrib_h} out of range"
+        assert 17 <= maghrib_h <= 21, f"Month {m}: maghrib hour {maghrib_h} out of range"
 
     print("✓ Interpolation tests passed")
 
@@ -115,9 +111,7 @@ def test_slot_assignment():
 
     for time_str, times, expected in test_cases:
         result = slot_for_time(time_str, times)
-        assert (
-            result == expected
-        ), f"At {time_str} with times {times}: expected {expected}, got {result}"
+        assert result == expected, f"At {time_str} with times {times}: expected {expected}, got {result}"
 
     print("✓ Slot assignment tests passed")
 

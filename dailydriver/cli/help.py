@@ -71,16 +71,12 @@ def show_help():
     current_ui.print_line("     Inside: p/n/q to navigate, also YYYY-MM-DD or 5n/5p")
     current_ui.print_line()
     current_ui.print_line("  view [filter]")
-    current_ui.print_line(
-        "     Browse entries (n=next p=prev, n/p can have a count like 5n)"
-    )
+    current_ui.print_line("     Browse entries (n=next p=prev, n/p can have a count like 5n)")
     current_ui.print_line("     view project")
     current_ui.print_line("     Inside: id=edit entry, d <id> = open day of that entry")
     current_ui.print_line()
     current_ui.print_line("  search [query]")
-    current_ui.print_line(
-        "     Full‑text search journal entries (also 5n/5p for multi-page)"
-    )
+    current_ui.print_line("     Full‑text search journal entries (also 5n/5p for multi-page)")
     current_ui.print_line("     search programming")
     current_ui.print_line("     search morning")
     current_ui.print_line()
@@ -137,6 +133,4 @@ def show_help():
     current_ui.print_line("  ?          This help")
     current_ui.print_line("  q          Quit")
     current_ui.print_line()
-    current_ui.print_line(
-        "Weather is shown automatically in the header (IRIMO, Tehran)."
-    )
+    current_ui.print_line("Weather is shown automatically in the header (IRIMO, Tehran).")

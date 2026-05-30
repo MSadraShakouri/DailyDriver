@@ -45,9 +45,7 @@ def apply_changes(stop_ids, del_ids):
         conn = sqlite3.connect(DB_PATH)
         conn.row_factory = sqlite3.Row
         placeholders = ",".join("?" for _ in stop_ids)
-        rows = conn.execute(
-            f"SELECT DISTINCT word FROM keywords WHERE id IN ({placeholders})", stop_ids
-        ).fetchall()
+        rows = conn.execute(f"SELECT DISTINCT word FROM keywords WHERE id IN ({placeholders})", stop_ids).fetchall()
         for r in rows:
             w = r["word"].lower()
             if w not in existing:
@@ -65,9 +63,7 @@ def apply_changes(stop_ids, del_ids):
     if all_ids:
         conn = sqlite3.connect(DB_PATH)
         placeholders = ",".join("?" for _ in all_ids)
-        conn.execute(
-            f"DELETE FROM keywords WHERE id IN ({placeholders})", list(all_ids)
-        )
+        conn.execute(f"DELETE FROM keywords WHERE id IN ({placeholders})", list(all_ids))
         conn.commit()
         conn.close()
 
@@ -103,9 +99,7 @@ class EditorHandler(SimpleHTTPRequestHandler):
             self.send_response(200)
             self.send_header("Content-type", "application/json")
             self.end_headers()
-            self.wfile.write(
-                json.dumps({"added_stopwords": added, "deleted": removed}).encode()
-            )
+            self.wfile.write(json.dumps({"added_stopwords": added, "deleted": removed}).encode())
         else:
             self.send_error(404)
 
