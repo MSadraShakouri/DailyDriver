@@ -20,7 +20,6 @@ from dailydriver.utils.time_utils import format_jalali, today_jalali
 from .birthdays import get_birthday_lines
 from .calendar import get_calendar_lines, get_reminders_str
 from .events import get_great_event_str, get_last_entry_time, get_running_event_str
-from .hygiene import get_hygiene_lines
 from .prayer import get_prayer_nudges, get_prayer_parts
 from .sleep import get_nap_str, get_sleep_str
 
@@ -63,7 +62,6 @@ def build_header_data(day=None, is_today=True):
         sleep_str = get_sleep_str(conn, today)
         nap_str = get_nap_str(conn, today)
         bday_lines = get_birthday_lines(conn, target_date)
-        hygiene_lines = get_hygiene_lines(conn, target_date, is_today)
         reminders_str = get_reminders_str(target_date, is_today)
 
         # Event reminders and tomorrow preview
@@ -153,7 +151,6 @@ def build_header_data(day=None, is_today=True):
             "sleep_str": sleep_str,
             "nap_str": nap_str,
             "bday_lines": bday_lines,
-            "hygiene_lines": hygiene_lines,
             "calendar_lines": calendar_lines,
             "reminders_str": reminders_str,
             "event_reminder_lines": event_reminder_lines,
