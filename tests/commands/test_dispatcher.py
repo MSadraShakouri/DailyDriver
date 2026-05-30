@@ -12,11 +12,13 @@ from dailydriver.cli.commands.prayer import log_prayer
 from dailydriver.cli.commands.search import search
 from dailydriver.cli.commands.sleep import log_nap, log_sleep
 from dailydriver.cli.dispatcher import make_dispatch
+from dailydriver.features.birthdays import register_commands as register_birthdays
 
 
 class TestDispatcher(unittest.TestCase):
     def setUp(self):
         self.dispatch = make_dispatch()
+        register_birthdays(self.dispatch)
 
     def test_all_expected_keys_present(self):
         expected = [
@@ -27,6 +29,7 @@ class TestDispatcher(unittest.TestCase):
             "view",
             "?",
             "bd",
+            "birthdays",
             "hygiene",
             "t",
             "stats",

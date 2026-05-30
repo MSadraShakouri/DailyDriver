@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import jdatetime
 
-from dailydriver.display.header.birthdays import BIRTHDAY_SCHEDULE, get_birthday_lines
+from dailydriver.features.birthdays._header import BIRTHDAY_SCHEDULE, get_birthday_lines
 from dailydriver.utils.event_reminders import get_event_reminders, get_tomorrow_preview
 
 

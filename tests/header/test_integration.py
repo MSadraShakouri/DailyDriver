@@ -61,7 +61,6 @@ class TestIntegration(unittest.TestCase):
             "prayer_parts",
             "sleep_str",
             "nap_str",
-            "bday_lines",
             "calendar_lines",
             "reminders_str",
             "event_reminder_lines",

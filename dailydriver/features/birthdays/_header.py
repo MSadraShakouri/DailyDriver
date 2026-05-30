@@ -1,4 +1,4 @@
-# dailydriver/display/header/birthdays.py
+# dailydriver/features/birthdays/_header.py
 """Unified birthday lines – advance reminders and today's display."""
 
 import jdatetime

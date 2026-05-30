@@ -4,7 +4,7 @@ import unittest
 
 import jdatetime
 
-from dailydriver.display.header.birthdays import get_birthday_lines
+from dailydriver.features.birthdays._header import get_birthday_lines
 
 
 class TestBirthdays(unittest.TestCase):
