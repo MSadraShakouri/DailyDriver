@@ -1,8 +1,7 @@
 # Reviewer Suggestions – Pending & Deferred
 
-Captured from the external review (v1.4.0) and subsequent discussion.
-Items we have already completed (dispatcher unification, test isolation, etc.)
-are **not** listed here.
+Captured from the external review (v1.4.0) and subsequent feature‑refactor
+reviews.  Items already completed are **not** listed here.
 
 ---
 
@@ -47,7 +46,7 @@ We decided against building a full plugin system immediately, and instead to fir
 the code into “feature packages” (`dailydriver/features/…`). This document records the design
 decisions and the steps we still need to take.
 
-### 4.1 Hook design (agreed, not yet implemented)
+### 4.1 Hook design (agreed, implemented for weather & hygiene)
 
 Each feature package exposes **any** of the following optional hooks (duck typing, no ABC):
 
@@ -61,8 +60,8 @@ def register_commands(dispatch: dict) -> None:
     """Add entries to the dispatcher dictionary."""
     ...
 
-def header_sections() -> list[tuple[int, str]] | list[str]:
-    """Return (priority, rendered_text) or plain strings."""
+def header_sections(conn, today, target_date, is_today) -> list[tuple[int, str]] | list[str]:
+    """Return header content. Lower priority = higher on screen."""
     ...
 
 def migrations() -> list[callable]:
@@ -70,7 +69,7 @@ def migrations() -> list[callable]:
     ...
 
 def stats_sections() -> dict | None:
-    """Optional. Return key→value pairs for the `stats` command."""
+    """Optional. Return key‑value pairs for the `stats` command."""
     ...
 
 def register_aliases(dispatch: dict) -> None:
@@ -95,21 +94,40 @@ No auto‑discovery – the ordering of `ENABLED` explicitly controls header slo
 - **Header slot ordering** – each feature gets a `header_priority` (or we rely on the registry
   order). This must be consistent before we add more features.
 - **Per‑feature migration versioning** – each feature keeps its own migration sequence,
-  tracked in `meta` as `migration_version_<feature>`. Implement this as part of the refactor.
+  tracked in `feature_versions` as `migration_version_<feature>`. Implement this as part of the refactor.
 - **Database table namespacing** – prefix tables with the feature name where collisions could
   occur (e.g., `weather_cache`, `prayer_logs`).
 - **Category system remains global** – keyword learning is a shared service; features don't
   own it but consume it.
 
-### 4.4 Refactor order
+### 4.4 Feature‑specific pending items
 
-1. Pilot with `weather` (most self‑contained).
-2. `hygiene`
-3. `sleep` + `nap`
-4. `prayer`
-5. `calendar` + `birthdays`
-6. `journal` + `search`
-7. Remaining commands (`stats`, `hijri`, `intentions`, `great events`, etc.)
-8. Add one new feature (e.g., `نذر` or `people`) through the new system to validate hooks.
+*Tagged with the feature that exposed the issue.  Revisit after more features are extracted.*
+
+- **[weather]** Tuple‑vs‑string polymorphism in `feature_lines` – if `feature_lines[0]` is a
+  string, `isinstance(…, tuple)` returns `False` and the sort/transform silently does nothing.
+  Fix once a feature returns plain strings.
+- **[weather]** `_logic.py` opens a second DB connection – refactor to accept a connection
+  parameter.
+- **[hygiene]** Move `compute_hygiene_nudges` into `_logic.py` for consistency with the
+  weather pattern.
+- **[hygiene]** Route `manage_hygiene` through `register_commands` hook, delete the
+  `cli/commands/hygiene_cmd.py` shim.  *(Validate after extracting birthdays.)*
+- **[hygiene]** Fix stale docstring paths in `_header.py` (still references old file locations).
+- **[loader]** Add `tests/test_feature_loader.py` – test that features without `migrations()`
+  are skipped, that priority sorting works, and that missing `header_sections` doesn’t crash.
+- **[loader]** `__file__`‑parent‑chain in `_logic.py` (`dirname × 4`) is fragile.
+
+### 4.5 Refactor order (proposed)
+
+1. ✅ Pilot with `weather` (most self‑contained).
+2. ✅ `hygiene`
+3. ⬜ `birthdays` (commands, header lines, DB table, migrations – the real stress test)
+4. ⬜ `sleep` + `nap`
+5. ⬜ `prayer`
+6. ⬜ `calendar`
+7. ⬜ `journal` + `search`
+8. ⬜ Remaining commands (`stats`, `hijri`, `intentions`, `great events`, etc.)
+9. ⬜ Add one new feature (e.g., `نذر` or `people`) through the new system to validate hooks.
 
 Work will happen on the `feature-refactor` branch; `main` stays stable until merge.
