@@ -16,7 +16,6 @@ from dailydriver.cli.commands.hygiene_cmd import manage_hygiene
 from dailydriver.cli.commands.intention_cmd import add_intention
 from dailydriver.cli.commands.prayer import log_prayer
 from dailydriver.cli.commands.search import search
-from dailydriver.cli.commands.sleep import log_nap, log_sleep
 from dailydriver.cli.commands.stats_cmd import show_stats
 from dailydriver.cli.commands.viewing import show_day, show_last, view_entries
 from dailydriver.core.logger import discard_pending_start, save_pending_start
@@ -26,7 +25,6 @@ def make_dispatch():
     dispatch = {
         "q": lambda _: sys.exit(0),
         "p": log_prayer,
-        "s": log_sleep,
         "view": lambda line: view_entries(line.split(maxsplit=1)[1] if len(line.split()) > 1 else None),
         "?": lambda _: show_help(),
         "hygiene": lambda _: manage_hygiene(),
@@ -41,14 +39,12 @@ def make_dispatch():
         "cal": lambda line: show_calendar(line.split()[1:] if len(line.split()) > 1 else []),
         "year": lambda _: show_year(),
         "export": export,
-        "nap": log_nap,
         "search": search,
         "recent": lambda _: show_last(),
         "sge": start_great_event_cmd,
         "ege": end_great_event_cmd,
         "cge": cancel_great_event_cmd,
         "pray": log_prayer,
-        "sleep": log_sleep,
         "h": lambda _: show_help(),
         "qada": lambda line: log_prayer(
             f"p q {line.split(maxsplit=1)[1]}" if len(line.split(maxsplit=1)) > 1 else "p q"

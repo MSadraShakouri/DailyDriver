@@ -55,8 +55,6 @@ class TestIntegration(unittest.TestCase):
             "separator",
             "greg_hijri_line",
             "prayer_parts",
-            "sleep_str",
-            "nap_str",
             "calendar_lines",
             "reminders_str",
             "event_reminder_lines",

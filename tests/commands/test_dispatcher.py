@@ -10,8 +10,8 @@ from dailydriver.cli.commands.events import (
 from dailydriver.cli.commands.export_cmd import export
 from dailydriver.cli.commands.prayer import log_prayer
 from dailydriver.cli.commands.search import search
-from dailydriver.cli.commands.sleep import log_nap, log_sleep
 from dailydriver.cli.dispatcher import make_dispatch
+from dailydriver.features.sleep._logic import log_nap, log_sleep
 
 
 class TestDispatcher(unittest.TestCase):

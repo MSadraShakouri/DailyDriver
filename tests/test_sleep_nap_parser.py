@@ -3,8 +3,7 @@ import unittest
 from datetime import datetime, timedelta
 from unittest.mock import MagicMock, patch
 
-from dailydriver.domains.nap import log_nap
-from dailydriver.domains.sleep import log_sleep
+from dailydriver.features.sleep._logic import log_nap, log_sleep
 from dailydriver.utils.time_parser import TimeInterpretation
 
 
@@ -35,9 +34,9 @@ class TestSleepNapParser(unittest.TestCase):
         return TimeInterpretation(start=start, end=end, duration_minutes=duration, label=label, priority=1)
 
     # ---------- log_sleep tests ----------
-    @patch("dailydriver.domains.sleep.get_connection_cm")
-    @patch("dailydriver.domains.sleep.parse_time_expressions")
-    @patch("dailydriver.domains.sleep.current_ui")
+    @patch("dailydriver.features.sleep._logic.get_connection_cm")
+    @patch("dailydriver.features.sleep._logic.parse_time_expressions")
+    @patch("dailydriver.features.sleep._logic.current_ui")
     def test_sleep_basic_range(self, mock_ui, mock_parser, mock_db):
         mock_ui.confirm.return_value = True
         mock_db.return_value = self.mock_cm
@@ -58,9 +57,9 @@ class TestSleepNapParser(unittest.TestCase):
         self.assertEqual(params[2], int(end.timestamp()))  # wake_time
         self.assertEqual(params[3], 8 * 60 + 15)  # 8h15m
 
-    @patch("dailydriver.domains.sleep.get_connection_cm")
-    @patch("dailydriver.domains.sleep.parse_time_expressions")
-    @patch("dailydriver.domains.sleep.current_ui")
+    @patch("dailydriver.features.sleep._logic.get_connection_cm")
+    @patch("dailydriver.features.sleep._logic.parse_time_expressions")
+    @patch("dailydriver.features.sleep._logic.current_ui")
     def test_sleep_dash_range(self, mock_ui, mock_parser, mock_db):
         mock_ui.confirm.return_value = True
         mock_db.return_value = self.mock_cm
@@ -76,10 +75,10 @@ class TestSleepNapParser(unittest.TestCase):
         # The parser receives "23-7:15" directly.
         self.assertIn("Sleep logged", result)
 
-    @patch("dailydriver.domains.sleep.get_connection_cm")
-    @patch("dailydriver.domains.sleep.parse_time_expressions")
-    @patch("dailydriver.domains.sleep.current_ui")
-    @patch("dailydriver.domains.sleep.get_last_action_time")
+    @patch("dailydriver.features.sleep._logic.get_connection_cm")
+    @patch("dailydriver.features.sleep._logic.parse_time_expressions")
+    @patch("dailydriver.features.sleep._logic.current_ui")
+    @patch("dailydriver.features.sleep._logic.get_last_action_time")
     def test_sleep_last_to_time(self, mock_last, mock_ui, mock_parser, mock_db):
         mock_ui.confirm.return_value = True
         mock_db.return_value = self.mock_cm
@@ -92,9 +91,9 @@ class TestSleepNapParser(unittest.TestCase):
         self.assertIsNotNone(result)
         self.assertIn("Sleep logged", result)
 
-    @patch("dailydriver.domains.sleep.get_connection_cm")
-    @patch("dailydriver.domains.sleep.parse_time_expressions")
-    @patch("dailydriver.domains.sleep.current_ui")
+    @patch("dailydriver.features.sleep._logic.get_connection_cm")
+    @patch("dailydriver.features.sleep._logic.parse_time_expressions")
+    @patch("dailydriver.features.sleep._logic.current_ui")
     def test_sleep_to_now(self, mock_ui, mock_parser, mock_db):
         mock_ui.confirm.return_value = True
         mock_db.return_value = self.mock_cm
@@ -107,10 +106,10 @@ class TestSleepNapParser(unittest.TestCase):
         self.assertIsNotNone(result)
         self.assertIn("Sleep logged", result)
 
-    @patch("dailydriver.domains.sleep.get_connection_cm")
-    @patch("dailydriver.domains.sleep.parse_time_expressions")
-    @patch("dailydriver.domains.sleep.current_ui")
-    @patch("dailydriver.domains.sleep.get_last_action_time")
+    @patch("dailydriver.features.sleep._logic.get_connection_cm")
+    @patch("dailydriver.features.sleep._logic.parse_time_expressions")
+    @patch("dailydriver.features.sleep._logic.current_ui")
+    @patch("dailydriver.features.sleep._logic.get_last_action_time")
     def test_sleep_last_to_now(self, mock_last, mock_ui, mock_parser, mock_db):
         mock_ui.confirm.return_value = True
         mock_db.return_value = self.mock_cm
@@ -122,10 +121,10 @@ class TestSleepNapParser(unittest.TestCase):
         self.assertIsNotNone(result)
         self.assertIn("Sleep logged", result)
 
-    @patch("dailydriver.domains.sleep.get_connection_cm")
-    @patch("dailydriver.domains.sleep.parse_time_expressions")
-    @patch("dailydriver.domains.sleep.current_ui")
-    @patch("dailydriver.domains.sleep.get_last_action_time")
+    @patch("dailydriver.features.sleep._logic.get_connection_cm")
+    @patch("dailydriver.features.sleep._logic.parse_time_expressions")
+    @patch("dailydriver.features.sleep._logic.current_ui")
+    @patch("dailydriver.features.sleep._logic.get_last_action_time")
     def test_sleep_last_offset(self, mock_last, mock_ui, mock_parser, mock_db):
         mock_ui.confirm.return_value = True
         mock_db.return_value = self.mock_cm
@@ -138,8 +137,8 @@ class TestSleepNapParser(unittest.TestCase):
         self.assertIsNotNone(result)
         self.assertIn("Sleep logged", result)
 
-    @patch("dailydriver.domains.sleep.parse_time_expressions")
-    @patch("dailydriver.domains.sleep.current_ui")
+    @patch("dailydriver.features.sleep._logic.parse_time_expressions")
+    @patch("dailydriver.features.sleep._logic.current_ui")
     def test_sleep_no_duration_rejected(self, mock_ui, mock_parser):
         # Single time point, no end
         start = self.last_time
@@ -148,23 +147,23 @@ class TestSleepNapParser(unittest.TestCase):
         self.assertIsNone(result)
         mock_ui.print_line.assert_called_with("Duration required. Use a range (e.g., 23:00-7:00, l-9, 23-n, l--10).")
 
-    @patch("dailydriver.domains.sleep.parse_time_expressions")
-    @patch("dailydriver.domains.sleep.current_ui")
+    @patch("dailydriver.features.sleep._logic.parse_time_expressions")
+    @patch("dailydriver.features.sleep._logic.current_ui")
     def test_sleep_empty_parser_result(self, mock_ui, mock_parser):
         mock_parser.return_value = []
         result = log_sleep("s abc")
         self.assertIsNone(result)
         mock_ui.print_line.assert_called_with("Duration required. Use a range (e.g., 23:00-7:00, l-9, 23-n, l--10).")
 
-    @patch("dailydriver.domains.sleep.current_ui")
+    @patch("dailydriver.features.sleep._logic.current_ui")
     def test_sleep_no_args(self, mock_ui):
         result = log_sleep("s")
         self.assertIsNone(result)
         mock_ui.print_line.assert_called_with("Usage: S <sleep> <wake>   or   S <sleep>-<wake>")
 
-    @patch("dailydriver.domains.sleep.get_connection_cm")
-    @patch("dailydriver.domains.sleep.parse_time_expressions")
-    @patch("dailydriver.domains.sleep.current_ui")
+    @patch("dailydriver.features.sleep._logic.get_connection_cm")
+    @patch("dailydriver.features.sleep._logic.parse_time_expressions")
+    @patch("dailydriver.features.sleep._logic.current_ui")
     def test_sleep_confirmation_cancelled(self, mock_ui, mock_parser, mock_db):
         mock_ui.confirm.return_value = False  # user cancels
         mock_db.return_value = self.mock_cm
@@ -179,9 +178,9 @@ class TestSleepNapParser(unittest.TestCase):
         self.sleep_cursor.execute.assert_not_called()
 
     # ---------- log_nap tests ----------
-    @patch("dailydriver.domains.nap.get_connection_cm")
-    @patch("dailydriver.domains.nap.parse_time_expressions")
-    @patch("dailydriver.domains.nap.current_ui")
+    @patch("dailydriver.features.sleep._logic.get_connection_cm")
+    @patch("dailydriver.features.sleep._logic.parse_time_expressions")
+    @patch("dailydriver.features.sleep._logic.current_ui")
     def test_nap_basic_range(self, mock_ui, mock_parser, mock_db):
         mock_ui.confirm.return_value = True
         mock_db.return_value = self.mock_cm
@@ -195,10 +194,10 @@ class TestSleepNapParser(unittest.TestCase):
         self.assertIn("Nap logged", result)
         self.nap_cursor.execute.assert_called()
 
-    @patch("dailydriver.domains.nap.get_connection_cm")
-    @patch("dailydriver.domains.nap.parse_time_expressions")
-    @patch("dailydriver.domains.nap.current_ui")
-    @patch("dailydriver.domains.nap.get_last_action_time")
+    @patch("dailydriver.features.sleep._logic.get_connection_cm")
+    @patch("dailydriver.features.sleep._logic.parse_time_expressions")
+    @patch("dailydriver.features.sleep._logic.current_ui")
+    @patch("dailydriver.features.sleep._logic.get_last_action_time")
     def test_nap_last_offset(self, mock_last, mock_ui, mock_parser, mock_db):
         mock_ui.confirm.return_value = True
         mock_db.return_value = self.mock_cm
@@ -211,8 +210,8 @@ class TestSleepNapParser(unittest.TestCase):
         self.assertIsNotNone(result)
         self.assertIn("Nap logged", result)
 
-    @patch("dailydriver.domains.nap.parse_time_expressions")
-    @patch("dailydriver.domains.nap.current_ui")
+    @patch("dailydriver.features.sleep._logic.parse_time_expressions")
+    @patch("dailydriver.features.sleep._logic.current_ui")
     def test_nap_no_duration_rejected(self, mock_ui, mock_parser):
         start = self.last_time
         mock_parser.return_value = [self._make_interpretation(start)]
@@ -220,15 +219,15 @@ class TestSleepNapParser(unittest.TestCase):
         self.assertIsNone(result)
         mock_ui.print_line.assert_called_with("Duration required. Use a range (e.g., 14:00-14:25, l-14:00, l--5).")
 
-    @patch("dailydriver.domains.nap.current_ui")
+    @patch("dailydriver.features.sleep._logic.current_ui")
     def test_nap_no_args(self, mock_ui):
         result = log_nap("nap")
         self.assertIsNone(result)
         mock_ui.print_line.assert_called_with("Usage: nap <start> <end>   or   nap <start>-<end>")
 
-    @patch("dailydriver.domains.nap.get_connection_cm")
-    @patch("dailydriver.domains.nap.parse_time_expressions")
-    @patch("dailydriver.domains.nap.current_ui")
+    @patch("dailydriver.features.sleep._logic.get_connection_cm")
+    @patch("dailydriver.features.sleep._logic.parse_time_expressions")
+    @patch("dailydriver.features.sleep._logic.current_ui")
     def test_nap_confirmation_cancelled(self, mock_ui, mock_parser, mock_db):
         mock_ui.confirm.return_value = False
         mock_db.return_value = self.mock_cm

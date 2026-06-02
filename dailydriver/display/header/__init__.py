@@ -20,7 +20,6 @@ from dailydriver.utils.time_utils import format_jalali, today_jalali
 from .calendar import get_reminders_str
 from .events import get_great_event_str, get_last_entry_time, get_running_event_str
 from .prayer import get_prayer_nudges, get_prayer_parts
-from .sleep import get_nap_str, get_sleep_str
 
 
 def build_header_data(day=None, is_today=True):
@@ -58,8 +57,6 @@ def build_header_data(day=None, is_today=True):
             greg_hijri_line = f"\033[2m{greg_hijri_line}\033[0m"
 
         prayer_parts = get_prayer_parts(conn, today)
-        sleep_str = get_sleep_str(conn, today)
-        nap_str = get_nap_str(conn, today)
         reminders_str = get_reminders_str(target_date, is_today)
 
         # Event reminders and tomorrow preview
@@ -142,8 +139,6 @@ def build_header_data(day=None, is_today=True):
             "separator": separator,
             "greg_hijri_line": greg_hijri_line,
             "prayer_parts": prayer_parts,
-            "sleep_str": sleep_str,
-            "nap_str": nap_str,
             "calendar_lines": calendar_lines,
             "reminders_str": reminders_str,
             "event_reminder_lines": event_reminder_lines,

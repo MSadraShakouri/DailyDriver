@@ -30,14 +30,6 @@ def print_header(data: dict, add_separator: bool = True):
 
     pline(prayer_str)
 
-    sleep_str = data.get("sleep_str", "💤 —")
-    nap_str = data.get("nap_str", "")
-    if nap_str:
-        combined = spread_line([sleep_str, nap_str])
-        current_ui.print_line(combined)
-    else:
-        pline(sleep_str)
-
     # Feature header sections
     for line in data.get("feature_lines", []):
         pline(line)

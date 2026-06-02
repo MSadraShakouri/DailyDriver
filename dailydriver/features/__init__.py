@@ -4,6 +4,6 @@ Feature packages – see HOOKS.md for the hook specification.
 Each enabled feature is imported below.
 """
 
-from . import birthdays, hygiene, weather
+from . import birthdays, hygiene, sleep, weather
 
-ENABLED = [weather, hygiene, birthdays]
+ENABLED = [sleep, weather, hygiene, birthdays]
