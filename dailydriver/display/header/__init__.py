@@ -12,7 +12,6 @@ from dailydriver.display.display_utils import get_width, spread_line
 from dailydriver.features.calendar._logic import get_hijri_offset
 from dailydriver.utils.time_utils import format_jalali, today_jalali
 
-from .events import get_great_event_str, get_last_entry_time, get_running_event_str
 from .prayer import get_prayer_nudges, get_prayer_parts
 
 
@@ -52,9 +51,6 @@ def build_header_data(day=None, is_today=True):
 
         prayer_parts = get_prayer_parts(conn, today)
 
-        great_event_str = get_great_event_str(is_today)
-        event_str = get_running_event_str(is_today)
-        last_entry_time = get_last_entry_time(is_today)
         prayer_nudges = get_prayer_nudges(conn, target_date, today, is_today)
 
         # Collect header lines from enabled feature packages
@@ -76,9 +72,6 @@ def build_header_data(day=None, is_today=True):
             "separator": separator,
             "greg_hijri_line": greg_hijri_line,
             "prayer_parts": prayer_parts,
-            "event_str": event_str,
-            "great_event_str": great_event_str,
-            "last_entry_time": last_entry_time,
             "feature_lines": feature_lines,
             "prayer_nudges": prayer_nudges,
             "is_today": is_today,
