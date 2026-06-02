@@ -25,6 +25,7 @@ def _save_entry(conn, cmd, started_at, duration, selected_paths):
                 (entry_id, row["id"]),
             )
 
+    from dailydriver.core.keyword_learner import learn_keywords
     learn_keywords(cmd, selected_paths, conn=conn)
 
     result = ""
