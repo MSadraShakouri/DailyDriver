@@ -9,15 +9,9 @@ from hijridate import Gregorian as HijriGregorian
 import dailydriver.features as features_pkg
 from dailydriver.core.database import get_connection_cm
 from dailydriver.display.display_utils import get_width, spread_line
-from dailydriver.utils.calendar_events import get_events, get_hijri_offset
-from dailydriver.utils.event_reminders import (
-    EVENT_SCHEDULE,
-    get_event_reminders,
-    get_tomorrow_preview,
-)
+from dailydriver.features.calendar._logic import get_hijri_offset
 from dailydriver.utils.time_utils import format_jalali, today_jalali
 
-from .calendar import get_reminders_str
 from .events import get_great_event_str, get_last_entry_time, get_running_event_str
 from .prayer import get_prayer_nudges, get_prayer_parts
 
@@ -57,64 +51,6 @@ def build_header_data(day=None, is_today=True):
             greg_hijri_line = f"\033[2m{greg_hijri_line}\033[0m"
 
         prayer_parts = get_prayer_parts(conn, today)
-        reminders_str = get_reminders_str(target_date, is_today)
-
-        # Event reminders and tomorrow preview
-        all_events = get_events() or []
-        event_reminder_lines = get_event_reminders(conn, all_events, target_date)
-
-        # Compute IDs of events that are reminded for tomorrow (days_until == 1)
-        reminded_tomorrow_ids = set()
-        cur = conn.cursor()
-        for jdate, ev in all_events:
-            ev_id = ev.get("id")
-            if ev_id is not None:
-                cur.execute(
-                    "SELECT level FROM event_reminders WHERE event_id=? AND level > 0",
-                    (ev_id,),
-                )
-                row = cur.fetchone()
-                if row:
-                    level = row["level"]
-                    schedule = EVENT_SCHEDULE.get(level, [])
-                    if 1 in schedule and (jdate - target_date).days == 1:
-                        reminded_tomorrow_ids.add(ev_id)
-
-        # Pass reminded_tomorrow_ids to tomorrow preview
-        tomorrow_lines = get_tomorrow_preview(all_events, target_date, reminded_tomorrow_ids)
-
-        # Suppress today's events that already appear as reminders
-        reminded_today_ids = set()
-        cur = conn.cursor()
-        for jdate, ev in all_events:
-            ev_id = ev.get("id")
-            if ev_id is not None:
-                cur.execute(
-                    "SELECT level FROM event_reminders WHERE event_id=? AND level > 0",
-                    (ev_id,),
-                )
-                row = cur.fetchone()
-                if row:
-                    level = row["level"]
-                    schedule = EVENT_SCHEDULE.get(level, [])
-                    if 0 in schedule and (jdate - target_date).days == 0:
-                        reminded_today_ids.add(ev_id)
-
-        # Build calendar lines with reminder suppression for the target day
-        cal_icons = {"jalali": "🔆", "gregorian": "🌐", "hijri": "🌙"}
-        events_target = [ev for d, ev in all_events if d == target_date]
-        # Filter out events that are already reminded for this day
-        display_events = [ev for ev in events_target if ev.get("id") not in reminded_today_ids]
-        has_holiday = any(ev.get("holiday") for ev in display_events)
-        calendar_lines = []
-        for ev in display_events:
-            cal = ev.get("calendar", "jalali")
-            icon = cal_icons.get(cal, "📌")
-            prefix = icon + ("🎊" if ev.get("holiday") else "")
-            if not ev.get("holiday") and has_holiday:
-                prefix += "  "
-            prefix += " "
-            calendar_lines.append((prefix, ev["title_en"]))
 
         great_event_str = get_great_event_str(is_today)
         event_str = get_running_event_str(is_today)
@@ -127,22 +63,19 @@ def build_header_data(day=None, is_today=True):
             if hasattr(feature, "header_sections"):
                 lines = feature.header_sections(conn, today, target_date, is_today)
                 if isinstance(lines, list):
-                    # lines can be plain strings or (priority, text) tuples
                     feature_lines.extend(lines)
-        # Sort by priority (if tuples), then extract text
-        if feature_lines and isinstance(feature_lines[0], tuple):
-            feature_lines.sort(key=lambda x: x[0])
-            feature_lines = [text for _, text in feature_lines]
+
+        # Sort: tuples by priority, plain strings stay on top
+        tupled = [item for item in feature_lines if isinstance(item, tuple)]
+        plain = [item for item in feature_lines if not isinstance(item, tuple)]
+        tupled.sort(key=lambda x: x[0])
+        feature_lines = plain + [text for _, text in tupled]
 
         return {
             "jalali_line": jalali_line,
             "separator": separator,
             "greg_hijri_line": greg_hijri_line,
             "prayer_parts": prayer_parts,
-            "calendar_lines": calendar_lines,
-            "reminders_str": reminders_str,
-            "event_reminder_lines": event_reminder_lines,
-            "tomorrow_lines": tomorrow_lines,
             "event_str": event_str,
             "great_event_str": great_event_str,
             "last_entry_time": last_entry_time,

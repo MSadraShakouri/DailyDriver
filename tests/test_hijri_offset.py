@@ -2,8 +2,8 @@
 import unittest
 from unittest.mock import MagicMock, mock_open, patch
 
-import dailydriver.utils.calendar_events as ce_module
-from dailydriver.utils.calendar_events import get_hijri_offset, set_hijri_offset
+import dailydriver.features.calendar._logic as ce_module
+from dailydriver.features.calendar._logic import get_hijri_offset, set_hijri_offset
 
 
 class TestHijriOffset(unittest.TestCase):
@@ -13,19 +13,19 @@ class TestHijriOffset(unittest.TestCase):
 
     def test_get_offset_reads_file(self):
         with patch(
-            "dailydriver.utils.calendar_events.open",
+            "dailydriver.features.calendar._logic.open",
             mock_open(read_data="2\n1405-02-22\n"),
             create=True,
         ):
             self.assertEqual(get_hijri_offset(), 2)
 
     def test_get_offset_file_missing(self):
-        with patch("dailydriver.utils.calendar_events.open", side_effect=FileNotFoundError):
+        with patch("dailydriver.features.calendar._logic.open", side_effect=FileNotFoundError):
             self.assertEqual(get_hijri_offset(), 0)
 
     def test_get_offset_corrupted(self):
         with patch(
-            "dailydriver.utils.calendar_events.open",
+            "dailydriver.features.calendar._logic.open",
             mock_open(read_data="abc\n1405-02-22\n"),
             create=True,
         ):
@@ -36,8 +36,8 @@ class TestHijriOffset(unittest.TestCase):
         fake_today = MagicMock()
         fake_today.strftime.return_value = "1405-02-30"
         with (
-            patch("dailydriver.utils.calendar_events.open", m, create=True),
-            patch("dailydriver.utils.calendar_events.jdatetime.date") as mock_jd,
+            patch("dailydriver.features.calendar._logic.open", m, create=True),
+            patch("dailydriver.features.calendar._logic.jdatetime.date") as mock_jd,
         ):
             mock_jd.today.return_value = fake_today
             set_hijri_offset(1)
@@ -52,8 +52,8 @@ class TestHijriOffset(unittest.TestCase):
         # Put a fake object in the cache
         ce_module._cached_events = ["fake"]
         with (
-            patch("dailydriver.utils.calendar_events.open", mock_open(), create=True),
-            patch("dailydriver.utils.calendar_events.jdatetime.date") as mock_jd,
+            patch("dailydriver.features.calendar._logic.open", mock_open(), create=True),
+            patch("dailydriver.features.calendar._logic.jdatetime.date") as mock_jd,
         ):
             fake_today = MagicMock()
             fake_today.strftime.return_value = "1405-02-30"

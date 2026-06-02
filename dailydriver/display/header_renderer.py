@@ -30,9 +30,13 @@ def print_header(data: dict, add_separator: bool = True):
 
     pline(prayer_str)
 
-    # Feature header sections
     for line in data.get("feature_lines", []):
-        pline(line)
+        if isinstance(line, tuple):
+            prefix, title = line
+            indent = " " * display_width(prefix)
+            wrap_line(prefix, title, indent)
+        else:
+            pline(line)
 
     # Great event
     if ge_str := data.get("great_event_str", ""):

@@ -1,7 +1,6 @@
 import sys
 
 import dailydriver.features as features_pkg
-from dailydriver.cli.commands.calendar_cmd import show_calendar, show_year
 from dailydriver.cli.commands.events import (
     cancel_great_event_cmd,
     end_great_event_cmd,
@@ -11,7 +10,6 @@ from dailydriver.cli.commands.events import (
 )
 from dailydriver.cli.commands.export_cmd import export
 from dailydriver.cli.commands.help_cmd import show_help
-from dailydriver.cli.commands.hijri_cmd import hijri_command
 from dailydriver.cli.commands.hygiene_cmd import manage_hygiene
 from dailydriver.cli.commands.prayer import log_prayer
 from dailydriver.cli.commands.search import search
@@ -34,8 +32,6 @@ def make_dispatch():
         "ce": lambda _: discard_pending_start(),
         "ee": log_event_end,
         "ln": log_chain_now,
-        "cal": lambda line: show_calendar(line.split()[1:] if len(line.split()) > 1 else []),
-        "year": lambda _: show_year(),
         "export": export,
         "search": search,
         "recent": lambda _: show_last(),
@@ -47,7 +43,6 @@ def make_dispatch():
         "qada": lambda line: log_prayer(
             f"p q {line.split(maxsplit=1)[1]}" if len(line.split(maxsplit=1)) > 1 else "p q"
         ),
-        "hijri": lambda _: hijri_command(),
     }
 
     # Let features register their own commands

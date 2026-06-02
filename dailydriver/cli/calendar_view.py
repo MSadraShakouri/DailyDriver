@@ -3,8 +3,8 @@
 
 import jdatetime
 
+from dailydriver.features.calendar._logic import get_events, get_upcoming_events
 from dailydriver.ui.terminal_ui import current_ui
-from dailydriver.utils.calendar_events import get_events, get_upcoming_events
 
 _JALALI_MONTHS_EN = [
     "Farvardin",

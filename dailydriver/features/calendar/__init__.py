@@ -1,9 +1,7 @@
 # dailydriver/features/calendar/__init__.py
 """Calendar feature – events, reminders, commands (cal, year, hijri)."""
-from . import _commands
-from . import _header
-from . import _logic
-from . import _reminders
+
+from . import _commands, _header, _logic, _reminders
 
 NAME = "calendar"
 VERSION = "1.0.0"
@@ -56,22 +54,27 @@ def header_sections(conn, today, target_date, is_today):
                 if 1 in schedule and (jdate - target_date).days == 1:
                     reminded_tomorrow_ids.add(ev_id)
 
-    tomorrow_lines = _reminders.get_tomorrow_preview(
-        all_events, target_date, reminded_tomorrow_ids
-    )
+    tomorrow_lines = _reminders.get_tomorrow_preview(all_events, target_date, reminded_tomorrow_ids)
 
     # --- old reminders_str (kept for backward compat, if still used) ---
     reminders_str = _header.get_reminders_str(target_date, is_today)
 
     # --- assemble results with priorities ---
     result = []
-    for line in calendar_lines:
-        result.append((35, line))          # calendar events after most nudges
-    for line in reminder_lines:
-        result.append((33, line))          # reminders just before calendar
+    if reminder_lines:
+        result.append((33, ""))  # breather before reminders
+        for line in reminder_lines:
+            result.append((34, line))
+    if tomorrow_lines:
+        result.append((35, ""))  # breather before tomorrow
+        for line in tomorrow_lines:
+            result.append((36, line))
+    if calendar_lines:
+        result.append((37, ""))  # breather before today's events
+        for line in calendar_lines:
+            result.append((38, line))
     if reminders_str:
-        result.append((36, reminders_str))
-    for line in tomorrow_lines:
-        result.append((37, line))          # tomorrow at the end
+        result.append((39, reminders_str))
+    return result
 
     return result
