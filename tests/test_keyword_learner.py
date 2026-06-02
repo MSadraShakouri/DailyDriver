@@ -3,7 +3,6 @@ import unittest
 
 from dailydriver.core.keyword_learner import tokenize
 
-from unittest.mock import patch
 
 class TestKeywordTokenizer(unittest.TestCase):
     def test_numeric_time_discarded(self):

@@ -1,6 +1,5 @@
 import inspect
 
-import pytest
 
 from dailydriver.cli.dispatcher import make_dispatch
 

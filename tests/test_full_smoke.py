@@ -6,7 +6,6 @@ import os
 import sqlite3
 import sys
 import tempfile
-from unittest.mock import MagicMock, patch
 
 # Use a temporary file so that multiple connections share the same database
 _tmp_db = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
@@ -16,10 +15,10 @@ os.environ["DAILYDRIVER_DB"] = _tmp_db.name
 
 sys.path.insert(0, ".")
 
-from dailydriver.cli.dispatcher import make_dispatch
-from dailydriver.core import entry_writer
-from dailydriver.core.migration import run_migrations
-from dailydriver.ui.terminal_ui import current_ui
+from dailydriver.cli.dispatcher import make_dispatch  # noqa: E402
+from dailydriver.core import entry_writer  # noqa: E402
+from dailydriver.core.migration import run_migrations  # noqa: E402
+from dailydriver.ui.terminal_ui import current_ui  # noqa: E402
 
 # ========== SETUP ==========
 run_migrations()
@@ -171,7 +170,7 @@ if crashes:
     for c in crashes:
         print(f"  {c}")
     sys.exit(1)
-print(f"  All commands executed without crash\n")
+print("  All commands executed without crash\n")
 
 # ========== ALIASES SMOKE ==========
 print("=== Alias smoke test ===")

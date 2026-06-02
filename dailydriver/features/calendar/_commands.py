@@ -2,10 +2,11 @@ from datetime import date, timedelta
 
 from hijridate import Gregorian as HijriGregorian
 
-from dailydriver.cli.calendar_view import show_calendar
-from dailydriver.cli.year_view import show_year
-from dailydriver.features.calendar._logic import get_hijri_offset, set_hijri_offset
-from dailydriver.ui.terminal_ui import current_ui
+from dailydriver.cli.calendar_view import show_calendar  # noqa: F401 (re‑exported)
+from dailydriver.cli.year_view import show_year  # noqa: F401 (re‑exported)
+
+from dailydriver.features.calendar._logic import get_hijri_offset, set_hijri_offset  # noqa: F401 (re‑exported)
+from dailydriver.ui.terminal_ui import current_ui  # noqa: F401 (re‑exported)
 
 _MONTH_NAMES = [
     "Muharram",
