@@ -2,6 +2,7 @@
 """Calendar event reminders and tomorrow preview."""
 
 import jdatetime
+from . import _logic
 
 EVENT_SCHEDULE = {
     0: [],

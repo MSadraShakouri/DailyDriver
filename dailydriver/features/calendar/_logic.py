@@ -13,7 +13,7 @@ import jdatetime
 from hijridate import Gregorian as HijriGregorian  # avoid name clash
 from hijridate import Hijri
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 
 JALALI_FILE = os.path.join(DATA_DIR, "events_jalali.json")
