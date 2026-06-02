@@ -1,10 +1,9 @@
-from dailydriver.cli.calendar_view import show_calendar
-from dailydriver.cli.year_view import show_year
-
 from datetime import date, timedelta
 
 from hijridate import Gregorian as HijriGregorian
 
+from dailydriver.cli.calendar_view import show_calendar
+from dailydriver.cli.year_view import show_year
 from dailydriver.ui.terminal_ui import current_ui
 from dailydriver.utils.calendar_events import get_hijri_offset, set_hijri_offset
 
