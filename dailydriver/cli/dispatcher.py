@@ -13,7 +13,6 @@ from dailydriver.cli.commands.export_cmd import export
 from dailydriver.cli.commands.help_cmd import show_help
 from dailydriver.cli.commands.hijri_cmd import hijri_command
 from dailydriver.cli.commands.hygiene_cmd import manage_hygiene
-from dailydriver.cli.commands.intention_cmd import add_intention
 from dailydriver.cli.commands.prayer import log_prayer
 from dailydriver.cli.commands.search import search
 from dailydriver.cli.commands.stats_cmd import show_stats
@@ -28,7 +27,6 @@ def make_dispatch():
         "view": lambda line: view_entries(line.split(maxsplit=1)[1] if len(line.split()) > 1 else None),
         "?": lambda _: show_help(),
         "hygiene": lambda _: manage_hygiene(),
-        "t": add_intention,
         "stats": lambda _: show_stats(),
         "day": show_day,
         "today": show_day,
