@@ -26,7 +26,7 @@ def log_sleep(cmd: str):
     else:
         time_str = " ".join(args)
 
-    interpretations = parse_time_expressions(time_str, now, last_time=last_time, mode="required")
+    interpretations = parse_time_expressions(time_str, now, last_time=last_time)
 
     # Keep only interpretations that have an end time (required for sleep)
     valid = [i for i in interpretations if i.end is not None]
@@ -80,7 +80,7 @@ def log_nap(cmd: str):
     else:
         time_str = " ".join(args)
 
-    interpretations = parse_time_expressions(time_str, now, last_time=last_time, mode="required")
+    interpretations = parse_time_expressions(time_str, now, last_time=last_time)
 
     valid = [i for i in interpretations if i.end is not None]
 

@@ -37,7 +37,7 @@ def log_free_text(cmd, started_at=None):
             last_time = datetime.fromtimestamp(last_ts) if last_ts else None
 
             while True:
-                interpretations = parse_time_expressions(cmd, now, last_time, mode="optional")
+                interpretations = parse_time_expressions(cmd, now, last_time)
                 if not interpretations:
                     current_ui.print_line("No time detected.")
                     choice = current_ui.prompt("(Enter=now, type a time expression, n=cancel) ").strip().lower()
@@ -98,7 +98,7 @@ def log_free_text(cmd, started_at=None):
         if matches:
             current_ui.print_line()
             current_ui.print_line("Suggested categories:")
-            for i, (path, cnt) in enumerate(matches, 1):
+            for i, (path, _) in enumerate(matches, 1):
                 current_ui.print_line(f"  [{i}] {path}")
             current_ui.print_line("Enter=1, numbers to select, or type new paths (space‑separated)")
             choice = current_ui.prompt("> ").strip().lower()

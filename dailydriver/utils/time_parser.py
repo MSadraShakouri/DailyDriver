@@ -311,11 +311,9 @@ def parse_time_expressions(
     text: str,
     now: datetime,
     last_time: datetime | None = None,
-    mode: str = "optional",
 ) -> list[TimeInterpretation]:
     """Parse a time expression from *text*.
     Returns a list of TimeInterpretation, sorted best-first.
-    *mode* can be 'optional', 'required', or 'no_duration' (used by callers).
     """
     if not text.strip():
         return []

@@ -64,7 +64,7 @@ def log_prayer(cmd: str):
             slot = current_slot()
 
         if offset_min is not None:
-            interpretations = parse_time_expressions(f"-{offset_min}", now, last_time=None, mode="no_duration")
+            interpretations = parse_time_expressions(f"-{offset_min}", now, last_time=None)
             if interpretations:
                 prayer_dt = interpretations[0].start
             else:

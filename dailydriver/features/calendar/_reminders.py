@@ -3,8 +3,6 @@
 
 import jdatetime
 
-from . import _logic
-
 EVENT_SCHEDULE = {
     0: [],
     1: [14, 7, 3, 2, 1, 0],
@@ -40,7 +38,7 @@ def get_event_reminders(conn, events, target_date):
 
     # Second pass: build the display lines
     lines = []
-    for jdate, ev, days_until in reminded_events:
+    for _, ev, days_until in reminded_events:
         cal = ev.get("calendar", "jalali")
         icon = CAL_ICONS.get(cal, "📌")
         prefix = f"🔔{icon}"
