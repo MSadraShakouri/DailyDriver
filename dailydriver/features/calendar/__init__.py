@@ -9,7 +9,7 @@ VERSION = "1.0.0"
 
 def register_commands(dispatch):
     dispatch["cal"] = _commands.show_calendar
-    dispatch["year"] = _commands.show_year
+    dispatch["year"] = lambda _: _commands.show_year()
     dispatch["hijri"] = _commands.hijri_command
 
 
@@ -75,6 +75,5 @@ def header_sections(conn, today, target_date, is_today):
             result.append((38, line))
     if reminders_str:
         result.append((39, reminders_str))
-    return result
 
     return result

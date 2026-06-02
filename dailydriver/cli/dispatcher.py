@@ -38,4 +38,8 @@ def make_dispatch():
         if hasattr(feature, "register_commands"):
             feature.register_commands(dispatch)
 
+        # Let features register their own aliases
+        if hasattr(feature, "register_aliases"):
+            feature.register_aliases(dispatch)
+
     return dispatch

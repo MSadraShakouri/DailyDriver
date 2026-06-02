@@ -8,8 +8,8 @@ VERSION = "1.0.0"
 
 
 def register_commands(dispatch):
-    dispatch["se"] = _logic.save_pending_start
-    dispatch["ce"] = _logic.discard_pending_start
+    dispatch["se"] = lambda _: _logic.save_pending_start()
+    dispatch["ce"] = lambda _: _logic.discard_pending_start()
     dispatch["ee"] = _logic.log_event_end
     dispatch["ln"] = _logic.log_chain_now
     dispatch["sge"] = _logic.start_great_event_cmd
