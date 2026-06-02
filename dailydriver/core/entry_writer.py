@@ -2,8 +2,6 @@
 import time
 from datetime import datetime
 
-from dailydriver.core.keyword_learner import learn_keywords
-
 # To keep it clean, we'll do a late import inside the function.
 
 
@@ -46,9 +44,7 @@ def _save_entry(conn, cmd, started_at, duration, selected_paths):
 
 def inject_great_categories(selected_paths: list):
     """If a great event is active, append its categories to selected_paths (no duplicates)."""
-    from dailydriver.core.logger import (  # late import to avoid circular
-        get_active_great_event,
-    )
+    from dailydriver.features.events._logic import get_active_great_event
 
     active = get_active_great_event()
     if active:

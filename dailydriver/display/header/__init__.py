@@ -10,6 +10,7 @@ import dailydriver.features as features_pkg
 from dailydriver.core.database import get_connection_cm
 from dailydriver.display.display_utils import get_width, spread_line
 from dailydriver.features.calendar._logic import get_hijri_offset
+from dailydriver.features.events._header import get_last_entry_time
 from dailydriver.utils.time_utils import format_jalali, today_jalali
 
 from .prayer import get_prayer_nudges, get_prayer_parts
@@ -67,6 +68,8 @@ def build_header_data(day=None, is_today=True):
         tupled.sort(key=lambda x: x[0])
         feature_lines = plain + [text for _, text in tupled]
 
+        last_entry_time = get_last_entry_time(is_today)
+
         return {
             "jalali_line": jalali_line,
             "separator": separator,
@@ -75,4 +78,5 @@ def build_header_data(day=None, is_today=True):
             "feature_lines": feature_lines,
             "prayer_nudges": prayer_nudges,
             "is_today": is_today,
+            "last_entry_time": last_entry_time,
         }

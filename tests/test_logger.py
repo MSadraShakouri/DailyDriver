@@ -42,7 +42,7 @@ class TestLogFreeTextTimeConversion(unittest.TestCase):
 
         # Mock get_last_action_time (used for `l` based expressions)
         self.last_ts = int(datetime(2026, 5, 20, 12, 0, 0).timestamp())
-        self.patch_last = patch("dailydriver.core.logger.get_last_action_time", return_value=self.last_ts)
+        self.patch_last = patch("dailydriver.features.events._logic.get_last_action_time", return_value=self.last_ts)
         self.patch_last.start()
 
         # Mock get_connection_cm

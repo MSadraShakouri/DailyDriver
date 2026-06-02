@@ -27,11 +27,11 @@ class TestIntegration(unittest.TestCase):
             mock_cm.return_value.__enter__.return_value = conn
             with (
                 patch(
-                    "dailydriver.display.header.events.get_active_great_event",
+                    "dailydriver.features.events._header.get_active_great_event",
                     return_value=None,
                 ),
                 patch(
-                    "dailydriver.display.header.events.get_pending_start",
+                    "dailydriver.features.events._logic.get_pending_start",
                     return_value=None,
                 ),
                 patch("dailydriver.features.calendar._logic.get_events", return_value=[]),
@@ -49,9 +49,6 @@ class TestIntegration(unittest.TestCase):
             "separator",
             "greg_hijri_line",
             "prayer_parts",
-            "event_str",
-            "great_event_str",
-            "last_entry_time",
             "feature_lines",
             "prayer_nudges",
             "is_today",

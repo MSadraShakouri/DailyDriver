@@ -1,13 +1,6 @@
 import sys
 
 import dailydriver.features as features_pkg
-from dailydriver.cli.commands.events import (
-    cancel_great_event_cmd,
-    end_great_event_cmd,
-    log_chain_now,
-    log_event_end,
-    start_great_event_cmd,
-)
 from dailydriver.cli.commands.export_cmd import export
 from dailydriver.cli.commands.help_cmd import show_help
 from dailydriver.cli.commands.hygiene_cmd import manage_hygiene
@@ -15,7 +8,7 @@ from dailydriver.cli.commands.prayer import log_prayer
 from dailydriver.cli.commands.search import search
 from dailydriver.cli.commands.stats_cmd import show_stats
 from dailydriver.cli.commands.viewing import show_day, show_last, view_entries
-from dailydriver.core.logger import discard_pending_start, save_pending_start
+from dailydriver.features.events._logic import discard_pending_start, save_pending_start
 
 
 def make_dispatch():
@@ -30,14 +23,9 @@ def make_dispatch():
         "today": show_day,
         "se": lambda _: save_pending_start(),
         "ce": lambda _: discard_pending_start(),
-        "ee": log_event_end,
-        "ln": log_chain_now,
         "export": export,
         "search": search,
         "recent": lambda _: show_last(),
-        "sge": start_great_event_cmd,
-        "ege": end_great_event_cmd,
-        "cge": cancel_great_event_cmd,
         "pray": log_prayer,
         "h": lambda _: show_help(),
         "qada": lambda line: log_prayer(

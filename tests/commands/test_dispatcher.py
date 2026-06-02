@@ -1,16 +1,16 @@
 import unittest
 
-from dailydriver.cli.commands.events import (
+from dailydriver.cli.commands.export_cmd import export
+from dailydriver.cli.commands.prayer import log_prayer
+from dailydriver.cli.commands.search import search
+from dailydriver.cli.dispatcher import make_dispatch
+from dailydriver.features.events._logic import (
     cancel_great_event_cmd,
     end_great_event_cmd,
     log_chain_now,
     log_event_end,
     start_great_event_cmd,
 )
-from dailydriver.cli.commands.export_cmd import export
-from dailydriver.cli.commands.prayer import log_prayer
-from dailydriver.cli.commands.search import search
-from dailydriver.cli.dispatcher import make_dispatch
 from dailydriver.features.sleep._logic import log_nap, log_sleep
 
 

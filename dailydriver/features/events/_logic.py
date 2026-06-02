@@ -1,16 +1,108 @@
+# dailydriver/features/events/_logic.py
+import time
 from datetime import datetime
 
-from dailydriver.core.logger import (
-    clear_great_event,
-    clear_pending_start,
-    get_active_great_event,
-    get_pending_start,
-    log_free_text,
-    start_great_event,
-)
+from dailydriver.core.database import get_connection_cm
+from dailydriver.core.logger import log_free_text  # still in core for now
 from dailydriver.ui.terminal_ui import current_ui
 
 
+# ---------- state helpers (moved from core/logger.py) ----------
+def get_last_action_time():
+    """Return the Unix timestamp of the last successful write, or None."""
+    with get_connection_cm(auto=False) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT value FROM meta WHERE key='last_action'")
+        row = cur.fetchone()
+        return int(row["value"]) if row and row["value"] else None
+
+
+def save_pending_start():
+    ts = int(time.time())
+    with get_connection_cm() as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT OR REPLACE INTO meta (key, value) VALUES ('pending_start', ?)",
+            (str(ts),),
+        )
+        conn.commit()
+    time_str = datetime.fromtimestamp(ts).strftime("%H:%M")
+    return f"Start saved: {time_str}"
+
+
+def discard_pending_start():
+    with get_connection_cm() as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT value FROM meta WHERE key='pending_start'")
+        row = cur.fetchone()
+        if not row:
+            return "No saved start to discard."
+        ts = int(row["value"])
+        time_str = datetime.fromtimestamp(ts).strftime("%H:%M") if ts else "unknown"
+        cur.execute("DELETE FROM meta WHERE key='pending_start'")
+        conn.commit()
+        return f"Saved start ({time_str}) discarded."
+
+
+def get_pending_start():
+    with get_connection_cm(auto=False) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT value FROM meta WHERE key='pending_start'")
+        row = cur.fetchone()
+        return int(row["value"]) if row and row["value"] else None
+
+
+def clear_pending_start():
+    with get_connection_cm() as conn:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM meta WHERE key='pending_start'")
+        conn.commit()
+
+
+def start_great_event(categories: list):
+    with get_connection_cm() as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT value FROM meta WHERE key='great_event_start'")
+        if cur.fetchone():
+            raise RuntimeError("A great event is already active.")
+        ts = int(time.time())
+        cur.execute(
+            "INSERT OR REPLACE INTO meta (key, value) VALUES ('great_event_start', ?)",
+            (str(ts),),
+        )
+        cur.execute(
+            "INSERT OR REPLACE INTO meta (key, value) VALUES ('great_event_categories', ?)",
+            (" ".join(categories),),
+        )
+        conn.commit()
+    return ts
+
+
+def get_active_great_event():
+    with get_connection_cm(auto=False) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT value FROM meta WHERE key='great_event_start'")
+        row_start = cur.fetchone()
+        if not row_start:
+            return None
+        cur.execute("SELECT value FROM meta WHERE key='great_event_categories'")
+        row_cats = cur.fetchone()
+        start_ts = int(row_start["value"])
+        cats = row_cats["value"].split() if row_cats and row_cats["value"].strip() else []
+        return start_ts, cats
+
+
+def clear_great_event():
+    with get_connection_cm() as conn:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM meta WHERE key IN ('great_event_start', 'great_event_categories')")
+        conn.commit()
+
+
+# ---------- end of state helpers ----------
+
+
+# ---------- command wrappers (from cli/commands/events.py) ----------
 def log_event_end(cmd):
     started_at = get_pending_start()
     if started_at is None:
@@ -27,8 +119,6 @@ def log_event_end(cmd):
 
 
 def log_chain_now(line):
-    from dailydriver.core.logger import get_last_action_time
-
     last_ts = get_last_action_time()
     if last_ts is None:
         return "No previous action to chain from."
@@ -90,12 +180,3 @@ def cancel_great_event_cmd(_=None):
         return None
     clear_great_event()
     return "Great event cancelled."
-
-
-__all__ = [
-    "log_event_end",
-    "log_chain_now",
-    "start_great_event_cmd",
-    "end_great_event_cmd",
-    "cancel_great_event_cmd",
-]

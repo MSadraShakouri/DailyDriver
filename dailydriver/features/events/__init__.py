@@ -1,7 +1,7 @@
 # dailydriver/features/events/__init__.py
 """Great events, running events, and chaining."""
-from . import _header
-from . import _logic
+
+from . import _header, _logic
 
 NAME = "events"
 VERSION = "1.0.0"

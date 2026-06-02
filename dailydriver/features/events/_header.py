@@ -3,7 +3,8 @@
 
 from datetime import datetime
 
-from ._logic import get_active_great_event, get_pending_start, get_last_action_time
+from ._logic import get_active_great_event, get_last_action_time, get_pending_start
+
 
 def get_great_event_str(is_today):
     if not is_today:
