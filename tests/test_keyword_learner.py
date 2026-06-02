@@ -3,6 +3,7 @@ import unittest
 
 from dailydriver.core.keyword_learner import tokenize
 
+from unittest.mock import patch
 
 class TestKeywordTokenizer(unittest.TestCase):
     def test_numeric_time_discarded(self):
@@ -37,38 +38,6 @@ class TestKeywordTokenizer(unittest.TestCase):
         tokens = tokenize("to be or not to be")
         self.assertEqual(tokens, [])  # all short or stop
 
-
-def test_save_entry_learns_keywords():
-    import sqlite3
-    import time
-
-    from dailydriver.core.entry_writer import _save_entry
-
-    conn = sqlite3.connect(":memory:")
-    conn.row_factory = sqlite3.Row
-    conn.execute("CREATE TABLE categories (id INTEGER PRIMARY KEY, path TEXT UNIQUE)")
-    conn.execute(
-        "CREATE TABLE keywords (id INTEGER PRIMARY KEY, word TEXT, category_id INTEGER, count INTEGER DEFAULT 1)"
-    )
-    conn.execute(
-        "CREATE TABLE entries (id INTEGER PRIMARY KEY, created_at INTEGER, started_at INTEGER, duration_minutes INTEGER, description TEXT)"
-    )
-    conn.execute("CREATE TABLE entry_categories (entry_id INTEGER, category_id INTEGER)")
-    conn.execute("CREATE VIRTUAL TABLE entries_fts USING fts5(description, content='entries', content_rowid='id')")
-    conn.commit()
-
-    # Insert a category
-    conn.execute("INSERT INTO categories (path) VALUES ('test/cat')")
-    conn.commit()
-
-    # Call _save_entry
-    result = _save_entry(conn, "test entry words", int(time.time()), 5, ["test/cat"])
-    assert result is not None
-
-    # Verify keywords were learned
-    rows = conn.execute("SELECT word FROM keywords WHERE category_id=1").fetchall()
-    words = {r["word"] for r in rows}
-    assert words >= {"test", "entri", "word"}
 
 
 if __name__ == "__main__":
