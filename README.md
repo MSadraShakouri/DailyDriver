@@ -1,4 +1,4 @@
-# DailyDriver v1.5.0
+# DailyDriver v1.6.0
 
 Your personal, terminal‑based life tracker.  
 Log prayers, sleep, hygiene routines, birthdays, intentions, and free‑form journal entries – all from a fast, keyboard‑driven REPL.  
@@ -126,12 +126,12 @@ sqlite3 data/daily.db "SELECT * FROM entries;"
 
 ```
 dailydriver/
-├── core/          # database, parser, logger, keyword learning
-├── domains/       # prayer, sleep, nap, hygiene, birthday, intention, prayer times
-├── display/       # header (sub‑modules), header_renderer, stats, today view, hygiene nudges
-├── cli/           # REPL, commands, dispatcher, search, calendar, export
+├── core/          # database, migration, logger, keyword learner
+├── features/      # prayer, sleep, hygiene, birthdays, calendar, events, weather, intentions
+├── display/       # header renderer, display utilities, stats
+├── cli/           # REPL, dispatcher, commands, search, calendar views, export
 ├── ui/            # terminal abstraction
-└── utils/         # time helpers, calendar events, weather, unified time parser
+└── utils/         # time helpers, unified time parser
 data/              # database, stopwords, event JSON files, hijri offset
 tools/             # event editor, keyword editor, reminder editor
 tests/             # test files (header, commands, logger state, etc.)

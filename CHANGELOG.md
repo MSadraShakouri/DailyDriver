@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.6.0 (2026‑06‑19)
+
+### Changed
+- **Feature‑package architecture** – extracted 8 domains into `dailydriver/features/` (weather, hygiene, birthdays, sleep/nap, intentions, calendar, events, prayer). Each feature registers its own commands, header sections, aliases, and migrations via a standard hook interface. Core infrastructure (`database`, `migration`, `keyword_learner`, `display_utils`) remains shared.
+- **Dispatcher unified** – all command handlers now accept a raw line string; loader loops call `register_commands` and `register_aliases` hooks on each feature.
+- **Test suite overhaul** – added a comprehensive dispatch smoke test (verifies every handler’s arity) and a full‑stack smoke test (exercises every command). Test runner unified on `pytest`. 163 tests passing.
+
+### Fixed
+- Broken `se`/`ce`/`year` commands after dispatcher refactor (now wrapped in lambda wrappers).
+- Missing `sleep` alias after feature extraction (aliases loader wired).
+- Stale imports and dead code across the codebase (ruff cleanup).
+
 ## 1.5.0 (2026‑05‑29)
 
 ### Added
