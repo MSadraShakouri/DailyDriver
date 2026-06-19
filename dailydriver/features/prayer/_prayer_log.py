@@ -5,9 +5,9 @@ from datetime import datetime, timedelta
 import jdatetime
 
 from dailydriver.core.database import get_connection_cm
-from dailydriver.domains.prayer_backlog import _update_complete_until
+from ._prayer_backlog import _update_complete_until
 from dailydriver.domains.prayer_core import current_slot
-from dailydriver.domains.prayer_times import get_approximate_times
+from ._prayer_times import get_approximate_times
 from dailydriver.ui.terminal_ui import current_ui
 from dailydriver.utils.time_parser import parse_prayer_args, parse_time_expressions
 from dailydriver.utils.time_utils import today_jalali
@@ -27,7 +27,7 @@ def log_prayer(cmd: str):
             parsed = parse_prayer_args(args)
             time_min = parsed["explicit_time"]  # None if no time
             offset_min = parsed["offset_min"]  # None if no offset
-            from dailydriver.domains.prayer_backlog import log_qada
+            from ._prayer_backlog import log_qada
 
             log_qada(time_min, offset_min)
             return

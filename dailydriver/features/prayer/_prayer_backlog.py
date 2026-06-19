@@ -5,8 +5,8 @@ from datetime import datetime, timedelta
 import jdatetime
 
 from dailydriver.core.database import get_connection_cm
-from dailydriver.domains.prayer_core import PRAYER_SLOTS
-from dailydriver.domains.prayer_times import get_approximate_times
+from ._prayer_core import PRAYER_SLOTS
+from ._prayer_times import get_approximate_times
 from dailydriver.ui.terminal_ui import current_ui
 from dailydriver.utils.time_utils import today_jalali
 

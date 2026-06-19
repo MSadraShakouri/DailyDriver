@@ -5,7 +5,7 @@ from datetime import datetime
 
 import jdatetime
 
-from dailydriver.domains.prayer_times import get_approximate_times
+from ._prayer_times import get_approximate_times
 
 
 def get_prayer_parts(conn, today):
