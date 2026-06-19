@@ -1,7 +1,7 @@
 import unittest
 
 from dailydriver.cli.commands.export_cmd import export
-from dailydriver.cli.commands.prayer import log_prayer
+from dailydriver.features.prayer._logic import log_prayer
 from dailydriver.cli.commands.search import search
 from dailydriver.cli.dispatcher import make_dispatch
 from dailydriver.features.events._logic import (

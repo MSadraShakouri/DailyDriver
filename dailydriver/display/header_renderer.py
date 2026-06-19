@@ -19,16 +19,11 @@ def print_header(data: dict, add_separator: bool = True):
     """Print the daily header from a dictionary built by header_data.build()."""
     w = get_width()
 
-    # Build the full prayer line using the prefix and parts
-    prayer_str = spread_line(data["prayer_parts"], prefix="🕌 ")
-
     # New centered date block
     pline_center(data["jalali_line"])
     pline_center(data["separator"])
     current_ui.print_line(data["greg_hijri_line"])  # already centered by spread_line
     current_ui.print_line()  # breather
-
-    pline(prayer_str)
 
     for line in data.get("feature_lines", []):
         if isinstance(line, tuple):
@@ -48,10 +43,6 @@ def print_header(data: dict, add_separator: bool = True):
 
     for line in data.get("hygiene_lines", []):
         pline(line)
-
-    # Prayer nudges
-    for nudge in data.get("prayer_nudges", []):
-        pline(nudge)
 
     # Event reminders
     event_reminder_lines = data.get("event_reminder_lines", [])

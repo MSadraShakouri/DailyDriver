@@ -48,14 +48,10 @@ class TestIntegration(unittest.TestCase):
             "jalali_line",
             "separator",
             "greg_hijri_line",
-            "prayer_parts",
             "feature_lines",
-            "prayer_nudges",
             "is_today",
         ]
         for key in expected_keys:
             self.assertIn(key, data)
         self.assertTrue(data["is_today"])
-        self.assertIsInstance(data["prayer_parts"], list)
-        self.assertIsInstance(data["prayer_nudges"], list)
         conn.close()

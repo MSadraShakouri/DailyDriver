@@ -13,9 +13,6 @@ from dailydriver.features.calendar._logic import get_hijri_offset
 from dailydriver.features.events._header import get_last_entry_time
 from dailydriver.utils.time_utils import format_jalali, today_jalali
 
-from .prayer import get_prayer_nudges, get_prayer_parts
-
-
 def build_header_data(day=None, is_today=True):
     """Collect all data needed for the daily header and return a dict."""
     with get_connection_cm() as conn:
@@ -50,10 +47,6 @@ def build_header_data(day=None, is_today=True):
             separator = f"\033[2m{separator}\033[0m"
             greg_hijri_line = f"\033[2m{greg_hijri_line}\033[0m"
 
-        prayer_parts = get_prayer_parts(conn, today)
-
-        prayer_nudges = get_prayer_nudges(conn, target_date, today, is_today)
-
         # Collect header lines from enabled feature packages
         feature_lines = []
         for feature in features_pkg.ENABLED:
@@ -74,9 +67,7 @@ def build_header_data(day=None, is_today=True):
             "jalali_line": jalali_line,
             "separator": separator,
             "greg_hijri_line": greg_hijri_line,
-            "prayer_parts": prayer_parts,
             "feature_lines": feature_lines,
-            "prayer_nudges": prayer_nudges,
             "is_today": is_today,
             "last_entry_time": last_entry_time,
         }
