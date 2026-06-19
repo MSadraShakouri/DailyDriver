@@ -5,6 +5,7 @@ import atexit
 import inspect
 import os
 import sqlite3
+import subprocess
 import sys
 import tempfile
 
@@ -214,3 +215,15 @@ if crashes:
 print("  All aliases present\n")
 
 print("✅ Full smoke test passed")
+
+
+# Make the smoke test runnable by pytest
+def test_full_smoke_as_subprocess():
+    """Run the smoke test script and assert it passes."""
+
+    r = subprocess.run(
+        [sys.executable, __file__],
+        capture_output=True,
+        text=True,
+    )
+    assert r.returncode == 0, f"Smoke test failed:\n{r.stdout}\n{r.stderr}"

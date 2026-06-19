@@ -6,7 +6,6 @@ from dailydriver.display.display_utils import (
     get_width,
     pline,
     pline_center,
-    spread_line,
     wrap_line,
 )
 from dailydriver.ui.terminal_ui import current_ui
