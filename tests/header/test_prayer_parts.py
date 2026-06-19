@@ -2,7 +2,7 @@ import sqlite3
 import unittest
 from datetime import datetime
 
-from dailydriver.display.header.prayer import get_prayer_parts
+from dailydriver.features.prayer._header import get_prayer_parts
 
 
 class TestPrayerParts(unittest.TestCase):

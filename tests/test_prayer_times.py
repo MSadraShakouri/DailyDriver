@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import unittest
 
-from dailydriver.domains.prayer_times import get_approximate_times
+from dailydriver.features.prayer._prayer_times import get_approximate_times
 
 
 class TestPrayerTimes(unittest.TestCase):

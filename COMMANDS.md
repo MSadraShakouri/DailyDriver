@@ -20,7 +20,7 @@ Arguments are separated by spaces.
 | `p q 03:11` | Mark past at 03:11 on that day |
 
 Prayer times are dynamically interpolated for Tehran based on monthly data
-(configurable in `dailydriver/domains/prayer_times.py`).
+(configurable in `dailydriver/features/prayer/_prayer_times.py`).
 
 The `qada` alias does exactly the same as `p q`.
 

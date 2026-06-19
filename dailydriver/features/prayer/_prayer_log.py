@@ -6,7 +6,7 @@ import jdatetime
 
 from dailydriver.core.database import get_connection_cm
 from ._prayer_backlog import _update_complete_until
-from dailydriver.domains.prayer_core import current_slot
+from ._prayer_core import current_slot
 from ._prayer_times import get_approximate_times
 from dailydriver.ui.terminal_ui import current_ui
 from dailydriver.utils.time_parser import parse_prayer_args, parse_time_expressions

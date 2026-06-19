@@ -4,12 +4,12 @@ import unittest
 from datetime import datetime
 from unittest.mock import patch
 
-from dailydriver.domains.prayer_backlog import (
+from dailydriver.features.prayer._prayer_backlog import (
     _get_complete_until,
     _get_unlogged_past_slots,
     _update_complete_until,
 )
-from dailydriver.domains.prayer_core import PRAYER_SLOTS
+from dailydriver.features.prayer._prayer_core import PRAYER_SLOTS
 
 TODAY_JALALI = "1405-02-30"
 NOW_DT = datetime(2026, 5, 20, 20, 0, 0)
@@ -103,7 +103,7 @@ class TestPrayerBacklog(unittest.TestCase):
         missing = _get_unlogged_past_slots(self.conn, now=NOW_DT)
         self.assertEqual(missing, [])
 
-    @patch("dailydriver.domains.prayer_backlog.today_jalali", return_value="1405-02-30")
+    @patch("dailydriver.features.prayer._prayer_backlog.today_jalali", return_value="1405-02-30")
     def test_no_logs_at_all(self, mock_today):
         missing = _get_unlogged_past_slots(self.conn, now=NOW_DT)
 

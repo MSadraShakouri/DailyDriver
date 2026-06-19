@@ -20,17 +20,19 @@ def register_aliases(dispatch):
 
 
 def header_sections(conn, today, target_date, is_today):
+    from dailydriver.display.display_utils import spread_line
+
     parts = _header.get_prayer_parts(conn, today)
     nudges = _header.get_prayer_nudges(conn, target_date, today, is_today)
 
     result = []
-    # prayer spread line – highest priority (appears right after date block)
-    result.append((4, "🕌 " + "  ".join(parts)))
-    # individual nudge lines – after hygiene, before calendar reminders
+    # prayer spread line as plain string → appears first (no priority needed)
+    prayer_line = spread_line(parts, prefix="🕌 ")
+    result.append(prayer_line)
+    # nudge lines with priority after hygiene
     for n in nudges:
         result.append((32, n))
     return result
-
 
 def migrations():
     return _migrations.migrations()
