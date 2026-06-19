@@ -5,3 +5,5 @@ export_*.txt
 data/events_*_titles.txt
 pyright_issues.txt
 .coverage
+build/
+dailydriver.egg-info/
