@@ -1,8 +1,7 @@
 # dailydriver/features/prayer/__init__.py
 """Prayer feature – logging, qada, pre‑alert / overdue nudges."""
-from . import _header
-from . import _logic
-from . import _migrations
+
+from . import _header, _logic, _migrations
 
 NAME = "prayer"
 VERSION = "1.0.0"
@@ -33,6 +32,7 @@ def header_sections(conn, today, target_date, is_today):
     for n in nudges:
         result.append((32, n))
     return result
+
 
 def migrations():
     return _migrations.migrations()

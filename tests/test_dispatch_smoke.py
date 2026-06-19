@@ -1,6 +1,5 @@
 import inspect
 
-
 from dailydriver.cli.dispatcher import make_dispatch
 
 

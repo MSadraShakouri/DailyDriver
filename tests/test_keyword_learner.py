@@ -38,6 +38,5 @@ class TestKeywordTokenizer(unittest.TestCase):
         self.assertEqual(tokens, [])  # all short or stop
 
 
-
 if __name__ == "__main__":
     unittest.main()

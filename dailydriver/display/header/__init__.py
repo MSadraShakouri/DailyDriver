@@ -13,6 +13,7 @@ from dailydriver.features.calendar._logic import get_hijri_offset
 from dailydriver.features.events._header import get_last_entry_time
 from dailydriver.utils.time_utils import format_jalali, today_jalali
 
+
 def build_header_data(day=None, is_today=True):
     """Collect all data needed for the daily header and return a dict."""
     with get_connection_cm() as conn:

@@ -1,5 +1,6 @@
 # tests/test_full_smoke.py
 """Comprehensive smoke test – exercises every command path without real DB."""
+
 import atexit
 import inspect
 import os
@@ -98,72 +99,99 @@ def run_batch(label, cmds):
 
 
 # Prayer
-run_batch("prayer", [
-    ("prayer: p", "p"),
-    ("prayer: p -15", "p -15"),
-    ("prayer: p 05:30", "p 05:30"),
-    ("prayer: p q", "p q"),
-    ("prayer: qada", "qada"),
-])
+run_batch(
+    "prayer",
+    [
+        ("prayer: p", "p"),
+        ("prayer: p -15", "p -15"),
+        ("prayer: p 05:30", "p 05:30"),
+        ("prayer: p q", "p q"),
+        ("prayer: qada", "qada"),
+    ],
+)
 
 # Sleep / Nap
-run_batch("sleep/nap", [
-    ("sleep: s 23:00 07:15", "s 23:00 07:15"),
-    ("sleep: sleep", "sleep"),
-])
+run_batch(
+    "sleep/nap",
+    [
+        ("sleep: s 23:00 07:15", "s 23:00 07:15"),
+        ("sleep: sleep", "sleep"),
+    ],
+)
 # Clean up sleep logs to avoid UNIQUE constraint
 sqlite3.connect(_tmp_db.name).execute("DELETE FROM sleep_logs").execute("DELETE FROM nap_logs").connection.commit()
 
-run_batch("nap", [
-    ("nap: nap 14:00 14:25", "nap 14:00 14:25"),
-    ("nap: nap 14-14:25", "nap 14-14:25"),
-])
+run_batch(
+    "nap",
+    [
+        ("nap: nap 14:00 14:25", "nap 14:00 14:25"),
+        ("nap: nap 14-14:25", "nap 14-14:25"),
+    ],
+)
 
 # Events
-run_batch("events", [
-    ("events: se", "se"),
-    ("events: ce", "ce"),
-    ("events: ee test", "ee test"),
-    ("events: ln test", "ln test"),
-    ("events: sge work", "sge work"),
-    ("events: ege done", "ege done"),
-    ("events: cge", "cge"),
-])
+run_batch(
+    "events",
+    [
+        ("events: se", "se"),
+        ("events: ce", "ce"),
+        ("events: ee test", "ee test"),
+        ("events: ln test", "ln test"),
+        ("events: sge work", "sge work"),
+        ("events: ege done", "ege done"),
+        ("events: cge", "cge"),
+    ],
+)
 
 # Calendar
-run_batch("calendar", [
-    ("calendar: cal", "cal"),
-    ("calendar: year", "year"),
-    ("calendar: hijri", "hijri"),
-])
+run_batch(
+    "calendar",
+    [
+        ("calendar: cal", "cal"),
+        ("calendar: year", "year"),
+        ("calendar: hijri", "hijri"),
+    ],
+)
 
 # Birthdays
-run_batch("birthdays", [
-    ("birthdays: bd", "bd"),
-    ("birthdays: birthdays", "birthdays"),
-])
+run_batch(
+    "birthdays",
+    [
+        ("birthdays: bd", "bd"),
+        ("birthdays: birthdays", "birthdays"),
+    ],
+)
 
 # Intentions
-run_batch("intentions", [
-    ("intentions: t", "t"),
-])
+run_batch(
+    "intentions",
+    [
+        ("intentions: t", "t"),
+    ],
+)
 
 # Viewing / Search / Stats / Help
-run_batch("view/search/stats/help", [
-    ("view: view", "view"),
-    ("view: recent", "recent"),
-    ("search: search test", "search test"),
-    ("stats: stats", "stats"),
-    ("help: ?", "?"),
-    ("help: h", "h"),
-])
+run_batch(
+    "view/search/stats/help",
+    [
+        ("view: view", "view"),
+        ("view: recent", "recent"),
+        ("search: search test", "search test"),
+        ("stats: stats", "stats"),
+        ("help: ?", "?"),
+        ("help: h", "h"),
+    ],
+)
 
 # Journal (free text)
-run_batch("journal", [
-    ("journal: coffee", "coffee"),
-    ("journal: l5m test", "l5m test"),
-    ("journal: ln chained", "ln chained"),
-])
+run_batch(
+    "journal",
+    [
+        ("journal: coffee", "coffee"),
+        ("journal: l5m test", "l5m test"),
+        ("journal: ln chained", "ln chained"),
+    ],
+)
 
 if crashes:
     print("FAILED:")
