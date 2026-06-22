@@ -1,7 +1,7 @@
 # dailydriver/features/qada/__init__.py
 """Qada feature – prayer backlog and fasting."""
 
-from . import _header, _logic, _manager, _migrations
+from . import _header, _logic, _manager, _migrations  # noqa: F401
 
 NAME = "qada"
 VERSION = "1.0.0"

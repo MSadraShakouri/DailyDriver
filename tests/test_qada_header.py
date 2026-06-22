@@ -1,7 +1,7 @@
 # tests/test_qada_header.py
 import sqlite3
 import unittest
-from datetime import datetime, timedelta
+from datetime import datetime
 from unittest.mock import patch
 
 import jdatetime

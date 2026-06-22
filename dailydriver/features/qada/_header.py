@@ -109,6 +109,9 @@ def get_fasting_nudges(conn, target_date, now=None):
                 )
                 day += jdatetime.timedelta(days=1)
 
+            # Commit all auto-declines
+            conn.commit()
+
             # After processing missed days, skip this entry (no nudge)
             continue
 

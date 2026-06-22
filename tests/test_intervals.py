@@ -1,6 +1,6 @@
 # tests/test_intervals.py
 import unittest
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import jdatetime
 

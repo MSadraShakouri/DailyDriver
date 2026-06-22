@@ -1,8 +1,6 @@
 # dailydriver/features/qada/_manager.py
 """Interactive qada manager."""
 
-import textwrap
-
 import jdatetime
 
 from dailydriver.display.display_utils import get_width
@@ -109,7 +107,7 @@ def _log_entry(choice):
         current_ui.prompt("Press Enter to continue.")
         return
 
-    amount_str = current_ui.prompt(f"Amount to log (Enter=1): ").strip()
+    amount_str = current_ui.prompt("Amount to log (Enter=1): ").strip()
     try:
         amount = int(amount_str) if amount_str else 1
     except ValueError:
@@ -223,7 +221,7 @@ def _edit_entry(choice):
         current_ui.print_line(f"Editing {entry['name']} (target: {target})")
 
     # Target
-    target_str = current_ui.prompt(f"Target total (Enter to keep): ").strip()
+    target_str = current_ui.prompt("Target total (Enter to keep): ").strip()
     if target_str:
         try:
             new_target = int(target_str)
@@ -254,7 +252,7 @@ def _edit_entry(choice):
 
     # Interval type
     current_interval = entry.get("interval_type", "daily")
-    interval_type = current_ui.prompt(f"Interval type (daily/n_days/weekly/monthly, Enter=keep): ").strip().lower()
+    interval_type = current_ui.prompt(f"Interval type (current: {current_interval}, Enter to keep): ").strip().lower()
     if interval_type and interval_type in ("daily", "n_days", "weekly", "monthly"):
         # Prompt for interval value
         if interval_type == "n_days":

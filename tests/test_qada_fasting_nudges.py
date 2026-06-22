@@ -23,8 +23,8 @@ class TestQadaFastingNudges(unittest.TestCase):
 
         # Add a fasting entry
         self.conn.execute(
-            "INSERT INTO qada_entries (name, kind, interval_type) VALUES (?,?,?)",
-            ("Ramadan", "fasting", "daily"),
+            "INSERT INTO qada_entries (name, kind, interval_type, target_total, logged_total) VALUES (?,?,?,?,?)",
+            ("Ramadan", "fasting", "daily", 1, 0),
         )
         self.conn.commit()
         self.entry_id = self.conn.execute("SELECT id FROM qada_entries WHERE name='Ramadan'").fetchone()["id"]
@@ -42,7 +42,7 @@ class TestQadaFastingNudges(unittest.TestCase):
     def test_nudge_shows_when_pending_today(self):
         with patch("dailydriver.features.qada._header.compute_pending_instance") as mock_compute:
             mock_compute.return_value = self.today_j
-            nudges = _header.get_fasting_nudges(self.conn, self.today_j)
+            nudges = _header.get_fasting_nudges(self.conn, self.today_j)  # noqa: F841
             self.assertEqual(len(nudges), 1)
             self.assertIn("Ramadan fasting pending", nudges[0])
 
@@ -55,7 +55,7 @@ class TestQadaFastingNudges(unittest.TestCase):
 
         with patch("dailydriver.features.qada._header.compute_pending_instance") as mock_compute:
             mock_compute.return_value = self.today_j
-            nudges = _header.get_fasting_nudges(self.conn, self.today_j)
+            nudges = _header.get_fasting_nudges(self.conn, self.today_j)  # noqa: F841
             self.assertEqual(nudges, [])
 
     def test_nudge_hides_when_declined_today(self):
@@ -67,21 +67,21 @@ class TestQadaFastingNudges(unittest.TestCase):
 
         with patch("dailydriver.features.qada._header.compute_pending_instance") as mock_compute:
             mock_compute.return_value = self.today_j
-            nudges = _header.get_fasting_nudges(self.conn, self.today_j)
+            nudges = _header.get_fasting_nudges(self.conn, self.today_j)  # noqa: F841
             self.assertEqual(nudges, [])
 
     def test_nudge_does_not_show_for_past_date(self):
         yesterday = self.today_j - jdatetime.timedelta(days=1)
         with patch("dailydriver.features.qada._header.compute_pending_instance") as mock_compute:
             mock_compute.return_value = yesterday
-            nudges = _header.get_fasting_nudges(self.conn, yesterday)
+            nudges = _header.get_fasting_nudges(self.conn, yesterday)  # noqa: F841
             self.assertEqual(nudges, [])
 
     def test_nudge_does_not_show_for_future_date(self):
         tomorrow = self.today_j + jdatetime.timedelta(days=1)
         with patch("dailydriver.features.qada._header.compute_pending_instance") as mock_compute:
             mock_compute.return_value = tomorrow
-            nudges = _header.get_fasting_nudges(self.conn, tomorrow)
+            nudges = _header.get_fasting_nudges(self.conn, tomorrow)  # noqa: F841
             self.assertEqual(nudges, [])
 
     def test_auto_no_writes_decline_after_midnight(self):
@@ -91,7 +91,7 @@ class TestQadaFastingNudges(unittest.TestCase):
             mock_compute.return_value = yesterday
 
             now = datetime.now().replace(hour=0, minute=1, second=0)
-            nudges = _header.get_fasting_nudges(self.conn, self.today_j, now=now)
+            nudges = _header.get_fasting_nudges(self.conn, self.today_j, now=now)  # noqa: F841
 
             self.assertEqual(nudges, [])
 
@@ -115,7 +115,7 @@ class TestQadaFastingNudges(unittest.TestCase):
             mock_compute.return_value = yesterday
 
             now = datetime.now().replace(hour=0, minute=1, second=0)
-            nudges = _header.get_fasting_nudges(self.conn, self.today_j, now=now)
+            nudges = _header.get_fasting_nudges(self.conn, self.today_j, now=now)  # noqa: F841
 
             count = self.conn.execute(
                 "SELECT COUNT(*) FROM qada_declines WHERE entry_id=? AND instance_date=?",
@@ -136,7 +136,7 @@ class TestQadaFastingNudges(unittest.TestCase):
             mock_compute.return_value = yesterday
 
             now = datetime.now().replace(hour=0, minute=1, second=0)
-            nudges = _header.get_fasting_nudges(self.conn, self.today_j, now=now)
+            nudges = _header.get_fasting_nudges(self.conn, self.today_j, now=now)  # noqa: F841
 
             row = self.conn.execute(
                 "SELECT 1 FROM qada_declines WHERE entry_id=? AND instance_date=?",
@@ -151,7 +151,7 @@ class TestQadaFastingNudges(unittest.TestCase):
             mock_compute.return_value = five_days_ago
 
             now = datetime.now().replace(hour=0, minute=1, second=0)
-            nudges = _header.get_fasting_nudges(self.conn, self.today_j, now=now)
+            nudges = _header.get_fasting_nudges(self.conn, self.today_j, now=now)  # noqa: F841
 
             count = self.conn.execute(
                 "SELECT COUNT(*) FROM qada_declines WHERE entry_id=?",
@@ -171,21 +171,21 @@ class TestQadaFastingNudges(unittest.TestCase):
             mock_compute.side_effect = mock_compute_side_effect
 
             now = datetime.now().replace(hour=0, minute=1, second=0)
-            nudges = _header.get_fasting_nudges(self.conn, self.today_j, now=now)
+            nudges = _header.get_fasting_nudges(self.conn, self.today_j, now=now)  # noqa: F841
 
             self.assertEqual(len(nudges), 1)
             self.assertIn("Ramadan fasting pending", nudges[0])
 
     def test_no_nudge_if_entry_has_no_interval(self):
         self.conn.execute(
-            "INSERT INTO qada_entries (name, kind, interval_type) VALUES (?,?,?)",
-            ("NoInterval", "fasting", None),
+            "INSERT INTO qada_entries (name, kind, interval_type, target_total, logged_total) VALUES (?,?,?,?,?)",
+            ("NoInterval", "fasting", None, 1, 0),
         )
         self.conn.commit()
 
         with patch("dailydriver.features.qada._header.compute_pending_instance") as mock_compute:
             mock_compute.return_value = self.today_j
-            nudges = _header.get_fasting_nudges(self.conn, self.today_j)
+            nudges = _header.get_fasting_nudges(self.conn, self.today_j)  # noqa: F841
             self.assertEqual(len(nudges), 1)
             self.assertIn("Ramadan", nudges[0])
 

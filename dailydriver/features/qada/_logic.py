@@ -63,7 +63,7 @@ def get_all_entries_with_progress(today=None):
         if entry is None:
             # Create with defaults
             name = defn["name"]
-            entry_id = add_entry(
+            _ = add_entry(
                 name=name,
                 kind=defn["kind"],
                 slot=defn["slot"],
@@ -266,7 +266,7 @@ def log_fasting(entry_id, now=None):
             (entry_id, today),
         )
         if cur.fetchone():
-            conn.commit()
+            # Decline exists – refuse to log
             return "Cannot log: you already declined today. Use the manager to edit."
 
         # Get current logged total and target
@@ -278,16 +278,16 @@ def log_fasting(entry_id, now=None):
         logged = row["logged_total"]
         target = row["target_total"]
 
-        if target <= 0:
-            return "Target is not set or complete. Nothing to log."
+        # target=-1 means unbounded (no cap)
+        if target == 0:
+            return "Target is 0. Nothing to log."
 
-        # Cap amount at target
+        # Determine amount to log (always 1 for fasting)
         amount = 1
-        if logged + amount > target:
+        if target != -1 and logged + amount > target:
             amount = target - logged
-
-        if amount <= 0:
-            return "Already at target. Nothing to log."
+            if amount <= 0:
+                return "Already at target. Nothing to log."
 
         # Insert log
         cur.execute(
@@ -301,17 +301,20 @@ def log_fasting(entry_id, now=None):
         )
         conn.commit()
 
-        cur.execute("SELECT logged_total, target_total FROM qada_entries WHERE id=?", (entry_id,))
-        row = cur.fetchone()
-        new_logged = row["logged_total"]
-        new_target = row["target_total"]
-        pct = (new_logged / new_target) * 100
+    # Get updated totals for confirmation
+    entry = get_entry(entry_id)
+    new_logged = entry["logged_total"]
+    new_target = entry["target_total"]
 
-        cur.execute("SELECT name FROM qada_entries WHERE id=?", (entry_id,))
-        entry = cur.fetchone()
-        name = entry["name"] if entry else str(entry_id)
+    if new_target == -1:
+        pct = "∞"
+        display = f"{new_logged}/∞"
+    else:
+        pct = f"{(new_logged / new_target) * 100:.3f}%"
+        display = f"{new_logged}/{new_target}"
 
-        return f"{name}: {new_logged}/{new_target} ({pct:.3f}%)"
+    name = entry.get("slot") if entry["kind"] == "prayer" else "Fasting"
+    return f"{name}: {display} ({pct})"
 
 
 def decline_fasting(entry_id, now=None):
@@ -360,6 +363,15 @@ def resolve_entry_id(arg):
             cur.execute("SELECT id FROM qada_entries WHERE name=?", (arg,))
         row = cur.fetchone()
         return row["id"] if row else None
+
+
+def get_entry(entry_id):
+    """Fetch a single qada entry by ID. Returns dict or None."""
+    with get_connection_cm(auto=False) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM qada_entries WHERE id=?", (entry_id,))
+        row = cur.fetchone()
+        return dict(row) if row else None
 
 
 def toggle_pause(entry_id, paused_from=None, paused_until=None):

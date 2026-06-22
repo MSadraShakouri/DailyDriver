@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import jdatetime
 
-from dailydriver.features.qada import _logic, _manager
+from dailydriver.features.qada import _logic
 from dailydriver.features.qada._migrations import migrations
 
 

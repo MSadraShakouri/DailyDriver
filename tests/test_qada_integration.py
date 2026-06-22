@@ -1,5 +1,4 @@
 # tests/test_qada_integration.py
-import pytest
 
 from dailydriver.core.database import get_connection_cm
 from dailydriver.features.qada import _logic
