@@ -19,6 +19,7 @@ def add_entry(name, kind, interval_type=None, interval_value=None):
             "INSERT INTO qada_entries (name, kind, interval_type, interval_value) VALUES (?,?,?,?)",
             (name, kind, interval_type, interval_value),
         )
+        conn.commit()
         return cur.lastrowid
 
 
@@ -130,6 +131,7 @@ def toggle_pause(entry_id, paused_from=None, paused_until=None):
             "UPDATE qada_entries SET paused_from=?, paused_until=? WHERE id=?",
             (paused_from, paused_until, entry_id),
         )
+        conn.commit()
 
 
 def delete_entry(entry_id):
@@ -137,6 +139,7 @@ def delete_entry(entry_id):
     with get_connection_cm() as conn:
         cur = conn.cursor()
         cur.execute("DELETE FROM qada_entries WHERE id=?", (entry_id,))
+        conn.commit()
 
 
 def edit_entry(entry_id, **kwargs):
@@ -150,6 +153,7 @@ def edit_entry(entry_id, **kwargs):
     with get_connection_cm() as conn:
         cur = conn.cursor()
         cur.execute(f"UPDATE qada_entries SET {set_clause} WHERE id=?", values)
+        conn.commit()
 
 
 # ---------------------------------------------------------------------------
