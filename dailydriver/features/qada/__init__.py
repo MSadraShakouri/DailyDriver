@@ -5,8 +5,11 @@ NAME = "qada"
 VERSION = "1.0.0"
 
 
+from . import _logic
+
+
 def register_commands(dispatch):
-    pass
+    dispatch["qada"] = _logic.qada_command
 
 
 def header_sections(conn, today, target_date, is_today):
