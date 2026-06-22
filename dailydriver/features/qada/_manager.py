@@ -1,9 +1,13 @@
 # dailydriver/features/qada/_manager.py
 """Interactive qada manager."""
 
+import textwrap
+
 import jdatetime
 
-from dailydriver.display.display_utils import get_width
+from dailydriver.display.display_utils import display_width, get_width, pline_wrap, spread_line
+from dailydriver.display.header import build_header_data
+from dailydriver.display.header_renderer import print_header
 from dailydriver.features.qada import _logic
 from dailydriver.ui.terminal_ui import current_ui
 
@@ -12,17 +16,28 @@ def show_qada_manager():
     """Main loop for the qada manager."""
     while True:
         current_ui.clear()
+        # Show header like hygiene
+        data = build_header_data()
+        print_header(data)
+
         entries = _logic.get_all_entries_with_progress()
 
-        # Render table
+        # Render table (no extra blank line before it)
         _render_entries(entries)
 
-        # Show commands
-        current_ui.print_line("\n(l)og  (p)ause  (e)dit  (q)uit")
+        # Command guide – two lines spread across 2/3 of screen
+        current_ui.print_line()  # breather before commands
+        _print_commands()
+
+        # Breather before prompt
+        current_ui.print_line()
         choice = current_ui.prompt("> ").strip().lower()
 
         if choice == "q":
             break
+        elif choice == "?":
+            _show_help()
+            current_ui.prompt("Press Enter to continue.")
         elif choice.startswith("l "):
             _log_entry(choice)
         elif choice.startswith("p "):
@@ -30,49 +45,150 @@ def show_qada_manager():
         elif choice.startswith("e "):
             _edit_entry(choice)
         else:
-            current_ui.print_line("Unknown command.")
+            current_ui.print_line("Unknown command. Type ? for help.")
             current_ui.prompt("Press Enter to continue.")
 
 
-def _render_entries(entries):
-    """Render the qada entries table."""
+def _print_commands():
+    """Print the command guide using spread_line."""
     tw = get_width()
-    # Fixed columns
-    idx_width = 2
-    name_width = 14  # "Dhuhr/Asr" is 9, "Maghrib/Isha" is 12, "Fasting" is 7
-    prog_width = 10
-    pct_width = 8
-    next_width = 10
-    # Total: 2 + 14 + 10 + 8 + 10 = 44, plus spaces = ~48
 
-    # Header
-    header = f"{'#':>{idx_width}}  {'Name':<{name_width}}  {'Progress':<{prog_width}}  {'%':<{pct_width}}  {'Next':<{next_width}}"
-    current_ui.print_line(header)
-    current_ui.print_line("─" * min(tw, len(header)))
+    # Line 1: l and p
+    line1_parts = ["l <#> log progress", "p <#> pause/unpause"]
+    # Pad each to same width? No – spread_line handles distribution
+    line1 = spread_line(line1_parts, width=tw, margins=1 / 8)
+    current_ui.print_line(line1)
+
+    # Line 2: e, ?, q
+    line2_parts = ["e <#> edit", "? help", "q quit"]
+    line2 = spread_line(line2_parts, width=tw, margins=1 / 8)
+    current_ui.print_line(line2)
+
+
+def _show_help():
+    """Show help screen inside the manager."""
+    current_ui.print_line("\n┌─ Qada Manager Help ───────────────────────────┐")
+    current_ui.print_line("│ l <#>  - Log progress for entry #              │")
+    current_ui.print_line("│ p <#>  - Pause/unpause entry #                 │")
+    current_ui.print_line("│ e <#>  - Edit entry # (target/interval)        │")
+    current_ui.print_line("│ ?      - Show this help                        │")
+    current_ui.print_line("│ q      - Quit manager                          │")
+    current_ui.print_line("└─────────────────────────────────────────────────┘")
+
+
+def _smart_percent(value):
+    """Format percentage smartly: 0% for zero, remove trailing zeros."""
+    if value == 0:
+        return "0%"
+    # Format with up to 2 decimal places, strip trailing zeros and decimal
+    s = f"{value:.2f}".rstrip("0").rstrip(".")
+    return f"{s}%"
+
+
+def _format_next_due(next_instance, today):
+    """Format next due as 'today', 'tomorrow', or 'in X days'."""
+    if next_instance is None:
+        return "-"
+    days = (next_instance - today).days
+    if days == 0:
+        return "today"
+    elif days == 1:
+        return "tomorrow"
+    else:
+        return f"in {days} days"
+
+
+def _format_interval_display(entry):
+    """Return human-readable interval string."""
+    itype = entry.get("interval_type", "daily")
+    ival = entry.get("interval_value")
+    if itype == "daily":
+        return "daily"
+    elif itype == "n_days":
+        return f"every {ival} days"
+    elif itype == "weekly":
+        weekday_map = ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+        try:
+            return f"weekly on {weekday_map[int(ival)]}"
+        except (ValueError, TypeError, IndexError):
+            return f"weekly on {ival}"
+    elif itype == "monthly":
+        return f"monthly on {ival}"
+    return itype
+
+
+def _render_entries(entries):
+    """Render the qada entries table using spread_line."""
+    tw = get_width()
+    today_j = jdatetime.date.today()
+
+    # Prepare all row data and track max widths
+    rows = []
+    max_name = display_width("Name")
+    max_prog = display_width("Progress")
+    max_pct = display_width("%")
+    max_next = display_width("Next")
 
     for entry in entries:
-        idx = entry["index"]
+        idx = str(entry["index"])
         name = entry["name"]
         prog = entry["progress_display"]
-        pct = entry["percentage"] if entry["percentage"] else ""
-        next_date = entry["next_instance"].strftime("%Y-%m-%d") if entry["next_instance"] else "-"
 
-        # Truncate if needed
-        if len(name) > name_width:
-            name = name[: name_width - 1] + "…"
+        pct_display = ""
+        target = entry["target_total"]
+        if target != -1 and entry["percentage"] is not None:
+            pct_display = _smart_percent(entry["percentage"])
 
-        line = f"{idx:>{idx_width}}  {name:<{name_width}}  {prog:<{prog_width}}  {pct:<{pct_width}}  {next_date:<{next_width}}"
+        next_display = _format_next_due(entry["next_instance"], today_j)
+
+        max_name = max(max_name, display_width(name))
+        max_prog = max(max_prog, display_width(prog))
+        max_pct = max(max_pct, display_width(pct_display))
+        max_next = max(max_next, display_width(next_display))
+
+        rows.append(
+            {
+                "idx": idx,
+                "name": name,
+                "prog": prog,
+                "pct": pct_display,
+                "next": next_display,
+                "target": target,
+                "is_complete": entry["is_complete"],
+                "is_paused": entry["is_paused"],
+            }
+        )
+
+    # Build header with padded columns
+    header_parts = [
+        " " + "#".center(1),
+        "Name".center(max_name),
+        "Progress".center(max_prog),
+        "%".center(max_pct),
+        "Next".center(max_next) + " ",
+    ]
+    header = spread_line(header_parts, width=tw, margins=0)
+    current_ui.print_line(header)
+    current_ui.print_line("─" * tw)
+
+    # Render rows
+    for row in rows:
+        parts = [
+            " " + row["idx"].ljust(1),
+            row["name"].ljust(max_name),
+            row["prog"].ljust(max_prog),
+            row["pct"].ljust(max_pct),
+            row["next"].ljust(max_next) + " ",
+        ]
+        line = spread_line(parts, width=tw, margins=0)
 
         # Apply colors
-        target = entry["target_total"]
+        target = row["target"]
         if target == -1:
-            # Not set – yellow
             line = f"\033[33m{line}\033[0m"
-        elif entry["is_complete"]:
-            # Complete – green
+        elif row["is_complete"]:
             line = f"\033[32m{line}\033[0m"
-        elif entry["is_paused"]:
-            # Paused – dimmed
+        elif row["is_paused"]:
             line = f"\033[2m{line}\033[0m"
 
         current_ui.print_line(line)
@@ -250,27 +366,66 @@ def _edit_entry(choice):
             current_ui.prompt("Press Enter to continue.")
             return
 
-    # Interval type
+    # Interval type – show current display
+    current_interval_display = _format_interval_display(entry)
     current_interval = entry.get("interval_type", "daily")
-    interval_type = current_ui.prompt(f"Interval type (current: {current_interval}, Enter to keep): ").strip().lower()
-    if interval_type and interval_type in ("daily", "n_days", "weekly", "monthly"):
-        # Prompt for interval value
+
+    current_ui.print_line(f"\nCurrent interval: {current_interval_display}")
+    current_ui.print_line("\nInterval options:")
+    current_ui.print_line("  1. daily     - every day")
+    current_ui.print_line("  2. n_days    - every N days (e.g., 3)")
+    current_ui.print_line("  3. weekly    - specific weekday (0=Sat, 1=Sun, ...)")
+    current_ui.print_line("  4. monthly   - specific days (e.g., 1,15)")
+
+    choice = current_ui.prompt("Choose (1-4, Enter to keep): ").strip()
+
+    if choice == "":
+        interval_type = current_interval
+    elif choice == "1":
+        interval_type = "daily"
+    elif choice == "2":
+        interval_type = "n_days"
+    elif choice == "3":
+        interval_type = "weekly"
+    elif choice == "4":
+        interval_type = "monthly"
+    else:
+        current_ui.print_line("Invalid choice.")
+        current_ui.prompt("Press Enter to continue.")
+        return
+
+    if interval_type != current_interval:
+        # Prompt for interval value based on type
         if interval_type == "n_days":
             val = current_ui.prompt("Number of days: ").strip()
             if val and val.isdigit():
                 _logic.edit_entry(entry_id, interval_type=interval_type, interval_value=val)
+                current_ui.print_line(f"Interval updated to every {val} days.")
+            else:
+                current_ui.print_line("Invalid value. Interval unchanged.")
         elif interval_type == "weekly":
             val = current_ui.prompt("Weekday (0=Sat, 1=Sun, 2=Mon, ...): ").strip()
             if val and val.isdigit():
-                _logic.edit_entry(entry_id, interval_type=interval_type, interval_value=val)
+                weekday_map = ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+                try:
+                    weekday_name = weekday_map[int(val)]
+                    _logic.edit_entry(entry_id, interval_type=interval_type, interval_value=val)
+                    current_ui.print_line(f"Interval updated to weekly on {weekday_name}.")
+                except (ValueError, IndexError):
+                    current_ui.print_line("Invalid weekday number.")
+            else:
+                current_ui.print_line("Invalid value. Interval unchanged.")
         elif interval_type == "monthly":
             val = current_ui.prompt("Days (comma-separated, e.g., 1,15): ").strip()
             if val:
                 _logic.edit_entry(entry_id, interval_type=interval_type, interval_value=val)
+                current_ui.print_line(f"Interval updated to monthly on {val}.")
+            else:
+                current_ui.print_line("Invalid value. Interval unchanged.")
         else:  # daily
             _logic.edit_entry(entry_id, interval_type=interval_type, interval_value=None)
-        current_ui.print_line(f"Interval updated to {interval_type}.")
-    elif interval_type:
-        current_ui.print_line("Invalid interval type.")
+            current_ui.print_line("Interval updated to daily.")
+    else:
+        current_ui.print_line("Interval unchanged.")
 
     current_ui.prompt("Press Enter to continue.")

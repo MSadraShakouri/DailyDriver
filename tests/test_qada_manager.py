@@ -53,7 +53,7 @@ class TestQadaManager(unittest.TestCase):
         entries = _logic.get_all_entries_with_progress()
         self.assertEqual(entries[0]["target_total"], 400)
         self.assertEqual(entries[0]["progress_display"], "0/400")
-        self.assertEqual(entries[0]["percentage"], "0.000%")
+        self.assertEqual(entries[0]["percentage"], 0.0)
 
     def test_log_prayer_updates_progress(self):
         entries = _logic.get_all_entries_with_progress()
@@ -66,7 +66,7 @@ class TestQadaManager(unittest.TestCase):
         entries = _logic.get_all_entries_with_progress()
         self.assertEqual(entries[0]["logged_total"], 40)
         self.assertEqual(entries[0]["progress_display"], "40/400")
-        self.assertEqual(entries[0]["percentage"], "10.000%")
+        self.assertEqual(entries[0]["percentage"], 10.0)
 
     def test_log_prayer_caps_at_target(self):
         entries = _logic.get_all_entries_with_progress()
@@ -78,7 +78,7 @@ class TestQadaManager(unittest.TestCase):
         entries = _logic.get_all_entries_with_progress()
         self.assertEqual(entries[0]["logged_total"], 10)
         self.assertEqual(entries[0]["progress_display"], "10/10")
-        self.assertEqual(entries[0]["percentage"], "100.000%")
+        self.assertEqual(entries[0]["percentage"], 100.0)
         self.assertTrue(entries[0]["is_complete"])
 
     def test_edit_higher_target_keeps_logged(self):
@@ -94,7 +94,7 @@ class TestQadaManager(unittest.TestCase):
         entries = _logic.get_all_entries_with_progress()
         self.assertEqual(entries[0]["logged_total"], 10)
         self.assertEqual(entries[0]["progress_display"], "10/20")
-        self.assertEqual(entries[0]["percentage"], "50.000%")
+        self.assertEqual(entries[0]["percentage"], 50.0)
 
     def test_edit_lower_target_caps_logged(self):
         entries = _logic.get_all_entries_with_progress()
@@ -109,7 +109,7 @@ class TestQadaManager(unittest.TestCase):
         entries = _logic.get_all_entries_with_progress()
         self.assertEqual(entries[0]["logged_total"], 10)
         self.assertEqual(entries[0]["progress_display"], "10/10")
-        self.assertEqual(entries[0]["percentage"], "100.000%")
+        self.assertEqual(entries[0]["percentage"], 100.0)
 
     def test_pause_updates_until(self):
         entries = _logic.get_all_entries_with_progress()

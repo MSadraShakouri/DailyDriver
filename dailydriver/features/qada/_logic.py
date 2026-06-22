@@ -84,11 +84,11 @@ def get_all_entries_with_progress(today=None):
             is_complete = False
         elif target == 0:
             progress_display = "0/0"
-            percentage = "0.000%"
+            percentage = 0.0
             is_complete = True
         else:
             pct = (logged / target) * 100
-            percentage = f"{pct:.3f}%"
+            percentage = pct  # raw float
             progress_display = f"{logged}/{target}"
             is_complete = logged >= target
 

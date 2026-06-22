@@ -85,6 +85,7 @@ def get_prayer_nudges(conn, target_date, now=None):
 
     return nudges
 
+
 def get_fasting_nudges(conn, target_date, now=None):
     """Return fasting nudge lines for today's pending instances.
     Shows: '🌙 Fasting: not set' if target=-1 and pending today.
