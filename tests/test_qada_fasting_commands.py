@@ -29,17 +29,17 @@ class TestQadaFastingCommands(unittest.TestCase):
         self.patcher.stop()
         self.conn.close()
 
-    def _add_fasting_entry(self, name="Ramadan", interval_type="daily"):
+    def _add_fasting_entry(self, name="Ramadan", interval_type="daily", target_total=1):
         self.conn.execute(
-            "INSERT INTO qada_entries (name, kind, interval_type) VALUES (?,?,?)",
-            (name, "fasting", interval_type),
+            "INSERT INTO qada_entries (name, kind, interval_type, target_total, logged_total) VALUES (?,?,?,?,?)",
+            (name, "fasting", interval_type, target_total, 0),
         )
         self.conn.commit()
         return self.conn.execute("SELECT id FROM qada_entries WHERE name=?", (name,)).fetchone()["id"]
 
     def test_log_fasting_inserts_log(self):
         result = _logic.log_fasting(self.entry_id)
-        self.assertIn("Fasting logged", result)
+        self.assertIn("1/1 (100.000%)", result)
         row = self.conn.execute(
             "SELECT amount, instance_date FROM qada_logs WHERE entry_id=?",
             (self.entry_id,),

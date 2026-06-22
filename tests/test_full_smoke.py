@@ -56,6 +56,7 @@ dispatch["view"] = lambda _: None
 dispatch["search"] = lambda _: None
 dispatch["day"] = lambda _: None
 dispatch["birthdays"] = lambda _: None
+dispatch["qada"] = lambda _: None  # Skip interactive manager in smoke test
 
 errors = []
 print("=== Dispatch smoke test (every handler accepts 'test') ===")

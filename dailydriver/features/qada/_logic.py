@@ -3,6 +3,8 @@
 
 import time
 
+import jdatetime
+
 from dailydriver.core.database import get_connection_cm
 from dailydriver.utils.intervals import next_instance_date
 
@@ -13,7 +15,7 @@ VALID_PRAYER_SLOTS = ("fajr", "dhuhr_asr", "maghrib_isha")
 # ---------------------------------------------------------------------------
 
 
-def add_entry(name, kind, interval_type=None, interval_value=None, slot=None):
+def add_entry(name, kind, interval_type=None, interval_value=None, slot=None, target_total=-1):
     """Insert a new qada entry. Returns the new entry ID."""
     if kind == "prayer":
         if slot not in VALID_PRAYER_SLOTS:
@@ -21,11 +23,112 @@ def add_entry(name, kind, interval_type=None, interval_value=None, slot=None):
     with get_connection_cm() as conn:
         cur = conn.cursor()
         cur.execute(
-            "INSERT INTO qada_entries (name, kind, interval_type, interval_value, slot) VALUES (?,?,?,?,?)",
-            (name, kind, interval_type, interval_value, slot),
+            "INSERT INTO qada_entries (name, kind, interval_type, interval_value, slot, target_total, logged_total) VALUES (?,?,?,?,?,?,?)",
+            (name, kind, interval_type, interval_value, slot, target_total, 0),
         )
         conn.commit()
         return cur.lastrowid
+
+
+def get_entry_by_slot_or_kind(slot=None, kind=None):
+    """Fetch an entry by slot (for prayer) or kind (for fasting)."""
+    with get_connection_cm(auto=False) as conn:
+        cur = conn.cursor()
+        if kind == "fasting":
+            cur.execute("SELECT * FROM qada_entries WHERE kind='fasting' ORDER BY id LIMIT 1")
+        elif kind == "prayer" and slot:
+            cur.execute("SELECT * FROM qada_entries WHERE kind='prayer' AND slot=?", (slot,))
+        else:
+            return None
+        row = cur.fetchone()
+        return dict(row) if row else None
+
+
+def get_all_entries_with_progress(today=None):
+    """Return all 4 qada entries in fixed order with progress computed."""
+    if today is None:
+        today = jdatetime.date.today()
+
+    # Define the 4 entries
+    entry_defs = [
+        {"slot": "fajr", "kind": "prayer", "name": "Fajr"},
+        {"slot": "dhuhr_asr", "kind": "prayer", "name": "Dhuhr/Asr"},
+        {"slot": "maghrib_isha", "kind": "prayer", "name": "Maghrib/Isha"},
+        {"slot": None, "kind": "fasting", "name": "Fasting"},
+    ]
+
+    result = []
+    for idx, defn in enumerate(entry_defs, 1):
+        entry = get_entry_by_slot_or_kind(slot=defn["slot"], kind=defn["kind"])
+        if entry is None:
+            # Create with defaults
+            name = defn["name"]
+            entry_id = add_entry(
+                name=name,
+                kind=defn["kind"],
+                slot=defn["slot"],
+                interval_type="daily",
+                target_total=-1,
+            )
+            entry = get_entry_by_slot_or_kind(slot=defn["slot"], kind=defn["kind"])
+            if entry is None:
+                # Fallback: shouldn't happen
+                continue
+
+        # Compute progress
+        target = entry.get("target_total", -1)
+        logged = entry.get("logged_total", 0)
+        if target == -1:
+            progress_display = "Not set"
+            percentage = None
+            is_complete = False
+        elif target == 0:
+            progress_display = "0/0"
+            percentage = "0.000%"
+            is_complete = True
+        else:
+            pct = (logged / target) * 100
+            percentage = f"{pct:.3f}%"
+            progress_display = f"{logged}/{target}"
+            is_complete = logged >= target
+
+        # Check paused
+        paused_until = entry.get("paused_until")
+        is_paused = False
+        if paused_until:
+            try:
+                y, m, d = map(int, paused_until.split("-"))
+                pause_date = jdatetime.date(y, m, d)
+                is_paused = pause_date >= today
+            except (ValueError, TypeError):
+                pass
+
+        # Compute next instance
+        next_instance = None
+        if not is_complete and target > 0 and not is_paused:
+            next_instance = compute_pending_instance(entry, today)
+
+        result.append(
+            {
+                "id": entry["id"],
+                "index": idx,
+                "name": defn["name"],
+                "kind": defn["kind"],
+                "slot": defn["slot"],
+                "target_total": target,
+                "logged_total": logged,
+                "progress_display": progress_display,
+                "percentage": percentage,
+                "is_complete": is_complete,
+                "is_paused": is_paused,
+                "next_instance": next_instance,
+                "interval_type": entry.get("interval_type"),
+                "interval_value": entry.get("interval_value"),
+                "paused_until": paused_until,
+            }
+        )
+
+    return result
 
 
 def list_entries(kind=None):
@@ -49,20 +152,50 @@ def log_prayer_qada(entry_id, amount, now=None):
     with get_connection_cm() as conn:
         cur = conn.cursor()
         today = jdatetime.date.today().strftime("%Y-%m-%d")
+
+        # Get current logged total and target
+        cur.execute("SELECT logged_total, target_total FROM qada_entries WHERE id=?", (entry_id,))
+        row = cur.fetchone()
+        if not row:
+            return "Entry not found."
+
+        logged = row["logged_total"]
+        target = row["target_total"]
+
+        if target <= 0:
+            return "Target is not set or complete. Nothing to log."
+
+        # Cap amount at target
+        if logged + amount > target:
+            amount = target - logged
+
+        if amount <= 0:
+            return "Already at target. Nothing to log."
+
+        # Insert log
         cur.execute(
             "INSERT INTO qada_logs (entry_id, amount, instance_date, logged_at) VALUES (?,?,?,?)",
             (entry_id, amount, today, int(now)),
         )
-        # Last write wins: delete any matching decline row
+        # Update logged_total
         cur.execute(
-            "DELETE FROM qada_declines WHERE entry_id=? AND instance_date=?",
-            (entry_id, today),
+            "UPDATE qada_entries SET logged_total = logged_total + ? WHERE id=?",
+            (amount, entry_id),
         )
         conn.commit()
+
+        # Get updated totals
+        cur.execute("SELECT logged_total, target_total FROM qada_entries WHERE id=?", (entry_id,))
+        row = cur.fetchone()
+        new_logged = row["logged_total"]
+        new_target = row["target_total"]
+        pct = (new_logged / new_target) * 100
+
         cur.execute("SELECT name FROM qada_entries WHERE id=?", (entry_id,))
         entry = cur.fetchone()
         name = entry["name"] if entry else str(entry_id)
-        return f"Logged {amount} for {name}"
+
+        return f"{name}: {new_logged}/{new_target} ({pct:.3f}%)"
 
 
 def compute_pending_instance(entry, today):
@@ -136,17 +269,49 @@ def log_fasting(entry_id, now=None):
             conn.commit()
             return "Cannot log: you already declined today. Use the manager to edit."
 
+        # Get current logged total and target
+        cur.execute("SELECT logged_total, target_total FROM qada_entries WHERE id=?", (entry_id,))
+        row = cur.fetchone()
+        if not row:
+            return "Entry not found."
+
+        logged = row["logged_total"]
+        target = row["target_total"]
+
+        if target <= 0:
+            return "Target is not set or complete. Nothing to log."
+
+        # Cap amount at target
+        amount = 1
+        if logged + amount > target:
+            amount = target - logged
+
+        if amount <= 0:
+            return "Already at target. Nothing to log."
+
         # Insert log
         cur.execute(
             "INSERT INTO qada_logs (entry_id, amount, instance_date, logged_at) VALUES (?,?,?,?)",
-            (entry_id, 1, today, int(now)),
+            (entry_id, amount, today, int(now)),
+        )
+        # Update logged_total
+        cur.execute(
+            "UPDATE qada_entries SET logged_total = logged_total + ? WHERE id=?",
+            (amount, entry_id),
         )
         conn.commit()
+
+        cur.execute("SELECT logged_total, target_total FROM qada_entries WHERE id=?", (entry_id,))
+        row = cur.fetchone()
+        new_logged = row["logged_total"]
+        new_target = row["target_total"]
+        pct = (new_logged / new_target) * 100
 
         cur.execute("SELECT name FROM qada_entries WHERE id=?", (entry_id,))
         entry = cur.fetchone()
         name = entry["name"] if entry else str(entry_id)
-        return f"Fasting logged for {name}"
+
+        return f"{name}: {new_logged}/{new_target} ({pct:.3f}%)"
 
 
 def decline_fasting(entry_id, now=None):
@@ -217,11 +382,35 @@ def delete_entry(entry_id):
 
 
 def edit_entry(entry_id, **kwargs):
-    """Edit fields of a qada entry. Discards current instance per spec."""
-    allowed = {"name", "interval_type", "interval_value", "interval_calendar"}
+    """Edit fields of a qada entry. Handles target changes with proper logic."""
+    allowed = {"name", "interval_type", "interval_value", "interval_calendar", "target_total", "paused_until"}
     updates = {k: v for k, v in kwargs.items() if k in allowed}
+
     if not updates:
         return
+
+    # Handle target_total changes
+    if "target_total" in updates:
+        new_target = updates["target_total"]
+        with get_connection_cm(auto=False) as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT target_total, logged_total FROM qada_entries WHERE id=?", (entry_id,))
+            row = cur.fetchone()
+            if row:
+                old_target = row["target_total"]
+                logged = row["logged_total"]
+
+                if old_target == -1:
+                    # Entry was not set, just set the target
+                    pass
+                elif new_target > old_target:
+                    # Higher target: keep logged_total as-is
+                    pass
+                elif new_target < old_target:
+                    # Lower target: warn, then cap if needed
+                    if logged > new_target:
+                        updates["logged_total"] = new_target
+
     set_clause = ", ".join(f"{k}=?" for k in updates)
     values = list(updates.values()) + [entry_id]
     with get_connection_cm() as conn:
@@ -300,8 +489,12 @@ def _is_paused(entry, today):
 def qada_command(line: str):
     """Main entry point for the qada command."""
     parts = line.strip().split(maxsplit=2)
-    if len(parts) == 1:  # bare "qada"
-        return "Interactive qada manager is not yet implemented. Use 'qada log <name> <amount>' to log."
+    if len(parts) == 1:
+        # Bare qada → open manager
+        from dailydriver.features.qada import _manager
+
+        _manager.show_qada_manager()
+        return None
 
     sub = parts[1].lower()
     if sub == "log":

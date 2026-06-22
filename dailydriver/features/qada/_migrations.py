@@ -66,5 +66,17 @@ def _migration_3(conn):
     conn.commit()
 
 
+def _migration_4(conn):
+    """Add target_total and logged_total columns to qada_entries."""
+    cur = conn.cursor()
+    cur.execute("PRAGMA table_info(qada_entries)")
+    cols = [row[1] for row in cur.fetchall()]
+    if "target_total" not in cols:
+        cur.execute("ALTER TABLE qada_entries ADD COLUMN target_total INTEGER DEFAULT -1")
+    if "logged_total" not in cols:
+        cur.execute("ALTER TABLE qada_entries ADD COLUMN logged_total INTEGER DEFAULT 0")
+    conn.commit()
+
+
 def migrations():
-    return [_migration_1, _migration_2, _migration_3]
+    return [_migration_1, _migration_2, _migration_3, _migration_4]

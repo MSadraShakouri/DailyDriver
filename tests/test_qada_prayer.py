@@ -21,10 +21,10 @@ class TestQadaPrayerLogic(unittest.TestCase):
     def tearDown(self):
         self.conn.close()
 
-    def _add(self, name="fajr", kind="prayer", interval_type="daily", interval_value=None, slot=None):
+    def _add(self, name="fajr", kind="prayer", interval_type="daily", interval_value=None, slot=None, target_total=1):
         self.conn.execute(
-            "INSERT INTO qada_entries (name, kind, interval_type, interval_value, slot) VALUES (?,?,?,?,?)",
-            (name, kind, interval_type, interval_value, slot),
+            "INSERT INTO qada_entries (name, kind, interval_type, interval_value, slot, target_total, logged_total) VALUES (?,?,?,?,?,?,?)",
+            (name, kind, interval_type, interval_value, slot, target_total, 0),
         )
         self.conn.commit()
         return self.conn.execute("SELECT id FROM qada_entries WHERE name=?", (name,)).fetchone()["id"]
@@ -46,7 +46,7 @@ class TestQadaPrayerLogic(unittest.TestCase):
     @patch("dailydriver.features.qada._logic.get_connection_cm")
     def test_log_prayer_qada_amount_4_writes_single_row(self, mock_cm):
         mock_cm.return_value.__enter__.return_value = self.conn
-        eid = self._add("fajr", "prayer", "daily", slot="fajr")
+        eid = self._add("fajr", "prayer", "daily", slot="fajr", target_total=4)
         _logic.log_prayer_qada(eid, 4)
         count = self.conn.execute("SELECT COUNT(*) FROM qada_logs WHERE entry_id=?", (eid,)).fetchone()[0]
         self.assertEqual(count, 1)
