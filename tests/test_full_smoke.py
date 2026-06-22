@@ -203,7 +203,7 @@ print("  All commands executed without crash\n")
 
 # ========== ALIASES SMOKE ==========
 print("=== Alias smoke test ===")
-aliases = {"pray": "p", "sleep": "s", "h": "?", "qada": "p q"}
+aliases = {"pray": "p", "sleep": "s", "h": "?"}
 for alias, target in aliases.items():
     if alias not in dispatch:
         crashes.append(f"alias missing: {alias} (should map to {target})")

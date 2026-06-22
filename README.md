@@ -28,7 +28,7 @@ Built with Python, SQLite, and Jalali calendar support.
 - **Header redesign** – modern centered date block with Jalali weekday, thin separator, Gregorian/Hijri dates, improved spacing.
 - **`recent` command** – renamed from `last`; layout matches `view` and `search` with wrapped categories and descriptions.
 - **State files moved into the database** – no more hidden dot‑files.
-- **Built‑in aliases** – `pray` → `p`, `sleep` → `s`, `h` → `?`, `qada` → `p q`.
+- **Built‑in aliases** – `pray` → `p`, `sleep` → `s`, `h` → `?`.
 - **Test isolation** – database path configurable via `DAILYDRIVER_DB` env var; tests pass on clean clone. 161 tests total.
 - **Minimal dependencies** – Python 3.10+, SQLite, `jdatetime`, `hijridate`, `porter2stemmer`.
 
@@ -104,7 +104,7 @@ You’ll see the daily header and a prompt `>`. Type `?` for a command overview,
 | `?` | Full help and keyword list |
 | `q` | Quit |
 
-**Aliases:** `pray` → `p`, `sleep` → `s`, `h` → `?`, `qada` → `p q`.
+**Aliases:** `pray` → `p`, `sleep` → `s`, `h` → `?`.
 
 For the complete command reference, see **[COMMANDS.md](COMMANDS.md)**.
 

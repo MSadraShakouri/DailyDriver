@@ -13,9 +13,6 @@ def register_commands(dispatch):
 
 def register_aliases(dispatch):
     dispatch["pray"] = _logic.log_prayer
-    dispatch["qada"] = lambda line: _logic.log_prayer(
-        f"p q {line.split(maxsplit=1)[1]}" if len(line.split(maxsplit=1)) > 1 else "p q"
-    )
 
 
 def header_sections(conn, today, target_date, is_today):

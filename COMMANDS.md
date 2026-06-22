@@ -5,7 +5,7 @@ Arguments are separated by spaces.
 
 ---
 
-### Prayer Logging `p` (and `qada` alias)
+### Prayer Logging `p`
 
 | Usage | Description |
 |-------|-------------|
@@ -21,8 +21,6 @@ Arguments are separated by spaces.
 
 Prayer times are dynamically interpolated for Tehran based on monthly data
 (configurable in `dailydriver/features/prayer/_prayer_times.py`).
-
-The `qada` alias does exactly the same as `p q`.
 
 ---
 
