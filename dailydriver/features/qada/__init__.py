@@ -16,8 +16,11 @@ def header_sections(conn, today, target_date, is_today):
         return []
     from datetime import datetime
 
-    lines = _header.get_prayer_nudges(conn, target_date, datetime.now())
-    return [(33, line) for line in lines]  # priority 33 – right after prayer nudges (32)
+    now = datetime.now()
+    prayer_lines = _header.get_prayer_nudges(conn, target_date, now)
+    fasting_lines = _header.get_fasting_nudges(conn, target_date, now)
+    lines = prayer_lines + fasting_lines
+    return [(33, line) for line in lines]
 
 
 def migrations():
