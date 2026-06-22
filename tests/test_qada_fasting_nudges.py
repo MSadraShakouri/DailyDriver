@@ -44,7 +44,7 @@ class TestQadaFastingNudges(unittest.TestCase):
             mock_compute.return_value = self.today_j
             nudges = _header.get_fasting_nudges(self.conn, self.today_j)  # noqa: F841
             self.assertEqual(len(nudges), 1)
-            self.assertIn("Ramadan fasting pending", nudges[0])
+            self.assertIn("🌙 Fasting pending", nudges[0])
 
     def test_nudge_hides_when_logged_today(self):
         self.conn.execute(
@@ -174,7 +174,7 @@ class TestQadaFastingNudges(unittest.TestCase):
             nudges = _header.get_fasting_nudges(self.conn, self.today_j, now=now)  # noqa: F841
 
             self.assertEqual(len(nudges), 1)
-            self.assertIn("Ramadan fasting pending", nudges[0])
+            self.assertIn("🌙 Fasting pending", nudges[0])
 
     def test_no_nudge_if_entry_has_no_interval(self):
         self.conn.execute(
@@ -187,7 +187,7 @@ class TestQadaFastingNudges(unittest.TestCase):
             mock_compute.return_value = self.today_j
             nudges = _header.get_fasting_nudges(self.conn, self.today_j)  # noqa: F841
             self.assertEqual(len(nudges), 1)
-            self.assertIn("Ramadan", nudges[0])
+            self.assertIn("🌙 Fasting pending", nudges[0])
 
 
 if __name__ == "__main__":

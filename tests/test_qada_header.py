@@ -20,7 +20,7 @@ class TestQadaHeaderNudges(unittest.TestCase):
         self.today = jdatetime.date.today()
         # Add a daily Fajr entry with slot set
         self.conn.execute(
-            "INSERT INTO qada_entries (name, kind, interval_type, slot) VALUES ('fajr', 'prayer', 'daily', 'fajr')"
+            "INSERT INTO qada_entries (name, kind, interval_type, slot, target_total, logged_total) VALUES ('fajr', 'prayer', 'daily', 'fajr', 1, 0)"
         )
         self.conn.commit()
         self.entry = dict(self.conn.execute("SELECT * FROM qada_entries WHERE name='fajr'").fetchone())
@@ -47,7 +47,7 @@ class TestQadaHeaderNudges(unittest.TestCase):
         now = datetime.now().replace(hour=4, minute=1, second=0)
         nudges = get_prayer_nudges(self.conn, self.today, now=now)
         self.assertTrue(len(nudges) > 0)
-        self.assertIn("fajr qada pending", nudges[0])
+        self.assertIn("🕌 Fajr pending", nudges[0])
 
     @patch("dailydriver.features.qada._header.list_entries")
     @patch("dailydriver.features.qada._header.compute_pending_instance")
