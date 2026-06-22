@@ -5,7 +5,7 @@ NAME = "qada"
 VERSION = "1.0.0"
 
 
-from . import _header, _logic
+from . import _header, _logic, _migrations
 
 
 def register_commands(dispatch):
@@ -22,4 +22,4 @@ def header_sections(conn, today, target_date, is_today):
 
 
 def migrations():
-    return []
+    return _migrations.migrations()
