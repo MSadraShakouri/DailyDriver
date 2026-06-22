@@ -57,5 +57,14 @@ def _migration_2(conn):
     conn.commit()
 
 
+def _migration_3(conn):
+    """Add unique constraint on qada_declines(entry_id, instance_date)."""
+    conn.execute("""
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_qada_declines_unique
+        ON qada_declines(entry_id, instance_date)
+    """)
+    conn.commit()
+
+
 def migrations():
-    return [_migration_1, _migration_2]
+    return [_migration_1, _migration_2, _migration_3]

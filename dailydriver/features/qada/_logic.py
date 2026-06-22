@@ -114,6 +114,66 @@ def compute_pending_instance(entry, today):
     return next_date
 
 
+def log_fasting(entry_id, now=None):
+    """Log a fasting entry for today. Returns confirmation string.
+    Fails if a decline already exists for today (no is final)."""
+    if now is None:
+        now = time.time()
+
+    import jdatetime
+
+    today = jdatetime.date.today().strftime("%Y-%m-%d")
+
+    with get_connection_cm() as conn:
+        cur = conn.cursor()
+
+        # Check if decline exists for today
+        cur.execute(
+            "SELECT 1 FROM qada_declines WHERE entry_id=? AND instance_date=?",
+            (entry_id, today),
+        )
+        if cur.fetchone():
+            conn.commit()
+            return "Cannot log: you already declined today. Use the manager to edit."
+
+        # Insert log
+        cur.execute(
+            "INSERT INTO qada_logs (entry_id, amount, instance_date, logged_at) VALUES (?,?,?,?)",
+            (entry_id, 1, today, int(now)),
+        )
+        conn.commit()
+
+        cur.execute("SELECT name FROM qada_entries WHERE id=?", (entry_id,))
+        entry = cur.fetchone()
+        name = entry["name"] if entry else str(entry_id)
+        return f"Fasting logged for {name}"
+
+
+def decline_fasting(entry_id, now=None):
+    """Decline a fasting entry for today (no). Returns confirmation string."""
+    if now is None:
+        now = time.time()
+
+    import jdatetime
+
+    today = jdatetime.date.today().strftime("%Y-%m-%d")
+
+    with get_connection_cm() as conn:
+        cur = conn.cursor()
+
+        # Insert decline (idempotent)
+        cur.execute(
+            "INSERT OR IGNORE INTO qada_declines (entry_id, instance_date, logged_at) VALUES (?,?,?)",
+            (entry_id, today, int(now)),
+        )
+        conn.commit()
+
+        cur.execute("SELECT name FROM qada_entries WHERE id=?", (entry_id,))
+        entry = cur.fetchone()
+        name = entry["name"] if entry else str(entry_id)
+        return f"Fasting declined for {name}"
+
+
 def resolve_entry_id(arg):
     """Resolve a command-line argument to an entry ID.
     Numeric → direct ID lookup.
@@ -247,7 +307,7 @@ def qada_command(line: str):
     if sub == "log":
         return _parse_log(parts[2] if len(parts) > 2 else "")
     if sub == "fasting":
-        return "Fasting commands will be available soon."
+        return _parse_fasting(parts[2] if len(parts) > 2 else "")
     return f"Unknown qada sub-command: {sub}"
 
 
@@ -267,3 +327,27 @@ def _parse_log(args_str):
         return f"No qada entry found for '{arg}'."
 
     return log_prayer_qada(entry_id, amount)
+
+
+def _parse_fasting(args_str):
+    """Parse 'qada fasting yes|no' and execute."""
+    tokens = args_str.strip().split()
+    if not tokens or tokens[0] not in ("yes", "no"):
+        return "Usage: qada fasting yes | qada fasting no"
+
+    response = tokens[0]
+
+    # Find the single fasting entry
+    with get_connection_cm(auto=False) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT id FROM qada_entries WHERE kind='fasting' ORDER BY id LIMIT 1")
+        row = cur.fetchone()
+        if not row:
+            return "No fasting entry found. Add one first."
+
+    entry_id = row["id"]
+
+    if response == "yes":
+        return log_fasting(entry_id)
+    else:  # "no"
+        return decline_fasting(entry_id)
