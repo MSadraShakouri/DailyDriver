@@ -1,11 +1,10 @@
 # dailydriver/features/qada/__init__.py
 """Qada feature – prayer backlog and fasting."""
 
+from . import _header, _logic, _migrations
+
 NAME = "qada"
 VERSION = "1.0.0"
-
-
-from . import _header, _logic, _migrations
 
 
 def register_commands(dispatch):

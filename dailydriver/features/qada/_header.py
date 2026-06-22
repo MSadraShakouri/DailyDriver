@@ -5,7 +5,7 @@ from datetime import datetime
 
 import jdatetime
 
-from dailydriver.features.qada._logic import VALID_PRAYER_SLOTS, compute_pending_instance, list_entries
+from dailydriver.features.qada._logic import compute_pending_instance, list_entries
 from dailydriver.utils.prayer_times import get_approximate_times
 
 
