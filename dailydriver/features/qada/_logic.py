@@ -248,14 +248,16 @@ def compute_pending_instance(entry, today):
 
 
 def log_fasting(entry_id, now=None):
-    """Log a fasting entry for today. Returns confirmation string.
-    Fails if a decline already exists for today (no is final)."""
+    """Log a fasting entry for today's pending instance. Returns confirmation string.
+    Fails if a decline already exists for today (no is final).
+    Uses the pending instance date (not hardcoded today)."""
     if now is None:
         now = time.time()
 
     import jdatetime
 
-    today = jdatetime.date.today().strftime("%Y-%m-%d")
+    today_j = jdatetime.date.today()
+    today_str = today_j.strftime("%Y-%m-%d")
 
     with get_connection_cm() as conn:
         cur = conn.cursor()
@@ -263,26 +265,48 @@ def log_fasting(entry_id, now=None):
         # Check if decline exists for today
         cur.execute(
             "SELECT 1 FROM qada_declines WHERE entry_id=? AND instance_date=?",
-            (entry_id, today),
+            (entry_id, today_str),
         )
         if cur.fetchone():
-            # Decline exists – refuse to log
             return "Cannot log: you already declined today. Use the manager to edit."
 
-        # Get current logged total and target
-        cur.execute("SELECT logged_total, target_total FROM qada_entries WHERE id=?", (entry_id,))
+        # Get the entry
+        cur.execute("SELECT * FROM qada_entries WHERE id=?", (entry_id,))
         row = cur.fetchone()
         if not row:
             return "Entry not found."
+        entry = dict(row)
 
-        logged = row["logged_total"]
-        target = row["target_total"]
+        # Compute pending instance
+        pending = compute_pending_instance(entry, today_j)
+        if pending is None:
+            return "No pending fasting instance."
 
-        # target=-1 means unbounded (no cap)
+        # If pending is not today, we still log against that date (past fast)
+        instance_date = pending.strftime("%Y-%m-%d")
+
+        # Check if there's already a log or decline for that instance date
+        cur.execute(
+            "SELECT 1 FROM qada_logs WHERE entry_id=? AND instance_date=?",
+            (entry_id, instance_date),
+        )
+        if cur.fetchone():
+            return f"Already logged for {instance_date}."
+
+        cur.execute(
+            "SELECT 1 FROM qada_declines WHERE entry_id=? AND instance_date=?",
+            (entry_id, instance_date),
+        )
+        if cur.fetchone():
+            # Decline exists for this instance – refuse (no is final)
+            return f"Cannot log: you already declined for {instance_date}."
+
+        logged = entry.get("logged_total", 0)
+        target = entry.get("target_total", -1)
+
         if target == 0:
             return "Target is 0. Nothing to log."
 
-        # Determine amount to log (always 1 for fasting)
         amount = 1
         if target != -1 and logged + amount > target:
             amount = target - logged
@@ -292,9 +316,8 @@ def log_fasting(entry_id, now=None):
         # Insert log
         cur.execute(
             "INSERT INTO qada_logs (entry_id, amount, instance_date, logged_at) VALUES (?,?,?,?)",
-            (entry_id, amount, today, int(now)),
+            (entry_id, amount, instance_date, int(now)),
         )
-        # Update logged_total
         cur.execute(
             "UPDATE qada_entries SET logged_total = logged_total + ? WHERE id=?",
             (amount, entry_id),

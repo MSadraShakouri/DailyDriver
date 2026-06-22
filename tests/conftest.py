@@ -22,3 +22,21 @@ def isolated_db(_session_db_path, tmp_path, monkeypatch):
     shutil.copy2(_session_db_path, db_copy)
     monkeypatch.setenv("DAILYDRIVER_DB", str(db_copy))
     yield db_copy
+
+
+@pytest.fixture
+def fresh_conn():
+    """Return a fresh connection factory that provides a NEW connection each call.
+    Proves writes persisted across connection boundaries."""
+    from dailydriver.core.database import get_connection
+
+    conns = []
+
+    def _get():
+        c = get_connection(auto=False)
+        conns.append(c)
+        return c
+
+    yield _get
+    for c in conns:
+        c.close()
