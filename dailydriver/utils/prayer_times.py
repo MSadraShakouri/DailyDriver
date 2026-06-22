@@ -1,4 +1,4 @@
-# dailydriver/domains/prayer_times.py
+# dailydriver/utils/prayer_times.py
 """Tehran prayer times based on University of Tehran calendar (1403).
 Data for 1st, 8th, 15th, 22nd of each Jalali month.
 Times are interpolated for dates in between.

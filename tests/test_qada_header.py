@@ -18,8 +18,10 @@ class TestQadaHeaderNudges(unittest.TestCase):
         for mig in migrations():
             mig(self.conn)
         self.today = jdatetime.date.today()
-        # Add a daily Fajr entry
-        self.conn.execute("INSERT INTO qada_entries (name, kind, interval_type) VALUES ('fajr', 'prayer', 'daily')")
+        # Add a daily Fajr entry with slot set
+        self.conn.execute(
+            "INSERT INTO qada_entries (name, kind, interval_type, slot) VALUES ('fajr', 'prayer', 'daily', 'fajr')"
+        )
         self.conn.commit()
         self.entry = dict(self.conn.execute("SELECT * FROM qada_entries WHERE name='fajr'").fetchone())
 

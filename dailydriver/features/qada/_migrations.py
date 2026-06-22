@@ -41,5 +41,21 @@ def _migration_1(conn):
     conn.commit()
 
 
+def _migration_2(conn):
+    """Add slot column to qada_entries and backfill for existing prayer entries."""
+    cur = conn.cursor()
+    cur.execute("PRAGMA table_info(qada_entries)")
+    cols = [row[1] for row in cur.fetchall()]
+    if "slot" not in cols:
+        cur.execute("ALTER TABLE qada_entries ADD COLUMN slot TEXT")
+        # Backfill: derive slot from name for existing prayer entries
+        cur.execute("SELECT id, name FROM qada_entries WHERE kind='prayer'")
+        for row in cur.fetchall():
+            derived = row["name"].lower().replace(" ", "_")
+            if derived in ("fajr", "dhuhr_asr", "maghrib_isha"):
+                cur.execute("UPDATE qada_entries SET slot=? WHERE id=?", (derived, row["id"]))
+    conn.commit()
+
+
 def migrations():
-    return [_migration_1]
+    return [_migration_1, _migration_2]

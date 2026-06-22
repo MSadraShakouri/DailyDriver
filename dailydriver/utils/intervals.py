@@ -8,7 +8,7 @@ Interval types and their value encoding (TEXT column):
   monthly  : "1,15"       (comma‑separated day numbers)
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import jdatetime
 

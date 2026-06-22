@@ -7,7 +7,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from datetime import datetime
 
-from dailydriver.features.prayer._prayer_times import get_approximate_times
+from dailydriver.utils.prayer_times import get_approximate_times
 
 
 def test_get_approximate_times():

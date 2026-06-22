@@ -21,10 +21,10 @@ class TestQadaPrayerLogic(unittest.TestCase):
     def tearDown(self):
         self.conn.close()
 
-    def _add(self, name="fajr", kind="prayer", interval_type="daily", interval_value=None):
+    def _add(self, name="fajr", kind="prayer", interval_type="daily", interval_value=None, slot=None):
         self.conn.execute(
-            "INSERT INTO qada_entries (name, kind, interval_type, interval_value) VALUES (?,?,?,?)",
-            (name, kind, interval_type, interval_value),
+            "INSERT INTO qada_entries (name, kind, interval_type, interval_value, slot) VALUES (?,?,?,?,?)",
+            (name, kind, interval_type, interval_value, slot),
         )
         self.conn.commit()
         return self.conn.execute("SELECT id FROM qada_entries WHERE name=?", (name,)).fetchone()["id"]
@@ -32,13 +32,13 @@ class TestQadaPrayerLogic(unittest.TestCase):
     @patch("dailydriver.features.qada._logic.get_connection_cm")
     def test_add_entry_returns_id(self, mock_cm):
         mock_cm.return_value.__enter__.return_value = self.conn
-        eid = _logic.add_entry("fajr", "prayer", "daily")
+        eid = _logic.add_entry("fajr", "prayer", "daily", slot="fajr")
         self.assertIsNotNone(eid)
 
     @patch("dailydriver.features.qada._logic.get_connection_cm")
     def test_log_prayer_qada_writes_correct_amount(self, mock_cm):
         mock_cm.return_value.__enter__.return_value = self.conn
-        eid = self._add()
+        eid = self._add("fajr", "prayer", "daily", slot="fajr")
         _logic.log_prayer_qada(eid, 1)
         row = self.conn.execute("SELECT amount FROM qada_logs WHERE entry_id=?", (eid,)).fetchone()
         self.assertEqual(row["amount"], 1)
@@ -46,7 +46,7 @@ class TestQadaPrayerLogic(unittest.TestCase):
     @patch("dailydriver.features.qada._logic.get_connection_cm")
     def test_log_prayer_qada_amount_4_writes_single_row(self, mock_cm):
         mock_cm.return_value.__enter__.return_value = self.conn
-        eid = self._add()
+        eid = self._add("fajr", "prayer", "daily", slot="fajr")
         _logic.log_prayer_qada(eid, 4)
         count = self.conn.execute("SELECT COUNT(*) FROM qada_logs WHERE entry_id=?", (eid,)).fetchone()[0]
         self.assertEqual(count, 1)
@@ -56,7 +56,7 @@ class TestQadaPrayerLogic(unittest.TestCase):
     @patch("dailydriver.features.qada._logic.get_connection_cm")
     def test_compute_pending_instance_first_time_uses_reference_date(self, mock_cm):
         mock_cm.return_value.__enter__.return_value = self.conn
-        eid = self._add(interval_type="n_days", interval_value="3")
+        eid = self._add("fajr", "prayer", interval_type="n_days", interval_value="3", slot="fajr")
         entry = dict(self.conn.execute("SELECT * FROM qada_entries WHERE id=?", (eid,)).fetchone())
         inst = _logic.compute_pending_instance(entry, self.today)
         self.assertEqual(inst, self.today)
@@ -64,7 +64,7 @@ class TestQadaPrayerLogic(unittest.TestCase):
     @patch("dailydriver.features.qada._logic.get_connection_cm")
     def test_compute_pending_instance_after_log_uses_intervals(self, mock_cm):
         mock_cm.return_value.__enter__.return_value = self.conn
-        eid = self._add(interval_type="n_days", interval_value="3")
+        eid = self._add("fajr", "prayer", interval_type="n_days", interval_value="3", slot="fajr")
         entry = dict(self.conn.execute("SELECT * FROM qada_entries WHERE id=?", (eid,)).fetchone())
         self.conn.execute(
             "INSERT INTO qada_logs (entry_id, instance_date, amount) VALUES (?,?,?)",
@@ -78,7 +78,7 @@ class TestQadaPrayerLogic(unittest.TestCase):
     @patch("dailydriver.features.qada._logic.get_connection_cm")
     def test_log_with_amount_n_defers_next_instance_by_n_intervals(self, mock_cm):
         mock_cm.return_value.__enter__.return_value = self.conn
-        eid = self._add(interval_type="n_days", interval_value="1")
+        eid = self._add("fajr", "prayer", interval_type="n_days", interval_value="1", slot="fajr")
         entry = dict(self.conn.execute("SELECT * FROM qada_entries WHERE id=?", (eid,)).fetchone())
         self.conn.execute(
             "INSERT INTO qada_logs (entry_id, instance_date, amount) VALUES (?,?,?)",
@@ -92,7 +92,7 @@ class TestQadaPrayerLogic(unittest.TestCase):
     @patch("dailydriver.features.qada._logic.get_connection_cm")
     def test_paused_entry_has_no_pending_instance(self, mock_cm):
         mock_cm.return_value.__enter__.return_value = self.conn
-        eid = self._add(interval_type="daily")
+        eid = self._add("fajr", "prayer", interval_type="daily", slot="fajr")
         self.conn.execute(
             "UPDATE qada_entries SET paused_from=?, paused_until=? WHERE id=?",
             (self.today.strftime("%Y-%m-%d"), self.today.strftime("%Y-%m-%d"), eid),
@@ -105,7 +105,7 @@ class TestQadaPrayerLogic(unittest.TestCase):
     @patch("dailydriver.features.qada._logic.get_connection_cm")
     def test_unpause_creates_fresh_instance_from_today(self, mock_cm):
         mock_cm.return_value.__enter__.return_value = self.conn
-        eid = self._add(interval_type="daily")
+        eid = self._add("fajr", "prayer", interval_type="daily", slot="fajr")
         yesterday = self.today - jdatetime.timedelta(days=1)
         self.conn.execute(
             "UPDATE qada_entries SET paused_from=?, paused_until=? WHERE id=?",
@@ -119,21 +119,21 @@ class TestQadaPrayerLogic(unittest.TestCase):
     @patch("dailydriver.features.qada._logic.get_connection_cm")
     def test_qada_log_slot_name_resolves_to_entry(self, mock_cm):
         mock_cm.return_value.__enter__.return_value = self.conn
-        eid = self._add(name="fajr")
+        eid = self._add("fajr", "prayer", slot="fajr")
         resolved = _logic.resolve_entry_id("fajr")
         self.assertEqual(resolved, eid)
 
     @patch("dailydriver.features.qada._logic.get_connection_cm")
     def test_qada_log_numeric_resolves_to_id(self, mock_cm):
         mock_cm.return_value.__enter__.return_value = self.conn
-        eid = self._add(name="fajr")
+        eid = self._add("fajr", "prayer", slot="fajr")
         resolved = _logic.resolve_entry_id(str(eid))
         self.assertEqual(resolved, eid)
 
     @patch("dailydriver.features.qada._logic.get_connection_cm")
     def test_delete_cascades_to_logs(self, mock_cm):
         mock_cm.return_value.__enter__.return_value = self.conn
-        eid = self._add()
+        eid = self._add("fajr", "prayer", slot="fajr")
         self.conn.execute(
             "INSERT INTO qada_logs (entry_id, instance_date, amount) VALUES (?,?,?)",
             (eid, self.today.strftime("%Y-%m-%d"), 1),
@@ -146,7 +146,7 @@ class TestQadaPrayerLogic(unittest.TestCase):
     @patch("dailydriver.features.qada._logic.get_connection_cm")
     def test_edit_interval_mid_instance_resets_schedule(self, mock_cm):
         mock_cm.return_value.__enter__.return_value = self.conn
-        eid = self._add(interval_type="daily")
+        eid = self._add("fajr", "prayer", interval_type="daily", slot="fajr")
         self.conn.execute(
             "INSERT INTO qada_logs (entry_id, instance_date, amount) VALUES (?,?,?)",
             (eid, self.today.strftime("%Y-%m-%d"), 1),
@@ -157,3 +157,7 @@ class TestQadaPrayerLogic(unittest.TestCase):
         inst = _logic.compute_pending_instance(entry, self.today)
         self.assertIsNotNone(inst)
         self.assertEqual(inst.weekday(), 2)  # Monday
+
+
+if __name__ == "__main__":
+    unittest.main()

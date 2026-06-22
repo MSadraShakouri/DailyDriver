@@ -5,8 +5,8 @@ from datetime import datetime
 
 import jdatetime
 
-from dailydriver.features.prayer._prayer_times import get_approximate_times
-from dailydriver.features.qada._logic import compute_pending_instance, list_entries
+from dailydriver.features.qada._logic import VALID_PRAYER_SLOTS, compute_pending_instance, list_entries
+from dailydriver.utils.prayer_times import get_approximate_times
 
 
 def get_prayer_nudges(conn, target_date, now=None):
@@ -38,9 +38,9 @@ def get_prayer_nudges(conn, target_date, now=None):
             continue
 
         # Determine the prayer time for this slot
-        slot_name = entry["name"].lower().replace(" ", "_")
-        if slot_name not in prayer_times:
-            continue
+        slot_name = entry.get("slot")
+        if slot_name is None or slot_name not in prayer_times:
+            continue  # skip misnamed or legacy entries
 
         hour, minute = prayer_times[slot_name]
         prayer_dt = now.replace(hour=hour, minute=minute, second=0, microsecond=0)

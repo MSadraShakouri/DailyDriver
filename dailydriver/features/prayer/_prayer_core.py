@@ -3,7 +3,7 @@ from datetime import datetime
 
 import jdatetime
 
-from ._prayer_times import get_approximate_times
+from dailydriver.utils.prayer_times import get_approximate_times
 
 PRAYER_SLOTS = ["fajr", "dhuhr_asr", "maghrib_isha"]
 

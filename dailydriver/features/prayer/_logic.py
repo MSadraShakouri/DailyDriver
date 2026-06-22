@@ -4,4 +4,3 @@
 from ._prayer_backlog import _update_complete_until, log_qada  # noqa: F401
 from ._prayer_core import PRAYER_SLOTS, current_slot  # noqa: F401
 from ._prayer_log import log_prayer  # noqa: F401 (re‑exported)
-from ._prayer_times import get_approximate_times  # noqa: F401

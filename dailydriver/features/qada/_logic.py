@@ -6,18 +6,23 @@ import time
 from dailydriver.core.database import get_connection_cm
 from dailydriver.utils.intervals import next_instance_date
 
+VALID_PRAYER_SLOTS = ("fajr", "dhuhr_asr", "maghrib_isha")
+
 # ---------------------------------------------------------------------------
 #  Public API
 # ---------------------------------------------------------------------------
 
 
-def add_entry(name, kind, interval_type=None, interval_value=None):
+def add_entry(name, kind, interval_type=None, interval_value=None, slot=None):
     """Insert a new qada entry. Returns the new entry ID."""
+    if kind == "prayer":
+        if slot not in VALID_PRAYER_SLOTS:
+            raise ValueError(f"slot must be one of {VALID_PRAYER_SLOTS} for prayer entries")
     with get_connection_cm() as conn:
         cur = conn.cursor()
         cur.execute(
-            "INSERT INTO qada_entries (name, kind, interval_type, interval_value) VALUES (?,?,?,?)",
-            (name, kind, interval_type, interval_value),
+            "INSERT INTO qada_entries (name, kind, interval_type, interval_value, slot) VALUES (?,?,?,?,?)",
+            (name, kind, interval_type, interval_value, slot),
         )
         conn.commit()
         return cur.lastrowid
@@ -111,13 +116,22 @@ def compute_pending_instance(entry, today):
 
 def resolve_entry_id(arg):
     """Resolve a command-line argument to an entry ID.
-    Numeric → direct ID lookup. Otherwise → match by name.
+    Numeric → direct ID lookup.
+    Otherwise: try slot lookup (for prayer entries), then fall back to name.
     Returns the entry ID or None."""
     with get_connection_cm(auto=False) as conn:
         cur = conn.cursor()
         if arg.isdigit():
             cur.execute("SELECT id FROM qada_entries WHERE id=?", (int(arg),))
         else:
+            # Try slot lookup first (for prayer entries)
+            slot_candidate = arg.lower().replace(" ", "_")
+            if slot_candidate in VALID_PRAYER_SLOTS:
+                cur.execute("SELECT id FROM qada_entries WHERE kind='prayer' AND slot=?", (slot_candidate,))
+                row = cur.fetchone()
+                if row:
+                    return row["id"]
+            # Fall back to name lookup
             cur.execute("SELECT id FROM qada_entries WHERE name=?", (arg,))
         row = cur.fetchone()
         return row["id"] if row else None
