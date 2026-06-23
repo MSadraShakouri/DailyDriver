@@ -62,18 +62,18 @@ def header_sections(conn, today, target_date, is_today):
     # --- assemble results with priorities ---
     result = []
     if reminder_lines:
-        result.append((33, ""))  # breather before reminders
+        result.append((35, ""))  # breather before reminders
         for line in reminder_lines:
-            result.append((34, line))
-    if tomorrow_lines:
-        result.append((35, ""))  # breather before tomorrow
-        for line in tomorrow_lines:
             result.append((36, line))
+    if tomorrow_lines:
+        result.append((40, ""))  # breather before tomorrow
+        for line in tomorrow_lines:
+            result.append((41, line))
     if calendar_lines:
-        result.append((37, ""))  # breather before today's events
+        result.append((45, ""))  # breather before today's events
         for line in calendar_lines:
-            result.append((38, line))
+            result.append((46, line))
     if reminders_str:
-        result.append((39, reminders_str))
+        result.append((50, reminders_str))
 
     return result
