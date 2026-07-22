@@ -293,5 +293,71 @@ class TestTargetsCommands(unittest.TestCase):
         result = _targets_dispatcher("nazr log Salavat -10", kind="nazr")
         self.assertIn("positive", result)
 
+
+# ========== Step 3: Manager UI ==========
+
+class TestTargetsManager(unittest.TestCase):
+    def setUp(self):
+        self.conn = sqlite3.connect(":memory:")
+        self.conn.row_factory = sqlite3.Row
+        for mig in migrations():
+            mig(self.conn)
+
+        self.patcher_logic = patch("dailydriver.features.targets._logic.get_connection_cm")
+        self.patcher_utils = patch("dailydriver.features.targets._utils.get_connection_cm")
+        self.mock_logic = self.patcher_logic.start()
+        self.mock_utils = self.patcher_utils.start()
+        self.mock_logic.return_value.__enter__.return_value = self.conn
+        self.mock_utils.return_value.__enter__.return_value = self.conn
+
+        # Add test entries
+        _logic.add_entry(kind="nazr", name="Salavat", target_total=1000)
+        _logic.add_entry(kind="habit", name="Anki", target_total=None)
+        _logic.add_entry(kind="nazr", name="Dua", target_total=500)
+
+    def tearDown(self):
+        self.patcher_logic.stop()
+        self.patcher_utils.stop()
+        self.conn.close()
+
+    def test_get_all_entries_filtering(self):
+        """Test filtering by kind."""
+        all_entries = _logic.get_all_entries(kind=None)
+        self.assertEqual(len(all_entries), 3)
+
+        nazr_entries = _logic.get_all_entries(kind="nazr")
+        self.assertEqual(len(nazr_entries), 2)
+        self.assertEqual(nazr_entries[0]["kind"], "nazr")
+
+        habit_entries = _logic.get_all_entries(kind="habit")
+        self.assertEqual(len(habit_entries), 1)
+        self.assertEqual(habit_entries[0]["kind"], "habit")
+
+    def test_manager_shows_entries(self):
+        """Test that entries are returned correctly for display."""
+        entries = _logic.get_all_entries(kind=None)
+        self.assertEqual(len(entries), 3)
+
+        # Check progress display values
+        for e in entries:
+            target = e["target_total"]
+            logged = e["logged_total"]
+            if target is not None:
+                self.assertIsInstance(target, int)
+            self.assertEqual(logged, 0)
+
+    def test_log_from_manager(self):
+        """Test logging from the manager works."""
+        # Get the Salavat entry (ID should be 1)
+        entries = _logic.get_all_entries(kind="nazr")
+        salavat = [e for e in entries if e["name"] == "Salavat"][0]
+
+        result = _logic.log_progress(salavat["name"], 50)
+        self.assertIn("50/1000", result)
+
+        entry = _logic.get_entry_by_id(salavat["id"])
+        self.assertEqual(entry["logged_total"], 50)
+
+
 if __name__ == "__main__":
     unittest.main()

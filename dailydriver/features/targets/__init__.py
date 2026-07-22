@@ -1,6 +1,7 @@
 """Targets feature – tracking nazr (finite) and habit (indefinite)."""
 
 from . import _logic, _migrations
+from ._manager import show_manager
 
 NAME = "targets"
 VERSION = "1.0.0"
@@ -19,9 +20,10 @@ def _targets_dispatcher(cmd: str, kind: str | None = None):
     """
     parts = cmd.strip().split()
     
-    # Bare command: open manager (Step 3)
+    # Bare command: open manager
     if len(parts) == 1:
-        return "Manager not implemented yet (Step 3)"
+        show_manager(kind=kind)
+        return None
     
     # Parse sub-command
     sub = parts[1].lower()
