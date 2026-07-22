@@ -81,4 +81,4 @@ def header_sections(conn, today, target_date, is_today):
         return []
     lines = get_targets_header_lines(conn)
     # Priority 40 — after hygiene (30), before calendar events (45)
-    return [(40, line) for line in lines]
+    return [(31, line) for line in lines]
