@@ -1,6 +1,6 @@
 """Targets feature – tracking nazr (finite) and habit (indefinite)."""
 
-from . import _logic, _migrations
+from . import _header, _logic, _migrations
 from ._manager import show_manager
 
 NAME = "targets"
@@ -9,6 +9,11 @@ VERSION = "1.0.0"
 
 def migrations():
     return _migrations.migrations()
+
+
+def header_sections(conn, today, target_date, is_today):
+    """Header integration hook."""
+    return _header.header_sections(conn, today, target_date, is_today)
 
 
 def _targets_dispatcher(cmd: str, kind: str | None = None):

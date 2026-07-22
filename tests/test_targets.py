@@ -476,5 +476,146 @@ class TestTargetsAdvanced(unittest.TestCase):
             self.assertEqual(count, 0)
 
 
+# ========== Step 5: Header Integration ==========
+
+class TestTargetsHeader(unittest.TestCase):
+    def setUp(self):
+        self.conn = sqlite3.connect(":memory:")
+        self.conn.row_factory = sqlite3.Row
+        self.conn.execute("PRAGMA foreign_keys = ON")
+        for mig in migrations():
+            mig(self.conn)
+
+        self.patcher_logic = patch("dailydriver.features.targets._logic.get_connection_cm")
+        self.patcher_utils = patch("dailydriver.features.targets._utils.get_connection_cm")
+        self.mock_logic = self.patcher_logic.start()
+        self.mock_utils = self.patcher_utils.start()
+        self.mock_logic.return_value.__enter__.return_value = self.conn
+        self.mock_utils.return_value.__enter__.return_value = self.conn
+
+    def tearDown(self):
+        self.patcher_logic.stop()
+        self.patcher_utils.stop()
+        self.conn.close()
+
+    def test_header_shows_due_entry(self):
+        """Test 12: Entry due today shows in header."""
+        today = jdatetime.date.today()
+
+        # Add an entry with daily interval, due today
+        _logic.add_entry(
+            kind="nazr",
+            name="Salavat",
+            target_total=1000,
+            interval_type="daily",
+            interval_value=1,
+            target_per_interval=100,
+        )
+
+        # Get header lines
+        from dailydriver.features.targets._header import get_targets_header_lines
+        lines = get_targets_header_lines(self.conn)
+
+        # Should show Salavat: 0/100 for today
+        self.assertEqual(len(lines), 1)
+        self.assertIn("Salavat", lines[0])
+        self.assertIn("0/100", lines[0])
+        self.assertIn("for today", lines[0])
+
+    def test_header_does_not_show_when_goal_met(self):
+        """Test 13: Entry disappears from header after meeting today's goal."""
+        today = jdatetime.date.today()
+
+        _logic.add_entry(
+            kind="nazr",
+            name="Salavat",
+            target_total=1000,
+            interval_type="daily",
+            interval_value=1,
+            target_per_interval=100,
+        )
+
+        # Log 100 today (meet the goal)
+        _logic.log_progress("Salavat", 100)
+
+        from dailydriver.features.targets._header import get_targets_header_lines
+        lines = get_targets_header_lines(self.conn)
+
+        # Should not show (goal already met today)
+        self.assertEqual(len(lines), 0)
+
+    def test_header_does_not_show_complete_entry(self):
+        """Test 14: Complete entry (logged >= target) does not show in header."""
+        _logic.add_entry(
+            kind="nazr",
+            name="Salavat",
+            target_total=50,
+            interval_type="daily",
+            interval_value=1,
+            target_per_interval=10,
+        )
+
+        # Log to complete it
+        _logic.log_progress("Salavat", 50)
+
+        from dailydriver.features.targets._header import get_targets_header_lines
+        lines = get_targets_header_lines(self.conn)
+
+        self.assertEqual(len(lines), 0)
+
+    def test_header_does_not_show_paused_entry(self):
+        """Test 15: Paused entry does not show in header."""
+        today = jdatetime.date.today()
+
+        eid = _logic.add_entry(
+            kind="nazr",
+            name="Salavat",
+            target_total=1000,
+            interval_type="daily",
+            interval_value=1,
+            target_per_interval=100,
+        )
+
+        # Pause for 3 days
+        _logic.toggle_pause(eid, 3)
+
+        from dailydriver.features.targets._header import get_targets_header_lines
+        lines = get_targets_header_lines(self.conn)
+
+        self.assertEqual(len(lines), 0)
+
+    def test_header_shows_both_kinds(self):
+        """Test 16: Header shows both nazr and habit entries."""
+        today = jdatetime.date.today()
+
+        _logic.add_entry(
+            kind="nazr",
+            name="Salavat",
+            target_total=1000,
+            interval_type="daily",
+            interval_value=1,
+            target_per_interval=100,
+        )
+
+        _logic.add_entry(
+            kind="habit",
+            name="Anki",
+            target_total=None,
+            interval_type="daily",
+            interval_value=1,
+            target_per_interval=10,
+        )
+
+        from dailydriver.features.targets._header import get_targets_header_lines
+        lines = get_targets_header_lines(self.conn)
+
+        # Should show both
+        self.assertEqual(len(lines), 2)
+        self.assertTrue(any("Salavat" in l for l in lines))
+        self.assertTrue(any("Anki" in l for l in lines))
+        self.assertTrue(any("🎯" in l for l in lines))
+        self.assertTrue(any("📊" in l for l in lines))
+
+
 if __name__ == "__main__":
     unittest.main()
