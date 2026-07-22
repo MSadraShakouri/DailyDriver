@@ -186,3 +186,117 @@ def handle_log_command(cmd: str, kind: str | None = None) -> str:
         return "Amount must be positive."
 
     return log_progress(name, amount, expected_kind=kind)
+
+
+# ========== Pause, Edit, Delete ==========
+
+def toggle_pause(entry_id: int, days: int | None = None) -> str:
+    """
+    Toggle pause for an entry.
+    If paused, unpause. If not paused, pause for N days (default 1).
+    Returns a confirmation string.
+    """
+    entry = get_entry_by_id(entry_id)
+    if not entry:
+        return f"Entry {entry_id} not found."
+
+    today = jdatetime.date.today()
+    paused_until = entry.get("paused_until")
+
+    # Check if currently paused
+    is_paused = False
+    if paused_until:
+        try:
+            y, m, d = map(int, paused_until.split("-"))
+            pause_date = jdatetime.date(y, m, d)
+            if pause_date >= today:
+                is_paused = True
+        except (ValueError, TypeError):
+            pass
+
+    with get_connection_cm(auto=False) as conn:
+        cur = conn.cursor()
+
+        if is_paused:
+            # Unpause: clear paused_until
+            cur.execute(
+                "UPDATE target_entries SET paused_until = NULL WHERE id = ?",
+                (entry_id,)
+            )
+            conn.commit()
+            return f"Unpaused: {entry['name']}"
+        else:
+            # Pause for N days
+            if days is None:
+                days = 1
+            pause_date = today + jdatetime.timedelta(days=days)
+            cur.execute(
+                "UPDATE target_entries SET paused_until = ? WHERE id = ?",
+                (pause_date.strftime("%Y-%m-%d"), entry_id)
+            )
+            conn.commit()
+            return f"Paused {entry['name']} until {pause_date.strftime('%Y-%m-%d')} ({days} days)"
+
+
+def edit_entry(entry_id: int, **kwargs) -> str:
+    """
+    Edit fields of a target entry.
+    Allowed fields: name, target_total, interval_type, interval_value, target_per_interval.
+    Returns a confirmation string.
+    """
+    entry = get_entry_by_id(entry_id)
+    if not entry:
+        return f"Entry {entry_id} not found."
+
+    allowed = {"name", "target_total", "interval_type", "interval_value", "target_per_interval"}
+    updates = {k: v for k, v in kwargs.items() if k in allowed}
+
+    if not updates:
+        return "No fields to update."
+
+    # Validate target_total
+    if "target_total" in updates and updates["target_total"] is not None:
+        if updates["target_total"] <= 0:
+            return "Target must be positive or None."
+
+    # Validate interval_type
+    if "interval_type" in updates and updates["interval_type"] is not None:
+        if updates["interval_type"] not in ("daily", "weekly", "n_days"):
+            return "interval_type must be 'daily', 'weekly', 'n_days', or None"
+
+    # Validate interval_value
+    if "interval_value" in updates and updates["interval_value"] is not None:
+        iv = updates["interval_value"]
+        itype = updates.get("interval_type", entry.get("interval_type"))
+        if itype == "weekly" and not (0 <= iv <= 6):
+            return "weekly interval_value must be 0-6 (Sat-Fri)"
+        if itype == "n_days" and iv <= 0:
+            return "n_days interval_value must be positive"
+
+    # Build SQL
+    set_clause = ", ".join(f"{k} = ?" for k in updates)
+    values = list(updates.values()) + [entry_id]
+
+    with get_connection_cm(auto=False) as conn:
+        cur = conn.cursor()
+        cur.execute(f"UPDATE target_entries SET {set_clause} WHERE id = ?", values)
+        conn.commit()
+
+    return f"Updated: {entry['name']}"
+
+
+def delete_entry(entry_id: int) -> str:
+    """
+    Delete a target entry and all its logs (cascade).
+    Returns a confirmation string.
+    """
+    entry = get_entry_by_id(entry_id)
+    if not entry:
+        return f"Entry {entry_id} not found."
+
+    with get_connection_cm(auto=False) as conn:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM target_entries WHERE id = ?", (entry_id,))
+        conn.commit()
+
+    return f"Deleted: {entry['name']}"

@@ -15,6 +15,7 @@ class TestTargetsCore(unittest.TestCase):
         """Set up an in-memory database with migrations applied."""
         self.conn = sqlite3.connect(":memory:")
         self.conn.row_factory = sqlite3.Row
+        self.conn.execute("PRAGMA foreign_keys = ON")
 
         # Run migrations
         for mig in migrations():
@@ -223,6 +224,7 @@ class TestTargetsCommands(unittest.TestCase):
     def setUp(self):
         self.conn = sqlite3.connect(":memory:")
         self.conn.row_factory = sqlite3.Row
+        self.conn.execute("PRAGMA foreign_keys = ON")
         for mig in migrations():
             mig(self.conn)
 
@@ -300,6 +302,7 @@ class TestTargetsManager(unittest.TestCase):
     def setUp(self):
         self.conn = sqlite3.connect(":memory:")
         self.conn.row_factory = sqlite3.Row
+        self.conn.execute("PRAGMA foreign_keys = ON")
         for mig in migrations():
             mig(self.conn)
 
@@ -357,6 +360,120 @@ class TestTargetsManager(unittest.TestCase):
 
         entry = _logic.get_entry_by_id(salavat["id"])
         self.assertEqual(entry["logged_total"], 50)
+
+
+# ========== Step 4: Advanced Manager Features ==========
+
+class TestTargetsAdvanced(unittest.TestCase):
+    def setUp(self):
+        self.conn = sqlite3.connect(":memory:")
+        self.conn.row_factory = sqlite3.Row
+        self.conn.execute("PRAGMA foreign_keys = ON")
+        for mig in migrations():
+            mig(self.conn)
+
+        self.patcher_logic = patch("dailydriver.features.targets._logic.get_connection_cm")
+        self.patcher_utils = patch("dailydriver.features.targets._utils.get_connection_cm")
+        self.mock_logic = self.patcher_logic.start()
+        self.mock_utils = self.patcher_utils.start()
+        self.mock_logic.return_value.__enter__.return_value = self.conn
+        self.mock_utils.return_value.__enter__.return_value = self.conn
+
+        # Add a test entry
+        _logic.add_entry(
+            kind="nazr",
+            name="Salavat",
+            target_total=1000,
+            interval_type="daily",
+            interval_value=1,
+            target_per_interval=100,
+        )
+
+    def tearDown(self):
+        self.patcher_logic.stop()
+        self.patcher_utils.stop()
+        self.conn.close()
+
+    def test_pause_unpause(self):
+        """Test 9: Pause and unpause an entry."""
+        entry = _logic.get_entry_by_name("Salavat")
+        entry_id = entry["id"]
+        today = jdatetime.date.today()
+
+        # Pause for 3 days
+        result = _logic.toggle_pause(entry_id, 3)
+        self.assertIn("Paused", result)
+        self.assertIn("3 days", result)
+
+        # Check paused_until is set
+        entry = _logic.get_entry_by_id(entry_id)
+        paused_until = entry.get("paused_until")
+        self.assertIsNotNone(paused_until)
+        y, m, d = map(int, paused_until.split("-"))
+        pause_date = jdatetime.date(y, m, d)
+        expected = today + jdatetime.timedelta(days=3)
+        self.assertEqual(pause_date, expected)
+
+        # Unpause
+        result = _logic.toggle_pause(entry_id)
+        self.assertIn("Unpaused", result)
+
+        # Check paused_until is cleared
+        entry = _logic.get_entry_by_id(entry_id)
+        self.assertIsNone(entry.get("paused_until"))
+
+    def test_edit_entry(self):
+        """Test 10: Edit an entry."""
+        entry = _logic.get_entry_by_name("Salavat")
+        entry_id = entry["id"]
+
+        # Edit name
+        result = _logic.edit_entry(entry_id, name="SalavatNew")
+        self.assertIn("Updated", result)
+
+        entry = _logic.get_entry_by_id(entry_id)
+        self.assertEqual(entry["name"], "SalavatNew")
+
+        # Edit target
+        result = _logic.edit_entry(entry_id, target_total=2000)
+        entry = _logic.get_entry_by_id(entry_id)
+        self.assertEqual(entry["target_total"], 2000)
+
+        # Edit interval
+        result = _logic.edit_entry(entry_id, interval_type="weekly", interval_value=2)
+        entry = _logic.get_entry_by_id(entry_id)
+        self.assertEqual(entry["interval_type"], "weekly")
+        self.assertEqual(entry["interval_value"], 2)
+
+    def test_delete_cascade(self):
+        """Test 11: Delete entry cascades to logs."""
+        entry = _logic.get_entry_by_name("Salavat")
+        entry_id = entry["id"]
+
+        # Log some progress
+        _logic.log_progress("Salavat", 50)
+
+        # Verify log exists
+        with self.conn:
+            cur = self.conn.cursor()
+            cur.execute("SELECT COUNT(*) FROM target_logs WHERE entry_id = ?", (entry_id,))
+            count = cur.fetchone()[0]
+            self.assertEqual(count, 1)
+
+        # Delete entry
+        result = _logic.delete_entry(entry_id)
+        self.assertIn("Deleted", result)
+
+        # Verify entry is gone
+        entry = _logic.get_entry_by_id(entry_id)
+        self.assertIsNone(entry)
+
+        # Verify logs are gone (cascade)
+        with self.conn:
+            cur = self.conn.cursor()
+            cur.execute("SELECT COUNT(*) FROM target_logs WHERE entry_id = ?", (entry_id,))
+            count = cur.fetchone()[0]
+            self.assertEqual(count, 0)
 
 
 if __name__ == "__main__":
