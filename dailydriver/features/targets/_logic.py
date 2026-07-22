@@ -165,3 +165,24 @@ def log_progress(name: str, amount: int, expected_kind: str | None = None) -> st
         return f"{name}: {total_display} ({pct:.1f}%)"
     else:
         return f"{name}: {total_display}"
+
+
+def handle_log_command(cmd: str, kind: str | None = None) -> str:
+    """Handle 'nazr log' or 'habit log' commands.
+    kind: 'nazr' or 'habit' to validate the entry kind.
+    Returns a confirmation string or an error message.
+    """
+    parts = cmd.strip().split()
+    if len(parts) < 4:
+        return "Usage: nazr log <name> <amount>"
+
+    name = parts[2]
+    try:
+        amount = int(parts[3])
+    except ValueError:
+        return "Amount must be a number."
+
+    if amount <= 0:
+        return "Amount must be positive."
+
+    return log_progress(name, amount, expected_kind=kind)
