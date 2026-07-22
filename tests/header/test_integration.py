@@ -45,6 +45,10 @@ class TestIntegration(unittest.TestCase):
                     "dailydriver.features.qada._header.get_prayer_nudges",
                     return_value=[],
                 ),
+                patch(
+                    "dailydriver.features.targets._header.header_sections",
+                    return_value=[],
+                ),
             ):
                 data = build_header_data(day=None, is_today=True)
 
