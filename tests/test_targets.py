@@ -217,5 +217,81 @@ class TestTargetsCore(unittest.TestCase):
         self.assertIsNone(next_due)
 
 
+# ========== Step 2: Quick Logging Commands ==========
+
+class TestTargetsCommands(unittest.TestCase):
+    def setUp(self):
+        self.conn = sqlite3.connect(":memory:")
+        self.conn.row_factory = sqlite3.Row
+        for mig in migrations():
+            mig(self.conn)
+
+        self.patcher_logic = patch("dailydriver.features.targets._logic.get_connection_cm")
+        self.patcher_utils = patch("dailydriver.features.targets._utils.get_connection_cm")
+        self.mock_logic = self.patcher_logic.start()
+        self.mock_utils = self.patcher_utils.start()
+        self.mock_logic.return_value.__enter__.return_value = self.conn
+        self.mock_utils.return_value.__enter__.return_value = self.conn
+
+        # Add a test entry
+        _logic.add_entry(
+            kind="nazr",
+            name="Salavat",
+            target_total=1000,
+        )
+        _logic.add_entry(
+            kind="habit",
+            name="Anki",
+            target_total=None,
+        )
+
+    def tearDown(self):
+        self.patcher_logic.stop()
+        self.patcher_utils.stop()
+        self.conn.close()
+
+    def test_nazr_log_command(self):
+        """Test 5: nazr log <name> <amount> works."""
+        from dailydriver.features.targets import _targets_dispatcher
+
+        # Log 50 to Salavat
+        result = _targets_dispatcher("nazr log Salavat 50", kind="nazr")
+        self.assertIn("Salavat: 50/1000", result)
+
+        entry = _logic.get_entry_by_name("Salavat")
+        self.assertEqual(entry["logged_total"], 50)
+
+    def test_habit_log_command(self):
+        """Test 6: habit log <name> <amount> works."""
+        from dailydriver.features.targets import _targets_dispatcher
+
+        result = _targets_dispatcher("habit log Anki 10", kind="habit")
+        self.assertIn("Anki: 10/∞", result)
+
+        entry = _logic.get_entry_by_name("Anki")
+        self.assertEqual(entry["logged_total"], 10)
+
+    def test_log_wrong_kind(self):
+        """Test 7: Logging with wrong kind fails."""
+        from dailydriver.features.targets import _targets_dispatcher
+
+        # Try to log to a nazr using habit command
+        result = _targets_dispatcher("habit log Salavat 10", kind="habit")
+        self.assertIn("not a habit", result)
+
+        # Try to log to a habit using nazr command
+        result = _targets_dispatcher("nazr log Anki 10", kind="nazr")
+        self.assertIn("not a nazr", result)
+
+    def test_log_invalid_amount(self):
+        """Test 8: Invalid amount shows error."""
+        from dailydriver.features.targets import _targets_dispatcher
+
+        result = _targets_dispatcher("nazr log Salavat abc", kind="nazr")
+        self.assertIn("number", result)  # More flexible
+
+        result = _targets_dispatcher("nazr log Salavat -10", kind="nazr")
+        self.assertIn("positive", result)
+
 if __name__ == "__main__":
     unittest.main()
