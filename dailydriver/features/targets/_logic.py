@@ -40,10 +40,13 @@ def add_entry(
 
     with get_connection_cm(auto=False) as conn:
         cur = conn.cursor()
-        cur.execute("""
+        cur.execute(
+            """
             INSERT INTO target_entries (kind, name, target_total, interval_type, interval_value, target_per_interval, created_at)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (kind, name, target_total, interval_type, interval_value, target_per_interval, int(time.time())))
+        """,
+            (kind, name, target_total, interval_type, interval_value, target_per_interval, int(time.time())),
+        )
         conn.commit()
         return cur.lastrowid
 
@@ -85,6 +88,7 @@ def get_last_fulfilled_date_for_entry(entry_id: int) -> jdatetime.date | None:
 def get_daily_total_for_entry(entry_id: int, date: jdatetime.date) -> int:
     """Wrapper for _utils.get_daily_total."""
     return get_daily_total(entry_id, date)
+
 
 def compute_next_due(entry: dict, today: jdatetime.date, conn=None) -> jdatetime.date | None:
     """Compute the next due date for an entry based on its interval and last fulfilled date."""
@@ -190,6 +194,7 @@ def handle_log_command(cmd: str, kind: str | None = None) -> str:
 
 # ========== Pause, Edit, Delete ==========
 
+
 def toggle_pause(entry_id: int, days: int | None = None) -> str:
     """
     Toggle pause for an entry.
@@ -219,10 +224,7 @@ def toggle_pause(entry_id: int, days: int | None = None) -> str:
 
         if is_paused:
             # Unpause: clear paused_until
-            cur.execute(
-                "UPDATE target_entries SET paused_until = NULL WHERE id = ?",
-                (entry_id,)
-            )
+            cur.execute("UPDATE target_entries SET paused_until = NULL WHERE id = ?", (entry_id,))
             conn.commit()
             return f"Unpaused: {entry['name']}"
         else:
@@ -231,8 +233,7 @@ def toggle_pause(entry_id: int, days: int | None = None) -> str:
                 days = 1
             pause_date = today + jdatetime.timedelta(days=days)
             cur.execute(
-                "UPDATE target_entries SET paused_until = ? WHERE id = ?",
-                (pause_date.strftime("%Y-%m-%d"), entry_id)
+                "UPDATE target_entries SET paused_until = ? WHERE id = ?", (pause_date.strftime("%Y-%m-%d"), entry_id)
             )
             conn.commit()
             return f"Paused {entry['name']} until {pause_date.strftime('%Y-%m-%d')} ({days} days)"

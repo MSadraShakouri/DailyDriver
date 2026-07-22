@@ -220,6 +220,7 @@ class TestTargetsCore(unittest.TestCase):
 
 # ========== Step 2: Quick Logging Commands ==========
 
+
 class TestTargetsCommands(unittest.TestCase):
     def setUp(self):
         self.conn = sqlite3.connect(":memory:")
@@ -298,6 +299,7 @@ class TestTargetsCommands(unittest.TestCase):
 
 # ========== Step 3: Manager UI ==========
 
+
 class TestTargetsManager(unittest.TestCase):
     def setUp(self):
         self.conn = sqlite3.connect(":memory:")
@@ -363,6 +365,7 @@ class TestTargetsManager(unittest.TestCase):
 
 
 # ========== Step 4: Advanced Manager Features ==========
+
 
 class TestTargetsAdvanced(unittest.TestCase):
     def setUp(self):
@@ -478,6 +481,7 @@ class TestTargetsAdvanced(unittest.TestCase):
 
 # ========== Step 5: Header Integration ==========
 
+
 class TestTargetsHeader(unittest.TestCase):
     def setUp(self):
         self.conn = sqlite3.connect(":memory:")
@@ -514,6 +518,7 @@ class TestTargetsHeader(unittest.TestCase):
 
         # Get header lines
         from dailydriver.features.targets._header import get_targets_header_lines
+
         lines = get_targets_header_lines(self.conn)
 
         # Should show Salavat: 0/100 for today
@@ -539,6 +544,7 @@ class TestTargetsHeader(unittest.TestCase):
         _logic.log_progress("Salavat", 100)
 
         from dailydriver.features.targets._header import get_targets_header_lines
+
         lines = get_targets_header_lines(self.conn)
 
         # Should not show (goal already met today)
@@ -559,6 +565,7 @@ class TestTargetsHeader(unittest.TestCase):
         _logic.log_progress("Salavat", 50)
 
         from dailydriver.features.targets._header import get_targets_header_lines
+
         lines = get_targets_header_lines(self.conn)
 
         self.assertEqual(len(lines), 0)
@@ -580,6 +587,7 @@ class TestTargetsHeader(unittest.TestCase):
         _logic.toggle_pause(eid, 3)
 
         from dailydriver.features.targets._header import get_targets_header_lines
+
         lines = get_targets_header_lines(self.conn)
 
         self.assertEqual(len(lines), 0)
@@ -607,6 +615,7 @@ class TestTargetsHeader(unittest.TestCase):
         )
 
         from dailydriver.features.targets._header import get_targets_header_lines
+
         lines = get_targets_header_lines(self.conn)
 
         # Should show both

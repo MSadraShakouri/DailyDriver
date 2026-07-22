@@ -1,6 +1,7 @@
 """Shared utilities for targets feature."""
 
 import jdatetime
+
 from dailydriver.core.database import get_connection_cm
 
 
@@ -36,13 +37,16 @@ def get_last_fulfilled_date(entry_id: int, conn=None) -> jdatetime.date | None:
             return None
         target = row["target_per_interval"]
 
-        cur.execute("""
+        cur.execute(
+            """
             SELECT instance_date, SUM(amount) as total
             FROM target_logs
             WHERE entry_id = ?
             GROUP BY instance_date
             ORDER BY instance_date DESC
-        """, (entry_id,))
+        """,
+            (entry_id,),
+        )
 
         for row in cur.fetchall():
             if target is None:

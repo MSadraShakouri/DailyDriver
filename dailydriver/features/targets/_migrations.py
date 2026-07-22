@@ -1,5 +1,6 @@
 """Targets feature migrations."""
 
+
 def _migration_1(conn):
     conn.execute("""
         CREATE TABLE target_entries (
@@ -29,6 +30,7 @@ def _migration_1(conn):
         CREATE INDEX IF NOT EXISTS idx_target_logs_entry_date ON target_logs(entry_id, instance_date)
     """)
     conn.commit()
+
 
 def migrations():
     return [_migration_1]

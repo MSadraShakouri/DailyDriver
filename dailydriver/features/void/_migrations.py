@@ -1,5 +1,6 @@
 """Void feature migrations."""
 
+
 def _migration_1(conn):
     conn.execute("""
         CREATE TABLE IF NOT EXISTS void_entries (
@@ -9,6 +10,7 @@ def _migration_1(conn):
         )
     """)
     conn.commit()
+
 
 def migrations():
     return [_migration_1]

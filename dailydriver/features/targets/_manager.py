@@ -3,14 +3,12 @@
 import jdatetime
 
 from dailydriver.display.display_utils import display_width, get_width, spread_line
+from dailydriver.display.header import build_header_data
+from dailydriver.display.header_renderer import print_header
 from dailydriver.ui.terminal_ui import current_ui
 
 from . import _logic
 
-
-
-from dailydriver.display.header import build_header_data
-from dailydriver.display.header_renderer import print_header
 
 def show_manager(kind: str | None = None):
     while True:
@@ -64,15 +62,15 @@ def _print_commands():
     tw = get_width()
 
     line1_parts = ["l <#> <amount> log", "a add"]
-    line1 = spread_line(line1_parts, width=tw, margins=1/8)
+    line1 = spread_line(line1_parts, width=tw, margins=1 / 8)
     current_ui.print_line(line1)
 
     line2_parts = ["p <#> pause/unpause", "e <#> edit"]
-    line2 = spread_line(line2_parts, width=tw, margins=1/8)
+    line2 = spread_line(line2_parts, width=tw, margins=1 / 8)
     current_ui.print_line(line2)
 
     line3_parts = ["d <#> delete", "? help", "q quit"]
-    line3 = spread_line(line3_parts, width=tw, margins=1/8)
+    line3 = spread_line(line3_parts, width=tw, margins=1 / 8)
     current_ui.print_line(line3)
 
 
@@ -127,7 +125,7 @@ def _render_entries(entries):
 
         target = entry["target_total"]
         logged = entry["logged_total"]
- 
+
         if target is not None:
             prog = f"{logged:,}/{target:,}"
         else:
@@ -145,18 +143,20 @@ def _render_entries(entries):
         max_pct = max(max_pct, display_width(pct_display))
         max_next = max(max_next, display_width(next_display))
 
-        rows.append({
-            "idx": idx,
-            "name": name,
-            "prog": prog,
-            "pct": pct_display,
-            "next": next_display,
-            "target": target,
-            "logged": logged,
-            "is_complete": target is not None and logged >= target,
-            "is_paused": _is_paused(entry, today_j),
-            "has_interval": entry.get("interval_type") is not None,
-        })
+        rows.append(
+            {
+                "idx": idx,
+                "name": name,
+                "prog": prog,
+                "pct": pct_display,
+                "next": next_display,
+                "target": target,
+                "logged": logged,
+                "is_complete": target is not None and logged >= target,
+                "is_paused": _is_paused(entry, today_j),
+                "has_interval": entry.get("interval_type") is not None,
+            }
+        )
 
     header_parts = [
         " " + "#".center(1),
