@@ -164,14 +164,7 @@ def log_qada(time_of_day_minutes=None, offset_minutes=None):
             prayer_dt = now_dt - timedelta(minutes=offset_minutes)
             prayer_dt = prayer_dt.replace(year=gdate.year, month=gdate.month, day=gdate.day)
         else:
-            approx = get_approximate_times(m, d)
-            if slot == "fajr":
-                hour, minute = approx["fajr"]
-            elif slot == "dhuhr_asr":
-                hour, minute = approx["dhuhr"]
-            else:
-                hour, minute = approx["maghrib"]
-            prayer_dt = datetime(gdate.year, gdate.month, gdate.day, hour, minute, 0)
+            prayer_dt = datetime.now()
         cur = conn.cursor()
         cur.execute(
             "INSERT INTO prayer_logs (prayer_slot, jalali_date, status, logged_at, prayer_time) VALUES (?,?,?,?,?)",
