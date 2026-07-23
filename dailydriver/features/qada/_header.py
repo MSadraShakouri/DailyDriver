@@ -7,6 +7,7 @@ import jdatetime
 
 from dailydriver.features.qada._logic import compute_pending_instance, list_entries
 from dailydriver.utils.prayer_times import get_approximate_times
+from dailydriver.core.travel_mode import is_travel_mode
 
 
 def get_prayer_nudges(conn, target_date, now=None):
@@ -15,6 +16,8 @@ def get_prayer_nudges(conn, target_date, now=None):
     Shows: '🕌 Fajr: not set' if target=-1 and pending today.
            '🕌 Fajr pending' if target>0, logged<target, pending today.
     Hides if complete, paused, or no pending instance."""
+    if is_travel_mode():
+        return []
     if now is None:
         now = datetime.now()
 

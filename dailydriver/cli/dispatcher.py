@@ -7,6 +7,7 @@ from dailydriver.cli.commands.hygiene_cmd import manage_hygiene
 from dailydriver.cli.commands.search import search
 from dailydriver.cli.commands.stats_cmd import show_stats
 from dailydriver.cli.commands.viewing import show_day, show_last, view_entries
+from .commands.travel import travel_command
 from dailydriver.features.events._logic import discard_pending_start, save_pending_start
 
 
@@ -25,6 +26,7 @@ def make_dispatch():
         "search": search,
         "recent": lambda _: show_last(),
         "h": lambda _: show_help(),
+        "travel": travel_command,
     }
 
     # Let features register their own commands

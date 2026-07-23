@@ -6,6 +6,7 @@ from datetime import datetime
 import jdatetime
 
 from dailydriver.utils.prayer_times import get_approximate_times
+from dailydriver.core.travel_mode import is_travel_mode
 
 
 def get_prayer_parts(conn, today):
@@ -32,6 +33,8 @@ def get_prayer_parts(conn, today):
 
 def get_prayer_nudges(conn, target_date, today_str, is_today, now=None):
     """Return list of nudge strings (pre‑alert or overdue). Only active for today."""
+    if is_travel_mode():
+        return []
     if not is_today:
         return []
 
