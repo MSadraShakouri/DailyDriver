@@ -38,7 +38,7 @@ def build_header_data(day=None, is_today=True):
         # Gregorian and Hijri with margins
         greg_str = gdate.strftime("%d %B %Y")
         offset = get_hijri_offset()
-        corrected_greg = gdate - timedelta(days=offset)
+        corrected_greg = gdate + timedelta(days=offset)
         hijri_obj = HijriGregorian.fromdate(corrected_greg).to_hijri()
         hijri_str = f"{hijri_obj.day} {hijri_obj.month_name()} {hijri_obj.year}"
         greg_hijri_line = spread_line([greg_str, hijri_str], margins=1 / 8)
