@@ -1,7 +1,6 @@
 import time
-from datetime import datetime, timedelta
-
 import jdatetime
+from datetime import datetime, timedelta
 
 from dailydriver.core.database import get_connection_cm
 from dailydriver.core.travel_mode import is_travel_mode
@@ -14,69 +13,43 @@ from ._prayer_backlog import _update_complete_until
 from ._prayer_core import current_slot
 
 
-def _travel_mode_select_slot(conn, today, now):
-    """Travel mode: smart slot selector. Returns slot string or None if cancelled."""
-    today_j = jdatetime.date.today()
-    approx = get_approximate_times(today_j.month, today_j.day)
-
-    ADJUST_HOURS = 1
-
-    fajr_h = approx["fajr"][0] - ADJUST_HOURS
-    fajr_m = approx["fajr"][1]
-    if fajr_h < 0:
-        fajr_h += 24
-
-    dhuhr_h = approx["dhuhr"][0] - ADJUST_HOURS
-    dhuhr_m = approx["dhuhr"][1]
-    if dhuhr_h < 0:
-        dhuhr_h += 24
-
-    maghrib_h = approx["maghrib"][0] - ADJUST_HOURS
-    maghrib_m = approx["maghrib"][1]
-    if maghrib_h < 0:
-        maghrib_h += 24
-
-    fajr_dt = now.replace(hour=fajr_h, minute=fajr_m, second=0, microsecond=0)
-    dhuhr_dt = now.replace(hour=dhuhr_h, minute=dhuhr_m, second=0, microsecond=0)
-    maghrib_dt = now.replace(hour=maghrib_h, minute=maghrib_m, second=0, microsecond=0)
-
-    if now >= maghrib_dt:
-        guessed_slot = "maghrib_isha"
-    elif now >= dhuhr_dt:
-        guessed_slot = "dhuhr_asr"
-    else:
-        guessed_slot = "fajr"
-
-    cur = conn.cursor()
-    cur.execute("SELECT prayer_slot FROM prayer_logs WHERE jalali_date = ?", (today,))
-    logged_slots = {row["prayer_slot"] for row in cur.fetchall()}
-
-    default_slot = guessed_slot
-    if guessed_slot in logged_slots:
-        if guessed_slot == "fajr" and "dhuhr_asr" not in logged_slots:
-            default_slot = "dhuhr_asr"
-        elif guessed_slot in ("fajr", "dhuhr_asr") and "maghrib_isha" not in logged_slots:
-            default_slot = "maghrib_isha"
-
+def _travel_mode_select_slot(conn, today):
+    """
+    Travel mode: suggest the next unlogged prayer slot in chronological order.
+    Returns slot string or None if cancelled.
+    """
+    order = ["fajr", "dhuhr_asr", "maghrib_isha"]
     slot_display = {
         "fajr": "Fajr",
         "dhuhr_asr": "Dhuhr & Asr",
         "maghrib_isha": "Maghrib & Isha",
     }
 
+    # Check what's already logged today
+    cur = conn.cursor()
+    cur.execute("SELECT prayer_slot FROM prayer_logs WHERE jalali_date = ?", (today,))
+    logged_slots = {row["prayer_slot"] for row in cur.fetchall()}
+
+    # Suggest the first unlogged slot (or Fajr if all are logged)
+    suggested = "fajr"
+    for slot in order:
+        if slot not in logged_slots:
+            suggested = slot
+            break
+
+    # Show menu
     current_ui.print_line("\nTravel mode: select prayer slot")
-    for slot in ["fajr", "dhuhr_asr", "maghrib_isha"]:
+    for i, slot in enumerate(order, 1):
         label = slot_display[slot]
-        indicator = " (suggested)" if slot == default_slot else ""
-        num = {"fajr": "1", "dhuhr_asr": "2", "maghrib_isha": "3"}[slot]
-        current_ui.print_line(f"  [{num}] {label}{indicator}")
+        indicator = " (suggested)" if slot == suggested else ""
+        current_ui.print_line(f"  [{i}] {label}{indicator}")
     current_ui.print_line("  [n] Cancel")
-    current_ui.print_line(f"\nEnter = {slot_display[default_slot]} (smart guess)")
+    current_ui.print_line(f"\nEnter = {slot_display[suggested]} (smart guess)")
 
     choice = current_ui.prompt("> ").strip().lower()
 
     if choice == "":
-        return default_slot
+        return suggested
     elif choice == "n":
         return None
     elif choice in ("1", "f", "fajr"):
@@ -87,7 +60,7 @@ def _travel_mode_select_slot(conn, today, now):
         return "maghrib_isha"
     else:
         current_ui.print_line("Invalid choice. Using default.")
-        return default_slot
+        return suggested
 
 
 def log_prayer(cmd: str):
@@ -115,14 +88,31 @@ def log_prayer(cmd: str):
         shak_count = parsed["shak_count"]
         now = datetime.now()
 
-        # ----- TRAVEL MODE: smart slot selector -----
-        if is_travel_mode() and not explicit_time and not offset_min:
-            slot = _travel_mode_select_slot(conn, today, now)
+        # ----- Step 1: Calculate prayer time (common to both modes) -----
+        if offset_min is not None:
+            interpretations = parse_time_expressions(f"-{offset_min}", now, last_time=None)
+            if interpretations:
+                prayer_dt = interpretations[0].start
+            else:
+                prayer_dt = now - timedelta(minutes=offset_min)
+        elif explicit_time is not None:
+            prayer_dt = now.replace(
+                hour=explicit_time // 60,
+                minute=explicit_time % 60,
+                second=0,
+                microsecond=0,
+            )
+        else:
+            prayer_dt = now
+
+        # ----- Step 2: Determine slot -----
+        if is_travel_mode():
+            # Travel mode: order-based selector (always shows menu)
+            slot = _travel_mode_select_slot(conn, today)
             if slot is None:
                 return None
-            prayer_dt = now
         else:
-            # ----- Normal mode -----
+            # Normal mode: guess slot from prayer time using Tehran interpolation
             today_j = jdatetime.date.today()
             approx = get_approximate_times(today_j.month, today_j.day)
             dhuhr_dt = now.replace(hour=approx["dhuhr"][0], minute=approx["dhuhr"][1], second=0, microsecond=0)
@@ -133,34 +123,13 @@ def log_prayer(cmd: str):
                 microsecond=0,
             )
 
-            if explicit_time:
-                hour = explicit_time // 60
-                minute = explicit_time % 60
-                test_dt = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
-                if test_dt < dhuhr_dt:
-                    slot = "fajr"
-                elif test_dt < maghrib_dt:
-                    slot = "dhuhr_asr"
-                else:
-                    slot = "maghrib_isha"
+            # Use prayer_dt for slot guessing (not now)
+            if prayer_dt < dhuhr_dt:
+                slot = "fajr"
+            elif prayer_dt < maghrib_dt:
+                slot = "dhuhr_asr"
             else:
-                slot = current_slot()
-
-            if offset_min is not None:
-                interpretations = parse_time_expressions(f"-{offset_min}", now, last_time=None)
-                if interpretations:
-                    prayer_dt = interpretations[0].start
-                else:
-                    prayer_dt = now - timedelta(minutes=offset_min)
-            elif explicit_time:
-                prayer_dt = now.replace(
-                    hour=explicit_time // 60,
-                    minute=explicit_time % 60,
-                    second=0,
-                    microsecond=0,
-                )
-            else:
-                prayer_dt = now
+                slot = "maghrib_isha"
 
         time_str = prayer_dt.strftime("%H:%M")
         slot_display = slot.replace("_", " & ").title()
