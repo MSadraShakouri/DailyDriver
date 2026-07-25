@@ -19,9 +19,11 @@ def daystart_command(cmd: str) -> str:
 
         try:
             set_day_start_hour(hour)
-        except ValueError as e:
-            return str(e)
+        except ValueError:
+            return f"Invalid hour: {parts[1]}. Must be 0-23."
 
         return f"Day start set to {hour:02d}:00"
 
     return "Usage: daystart          → show current\n       daystart <0-23>   → set hour"
+
+__all__ = ["daystart_command"]
