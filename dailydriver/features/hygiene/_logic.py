@@ -22,8 +22,6 @@ def manage_hygiene():
             # --- Header ---
             data = build_header_data()
             print_header(data)
-            current_ui.print_line("─── Hygiene Manager ───")
-            current_ui.print_line()
 
             # --- Fetch data ---
             cur.execute(
@@ -118,13 +116,15 @@ def manage_hygiene():
             # If still too wide, we might shrink item column? But we never truncate item.
             # We'll let spread_line handle it, but it may be tight. We'll allow.
 
+            rows.sort(key=lambda r: (r["days_left"] is None, r["days_left"] or 0, r["item"].lower()))
+
             # --- Render table ---
             header_parts = [
-                "Item".ljust(max_item),
-                "Interval".ljust(max_interval),
-                "Next".ljust(max_due),
+                " " + "Item".center(max_item),
+                "Interval".center(max_interval),
+                "Next".center(max_due),
                 "E",
-                "D",
+                "D" + " ",
             ]
             header = spread_line(header_parts, width=tw, margins=0)
             current_ui.print_line(header)
@@ -132,11 +132,11 @@ def manage_hygiene():
 
             for r in rows:
                 parts = [
-                    r["item"].ljust(max_item),
+                    " " + r["item"].ljust(max_item),
                     r["interval"].ljust(max_interval),
                     r["due_state"].ljust(max_due),
                     r["early"],
-                    r["due_today"],
+                    r["due_today"] + " ",
                 ]
                 line = spread_line(parts, width=tw, margins=0)
 
@@ -151,7 +151,12 @@ def manage_hygiene():
             current_ui.print_line()
 
             # --- Commands ---
-            current_ui.print_line("(a)dd  (e)dit  (d)elete  (q)uit")
+
+            tw = get_width()
+            line = spread_line(["(a)dd", "(e)dit", "(d)elete", "(q)uit"], width=tw, margins=1/8)
+            current_ui.print_line(line)
+
+            current_ui.print_line()
             choice = current_ui.prompt("> ").strip().lower()
 
             if choice == "q":
