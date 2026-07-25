@@ -3,6 +3,7 @@ import time
 from datetime import datetime
 
 from dailydriver.core.database import get_last_hygiene_time
+from dailydriver.core.day_start import get_shifted_today
 
 
 def compute_hygiene_nudges(conn, relative_to=None):
@@ -72,7 +73,8 @@ def compute_hygiene_nudges(conn, relative_to=None):
 def get_hygiene_lines(conn, target_date, is_today):
     """Return a list of hygiene nudge strings (up to 2)."""
     if is_today:
-        nudge_lines = compute_hygiene_nudges(conn, relative_to=target_date)
+        # Use shifted today for nudges (day starts at day_start_hour)
+        nudge_lines = compute_hygiene_nudges(conn, relative_to=get_shifted_today())
     else:
         nudge_lines = []
     return nudge_lines[:2]
