@@ -8,6 +8,7 @@ import jdatetime
 from dailydriver.core.database import get_connection_cm
 from dailydriver.ui.terminal_ui import current_ui
 from dailydriver.utils.intervals import next_instance_date
+from dailydriver.core.day_start import get_shifted_today
 
 from ._utils import get_daily_total, get_last_fulfilled_date
 
@@ -135,7 +136,7 @@ def log_progress(name: str, amount: int, expected_kind: str | None = None) -> st
     if expected_kind and entry["kind"] != expected_kind:
         return f"'{name}' is a {entry['kind']}, not a {expected_kind}."
 
-    today = jdatetime.date.today()
+    today = get_shifted_today()
     entry_id = entry["id"]
     target = entry["target_total"]
     current_logged = entry["logged_total"]
@@ -205,7 +206,7 @@ def toggle_pause(entry_id: int, days: int | None = None) -> str:
     if not entry:
         return f"Entry {entry_id} not found."
 
-    today = jdatetime.date.today()
+    today = get_shifted_today()
     paused_until = entry.get("paused_until")
 
     # Check if currently paused

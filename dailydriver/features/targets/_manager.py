@@ -6,6 +6,7 @@ from dailydriver.display.display_utils import display_width, get_width, spread_l
 from dailydriver.display.header import build_header_data
 from dailydriver.display.header_renderer import print_header
 from dailydriver.ui.terminal_ui import current_ui
+from dailydriver.core.day_start import get_shifted_today
 
 from . import _logic
 
@@ -111,7 +112,7 @@ def _format_next_due(next_instance, today):
 def _render_entries(entries):
     """Render the targets entries table using spread_line."""
     tw = get_width()
-    today_j = jdatetime.date.today()
+    today_j = get_shifted_today()
 
     rows = []
     max_name = display_width("Name")

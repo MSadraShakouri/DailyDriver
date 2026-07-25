@@ -3,6 +3,7 @@
 import jdatetime
 
 from dailydriver.core.database import get_connection_cm
+from dailydriver.core.day_start import get_shifted_today
 
 from . import _logic
 from ._utils import get_daily_total
@@ -21,7 +22,7 @@ def get_targets_header_lines(conn):
     """)
     entries = [dict(row) for row in cur.fetchall()]
 
-    today = jdatetime.date.today()
+    today = get_shifted_today()
     lines = []
 
     for entry in entries:
