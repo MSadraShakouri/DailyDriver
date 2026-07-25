@@ -4,11 +4,14 @@ import time
 
 import jdatetime
 
+from datetime import datetime
+
 from dailydriver.core.database import get_connection_cm, get_last_hygiene_time
 from dailydriver.display.display_utils import get_width, spread_line
 from dailydriver.display.header import build_header_data
 from dailydriver.display.header_renderer import print_header
 from dailydriver.ui.terminal_ui import current_ui
+from dailydriver.core.day_start import get_shifted_today
 
 
 def manage_hygiene():
@@ -51,8 +54,15 @@ def manage_hygiene():
                 item = row["item"]
                 interval = row["desired_interval_days"]
 
+
                 last_time = get_last_hygiene_time(conn, item)
-                days_since = (now_ts - last_time) // 86400 if last_time else None
+                if last_time:
+                    last_dt = datetime.fromtimestamp(last_time)
+                    last_jdate = jdatetime.date.fromgregorian(date=last_dt.date())
+                    shifted_today = get_shifted_today()
+                    days_since = (shifted_today - last_jdate).days
+                else:
+                    days_since = None
                 days_left = interval - days_since if days_since is not None else None
 
                 # Due state
