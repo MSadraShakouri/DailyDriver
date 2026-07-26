@@ -6,11 +6,11 @@ from datetime import datetime
 import jdatetime
 
 from dailydriver.core.database import get_connection_cm
+from dailydriver.core.day_start import get_shifted_today
 from dailydriver.ui.terminal_ui import current_ui
 from dailydriver.utils.intervals import next_instance_date
-from dailydriver.core.day_start import get_shifted_today
 
-from ._utils import get_daily_total, get_last_fulfilled_date, get_counter_value, set_counter_value
+from ._utils import get_counter_value, get_daily_total, get_last_fulfilled_date, set_counter_value
 
 
 def add_entry(

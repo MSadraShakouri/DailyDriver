@@ -26,4 +26,5 @@ def daystart_command(cmd: str) -> str:
 
     return "Usage: daystart          → show current\n       daystart <0-23>   → set hour"
 
+
 __all__ = ["daystart_command"]

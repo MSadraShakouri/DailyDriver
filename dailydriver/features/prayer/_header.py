@@ -5,8 +5,8 @@ from datetime import datetime
 
 import jdatetime
 
-from dailydriver.utils.prayer_times import get_approximate_times
 from dailydriver.core.travel_mode import is_travel_mode
+from dailydriver.utils.prayer_times import get_approximate_times
 
 
 def get_prayer_parts(conn, today):

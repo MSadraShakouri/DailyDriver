@@ -25,4 +25,5 @@ def travel_command(cmd: str) -> str:
     else:
         return "Usage: travel [on|off|status]"
 
+
 __all__ = ["travel_command"]

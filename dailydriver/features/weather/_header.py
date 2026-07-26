@@ -6,8 +6,9 @@ from datetime import datetime, timedelta
 
 import jdatetime
 
-from ._logic import _translate_condition, get_weather
 from dailydriver.core.travel_mode import is_travel_mode
+
+from ._logic import _translate_condition, get_weather
 
 
 def get_weather_str(conn, today, is_today):

@@ -2,10 +2,10 @@
 
 import sqlite3
 import unittest
+from datetime import datetime
 from unittest.mock import patch
 
 import jdatetime
-from datetime import datetime
 
 from dailydriver.core import travel_mode
 from dailydriver.features.prayer import _prayer_log
@@ -136,7 +136,7 @@ class TestTravelModeSelector(unittest.TestCase):
 
         # Menu should be shown (for slot selection)
         self.mock_ui.print_line.assert_any_call("\nTravel mode: select prayer slot")
-        
+
         # Should log at the explicit time
         cur = self.conn.cursor()
         cur.execute("SELECT prayer_time, prayer_slot FROM prayer_logs")
@@ -145,7 +145,6 @@ class TestTravelModeSelector(unittest.TestCase):
         prayer_dt = datetime.fromtimestamp(row["prayer_time"])
         self.assertEqual(prayer_dt.strftime("%H:%M"), "14:30")
         self.assertEqual(row["prayer_slot"], "dhuhr_asr")
-
 
     def test_offset_no_selector(self):
         """With offset, travel mode still shows selector (just for slot)."""
@@ -156,13 +155,13 @@ class TestTravelModeSelector(unittest.TestCase):
 
         # Menu should be shown (for slot selection)
         self.mock_ui.print_line.assert_any_call("\nTravel mode: select prayer slot")
-        
+
         # Should log at offset time
         cur = self.conn.cursor()
         cur.execute("SELECT prayer_time, prayer_slot FROM prayer_logs")
         row = cur.fetchone()
         self.assertIsNotNone(row)
-        
+
         # Check that prayer_time is about 30 minutes ago (within a minute)
         now_ts = int(datetime.now().timestamp())
         prayer_ts = row["prayer_time"]

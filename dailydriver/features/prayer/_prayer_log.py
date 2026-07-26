@@ -1,6 +1,7 @@
 import time
-import jdatetime
 from datetime import datetime, timedelta
+
+import jdatetime
 
 from dailydriver.core.database import get_connection_cm
 from dailydriver.core.travel_mode import is_travel_mode
@@ -78,6 +79,7 @@ def log_prayer(cmd: str):
             time_min = parsed["explicit_time"]
             offset_min = parsed["offset_min"]
             from ._prayer_backlog import log_qada
+
             log_qada(time_min, offset_min)
             return
 

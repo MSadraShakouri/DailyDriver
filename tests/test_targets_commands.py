@@ -13,10 +13,13 @@ from dailydriver.features.targets._migrations import migrations
 def create_test_entry(conn, name="Salavat", kind="nazr", target_total=1000):
     """Helper to create a target entry directly in the test DB."""
     cur = conn.cursor()
-    cur.execute("""
+    cur.execute(
+        """
         INSERT INTO target_entries (kind, name, target_total, logged_total, created_at)
         VALUES (?, ?, ?, ?, ?)
-    """, (kind, name, target_total, 0, int(jdatetime.datetime.now().timestamp())))
+    """,
+        (kind, name, target_total, 0, int(jdatetime.datetime.now().timestamp())),
+    )
     conn.commit()
     return cur.lastrowid
 
@@ -39,6 +42,7 @@ class TestTargetsCounterHelpers(unittest.TestCase):
         self.mock_utils.return_value.__exit__.return_value = False
 
         from dailydriver.features.targets import _utils
+
         self.utils = _utils
 
         self.eid = create_test_entry(self.conn, "Salavat", "nazr")

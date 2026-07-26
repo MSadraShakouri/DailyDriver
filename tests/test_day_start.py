@@ -38,9 +38,7 @@ class TestDayStartCore(unittest.TestCase):
 
     def test_get_day_start_hour_from_meta(self):
         """Should read from meta table."""
-        self.conn.execute(
-            "INSERT OR REPLACE INTO meta (key, value) VALUES ('day_start_hour', '6')"
-        )
+        self.conn.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('day_start_hour', '6')")
         self.conn.commit()
         self.assertEqual(day_start.get_day_start_hour(), 6)
 
@@ -110,6 +108,7 @@ class TestDayStartCommand(unittest.TestCase):
         self.mock_cm.return_value.__exit__.return_value = False
 
         from dailydriver.cli.commands import daystart as daystart_cmd
+
         self.cmd = daystart_cmd.daystart_command
 
     def tearDown(self):
@@ -193,7 +192,7 @@ class TestDayStartHygieneIntegration(unittest.TestCase):
         cur = self.conn.cursor()
         cur.execute(
             "INSERT INTO hygiene_config (item, desired_interval_days, early_warning_enabled, show_due_today) VALUES (?, ?, ?, ?)",
-            ("shower", 2, 0, 1)
+            ("shower", 2, 0, 1),
         )
         cur.execute("INSERT INTO categories (path) VALUES ('hygiene/shower')")
         self.conn.commit()
@@ -216,17 +215,14 @@ class TestDayStartHygieneIntegration(unittest.TestCase):
         cur = self.conn.cursor()
         cur.execute(
             "INSERT INTO entries (created_at, started_at, description) VALUES (?, ?, ?)",
-            (int(last_time), int(last_time), "shower")
+            (int(last_time), int(last_time), "shower"),
         )
         entry_id = cur.lastrowid
         cur.execute("SELECT id FROM categories WHERE path = 'hygiene/shower'")
         row = cur.fetchone()
         if row:
             cat_id = row["id"]
-            cur.execute(
-                "INSERT INTO entry_categories (entry_id, category_id) VALUES (?, ?)",
-                (entry_id, cat_id)
-            )
+            cur.execute("INSERT INTO entry_categories (entry_id, category_id) VALUES (?, ?)", (entry_id, cat_id))
         self.conn.commit()
 
         from dailydriver.features.hygiene._header import compute_hygiene_nudges
@@ -290,6 +286,7 @@ class TestDayStartTargetsIntegration(unittest.TestCase):
         day_start.set_day_start_hour(0)
 
         from dailydriver.features.targets import _logic as targets_logic
+
         self.targets_logic = targets_logic
 
         # Insert a target entry
@@ -325,7 +322,9 @@ class TestDayStartTargetsIntegration(unittest.TestCase):
         self.targets_logic.log_progress("Salavat", 5)
 
         cur = self.conn.cursor()
-        cur.execute("SELECT instance_date FROM target_logs WHERE entry_id = ? ORDER BY id DESC LIMIT 1", (self.entry_id,))
+        cur.execute(
+            "SELECT instance_date FROM target_logs WHERE entry_id = ? ORDER BY id DESC LIMIT 1", (self.entry_id,)
+        )
         row = cur.fetchone()
         self.assertEqual(row["instance_date"], "1405-05-04")
 

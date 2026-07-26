@@ -1,17 +1,16 @@
 # dailydriver/features/hygiene/_logic.py
 
 import time
+from datetime import datetime
 
 import jdatetime
 
-from datetime import datetime
-
 from dailydriver.core.database import get_connection_cm, get_last_hygiene_time
+from dailydriver.core.day_start import get_shifted_today
 from dailydriver.display.display_utils import get_width, spread_line
 from dailydriver.display.header import build_header_data
 from dailydriver.display.header_renderer import print_header
 from dailydriver.ui.terminal_ui import current_ui
-from dailydriver.core.day_start import get_shifted_today
 
 
 def manage_hygiene():
@@ -54,7 +53,6 @@ def manage_hygiene():
                 item = row["item"]
                 interval = row["desired_interval_days"]
 
-
                 last_time = get_last_hygiene_time(conn, item)
                 if last_time:
                     last_dt = datetime.fromtimestamp(last_time)
@@ -83,16 +81,18 @@ def manage_hygiene():
                 else:
                     interval_verbose = f"{interval} days"
 
-                rows.append({
-                    "id": item_id,
-                    "item": item,
-                    "interval_verbose": interval_verbose,
-                    "interval_short": f"{interval}d",
-                    "due_state": due_state,
-                    "days_left": days_left,
-                    "early": "✓" if row["early_warning_enabled"] else "✗",
-                    "due_today": "✓" if row["show_due_today"] else "✗",
-                })
+                rows.append(
+                    {
+                        "id": item_id,
+                        "item": item,
+                        "interval_verbose": interval_verbose,
+                        "interval_short": f"{interval}d",
+                        "due_state": due_state,
+                        "days_left": days_left,
+                        "early": "✓" if row["early_warning_enabled"] else "✗",
+                        "due_today": "✓" if row["show_due_today"] else "✗",
+                    }
+                )
 
             # Determine terminal width and column widths
             tw = get_width()
@@ -163,7 +163,7 @@ def manage_hygiene():
             # --- Commands ---
 
             tw = get_width()
-            line = spread_line(["(a)dd", "(e)dit", "(d)elete", "(q)uit"], width=tw, margins=1/8)
+            line = spread_line(["(a)dd", "(e)dit", "(d)elete", "(q)uit"], width=tw, margins=1 / 8)
             current_ui.print_line(line)
 
             current_ui.print_line()

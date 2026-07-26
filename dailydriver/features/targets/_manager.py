@@ -2,11 +2,11 @@
 
 import jdatetime
 
+from dailydriver.core.day_start import get_shifted_today
 from dailydriver.display.display_utils import display_width, get_width, spread_line
 from dailydriver.display.header import build_header_data
 from dailydriver.display.header_renderer import print_header
 from dailydriver.ui.terminal_ui import current_ui
-from dailydriver.core.day_start import get_shifted_today
 
 from . import _logic
 
@@ -68,19 +68,19 @@ def _print_commands():
     """Print the command guide using spread_line."""
     tw = get_width()
 
-    line1 = spread_line(["l <#> <amount> log", "e <#> edit"], width=tw, margins=1/8)
+    line1 = spread_line(["l <#> <amount> log", "e <#> edit"], width=tw, margins=1 / 8)
     current_ui.print_line(line1)
 
-    line2 = spread_line(["dt <#> <total> daily", "d <#> delete"], width=tw, margins=1/8)
+    line2 = spread_line(["dt <#> <total> daily", "d <#> delete"], width=tw, margins=1 / 8)
     current_ui.print_line(line2)
 
-    line3 = spread_line(["ct <#> <value> counter", "a add"], width=tw, margins=1/8)
+    line3 = spread_line(["ct <#> <value> counter", "a add"], width=tw, margins=1 / 8)
     current_ui.print_line(line3)
 
-    line4 = spread_line(["cr <#> reset", "? help"], width=tw, margins=1/8)
+    line4 = spread_line(["cr <#> reset", "? help"], width=tw, margins=1 / 8)
     current_ui.print_line(line4)
 
-    line5 = spread_line(["p <#> pause/unpause", "q quit"], width=tw, margins=1/8)
+    line5 = spread_line(["p <#> pause/unpause", "q quit"], width=tw, margins=1 / 8)
     current_ui.print_line(line5)
 
 

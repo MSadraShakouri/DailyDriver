@@ -27,10 +27,7 @@ def set_day_start_hour(hour: int) -> None:
         raise ValueError(f"Hour must be between 0 and 23, got {hour}")
     with get_connection_cm(auto=False) as conn:
         cur = conn.cursor()
-        cur.execute(
-            "INSERT OR REPLACE INTO meta (key, value) VALUES ('day_start_hour', ?)",
-            (str(hour),)
-        )
+        cur.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('day_start_hour', ?)", (str(hour),))
         conn.commit()
 
 

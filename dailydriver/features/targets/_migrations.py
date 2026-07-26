@@ -1,5 +1,6 @@
 """Targets feature migrations."""
 
+
 def _migration_1(conn):
     conn.execute("""
         CREATE TABLE target_entries (

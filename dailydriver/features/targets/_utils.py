@@ -67,6 +67,7 @@ def get_last_fulfilled_date(entry_id: int, conn=None) -> jdatetime.date | None:
 
 def get_counter_value(entry_id: int, conn=None) -> int:
     """Return the stored counter value for an entry. Default 0 if not set."""
+
     def _query(c):
         cur = c.cursor()
         cur.execute("SELECT last_counter_value FROM target_entries WHERE id = ?", (entry_id,))
@@ -81,12 +82,10 @@ def get_counter_value(entry_id: int, conn=None) -> int:
 
 def set_counter_value(entry_id: int, value: int, conn=None) -> None:
     """Set the counter value for an entry."""
+
     def _update(c):
         cur = c.cursor()
-        cur.execute(
-            "UPDATE target_entries SET last_counter_value = ? WHERE id = ?",
-            (value, entry_id)
-        )
+        cur.execute("UPDATE target_entries SET last_counter_value = ? WHERE id = ?", (value, entry_id))
         c.commit()
 
     if conn:
