@@ -35,6 +35,12 @@ def _targets_dispatcher(cmd: str, kind: str | None = None):
 
     if sub == "log":
         return _logic.handle_log_command(cmd, kind)
+    elif sub == "daily_total":
+        return _logic.handle_daily_total(cmd, kind)
+    elif sub == "counter_total":
+        return _logic.handle_counter_total(cmd, kind)
+    elif sub == "counter_reset":
+        return _logic.handle_counter_reset(cmd, kind)
     else:
         return f"Unknown sub-command: {sub}\nUsage: nazr log <name> <amount>"
 
