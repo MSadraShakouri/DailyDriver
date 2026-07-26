@@ -10,7 +10,7 @@ from dailydriver.ui.terminal_ui import current_ui
 from dailydriver.utils.intervals import next_instance_date
 from dailydriver.core.day_start import get_shifted_today
 
-from ._utils import get_daily_total, get_last_fulfilled_date
+from ._utils import get_daily_total, get_last_fulfilled_date, get_counter_value, set_counter_value
 
 
 def add_entry(
@@ -302,3 +302,105 @@ def delete_entry(entry_id: int) -> str:
         conn.commit()
 
     return f"Deleted: {entry['name']}"
+
+
+def handle_daily_total(cmd: str, kind: str | None = None) -> str:
+    """
+    Usage: nazr daily_total <name> <total>
+           habit daily_total <name> <total>
+    Logs the difference between total and what's already logged today.
+    """
+    parts = cmd.strip().split()
+    if len(parts) < 4:
+        return "Usage: daily_total <name> <total>"
+
+    name = parts[2]
+    try:
+        total = int(parts[3])
+    except ValueError:
+        return "Total must be a number."
+
+    entry = get_entry_by_name(name)
+    if not entry:
+        return f"Entry not found: {name}"
+
+    if kind and entry["kind"] != kind:
+        return f"'{name}' is a {entry['kind']}, not a {kind}."
+
+    today = get_shifted_today()
+    today_total = get_daily_total(entry["id"], today)
+    diff = total - today_total
+
+    if diff == 0:
+        return "No change. Nothing logged."
+
+    if diff < 0:
+        current_ui.print_line(f"Warning: This would log a negative amount ({diff}).")
+        confirm = current_ui.prompt("Continue? (y/n): ").strip().lower()
+        if confirm != "y":
+            return "Cancelled."
+
+    return log_progress(name, diff, kind)
+
+
+def handle_counter_total(cmd: str, kind: str | None = None) -> str:
+    """
+    Usage: nazr counter_total <name> <value>
+           habit counter_total <name> <value>
+    Logs the difference between value and the stored counter value.
+    Updates the stored counter value after logging.
+    """
+    parts = cmd.strip().split()
+    if len(parts) < 4:
+        return "Usage: counter_total <name> <value>"
+
+    name = parts[2]
+    try:
+        value = int(parts[3])
+    except ValueError:
+        return "Value must be a number."
+
+    entry = get_entry_by_name(name)
+    if not entry:
+        return f"Entry not found: {name}"
+
+    if kind and entry["kind"] != kind:
+        return f"'{name}' is a {entry['kind']}, not a {kind}."
+
+    last = get_counter_value(entry["id"])
+    diff = value - last
+
+    if diff == 0:
+        return "No change. Nothing logged."
+
+    if diff < 0:
+        current_ui.print_line(f"Warning: This would log a negative amount ({diff}).")
+        confirm = current_ui.prompt("Continue? (y/n): ").strip().lower()
+        if confirm != "y":
+            return "Cancelled."
+
+    set_counter_value(entry["id"], value)
+    return log_progress(name, diff, kind)
+
+
+def handle_counter_reset(cmd: str, kind: str | None = None) -> str:
+    """
+    Usage: nazr counter_reset <name>
+           habit counter_reset <name>
+    Resets the stored counter value to 0. Does not log anything.
+    """
+    parts = cmd.strip().split()
+    if len(parts) < 3:
+        return "Usage: counter_reset <name>"
+
+    name = parts[2]
+
+    entry = get_entry_by_name(name)
+    if not entry:
+        return f"Entry not found: {name}"
+
+    if kind and entry["kind"] != kind:
+        return f"'{name}' is a {entry['kind']}, not a {kind}."
+
+    set_counter_value(entry["id"], 0)
+    return f"Counter reset to 0 for {name}"
