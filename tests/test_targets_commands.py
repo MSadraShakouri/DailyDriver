@@ -101,42 +101,37 @@ class TestTargetsDailyTotal(unittest.TestCase):
         self.conn.close()
 
     def test_daily_total_normal(self):
-        """daily_total should log the difference between total and today's total."""
         _logic.log_progress("Anki", 5)
-        result = _logic.handle_daily_total("daily_total Anki 10")
+        result = _logic.handle_daily_total("Anki 10")
         self.assertIn("Anki: 10/∞", result)
 
         entry = _logic.get_entry_by_id(self.eid)
         self.assertEqual(entry["logged_total"], 10)
 
     def test_daily_total_zero_diff(self):
-        """Should show message and do nothing if diff is zero."""
         _logic.log_progress("Anki", 10)
-        result = _logic.handle_daily_total("daily_total Anki 10")
+        result = _logic.handle_daily_total("Anki 10")
         self.assertEqual(result, "No change. Nothing logged.")
 
         entry = _logic.get_entry_by_id(self.eid)
         self.assertEqual(entry["logged_total"], 10)
 
     def test_daily_total_negative_diff(self):
-        """Should show warning and NOT log if diff is negative."""
         _logic.log_progress("Anki", 20)
         self.mock_ui.print_line = lambda x: None
 
-        result = _logic.handle_daily_total("daily_total Anki 10")
+        result = _logic.handle_daily_total("Anki 10")
         self.assertEqual(result, "Negative amount not logged. Please adjust manually.")
 
         entry = _logic.get_entry_by_id(self.eid)
         self.assertEqual(entry["logged_total"], 20)
 
     def test_daily_total_entry_not_found(self):
-        """Should return error if entry not found."""
-        result = _logic.handle_daily_total("daily_total NotFound 10")
+        result = _logic.handle_daily_total("NotFound 10")
         self.assertIn("Entry not found", result)
 
     def test_daily_total_kind_mismatch(self):
-        """Should return error if kind doesn't match."""
-        result = _logic.handle_daily_total("daily_total Anki 10", kind="nazr")
+        result = _logic.handle_daily_total("Anki 10", kind="nazr")
         self.assertIn("not a nazr", result)
 
 
@@ -169,58 +164,52 @@ class TestTargetsCounterTotal(unittest.TestCase):
         self.conn.close()
 
     def test_counter_total_normal(self):
-        """counter_total should log diff between value and stored counter."""
-        result = _logic.handle_counter_total("counter_total Salavat 50")
+        result = _logic.handle_counter_total("Salavat 50")
         self.assertIn("Salavat: 50/1000", result)
 
         entry = _logic.get_entry_by_id(self.eid)
         self.assertEqual(entry["logged_total"], 50)
 
-        _logic.handle_counter_total("counter_total Salavat 100")
+        _logic.handle_counter_total("Salavat 100")
         entry = _logic.get_entry_by_id(self.eid)
         self.assertEqual(entry["logged_total"], 100)
 
     def test_counter_total_zero_diff(self):
-        """Should show message and do nothing if diff is zero."""
-        _logic.handle_counter_total("counter_total Salavat 50")
-        result = _logic.handle_counter_total("counter_total Salavat 50")
+        _logic.handle_counter_total("Salavat 50")
+        result = _logic.handle_counter_total("Salavat 50")
         self.assertEqual(result, "No change. Nothing logged.")
 
         entry = _logic.get_entry_by_id(self.eid)
         self.assertEqual(entry["logged_total"], 50)
 
     def test_counter_total_negative_diff(self):
-        """Should show warning and NOT log if diff is negative."""
-        _logic.handle_counter_total("counter_total Salavat 100")
+        _logic.handle_counter_total("Salavat 100")
         self.mock_ui.print_line = lambda x: None
 
-        result = _logic.handle_counter_total("counter_total Salavat 50")
+        result = _logic.handle_counter_total("Salavat 50")
         self.assertEqual(result, "Negative amount not logged. Please adjust manually.")
 
         entry = _logic.get_entry_by_id(self.eid)
         self.assertEqual(entry["logged_total"], 100)
 
     def test_counter_reset(self):
-        """counter_reset should set counter to 0 without logging."""
-        _logic.handle_counter_total("counter_total Salavat 100")
+        _logic.handle_counter_total("Salavat 100")
         entry = _logic.get_entry_by_id(self.eid)
         self.assertEqual(entry["logged_total"], 100)
 
-        result = _logic.handle_counter_reset("counter_reset Salavat")
+        result = _logic.handle_counter_reset("Salavat")
         self.assertEqual(result, "Counter reset to 0 for Salavat")
 
         entry = _logic.get_entry_by_id(self.eid)
         self.assertEqual(entry["logged_total"], 100)
 
-        _logic.handle_counter_total("counter_total Salavat 50")
+        _logic.handle_counter_total("Salavat 50")
         entry = _logic.get_entry_by_id(self.eid)
         self.assertEqual(entry["logged_total"], 150)
 
     def test_counter_reset_entry_not_found(self):
-        """Should return error if entry not found."""
-        result = _logic.handle_counter_reset("counter_reset NotFound")
+        result = _logic.handle_counter_reset("NotFound")
         self.assertIn("Entry not found", result)
-
 
 if __name__ == "__main__":
     unittest.main()

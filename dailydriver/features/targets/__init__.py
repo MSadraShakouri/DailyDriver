@@ -24,23 +24,21 @@ def _targets_dispatcher(cmd: str, kind: str | None = None):
           None means all entries.
     """
     parts = cmd.strip().split()
-
-    # Bare command: open manager
     if len(parts) == 1:
         show_manager(kind=kind)
         return None
 
-    # Parse sub-command
     sub = parts[1].lower()
+    args = " ".join(parts[2:])  # everything after the sub-command
 
     if sub == "log":
-        return _logic.handle_log_command(cmd, kind)
+        return _logic.handle_log_command(args, kind)
     elif sub == "daily_total":
-        return _logic.handle_daily_total(cmd, kind)
+        return _logic.handle_daily_total(args, kind)
     elif sub == "counter_total":
-        return _logic.handle_counter_total(cmd, kind)
+        return _logic.handle_counter_total(args, kind)
     elif sub == "counter_reset":
-        return _logic.handle_counter_reset(cmd, kind)
+        return _logic.handle_counter_reset(args, kind)
     else:
         return f"Unknown sub-command: {sub}\nUsage: nazr log <name> <amount>"
 

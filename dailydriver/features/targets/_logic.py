@@ -172,24 +172,21 @@ def log_progress(name: str, amount: int, expected_kind: str | None = None) -> st
         return f"{name}: {total_display}"
 
 
-def handle_log_command(cmd: str, kind: str | None = None) -> str:
+def handle_log_command(args: str, kind: str | None = None) -> str:
     """Handle 'nazr log' or 'habit log' commands.
     kind: 'nazr' or 'habit' to validate the entry kind.
     Returns a confirmation string or an error message.
     """
-    parts = cmd.strip().split()
-    if len(parts) < 4:
-        return "Usage: nazr log <name> <amount>"
-
-    name = parts[2]
+    parts = args.strip().split()
+    if len(parts) < 2:
+        return "Usage: log <name> <amount>"
+    name, amount_str = parts[0], parts[1]
     try:
-        amount = int(parts[3])
+        amount = int(amount_str)
     except ValueError:
         return "Amount must be a number."
-
     if amount <= 0:
         return "Amount must be positive."
-
     return log_progress(name, amount, expected_kind=kind)
 
 
@@ -304,71 +301,64 @@ def delete_entry(entry_id: int) -> str:
     return f"Deleted: {entry['name']}"
 
 
-def handle_daily_total(cmd: str, kind: str | None = None) -> str:
+def handle_daily_total(args: str, kind: str | None = None) -> str:
     """
     Usage: nazr daily_total <name> <total>
            habit daily_total <name> <total>
     Logs the difference between total and what's already logged today.
     """
-    parts = cmd.strip().split()
-    if len(parts) < 3:
+    parts = args.strip().split()
+    if len(parts) != 2:
         return "Usage: daily_total <name> <total>"
-    name = parts[1]
+    name, total_str = parts[0], parts[1]
     try:
-        total = int(parts[2])
+        total = int(total_str)
     except ValueError:
         return "Total must be a number."
 
     entry = get_entry_by_name(name)
     if not entry:
         return f"Entry not found: {name}"
-
     if kind and entry["kind"] != kind:
         return f"'{name}' is a {entry['kind']}, not a {kind}."
 
     today = get_shifted_today()
     today_total = get_daily_total(entry["id"], today)
     diff = total - today_total
-
     if diff == 0:
         return "No change. Nothing logged."
-
     if diff < 0:
         current_ui.print_line(f"Warning: Total {total} is less than today's logged total ({today_total}).")
         return "Negative amount not logged. Please adjust manually."
-
     return log_progress(name, diff, kind)
 
 
-def handle_counter_total(cmd: str, kind: str | None = None) -> str:
+def handle_counter_total(args: str, kind: str | None = None) -> str:
     """
     Usage: nazr counter_total <name> <value>
            habit counter_total <name> <value>
     Logs the difference between value and the stored counter value.
     Updates the stored counter value after logging.
     """
-    parts = cmd.strip().split()
-    if len(parts) < 3:
+    parts = args.strip().split()
+    if len(parts) != 2:
         return "Usage: counter_total <name> <value>"
-    name = parts[1]
+    name, value_str = parts[0], parts[1]
     try:
-        value = int(parts[2])
+        value = int(value_str)
     except ValueError:
         return "Value must be a number."
 
     entry = get_entry_by_name(name)
     if not entry:
         return f"Entry not found: {name}"
-
     if kind and entry["kind"] != kind:
         return f"'{name}' is a {entry['kind']}, not a {kind}."
 
     last = get_counter_value(entry["id"])
     diff = value - last
-
     if diff == 0:
         return "No change. Nothing logged."
-
     if diff < 0:
         current_ui.print_line(f"Warning: Counter value {value} is less than previous value ({last}).")
         return "Negative amount not logged. Please adjust manually."
@@ -377,21 +367,20 @@ def handle_counter_total(cmd: str, kind: str | None = None) -> str:
     return log_progress(name, diff, kind)
 
 
-def handle_counter_reset(cmd: str, kind: str | None = None) -> str:
+def handle_counter_reset(args: str, kind: str | None = None) -> str:
     """
     Usage: nazr counter_reset <name>
            habit counter_reset <name>
     Resets the stored counter value to 0. Does not log anything.
     """
-    parts = cmd.strip().split()
-    if len(parts) < 2:
+    parts = args.strip().split()
+    if len(parts) != 1:
         return "Usage: counter_reset <name>"
-    name = parts[1]
+    name = parts[0]
 
     entry = get_entry_by_name(name)
     if not entry:
         return f"Entry not found: {name}"
-
     if kind and entry["kind"] != kind:
         return f"'{name}' is a {entry['kind']}, not a {kind}."
 
