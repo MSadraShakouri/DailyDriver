@@ -47,6 +47,12 @@ def show_manager(kind: str | None = None):
             _add_entry_interactive(kind)
         elif choice.startswith("l "):
             _log_from_manager(choice, kind)
+        elif choice.startswith("dt "):
+            _daily_total_from_manager(choice, kind)
+        elif choice.startswith("ct "):
+            _counter_total_from_manager(choice, kind)
+        elif choice.startswith("cr "):
+            _counter_reset_from_manager(choice, kind)
         elif choice.startswith("p "):
             _pause_from_manager(choice)
         elif choice.startswith("e "):
@@ -62,17 +68,20 @@ def _print_commands():
     """Print the command guide using spread_line."""
     tw = get_width()
 
-    line1_parts = ["l <#> <amount> log", "a add"]
-    line1 = spread_line(line1_parts, width=tw, margins=1 / 8)
+    line1 = spread_line(["l <#> <amount> log", "e <#> edit"], width=tw, margins=1/8)
     current_ui.print_line(line1)
 
-    line2_parts = ["p <#> pause/unpause", "e <#> edit"]
-    line2 = spread_line(line2_parts, width=tw, margins=1 / 8)
+    line2 = spread_line(["dt <#> <total> daily", "d <#> delete"], width=tw, margins=1/8)
     current_ui.print_line(line2)
 
-    line3_parts = ["d <#> delete", "? help", "q quit"]
-    line3 = spread_line(line3_parts, width=tw, margins=1 / 8)
+    line3 = spread_line(["ct <#> <value> counter", "a add"], width=tw, margins=1/8)
     current_ui.print_line(line3)
+
+    line4 = spread_line(["cr <#> reset", "? help"], width=tw, margins=1/8)
+    current_ui.print_line(line4)
+
+    line5 = spread_line(["p <#> pause/unpause", "q quit"], width=tw, margins=1/8)
+    current_ui.print_line(line5)
 
 
 def _show_help():
@@ -534,5 +543,112 @@ def _delete_from_manager(choice: str):
         return
 
     result = _logic.delete_entry(entry_id)
+    current_ui.print_line(result)
+    current_ui.prompt("Press Enter to continue.")
+
+
+def _daily_total_from_manager(choice: str, kind: str | None = None):
+    """Handle daily_total from manager: dt <#> <total>."""
+    parts = choice.strip().split()
+    if len(parts) < 3:
+        current_ui.print_line("Usage: dt <#> <total>")
+        current_ui.prompt("Press Enter to continue.")
+        return
+
+    try:
+        entry_id = int(parts[1])
+    except ValueError:
+        current_ui.print_line("ID must be a number.")
+        current_ui.prompt("Press Enter to continue.")
+        return
+
+    try:
+        total = int(parts[2])
+    except ValueError:
+        current_ui.print_line("Total must be a number.")
+        current_ui.prompt("Press Enter to continue.")
+        return
+
+    entry = _logic.get_entry_by_id(entry_id)
+    if not entry:
+        current_ui.print_line(f"Entry {entry_id} not found.")
+        current_ui.prompt("Press Enter to continue.")
+        return
+
+    if kind and entry["kind"] != kind:
+        current_ui.print_line(f"'{entry['name']}' is a {entry['kind']}, not a {kind}.")
+        current_ui.prompt("Press Enter to continue.")
+        return
+
+    result = _logic.handle_daily_total(f"daily_total {entry['name']} {total}", kind)
+    current_ui.print_line(result)
+    current_ui.prompt("Press Enter to continue.")
+
+
+def _counter_total_from_manager(choice: str, kind: str | None = None):
+    """Handle counter_total from manager: ct <#> <value>."""
+    parts = choice.strip().split()
+    if len(parts) < 3:
+        current_ui.print_line("Usage: ct <#> <value>")
+        current_ui.prompt("Press Enter to continue.")
+        return
+
+    try:
+        entry_id = int(parts[1])
+    except ValueError:
+        current_ui.print_line("ID must be a number.")
+        current_ui.prompt("Press Enter to continue.")
+        return
+
+    try:
+        value = int(parts[2])
+    except ValueError:
+        current_ui.print_line("Value must be a number.")
+        current_ui.prompt("Press Enter to continue.")
+        return
+
+    entry = _logic.get_entry_by_id(entry_id)
+    if not entry:
+        current_ui.print_line(f"Entry {entry_id} not found.")
+        current_ui.prompt("Press Enter to continue.")
+        return
+
+    if kind and entry["kind"] != kind:
+        current_ui.print_line(f"'{entry['name']}' is a {entry['kind']}, not a {kind}.")
+        current_ui.prompt("Press Enter to continue.")
+        return
+
+    result = _logic.handle_counter_total(f"counter_total {entry['name']} {value}", kind)
+    current_ui.print_line(result)
+    current_ui.prompt("Press Enter to continue.")
+
+
+def _counter_reset_from_manager(choice: str, kind: str | None = None):
+    """Handle counter_reset from manager: cr <#>."""
+    parts = choice.strip().split()
+    if len(parts) < 2:
+        current_ui.print_line("Usage: cr <#>")
+        current_ui.prompt("Press Enter to continue.")
+        return
+
+    try:
+        entry_id = int(parts[1])
+    except ValueError:
+        current_ui.print_line("ID must be a number.")
+        current_ui.prompt("Press Enter to continue.")
+        return
+
+    entry = _logic.get_entry_by_id(entry_id)
+    if not entry:
+        current_ui.print_line(f"Entry {entry_id} not found.")
+        current_ui.prompt("Press Enter to continue.")
+        return
+
+    if kind and entry["kind"] != kind:
+        current_ui.print_line(f"'{entry['name']}' is a {entry['kind']}, not a {kind}.")
+        current_ui.prompt("Press Enter to continue.")
+        return
+
+    result = _logic.handle_counter_reset(f"counter_reset {entry['name']}", kind)
     current_ui.print_line(result)
     current_ui.prompt("Press Enter to continue.")
