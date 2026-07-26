@@ -35,12 +35,11 @@ def set_day_start_hour(hour: int) -> None:
 
 
 def get_shifted_today(now: datetime | None = None) -> jdatetime.date:
-    """Return today's Jalali date shifted by day_start_hour.
-    If now.hour < day_start_hour, returns yesterday.
-    """
     if now is None:
         now = datetime.now()
     hour = get_day_start_hour()
+    # Convert now to Jalali date
+    jdate = jdatetime.date.fromgregorian(date=now.date())
     if now.hour < hour:
-        return jdatetime.date.today() - timedelta(days=1)
-    return jdatetime.date.today()
+        return jdate - timedelta(days=1)
+    return jdate
