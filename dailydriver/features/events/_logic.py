@@ -180,3 +180,16 @@ def cancel_great_event_cmd(_=None):
         return None
     clear_great_event()
     return "Great event cancelled."
+
+
+def update_last_action() -> str:
+    """Update last_action meta timestamp to now. Returns confirmation string."""
+    import time
+    from datetime import datetime
+
+    ts = int(time.time())
+    with get_connection_cm() as conn:
+        cur = conn.cursor()
+        cur.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('last_action', ?)", (str(ts),))
+        conn.commit()
+    return f"Last action updated to {datetime.fromtimestamp(ts).strftime('%H:%M')}"
