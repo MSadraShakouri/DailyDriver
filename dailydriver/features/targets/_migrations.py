@@ -1,6 +1,5 @@
 """Targets feature migrations."""
 
-
 def _migration_1(conn):
     conn.execute("""
         CREATE TABLE target_entries (
@@ -32,5 +31,15 @@ def _migration_1(conn):
     conn.commit()
 
 
+def _migration_2(conn):
+    """Add last_counter_value column to target_entries."""
+    cur = conn.cursor()
+    cur.execute("PRAGMA table_info(target_entries)")
+    columns = [row[1] for row in cur.fetchall()]
+    if "last_counter_value" not in columns:
+        cur.execute("ALTER TABLE target_entries ADD COLUMN last_counter_value INTEGER DEFAULT 0")
+    conn.commit()
+
+
 def migrations():
-    return [_migration_1]
+    return [_migration_1, _migration_2]
