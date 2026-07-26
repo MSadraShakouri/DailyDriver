@@ -311,12 +311,11 @@ def handle_daily_total(cmd: str, kind: str | None = None) -> str:
     Logs the difference between total and what's already logged today.
     """
     parts = cmd.strip().split()
-    if len(parts) < 4:
+    if len(parts) < 3:
         return "Usage: daily_total <name> <total>"
-
-    name = parts[2]
+    name = parts[1]
     try:
-        total = int(parts[3])
+        total = int(parts[2])
     except ValueError:
         return "Total must be a number."
 
@@ -335,10 +334,8 @@ def handle_daily_total(cmd: str, kind: str | None = None) -> str:
         return "No change. Nothing logged."
 
     if diff < 0:
-        current_ui.print_line(f"Warning: This would log a negative amount ({diff}).")
-        confirm = current_ui.prompt("Continue? (y/n): ").strip().lower()
-        if confirm != "y":
-            return "Cancelled."
+        current_ui.print_line(f"Warning: Total {total} is less than today's logged total ({today_total}).")
+        return "Negative amount not logged. Please adjust manually."
 
     return log_progress(name, diff, kind)
 
@@ -351,12 +348,11 @@ def handle_counter_total(cmd: str, kind: str | None = None) -> str:
     Updates the stored counter value after logging.
     """
     parts = cmd.strip().split()
-    if len(parts) < 4:
+    if len(parts) < 3:
         return "Usage: counter_total <name> <value>"
-
-    name = parts[2]
+    name = parts[1]
     try:
-        value = int(parts[3])
+        value = int(parts[2])
     except ValueError:
         return "Value must be a number."
 
@@ -374,10 +370,8 @@ def handle_counter_total(cmd: str, kind: str | None = None) -> str:
         return "No change. Nothing logged."
 
     if diff < 0:
-        current_ui.print_line(f"Warning: This would log a negative amount ({diff}).")
-        confirm = current_ui.prompt("Continue? (y/n): ").strip().lower()
-        if confirm != "y":
-            return "Cancelled."
+        current_ui.print_line(f"Warning: Counter value {value} is less than previous value ({last}).")
+        return "Negative amount not logged. Please adjust manually."
 
     set_counter_value(entry["id"], value)
     return log_progress(name, diff, kind)
@@ -390,10 +384,9 @@ def handle_counter_reset(cmd: str, kind: str | None = None) -> str:
     Resets the stored counter value to 0. Does not log anything.
     """
     parts = cmd.strip().split()
-    if len(parts) < 3:
+    if len(parts) < 2:
         return "Usage: counter_reset <name>"
-
-    name = parts[2]
+    name = parts[1]
 
     entry = get_entry_by_name(name)
     if not entry:
