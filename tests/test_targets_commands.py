@@ -211,5 +211,6 @@ class TestTargetsCounterTotal(unittest.TestCase):
         result = _logic.handle_counter_reset("NotFound")
         self.assertIn("Entry not found", result)
 
+
 if __name__ == "__main__":
     unittest.main()
