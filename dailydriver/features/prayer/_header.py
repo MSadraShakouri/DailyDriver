@@ -33,10 +33,11 @@ def get_prayer_parts(conn, today):
 
 def get_prayer_nudges(conn, target_date, today_str, is_today, now=None):
     """Return list of nudge strings (pre‑alert or overdue). Only active for today."""
-    if is_travel_mode():
-        return []
     if not is_today:
         return []
+
+    if is_travel_mode():
+        return _get_travel_next_nudge(conn, today_str)
 
     if now is None:
         now = datetime.now()
@@ -144,3 +145,21 @@ def get_prayer_nudges(conn, target_date, today_str, is_today, now=None):
                         break
         d -= jdatetime.timedelta(days=1)
     return nudges[:5]
+
+
+def _get_travel_next_nudge(conn, today_str):
+    """Return a single overdue‑style nudge for the first unlogged prayer slot today (travel mode only)."""
+    slots = ["fajr", "dhuhr_asr", "maghrib_isha"]
+    RED = "\033[31m"
+    RESET = "\033[0m"
+
+    for slot in slots:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT 1 FROM prayer_logs WHERE prayer_slot = ? AND jalali_date = ?",
+            (slot, today_str),
+        )
+        if cur.fetchone() is None:
+            display = slot.replace("_", " & ").title()
+            return [f"{RED}⚠️ {display} not logged (today){RESET}"]
+    return []
