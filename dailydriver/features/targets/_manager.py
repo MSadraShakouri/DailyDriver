@@ -110,7 +110,9 @@ def _format_next_due(next_instance, today):
     if next_instance is None:
         return "-"
     days = (next_instance - today).days
-    if days == 0:
+    if days < 0:
+        return "Overdue"
+    elif days == 0:
         return "today"
     elif days == 1:
         return "tomorrow"

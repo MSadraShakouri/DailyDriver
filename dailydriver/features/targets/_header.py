@@ -49,7 +49,7 @@ def get_targets_header_lines(conn):
 
         # Check if today is the due date
         next_due = _logic.compute_next_due(entry, today)
-        if next_due != today:
+        if next_due is None or next_due > today:
             continue
 
         # Calculate today's progress
@@ -70,7 +70,14 @@ def get_targets_header_lines(conn):
 
         # Build the line with emoji based on kind
         emoji = "🎯" if entry["kind"] == "nazr" else "📊"
-        line = f"{emoji} {entry['name']}: {progress_display} for today"
+
+        # Determine suffix
+        if next_due == today:
+            suffix = "for today"
+        else:  # next_due < today (overdue)
+            suffix = "\033[31mOverdue!\033[0m"
+
+        line = f"{emoji} {entry['name']}: {progress_display} {suffix}"
         lines.append(line)
 
     return lines
