@@ -14,6 +14,7 @@ def register_commands(dispatch):
     dispatch["ln"] = _logic.log_chain_now
     dispatch["sge"] = _logic.start_great_event_cmd
     dispatch["ege"] = _logic.end_great_event_cmd
+    dispatch["cge"] = _logic.cancel_great_event_cmd
     dispatch["u"] = lambda _: _logic.update_last_action()
     dispatch["update"] = lambda _: _logic.update_last_action()
 

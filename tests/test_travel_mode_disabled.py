@@ -60,9 +60,10 @@ class TestTravelModeDisabled(unittest.TestCase):
     def test_prayer_nudges_disabled(self):
         travel_mode.set_travel_mode(True)
         from dailydriver.features.prayer._header import get_prayer_nudges
-
         result = get_prayer_nudges(self.conn, jdatetime.date.today(), self.today, is_today=True)
-        self.assertEqual(result, [])
+        # In travel mode, we now show the first unlogged prayer slot as an overdue-style nudge.
+        expected = ['\x1b[31m⚠️ Fajr not logged (today)\x1b[0m']
+        self.assertEqual(result, expected)
 
     def test_qada_nudges_disabled(self):
         travel_mode.set_travel_mode(True)
