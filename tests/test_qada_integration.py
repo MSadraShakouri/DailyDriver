@@ -1,12 +1,10 @@
 # tests/test_qada_integration.py
-
 from dailydriver.core.database import get_connection_cm
 from dailydriver.features.qada import _logic
 
 
 def test_add_entry_persists(isolated_db):
     eid = _logic.add_entry("Fajr", "prayer", "n_days", "1", slot="fajr")
-    # Open a new connection and verify
     with get_connection_cm(auto=False) as conn:
         cur = conn.cursor()
         row = cur.execute(
@@ -22,12 +20,31 @@ def test_add_entry_persists(isolated_db):
 
 def test_toggle_pause_persists(isolated_db):
     eid = _logic.add_entry("Fasting", "fasting", "daily", None, slot=None)
-    _logic.toggle_pause(eid, "1405-03-01", "1405-03-10")
+    _logic.toggle_pause(eid, days=3)
     with get_connection_cm(auto=False) as conn:
         cur = conn.cursor()
-        row = cur.execute("SELECT paused_from, paused_until FROM qada_entries WHERE id=?", (eid,)).fetchone()
-        assert row["paused_from"] == "1405-03-01"
-        assert row["paused_until"] == "1405-03-10"
+        row = cur.execute("SELECT paused_until FROM qada_entries WHERE id=?", (eid,)).fetchone()
+        assert row["paused_until"] is not None
+        # Check it's about 3 days in the future
+        from datetime import timedelta
+
+        import jdatetime
+
+        today = jdatetime.date.today()
+        pause_date = jdatetime.date(*map(int, row["paused_until"].split("-")))
+        assert pause_date == today + timedelta(days=3)
+
+
+def test_toggle_pause_toggle_off(isolated_db):
+    eid = _logic.add_entry("Fasting", "fasting", "daily", None, slot=None)
+    # Pause
+    _logic.toggle_pause(eid, days=3)
+    # Unpause
+    _logic.toggle_pause(eid)
+    with get_connection_cm(auto=False) as conn:
+        cur = conn.cursor()
+        row = cur.execute("SELECT paused_until FROM qada_entries WHERE id=?", (eid,)).fetchone()
+        assert row["paused_until"] is None
 
 
 def test_delete_entry_persists(isolated_db):

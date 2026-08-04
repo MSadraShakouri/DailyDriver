@@ -78,5 +78,61 @@ def _migration_4(conn):
     conn.commit()
 
 
+def _migration_5(conn):
+    # Turn off foreign key enforcement so ON DELETE CASCADE doesn't wipe logs
+    conn.execute("PRAGMA foreign_keys = OFF")
+
+    # Drop the qada_declines table
+    conn.execute("DROP TABLE IF EXISTS qada_declines")
+
+    # Remove paused_from column from qada_entries
+    cur = conn.cursor()
+    cur.execute("PRAGMA table_info(qada_entries)")
+    columns = [row[1] for row in cur.fetchall()]
+
+    if "paused_from" not in columns:
+        conn.execute("PRAGMA foreign_keys = ON")
+        conn.commit()
+        return  # Already migrated, nothing to do
+
+    # Create new table without paused_from
+    conn.execute("""
+        CREATE TABLE qada_entries_new (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            kind TEXT NOT NULL CHECK(kind IN ('prayer', 'fasting')),
+            interval_type TEXT,
+            interval_value TEXT,
+            interval_calendar TEXT DEFAULT 'jalali',
+            paused_until TEXT,
+            created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+            slot TEXT,
+            target_total INTEGER DEFAULT -1,
+            logged_total INTEGER DEFAULT 0
+        )
+    """)
+
+    # Copy data
+    conn.execute("""
+        INSERT INTO qada_entries_new (id, name, kind, interval_type, interval_value,
+                                      interval_calendar, paused_until, created_at,
+                                      slot, target_total, logged_total)
+        SELECT id, name, kind, interval_type, interval_value,
+               interval_calendar, paused_until, created_at,
+               slot, target_total, logged_total
+        FROM qada_entries
+    """)
+
+    # Drop old table (foreign keys are OFF, so logs survive)
+    conn.execute("DROP TABLE qada_entries")
+
+    # Rename new table
+    conn.execute("ALTER TABLE qada_entries_new RENAME TO qada_entries")
+
+    # Re-enable foreign keys
+    conn.execute("PRAGMA foreign_keys = ON")
+    conn.commit()
+
+
 def migrations():
-    return [_migration_1, _migration_2, _migration_3, _migration_4]
+    return [_migration_1, _migration_2, _migration_3, _migration_4, _migration_5]

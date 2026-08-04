@@ -9,6 +9,8 @@ from dailydriver.core.travel_mode import is_travel_mode
 from dailydriver.features.qada._logic import compute_pending_instance, list_entries
 from dailydriver.utils.prayer_times import get_approximate_times
 
+from ._logic import _is_paused
+
 
 def get_prayer_nudges(conn, target_date, now=None):
     """Return nudge lines for qada prayer entries with a pending instance today.
@@ -99,7 +101,6 @@ def get_fasting_nudges(conn, target_date, now=None):
         now = datetime.now()
 
     today_j = jdatetime.date.today()
-
     if target_date != today_j:
         return []
 
@@ -107,16 +108,9 @@ def get_fasting_nudges(conn, target_date, now=None):
     nudges = []
 
     for entry in entries:
-        # Check paused
-        paused_until = entry.get("paused_until")
-        if paused_until:
-            try:
-                y, m, d = map(int, paused_until.split("-"))
-                pause_date = jdatetime.date(y, m, d)
-                if pause_date >= today_j:
-                    continue
-            except (ValueError, TypeError):
-                pass
+        # Skip paused entries (using new _is_paused)
+        if _is_paused(entry, today_j):
+            continue
 
         # Need interval to be scheduled
         if not entry.get("interval_type"):
@@ -130,63 +124,29 @@ def get_fasting_nudges(conn, target_date, now=None):
         if pending is None:
             continue
 
-        # If pending is before today, auto-no
+        # If pending is in the past → overdue
         if pending < target_date:
-            day = pending
-            while day < target_date:
-                day_str = day.strftime("%Y-%m-%d")
-                cur = conn.cursor()
-                cur.execute(
-                    "SELECT 1 FROM qada_logs WHERE entry_id=? AND instance_date=?",
-                    (entry["id"], day_str),
-                )
-                if cur.fetchone():
-                    day += jdatetime.timedelta(days=1)
-                    continue
-                cur.execute(
-                    "SELECT 1 FROM qada_declines WHERE entry_id=? AND instance_date=?",
-                    (entry["id"], day_str),
-                )
-                if cur.fetchone():
-                    day += jdatetime.timedelta(days=1)
-                    continue
-                cur.execute(
-                    "INSERT OR IGNORE INTO qada_declines (entry_id, instance_date, logged_at) VALUES (?,?,?)",
-                    (entry["id"], day_str, int(now.timestamp())),
-                )
-                day += jdatetime.timedelta(days=1)
-            conn.commit()
+            nudges.append("🌙 Fasting overdue!")
             continue
 
-        # If pending is after today, no nudge yet
-        if pending > target_date:
-            continue
+        # If pending is today → pending
+        if pending == target_date:
+            # Check if already responded (log exists)
+            cur = conn.cursor()
+            cur.execute(
+                "SELECT 1 FROM qada_logs WHERE entry_id=? AND instance_date=?",
+                (entry["id"], target_date.strftime("%Y-%m-%d")),
+            )
+            if cur.fetchone():
+                continue
+            # Not set or pending
+            if target == -1:
+                nudges.append("🌙 Fasting: not set")
+            elif target > 0 and logged >= target:
+                continue  # complete
+            else:
+                nudges.append("🌙 Fasting pending")
 
-        # pending == today: check if already responded
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT 1 FROM qada_logs WHERE entry_id=? AND instance_date=?",
-            (entry["id"], target_date.strftime("%Y-%m-%d")),
-        )
-        if cur.fetchone():
-            continue
-        cur.execute(
-            "SELECT 1 FROM qada_declines WHERE entry_id=? AND instance_date=?",
-            (entry["id"], target_date.strftime("%Y-%m-%d")),
-        )
-        if cur.fetchone():
-            continue
-
-        # Not set
-        if target == -1:
-            nudges.append("🌙 Fasting: not set")
-            continue
-
-        # Complete
-        if target > 0 and logged >= target:
-            continue
-
-        # Pending
-        nudges.append("🌙 Fasting pending")
+        # If pending > today, skip (too early)
 
     return nudges

@@ -86,11 +86,12 @@ def _smart_percent(value):
 
 
 def _format_next_due(next_instance, today):
-    """Format next due as 'today', 'tomorrow', or 'in X days'."""
     if next_instance is None:
         return "-"
     days = (next_instance - today).days
-    if days == 0:
+    if days < 0:
+        return "Overdue"
+    elif days == 0:
         return "today"
     elif days == 1:
         return "tomorrow"

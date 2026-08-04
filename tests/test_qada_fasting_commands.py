@@ -29,72 +29,67 @@ class TestQadaFastingCommands(unittest.TestCase):
         self.patcher.stop()
         self.conn.close()
 
-    def _add_fasting_entry(self, name="Ramadan", interval_type="daily", target_total=1):
-        self.conn.execute(
-            "INSERT INTO qada_entries (name, kind, interval_type, target_total, logged_total) VALUES (?,?,?,?,?)",
-            (name, "fasting", interval_type, target_total, 0),
-        )
+    def _add_fasting_entry(self, name="Ramadan", interval_type="daily", target_total=1, created_at=None):
+        if created_at is None:
+            self.conn.execute(
+                "INSERT INTO qada_entries (name, kind, interval_type, target_total, logged_total) VALUES (?,?,?,?,?)",
+                (name, "fasting", interval_type, target_total, 0),
+            )
+        else:
+            self.conn.execute(
+                "INSERT INTO qada_entries (name, kind, interval_type, target_total, logged_total, created_at) VALUES (?,?,?,?,?,?)",
+                (name, "fasting", interval_type, target_total, 0, created_at),
+            )
         self.conn.commit()
         return self.conn.execute("SELECT id FROM qada_entries WHERE name=?", (name,)).fetchone()["id"]
 
     def test_log_fasting_inserts_log(self):
-        result = _logic.log_fasting(self.entry_id)  # noqa: F841
+        today_start = int(jdatetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).timestamp())
+        eid = self._add_fasting_entry(created_at=today_start)
+        result = _logic.log_fasting(eid)
         self.assertIn("1/1 (100.000%)", result)
         row = self.conn.execute(
             "SELECT amount, instance_date FROM qada_logs WHERE entry_id=?",
-            (self.entry_id,),
+            (eid,),
         ).fetchone()
         self.assertEqual(row["amount"], 1)
         self.assertEqual(row["instance_date"], self.today)
 
-    def test_log_fasting_fails_if_decline_exists(self):
-        # First decline
-        _logic.decline_fasting(self.entry_id)
-        # Then try to log – should fail
-        result = _logic.log_fasting(self.entry_id)
-        self.assertIn("Cannot log: you already declined today", result)
-        # No log row should exist
+    def test_log_fasting_uses_specified_now(self):
+        today_start = int(jdatetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).timestamp())
+        eid = self._add_fasting_entry(created_at=today_start)
+        fake_now = 1234567890
+        _logic.log_fasting(eid, now=fake_now)
         row = self.conn.execute(
-            "SELECT 1 FROM qada_logs WHERE entry_id=? AND instance_date=?",
-            (self.entry_id, self.today),
+            "SELECT logged_at FROM qada_logs WHERE entry_id=? AND instance_date=?",
+            (eid, self.today),
         ).fetchone()
-        self.assertIsNone(row)
-        # Decline should still exist
-        row = self.conn.execute(
-            "SELECT 1 FROM qada_declines WHERE entry_id=? AND instance_date=?",
-            (self.entry_id, self.today),
-        ).fetchone()
-        self.assertIsNotNone(row)
+        self.assertEqual(row["logged_at"], fake_now)
 
-    def test_decline_fasting_inserts_decline(self):
-        result = _logic.decline_fasting(self.entry_id)  # noqa: F841
-        self.assertIn("Fasting declined", result)
+    def test_log_fasting_without_target(self):
+        # Create entry with target=-1 (unbounded)
+        eid = self._add_fasting_entry(name="Unbounded", target_total=-1)
+        result = _logic.log_fasting(eid)
+        self.assertIn("1/∞", result)
         row = self.conn.execute(
-            "SELECT instance_date FROM qada_declines WHERE entry_id=? AND instance_date=?",
-            (self.entry_id, self.today),
+            "SELECT logged_total FROM qada_entries WHERE id=?",
+            (eid,),
         ).fetchone()
-        self.assertEqual(row["instance_date"], self.today)
-
-    def test_decline_fasting_is_idempotent(self):
-        _logic.decline_fasting(self.entry_id)
-        _logic.decline_fasting(self.entry_id)
-        count = self.conn.execute(
-            "SELECT COUNT(*) FROM qada_declines WHERE entry_id=? AND instance_date=?",
-            (self.entry_id, self.today),
-        ).fetchone()[0]
-        self.assertEqual(count, 1)
+        self.assertEqual(row["logged_total"], 1)
 
     def test_qada_fasting_yes_parses(self):
         with patch("dailydriver.features.qada._logic.log_fasting") as mock_log:
             mock_log.return_value = "Logged"
-            result = _logic._parse_fasting("yes")  # noqa: F841
+            result = _logic._parse_fasting("yes")
             mock_log.assert_called_once_with(self.entry_id)
+            self.assertEqual(result, "Logged")
 
-    def test_qada_fasting_no_parses(self):
-        with patch("dailydriver.features.qada._logic.decline_fasting") as mock_decline:
-            mock_decline.return_value = "Declined"
-            result = _logic._parse_fasting("no")  # noqa: F841
-            mock_decline.assert_called_once_with(self.entry_id)
+    def test_qada_fasting_no_parses_to_pause(self):
+        with patch("dailydriver.features.qada._logic.pause_fasting_entry") as mock_pause:
+            mock_pause.return_value = "Paused"
+            result = _logic._parse_fasting("no")
+            mock_pause.assert_called_once()
+            self.assertEqual(result, "Paused")
 
     def test_qada_fasting_invalid_returns_usage(self):
         result = _logic._parse_fasting("maybe")
@@ -110,24 +105,6 @@ class TestQadaFastingCommands(unittest.TestCase):
         self.conn.commit()
         result = _logic._parse_fasting("yes")
         self.assertEqual(result, "No fasting entry found. Add one first.")
-
-    def test_log_fasting_uses_specified_now(self):
-        fake_now = 1234567890
-        result = _logic.log_fasting(self.entry_id, now=fake_now)  # noqa: F841
-        row = self.conn.execute(
-            "SELECT logged_at FROM qada_logs WHERE entry_id=? AND instance_date=?",
-            (self.entry_id, self.today),
-        ).fetchone()
-        self.assertEqual(row["logged_at"], fake_now)
-
-    def test_decline_fasting_uses_specified_now(self):
-        fake_now = 9876543210
-        result = _logic.decline_fasting(self.entry_id, now=fake_now)  # noqa: F841
-        row = self.conn.execute(
-            "SELECT logged_at FROM qada_declines WHERE entry_id=? AND instance_date=?",
-            (self.entry_id, self.today),
-        ).fetchone()
-        self.assertEqual(row["logged_at"], fake_now)
 
 
 if __name__ == "__main__":

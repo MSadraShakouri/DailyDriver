@@ -200,51 +200,36 @@ def log_prayer_qada(entry_id, amount, now=None):
 
 def compute_pending_instance(entry, today):
     """Return the pending instance date for *entry* on *today*, or None."""
-    import jdatetime
+    # 1. Check pause
+    paused_until = entry.get("paused_until")
+    if paused_until:
+        try:
+            y, m, d = map(int, paused_until.split("-"))
+            pause_date = jdatetime.date(y, m, d)
+            if pause_date >= today:
+                return None
+        except (ValueError, TypeError):
+            pass
 
-    if _is_paused(entry, today):
-        return None
-
-    if not entry.get("interval_type"):
-        return None
-
-    # Find the most recent log or decline date
+    # 2. Get the most recent log date
     last_log = _get_last_log_date(entry["id"])
-    last_decline = _get_last_decline_date(entry["id"])
-    last_fulfilled = last_log if last_log else None
-    if last_decline and (last_fulfilled is None or last_decline > last_fulfilled):
-        last_fulfilled = last_decline
-
-    # Resolve reference date from created_at
-    ref_str = entry.get("created_at")
-    if ref_str:
-        if isinstance(ref_str, int):
-            ref_date = jdatetime.date.fromtimestamp(ref_str)
-        else:
-            ref_date = jdatetime.date(*map(int, str(ref_str).split("-")))
+    if last_log is not None:
+        # There is a log – the next instance is after the last log
+        ref_date = last_log
+        last_fulfilled = last_log
     else:
+        # No logs yet – start from today
         ref_date = today
+        last_fulfilled = None
 
-    next_date = next_instance_date(
+    # 3. Compute next instance
+    return next_instance_date(
         entry["interval_type"],
         entry.get("interval_value"),
         entry.get("interval_calendar", "jalali"),
         last_fulfilled,
         ref_date,
     )
-
-    # --- amount-deferred scheduling (for qada prayers only) ---
-    if next_date and entry["interval_type"] in ("n_days", "daily"):
-        last_amount = _get_last_log_amount(entry["id"])
-        if last_amount and last_amount > 1:
-            # Determine the interval length in days
-            if entry["interval_type"] == "n_days" and entry.get("interval_value"):
-                ival = int(entry["interval_value"])
-            else:
-                ival = 1  # daily defaults to 1 day
-            next_date = next_date + jdatetime.timedelta(days=(last_amount - 1) * ival)
-
-    return next_date
 
 
 def log_fasting(entry_id, now=None):
@@ -262,14 +247,6 @@ def log_fasting(entry_id, now=None):
     with get_connection_cm() as conn:
         cur = conn.cursor()
 
-        # Check if decline exists for today
-        cur.execute(
-            "SELECT 1 FROM qada_declines WHERE entry_id=? AND instance_date=?",
-            (entry_id, today_str),
-        )
-        if cur.fetchone():
-            return "Cannot log: you already declined today. Use the manager to edit."
-
         # Get the entry
         cur.execute("SELECT * FROM qada_entries WHERE id=?", (entry_id,))
         row = cur.fetchone()
@@ -277,13 +254,13 @@ def log_fasting(entry_id, now=None):
             return "Entry not found."
         entry = dict(row)
 
-        # Compute pending instance
+        # Compute pending instance (for display only – we don't use it for the log)
         pending = compute_pending_instance(entry, today_j)
         if pending is None:
             return "No pending fasting instance."
 
-        # If pending is not today, we still log against that date (past fast)
-        instance_date = pending.strftime("%Y-%m-%d")
+        # Always log against today's date. The pending date is for display only.
+        instance_date = today_str
 
         # Check if there's already a log or decline for that instance date
         cur.execute(
@@ -292,14 +269,6 @@ def log_fasting(entry_id, now=None):
         )
         if cur.fetchone():
             return f"Already logged for {instance_date}."
-
-        cur.execute(
-            "SELECT 1 FROM qada_declines WHERE entry_id=? AND instance_date=?",
-            (entry_id, instance_date),
-        )
-        if cur.fetchone():
-            # Decline exists for this instance – refuse (no is final)
-            return f"Cannot log: you already declined for {instance_date}."
 
         logged = entry.get("logged_total", 0)
         target = entry.get("target_total", -1)
@@ -340,29 +309,15 @@ def log_fasting(entry_id, now=None):
     return f"{name}: {display} ({pct})"
 
 
-def decline_fasting(entry_id, now=None):
-    """Decline a fasting entry for today (no). Returns confirmation string."""
-    if now is None:
-        now = time.time()
-
-    import jdatetime
-
-    today = jdatetime.date.today().strftime("%Y-%m-%d")
-
-    with get_connection_cm() as conn:
+def pause_fasting_entry() -> str:
+    """Pause the fasting entry for 1 day."""
+    with get_connection_cm(auto=False) as conn:
         cur = conn.cursor()
-
-        # Insert decline (idempotent)
-        cur.execute(
-            "INSERT OR IGNORE INTO qada_declines (entry_id, instance_date, logged_at) VALUES (?,?,?)",
-            (entry_id, today, int(now)),
-        )
-        conn.commit()
-
-        cur.execute("SELECT name FROM qada_entries WHERE id=?", (entry_id,))
-        entry = cur.fetchone()
-        name = entry["name"] if entry else str(entry_id)
-        return f"Fasting declined for {name}"
+        cur.execute("SELECT id FROM qada_entries WHERE kind='fasting' ORDER BY id LIMIT 1")
+        row = cur.fetchone()
+    if not row:
+        return "No fasting entry found."
+    return toggle_pause(row["id"], days=1)
 
 
 def resolve_entry_id(arg):
@@ -397,15 +352,40 @@ def get_entry(entry_id):
         return dict(row) if row else None
 
 
-def toggle_pause(entry_id, paused_from=None, paused_until=None):
-    """Set or clear the pause range for an entry."""
+def toggle_pause(entry_id, days: int = 1) -> str:
+    """Toggle pause: if paused, resume; else pause for `days`."""
+    entry = get_entry(entry_id)
+    if not entry:
+        return f"Entry {entry_id} not found."
+
+    today = jdatetime.date.today()
+    paused_until = entry.get("paused_until")
+    currently_paused = False
+    if paused_until:
+        try:
+            y, m, d = map(int, paused_until.split("-"))
+            pause_date = jdatetime.date(y, m, d)
+            if pause_date >= today:
+                currently_paused = True
+        except (ValueError, TypeError):
+            pass
+
     with get_connection_cm() as conn:
         cur = conn.cursor()
-        cur.execute(
-            "UPDATE qada_entries SET paused_from=?, paused_until=? WHERE id=?",
-            (paused_from, paused_until, entry_id),
-        )
-        conn.commit()
+        if currently_paused:
+            # Unpause: clear paused_until
+            cur.execute("UPDATE qada_entries SET paused_until = NULL WHERE id = ?", (entry_id,))
+            conn.commit()
+            return f"Unpaused {entry['name']}"
+        else:
+            # Pause for N days
+            pause_date = today + jdatetime.timedelta(days=days)
+            cur.execute(
+                "UPDATE qada_entries SET paused_until = ? WHERE id = ?",
+                (pause_date.strftime("%Y-%m-%d"), entry_id),
+            )
+            conn.commit()
+            return f"Paused {entry['name']} until {pause_date.strftime('%Y-%m-%d')} ({days} days)"
 
 
 def delete_entry(entry_id):
@@ -460,29 +440,11 @@ def edit_entry(entry_id, **kwargs):
 
 
 def _get_last_log_date(entry_id):
-    """Return the most recent instance_date from qada_logs for the entry, as a jdatetime.date or None."""
-    import jdatetime
-
+    """Return the most recent instance_date from qada_logs for the entry."""
     with get_connection_cm(auto=False) as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT instance_date FROM qada_logs WHERE entry_id=? ORDER BY instance_date DESC LIMIT 1",
-            (entry_id,),
-        )
-        row = cur.fetchone()
-        if row and row["instance_date"]:
-            return jdatetime.date(*map(int, row["instance_date"].split("-")))
-    return None
-
-
-def _get_last_decline_date(entry_id):
-    """Return the most recent instance_date from qada_declines for the entry, as a jdatetime.date or None."""
-    import jdatetime
-
-    with get_connection_cm(auto=False) as conn:
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT instance_date FROM qada_declines WHERE entry_id=? ORDER BY instance_date DESC LIMIT 1",
             (entry_id,),
         )
         row = cur.fetchone()
@@ -504,16 +466,15 @@ def _get_last_log_amount(entry_id):
 
 
 def _is_paused(entry, today):
-    """Return True if *entry* is paused on *today*."""
-    paused_from = entry.get("paused_from")
     paused_until = entry.get("paused_until")
-    if not paused_from:
+    if not paused_until:
         return False
-    today_str = today.strftime("%Y-%m-%d") if hasattr(today, "strftime") else today
-    if paused_from <= today_str:
-        if paused_until is None or today_str <= paused_until:
-            return True
-    return False
+    try:
+        y, m, d = map(int, paused_until.split("-"))
+        pause_date = jdatetime.date(y, m, d)
+        return pause_date >= today
+    except (ValueError, TypeError):
+        return False
 
 
 # ---------------------------------------------------------------------------
@@ -578,4 +539,4 @@ def _parse_fasting(args_str):
     if response == "yes":
         return log_fasting(entry_id)
     else:  # "no"
-        return decline_fasting(entry_id)
+        return pause_fasting_entry()
