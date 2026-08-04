@@ -40,3 +40,16 @@ def get_shifted_today(now: datetime | None = None) -> jdatetime.date:
     if now.hour < hour:
         return jdate - timedelta(days=1)
     return jdate
+
+
+def shift_timestamp_to_date(timestamp: int) -> jdatetime.date:
+    """
+    Given a Unix timestamp, return the Jalali date after applying day_start_hour.
+    If the timestamp's hour is before day_start_hour, the date is shifted back by one day.
+    """
+    dt = datetime.fromtimestamp(timestamp)
+    hour = get_day_start_hour()
+    jdate = jdatetime.date.fromgregorian(date=dt.date())
+    if dt.hour < hour:
+        return jdate - timedelta(days=1)
+    return jdate

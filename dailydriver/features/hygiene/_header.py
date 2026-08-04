@@ -3,14 +3,14 @@ import time
 from datetime import datetime
 
 from dailydriver.core.database import get_last_hygiene_time
-from dailydriver.core.day_start import get_shifted_today
+from dailydriver.core.day_start import get_shifted_today, shift_timestamp_to_date
 
 
 def compute_hygiene_nudges(conn, relative_to=None):
     """
     Return a list of human‑readable nudge strings based on hygiene_config.
     If `relative_to` is a jdatetime.date, compute nudges relative to that date
-    (for past‑day views); otherwise use today.
+    (for past‑day views); otherwise use today's shifted date.
     """
     cur = conn.cursor()
     cur.execute(
@@ -19,13 +19,11 @@ def compute_hygiene_nudges(conn, relative_to=None):
     hygiene_items = cur.fetchall()
     nudge_lines = []
 
-    # Determine the "now" for comparison
+    # Determine the "now" date (shifted)
     if relative_to is not None:
-        # Convert Jalali date to the end of that day (23:59:59)
-        gdate = relative_to.togregorian()
-        now_ts = int(datetime(gdate.year, gdate.month, gdate.day, 23, 59, 59).timestamp())
+        today_date = relative_to
     else:
-        now_ts = int(time.time())
+        today_date = get_shifted_today()
 
     for item_row in hygiene_items:
         item = item_row["item"]
@@ -34,10 +32,12 @@ def compute_hygiene_nudges(conn, relative_to=None):
         due_today_enabled = item_row["show_due_today"]
 
         last_time = get_last_hygiene_time(conn, item)
-        days_since = (now_ts - last_time) // 86400 if last_time else None
-
-        if days_since is None:
+        if last_time is None:
             continue
+
+        # Shift last log to its proper day
+        last_shifted_date = shift_timestamp_to_date(last_time)
+        days_since = (today_date - last_shifted_date).days
 
         # Early warning thresholds (hardcoded)
         if desired >= 15:

@@ -111,6 +111,27 @@ class TestHygieneNudges(unittest.TestCase):
         self.assertIn("shave", nudges[0])
         self.assertIn("due in 2d", nudges[0])
 
+    @patch("dailydriver.features.hygiene._header.get_last_hygiene_time")
+    def test_shift_before_day_start(self, mock_last):
+        # Set day start to 4:00
+        from dailydriver.core.day_start import set_day_start_hour
+
+        set_day_start_hour(4)
+
+        # Insert item with interval 1 day
+        self._insert_item("shower", 1)
+
+        # Simulate last log at 00:20 today (should be shifted to yesterday)
+        now_dt = datetime(2026, 8, 4, 10, 0, 0)  # after 4:00
+        last_time = datetime(2026, 8, 4, 0, 20, 0).timestamp()
+        mock_last.return_value = last_time
+
+        # relative_to is today's shifted date (which is 2026-08-04)
+        nudges = compute_hygiene_nudges(self.conn, relative_to=jdatetime.date(1405, 5, 13))  # 2026-08-04 in Jalali
+        # days_since should be 1 (since last log is considered yesterday) -> due today
+        self.assertEqual(len(nudges), 1)
+        self.assertIn("due today", nudges[0])
+
 
 if __name__ == "__main__":
     unittest.main()

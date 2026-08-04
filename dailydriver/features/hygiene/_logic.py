@@ -6,7 +6,7 @@ from datetime import datetime
 import jdatetime
 
 from dailydriver.core.database import get_connection_cm, get_last_hygiene_time
-from dailydriver.core.day_start import get_shifted_today
+from dailydriver.core.day_start import get_shifted_today, shift_timestamp_to_date
 from dailydriver.display.display_utils import get_width, spread_line
 from dailydriver.display.header import build_header_data
 from dailydriver.display.header_renderer import print_header
@@ -55,10 +55,9 @@ def manage_hygiene():
 
                 last_time = get_last_hygiene_time(conn, item)
                 if last_time:
-                    last_dt = datetime.fromtimestamp(last_time)
-                    last_jdate = jdatetime.date.fromgregorian(date=last_dt.date())
+                    last_shifted = shift_timestamp_to_date(last_time)
                     shifted_today = get_shifted_today()
-                    days_since = (shifted_today - last_jdate).days
+                    days_since = (shifted_today - last_shifted).days
                 else:
                     days_since = None
                 days_left = interval - days_since if days_since is not None else None
