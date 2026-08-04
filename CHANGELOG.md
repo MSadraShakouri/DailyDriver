@@ -1,5 +1,35 @@
 # Changelog
 
+## 1.7.0 (2026‑08‑04)
+
+### BREAKING
+- **qada command overhaul** – previously an alias for `p q`, now a full feature with its own manager and sub‑commands (`qada`, `qada log`, `qada fasting`). The old `p q` behaviour remains unchanged; `qada` now opens an interactive backlog manager.
+
+### Added
+- **qada feature** – interactive manager for prayer backlog and fasting tracking. Fixed 4 entries (Fajr, Dhuhr/Asr, Maghrib/Isha, Fasting) with progress tracking, pause/unpause, and interval scheduling.
+- **targets feature** – track nazr (finite) and habit (indefinite) goals with `nazr`, `habit`, and `targets` commands. Supports `log`, `daily_total`, `counter_total`, and `counter_reset` sub‑commands.
+- **travel mode** – disable location‑dependent features (weather, prayer nudges) with `travel`, `travel on/off/status`. Prayer in travel mode shows a smart slot selector.
+- **day_start_hour** – shift the day boundary (default 4:00 AM) for hygiene and targets with `daystart` and `daystart <0-23>`.
+- **void feature** – scratchpad for unfiltered thoughts (`v`, `void`, `vexport`). Separate from the main journal, does not update `last_action`.
+- **u / update command** – manually refresh `last_action` timestamp for chaining.
+- **termux-dialog integration** – `-md` / `--termux-dialog` flag opens an Android text dialog for quick journal entries.
+- **hygiene manager overhaul** – dynamic table with sorting by urgency, color‑coded rows (red = overdue, yellow = today), smart interval display, and cleaner edit/delete flows.
+
+### Changed
+- **`p q`** – now logs at the current time instead of the fixed prayer time (more natural for qada).
+- **`hijri`** – now always interactive (no arguments accepted).
+- **`export`** – Markdown is the default format (use `--txt` for plain text).
+- **`recent`** – layout now matches `view` and `search` (was renamed from `last` earlier).
+- **Hijri offset** – now correctly applied in the header display (previously subtracted instead of added).
+
+### Fixed
+- **Hygiene** – respect `day_start_hour` for nudges and manager (entries before 4 AM now count towards the previous day).
+- **Qada scheduler** – fixed `compute_pending_instance` to use the last log's `instance_date` correctly.
+- **Qada migration** – preserved existing logs when dropping `qada_declines` and `paused_from`.
+
+### Tests
+- Test suite now at **293 passing tests**.
+
 ## 1.6.0 (2026‑06‑19)
 
 ### Changed

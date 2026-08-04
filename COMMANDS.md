@@ -15,7 +15,7 @@ Arguments are separated by spaces.
 | `p j` | With jamaat (no location) |
 | `p j masjid` | With jamaat at a given location |
 | `p s 3` | With shak count of 3 |
-| `p q` | Mark a past unlogged prayer as qada (interactive list) |
+| `p q` | Mark a past unlogged prayer as qada (logs at the current time) |
 | `p q -15` | Mark past with 15 min ago |
 | `p q 03:11` | Mark past at 03:11 on that day |
 
@@ -128,6 +128,105 @@ Navigation: `n` next, `p` previous, `q` quit, multi‑page jump with `5n`. Type 
 Opens an interactive manager: `a` add, `e` edit, `d` delete, `q` quit.
 Example items: `shaving`, `brushing_teeth`, `laundry`.
 Log an entry under a category like `hygiene/shaving` to record the last time.
+
+---
+
+### Targets `nazr`, `habit`, `targets`
+
+Track finite (nazr) and indefinite (habit) goals with intervals and progress tracking.
+
+| Usage | Description |
+|-------|-------------|
+| `nazr` | Open manager (filtered to nazr entries) |
+| `habit` | Open manager (filtered to habit entries) |
+| `targets` | Open manager (all entries) |
+| `nazr log <name> <amount>` | Log progress for a nazr entry |
+| `habit log <name> <amount>` | Log progress for a habit entry |
+| `nazr daily_total <name> <total>` | Set today's total (logs the difference) |
+| `habit daily_total <name> <total>` | Set today's total (logs the difference) |
+| `nazr counter_total <name> <value>` | Log the difference from the last counter value |
+| `habit counter_total <name> <value>` | Log the difference from the last counter value |
+| `nazr counter_reset <name>` | Reset the counter to 0 (no log) |
+| `habit counter_reset <name>` | Reset the counter to 0 (no log) |
+
+Inside the manager:
+- `l <#> <amount>` – log progress
+- `dt <#> <total>` – set today's total
+- `ct <#> <value>` – update counter and log difference
+- `cr <#>` – reset counter
+- `p <#>` – pause/unpause
+- `e <#>` – edit entry
+- `d <#>` – delete entry
+- `a` – add new entry
+- `?` – help
+- `q` – quit
+
+---
+
+### Qada `qada`
+
+Interactive manager for tracking missed prayers and fasting obligations.
+
+| Usage | Description |
+|-------|-------------|
+| `qada` | Open the interactive manager (fixed 4 entries: Fajr, Dhuhr/Asr, Maghrib/Isha, Fasting) |
+| `qada log <slot\|id> [amount]` | Log progress for a prayer entry (e.g., `qada log fajr 4`) |
+| `qada fasting yes` | Log today's fast |
+| `qada fasting no` | Pause fasting for 1 day |
+
+Inside the manager:
+- `l <#>` – log progress for entry #
+- `p <#>` – pause/unpause entry #
+- `e <#>` – edit entry (target/interval)
+- `?` – help
+- `q` – quit
+
+---
+
+### Travel Mode `travel`
+
+Disables location‑dependent features (weather, prayer nudges). Prayer in travel mode shows a smart slot selector.
+
+| Usage | Description |
+|-------|-------------|
+| `travel` | Toggle travel mode |
+| `travel on` | Enable travel mode |
+| `travel off` | Disable travel mode |
+| `travel status` | Show current state |
+
+---
+
+### Day Start Hour `daystart`
+
+Shift the day boundary for hygiene and target calculations. Default is 4:00 AM.
+
+| Usage | Description |
+|-------|-------------|
+| `daystart` | Show current day start hour |
+| `daystart <0-23>` | Set day start hour |
+
+---
+
+### Void `v`, `void`, `vexport`
+
+Unfiltered thoughts, completely separate from the main journal. No time parsing, no categories, no keywords, and does not update `last_action`.
+
+| Usage | Description |
+|-------|-------------|
+| `v <text>` | Log a void entry |
+| `void <text>` | Log a void entry (alias) |
+| `vexport <duration>` | Export void entries to Markdown (e.g., `vexport 7d`) |
+
+---
+
+### Update `u`, `update`
+
+Manually refresh the `last_action` timestamp for chaining (`ln`). Useful when you've done something but didn't log it.
+
+| Usage | Description |
+|-------|-------------|
+| `u` | Update `last_action` to now |
+| `update` | Update `last_action` to now (alias) |
 
 ---
 
@@ -255,11 +354,11 @@ Shows the last 5 journal entries in a modern, wrapped layout identical to `view`
 
 ### Hijri Offset `hijri`
 
+Always interactive. Opens a menu to choose an offset (-2 to +2) for Hijri date conversion.
+
 | Usage | Description |
 |-------|-------------|
-| `hijri` | Interactive menu to choose Hijri date offset |
-
-The offset (‑2..+2) is stored in `data/hijri_offset.txt` and applied to all Hijri calendar events immediately.
+| `hijri` | Show current Hijri date with offsets and select one |
 
 ---
 
