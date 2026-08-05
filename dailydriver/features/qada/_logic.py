@@ -232,6 +232,76 @@ def compute_pending_instance(entry, today):
     )
 
 
+def get_current_pending_instance(entry, today):
+    """
+    Return the earliest scheduled instance date <= today that is NOT logged.
+    If none (all instances up to today are logged, or entry is paused/complete), return None.
+    """
+    # Check if target is reached
+    target = entry.get("target_total", -1)
+    logged = entry.get("logged_total", 0)
+    if target != -1 and logged >= target:
+        return None
+
+    # Check pause
+    paused_until = entry.get("paused_until")
+    if paused_until:
+        try:
+            y, m, d = map(int, paused_until.split("-"))
+            pause_date = jdatetime.date(y, m, d)
+            if pause_date >= today:
+                return None
+        except (ValueError, TypeError):
+            pass
+
+    # Determine starting point
+    # If there is a last log, start from the day after that log
+    last_log = _get_last_log_date(entry["id"])
+    if last_log is not None:
+        # start from the day after last_log
+        ref_date = last_log + jdatetime.timedelta(days=1)
+        last_fulfilled = last_log
+    else:
+        # No logs: start from the entry's creation date (or today minus a year as fallback)
+        created_at = entry.get("created_at")
+        if created_at:
+            ref_date = jdatetime.date.fromtimestamp(created_at)
+        else:
+            ref_date = today - jdatetime.timedelta(days=365)  # far past
+        last_fulfilled = None
+
+    # Iterate forward until we exceed today
+    max_scan = 365  # safety
+    for _ in range(max_scan):
+        instance = next_instance_date(
+            entry["interval_type"],
+            entry.get("interval_value"),
+            entry.get("interval_calendar", "jalali"),
+            last_fulfilled,
+            ref_date,
+        )
+        if instance is None or instance > today:
+            break
+        # Check if this instance is logged
+        if not _is_instance_logged(entry["id"], instance):
+            return instance
+        # It's logged, move forward
+        last_fulfilled = instance
+        ref_date = instance + jdatetime.timedelta(days=1)
+
+    return None
+
+
+def _is_instance_logged(entry_id, instance_date):
+    with get_connection_cm(auto=False) as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT 1 FROM qada_logs WHERE entry_id=? AND instance_date=?",
+            (entry_id, instance_date.strftime("%Y-%m-%d")),
+        )
+        return cur.fetchone() is not None
+
+
 def log_fasting(entry_id, now=None):
     """Log a fasting entry for today's pending instance. Returns confirmation string.
     Fails if a decline already exists for today (no is final).

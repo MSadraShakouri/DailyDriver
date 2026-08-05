@@ -9,7 +9,7 @@ from dailydriver.core.travel_mode import is_travel_mode
 from dailydriver.features.qada._logic import compute_pending_instance, list_entries
 from dailydriver.utils.prayer_times import get_approximate_times
 
-from ._logic import _is_paused
+from ._logic import _is_paused, get_current_pending_instance
 
 
 def get_prayer_nudges(conn, target_date, now=None):
@@ -18,48 +18,33 @@ def get_prayer_nudges(conn, target_date, now=None):
     Shows: '🕌 Fajr: not set' if target=-1 and pending today.
            '🕌 Fajr pending' if target>0, logged<target, pending today.
     Hides if complete, paused, or no pending instance."""
+
     if is_travel_mode():
         return []
     if now is None:
         now = datetime.now()
 
     today_j = jdatetime.date.today()
-
     if target_date != today_j:
         return []
 
     entries = list_entries(kind="prayer")
-    nudges = []
+    nudges = []  # list of (pending_date, line)
 
     for entry in entries:
-        # Check paused
-        paused_until = entry.get("paused_until")
-        if paused_until:
-            try:
-                y, m, d = map(int, paused_until.split("-"))
-                pause_date = jdatetime.date(y, m, d)
-                if pause_date >= today_j:
-                    continue
-            except (ValueError, TypeError):
-                pass
-
-        # Need interval to be scheduled
+        # Skip paused (handled in get_current_pending_instance)
+        # Skip if no interval
         if not entry.get("interval_type"):
             continue
 
-        target = entry.get("target_total", -1)
-        logged = entry.get("logged_total", 0)
-
-        # Compute pending instance
-        pending = compute_pending_instance(entry, today_j)
-        if pending != today_j:
+        pending = get_current_pending_instance(entry, today_j)
+        if pending is None:
             continue
 
-        # Get prayer time and check window
+        # Get prayer time for this slot
         slot_name = entry.get("slot")
         if slot_name is None:
             continue
-
         approx = get_approximate_times(today_j.month, today_j.day)
         slot_map = {
             "fajr": "fajr",
@@ -71,24 +56,27 @@ def get_prayer_nudges(conn, target_date, now=None):
             continue
         hour, minute = approx[approx_key]
         prayer_dt = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
-        if now < prayer_dt - timedelta(hours=1):
-            continue
 
-        # Not set
-        if target == -1:
+        # Determine if overdue or due today
+        if pending < today_j:
+            # Overdue – always show
             display = slot_name.replace("_", "/").title()
-            nudges.append(f"🕌 {display}: not set")
-            continue
+            nudges.append((pending, f"🕌 {display} overdue!"))
+        elif pending == today_j:
+            # Due today – only show in the hour before prayer
+            if now >= prayer_dt - timedelta(hours=1):
+                target = entry.get("target_total", -1)
+                logged = entry.get("logged_total", 0)
+                if target == -1:
+                    display = slot_name.replace("_", "/").title()
+                    nudges.append((pending, f"🕌 {display} not set"))
+                elif logged < target:
+                    display = slot_name.replace("_", "/").title()
+                    nudges.append((pending, f"🕌 {display} pending"))
 
-        # Complete
-        if target > 0 and logged >= target:
-            continue
-
-        # Pending
-        display = slot_name.replace("_", "/").title()
-        nudges.append(f"🕌 {display} pending")
-
-    return nudges
+    # Sort by pending_date (chronological, oldest first)
+    nudges.sort(key=lambda x: x[0])
+    return [line for _, line in nudges]
 
 
 def get_fasting_nudges(conn, target_date, now=None):

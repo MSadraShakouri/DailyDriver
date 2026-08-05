@@ -18,7 +18,6 @@ class TestQadaHeaderNudges(unittest.TestCase):
         for mig in migrations():
             mig(self.conn)
         self.today = jdatetime.date.today()
-        # Add a daily Fajr entry with slot set
         self.conn.execute(
             "INSERT INTO qada_entries (name, kind, interval_type, slot, target_total, logged_total) VALUES ('fajr', 'prayer', 'daily', 'fajr', 1, 0)"
         )
@@ -29,20 +28,22 @@ class TestQadaHeaderNudges(unittest.TestCase):
         self.conn.close()
 
     @patch("dailydriver.features.qada._header.list_entries")
-    @patch("dailydriver.features.qada._header.compute_pending_instance")
-    def test_no_nudge_before_window_opens(self, mock_compute, mock_list):
+    @patch("dailydriver.features.qada._header.get_current_pending_instance")
+    @patch("dailydriver.features.qada._header.get_approximate_times")
+    def test_no_nudge_before_window_opens(self, mock_times, mock_pending, mock_list):
         mock_list.return_value = [self.entry]
-        mock_compute.return_value = self.today  # pending today
+        mock_pending.return_value = self.today
+        mock_times.return_value = {"fajr": (5, 0), "dhuhr": (12, 0), "maghrib": (18, 0)}
         old_now = datetime.now().replace(hour=2, minute=0, second=0)
         nudges = get_prayer_nudges(self.conn, self.today, now=old_now)
         self.assertEqual(nudges, [])
 
     @patch("dailydriver.features.qada._header.list_entries")
-    @patch("dailydriver.features.qada._header.compute_pending_instance")
+    @patch("dailydriver.features.qada._header.get_current_pending_instance")
     @patch("dailydriver.features.qada._header.get_approximate_times")
-    def test_nudge_appears_one_hour_before_prayer(self, mock_times, mock_compute, mock_list):
+    def test_nudge_appears_one_hour_before_prayer(self, mock_times, mock_pending, mock_list):
         mock_list.return_value = [self.entry]
-        mock_compute.return_value = self.today
+        mock_pending.return_value = self.today
         mock_times.return_value = {"fajr": (5, 0), "dhuhr": (12, 0), "maghrib": (18, 0)}
         now = datetime.now().replace(hour=4, minute=1, second=0)
         nudges = get_prayer_nudges(self.conn, self.today, now=now)
@@ -50,25 +51,36 @@ class TestQadaHeaderNudges(unittest.TestCase):
         self.assertIn("🕌 Fajr pending", nudges[0])
 
     @patch("dailydriver.features.qada._header.list_entries")
-    @patch("dailydriver.features.qada._header.compute_pending_instance")
+    @patch("dailydriver.features.qada._header.get_current_pending_instance")
     @patch("dailydriver.features.qada._header.get_approximate_times")
-    def test_logged_entry_no_longer_nudges(self, mock_times, mock_compute, mock_list):
+    def test_logged_entry_no_longer_nudges(self, mock_times, mock_pending, mock_list):
         mock_list.return_value = [self.entry]
         mock_times.return_value = {"fajr": (5, 0), "dhuhr": (12, 0), "maghrib": (18, 0)}
-        # compute_pending_instance returns None → no pending instance → no nudge
-        mock_compute.return_value = None
+        mock_pending.return_value = None
         now = datetime.now().replace(hour=6, minute=0, second=0)
         nudges = get_prayer_nudges(self.conn, self.today, now=now)
         self.assertEqual(nudges, [])
 
     @patch("dailydriver.features.qada._header.list_entries")
-    @patch("dailydriver.features.qada._header.compute_pending_instance")
+    @patch("dailydriver.features.qada._header.get_current_pending_instance")
     @patch("dailydriver.features.qada._header.get_approximate_times")
-    def test_paused_entry_no_nudge(self, mock_times, mock_compute, mock_list):
+    def test_paused_entry_no_nudge(self, mock_times, mock_pending, mock_list):
         mock_list.return_value = [self.entry]
         mock_times.return_value = {"fajr": (5, 0), "dhuhr": (12, 0), "maghrib": (18, 0)}
-        # compute returns None → paused → no nudge
-        mock_compute.return_value = None
+        mock_pending.return_value = None
         now = datetime.now().replace(hour=6, minute=0, second=0)
         nudges = get_prayer_nudges(self.conn, self.today, now=now)
         self.assertEqual(nudges, [])
+
+    @patch("dailydriver.features.qada._header.list_entries")
+    @patch("dailydriver.features.qada._header.get_current_pending_instance")
+    @patch("dailydriver.features.qada._header.get_approximate_times")
+    def test_overdue_entry_shows_always(self, mock_times, mock_pending, mock_list):
+        mock_list.return_value = [self.entry]
+        mock_times.return_value = {"fajr": (5, 0), "dhuhr": (12, 0), "maghrib": (18, 0)}
+        yesterday = self.today - jdatetime.timedelta(days=1)
+        mock_pending.return_value = yesterday
+        now = datetime.now().replace(hour=10, minute=0, second=0)
+        nudges = get_prayer_nudges(self.conn, self.today, now=now)
+        self.assertEqual(len(nudges), 1)
+        self.assertIn("overdue", nudges[0])
