@@ -239,6 +239,157 @@ class TestSleepNapParser(unittest.TestCase):
         result = log_nap("nap 14:00 14:25")
         self.assertIsNone(result)
         self.nap_cursor.execute.assert_not_called()
+        
+    # ---------- multiple sleeps per day ----------
+    @patch("dailydriver.features.sleep._logic.today_jalali")
+    @patch("dailydriver.features.sleep._logic.get_connection_cm")
+    @patch("dailydriver.features.sleep._logic.parse_time_expressions")
+    @patch("dailydriver.features.sleep._logic.current_ui")
+    def test_sleep_multiple_entries_same_day(self, mock_ui, mock_parser, mock_db, mock_today):
+        """Log two sleeps on the same day, verify both are stored."""
+        import sqlite3
+        from unittest.mock import MagicMock
+
+        conn = sqlite3.connect(":memory:")
+        conn.row_factory = sqlite3.Row
+        conn.execute("""
+            CREATE TABLE sleep_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                jalali_date TEXT NOT NULL,
+                sleep_time INTEGER,
+                wake_time INTEGER,
+                duration_minutes INTEGER
+            )
+        """)
+        conn.commit()
+
+        mock_cm = MagicMock()
+        mock_cm.__enter__.return_value = conn
+        mock_cm.__exit__.return_value = False
+        mock_db.return_value = mock_cm
+
+        mock_today.return_value = "1405-02-30"
+        mock_ui.confirm.return_value = True
+
+        start1 = datetime(2026, 5, 20, 23, 0, 0)
+        end1 = datetime(2026, 5, 21, 0, 30, 0)
+        start2 = datetime(2026, 5, 21, 2, 0, 0)
+        end2 = datetime(2026, 5, 21, 3, 0, 0)
+
+        mock_parser.return_value = [self._make_interpretation(start1, end1)]
+        result1 = log_sleep("s 23:00 00:30")
+        self.assertIsNotNone(result1)
+
+        mock_parser.return_value = [self._make_interpretation(start2, end2)]
+        result2 = log_sleep("s 02:00 03:00")
+        self.assertIsNotNone(result2)
+
+        cur = conn.cursor()
+        cur.execute("SELECT sleep_time, wake_time FROM sleep_logs WHERE jalali_date='1405-02-30' ORDER BY sleep_time")
+        rows = cur.fetchall()
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(rows[0]["sleep_time"], int(start1.timestamp()))
+        self.assertEqual(rows[1]["sleep_time"], int(start2.timestamp()))
+
+        conn.close()
+
+    @patch("dailydriver.features.sleep._logic.today_jalali")
+    @patch("dailydriver.features.sleep._logic.get_connection_cm")
+    @patch("dailydriver.features.sleep._logic.parse_time_expressions")
+    @patch("dailydriver.features.sleep._logic.current_ui")
+    def test_sleep_header_aggregates_multiple_entries(self, mock_ui, mock_parser, mock_db, mock_today):
+        """Header should show total duration and all time ranges."""
+        import sqlite3
+        from unittest.mock import MagicMock
+
+        conn = sqlite3.connect(":memory:")
+        conn.row_factory = sqlite3.Row
+        conn.execute("""
+            CREATE TABLE sleep_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                jalali_date TEXT NOT NULL,
+                sleep_time INTEGER,
+                wake_time INTEGER,
+                duration_minutes INTEGER
+            )
+        """)
+        conn.commit()
+
+        mock_cm = MagicMock()
+        mock_cm.__enter__.return_value = conn
+        mock_cm.__exit__.return_value = False
+        mock_db.return_value = mock_cm
+
+        mock_today.return_value = "1405-02-30"
+        mock_ui.confirm.return_value = True
+
+        start1 = datetime(2026, 5, 20, 23, 0, 0)
+        end1 = datetime(2026, 5, 21, 0, 30, 0)
+        start2 = datetime(2026, 5, 21, 2, 0, 0)
+        end2 = datetime(2026, 5, 21, 3, 0, 0)
+
+        mock_parser.return_value = [self._make_interpretation(start1, end1)]
+        log_sleep("s 23:00 00:30")
+        mock_parser.return_value = [self._make_interpretation(start2, end2)]
+        log_sleep("s 02:00 03:00")
+
+        from dailydriver.features.sleep._header import get_sleep_str
+
+        result = get_sleep_str(conn, "1405-02-30")
+        self.assertIn("2h 30m", result)
+        self.assertIn("23:00-00:30", result)
+        self.assertIn("02:00-03:00", result)
+
+        conn.close()
+
+    @patch("dailydriver.features.sleep._logic.today_jalali")
+    @patch("dailydriver.features.sleep._logic.get_connection_cm")
+    @patch("dailydriver.features.sleep._logic.parse_time_expressions")
+    @patch("dailydriver.features.sleep._logic.current_ui")
+    def test_nap_header_shows_time_ranges(self, mock_ui, mock_parser, mock_db, mock_today):
+        """Nap header should show total duration and time ranges."""
+        import sqlite3
+        from unittest.mock import MagicMock
+
+        conn = sqlite3.connect(":memory:")
+        conn.row_factory = sqlite3.Row
+        conn.execute("""
+            CREATE TABLE nap_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                jalali_date TEXT NOT NULL,
+                start_time INTEGER NOT NULL,
+                duration_minutes INTEGER,
+                description TEXT
+            )
+        """)
+        conn.commit()
+
+        mock_cm = MagicMock()
+        mock_cm.__enter__.return_value = conn
+        mock_cm.__exit__.return_value = False
+        mock_db.return_value = mock_cm
+
+        mock_today.return_value = "1405-02-30"
+        mock_ui.confirm.return_value = True
+
+        start1 = datetime(2026, 5, 20, 14, 0, 0)
+        end1 = datetime(2026, 5, 20, 14, 25, 0)
+        start2 = datetime(2026, 5, 20, 17, 0, 0)
+        end2 = datetime(2026, 5, 20, 17, 20, 0)
+
+        mock_parser.return_value = [self._make_interpretation(start1, end1)]
+        log_nap("nap 14:00 14:25")
+        mock_parser.return_value = [self._make_interpretation(start2, end2)]
+        log_nap("nap 17:00 17:20")
+
+        from dailydriver.features.sleep._header import get_nap_str
+
+        result = get_nap_str(conn, "1405-02-30")
+        self.assertIn("0h 45m", result)
+        self.assertIn("14:00-14:25", result)
+        self.assertIn("17:00-17:20", result)
+
+        conn.close()
 
 
 if __name__ == "__main__":

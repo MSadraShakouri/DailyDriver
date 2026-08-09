@@ -1,10 +1,14 @@
 # dailydriver/features/sleep/__init__.py
 """Sleep & nap feature – logging and header display."""
 
-from . import _header, _logic
+from . import _header, _logic, _migrations
 
 NAME = "sleep"
 VERSION = "1.0.0"
+
+
+def migrations():
+    return _migrations.migrations()
 
 
 def register_commands(dispatch):
