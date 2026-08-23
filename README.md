@@ -1,191 +1,95 @@
-# DailyDriver v1.8.0
+# DailyDriver v2.0.0
 
-Your personal, terminal‑based life tracker.  
-Log prayers, sleep, hygiene routines, birthdays, intentions, and free‑form journal entries – all from a fast, keyboard‑driven REPL.  
-Built with Python, SQLite, and Jalali calendar support.
-
----
-
-## Features
-
-- **Prayer tracking** – Fajr, Dhuhr/Asr, Maghrib/Isha with jamaat and shak options, dynamic Tehran times. Includes **backlog marking (`p q`)** for overdue prayers (logs at current time) and smart header nudges.
-- **Qada & Fasting** – interactive backlog manager for missed prayers and fasting with progress tracking, pause/resume, and interval scheduling (`qada`). Overdue entries are persistently shown in header nudges.
-- **Targets (Nazr & Habits)** – track finite (nazr) and indefinite (habit) goals with daily/weekly/n‑day intervals, counter support, and interactive manager (`nazr`, `habit`, `targets`).
-- **Sleep & nap logging** – bed/wake times, auto‑calculated duration; supports multiple sleep entries per day with cumulative durations; track short naps separately.
-- **Weather** – Tehran weather scraped from IRIMO, displayed in the header with emoji (cached hourly).
-- **Day navigation** – browse any day with `day YYYY-MM-DD` or `-1`, and jump multiple days (e.g. `5n`, `5p`).
-- **Hygiene reminders** – define intervals for habits, get nudges when overdue. Respects day‑start hour (default 4:00 AM) for before‑dawn logs.
-- **Birthday list** – Jalali dates, upcoming birthday alerts with age, reminder levels.
-- **Intentions** – to‑dos with deadlines and expected durations.
-- **Journal entries** – free‑text with smart time parsing (e.g. `13:00`, `2‑3`, `yesterday`).
-- **Unified exports** – export one chronological timeline where journal entries, sleep, naps, prayers, qada, and targets appear together (`export 7d`, `export all`, `--txt`).
-- **Great events & chaining** – start a long activity, later end and log it; handled as core event/chaining utilities rather than a pluggable feature.
-- **Smart categories** – TF‑IDF keyword learning from your entries (exact path‑match boost).
-- **Statistics** – prayer adherence, sleep averages, hygiene conformance, top categories.
-- **Three‑calendar events** – Jalali, Gregorian, and Hijri events with per‑calendar icons (🔆🌐🌙) and holiday confetti (🎊). Reminders with configurable schedules and a visual reminder editor.
-- **Global Hijri date offset** – interactive `hijri` command to apply a correction for moon‑sighting differences. Stored in a version‑controlled file.
-- **Full‑text search** (`search` command) with fuzzy time/date/category boosting, and multi‑page navigation (`5n`).
-- **Reminders** – mark events with reminder levels (0‑1‑2) and see them in the header ahead of time. Birthdays and calendar events follow separate schedules based on importance.
-- **Beautiful header** – today’s prayers, sleep, weather, birthdays, hygiene, events, reminders, tomorrow preview, and prayer nudges at a glance. Color‑coded overdue/pre‑alert, reverse‑video today in calendars.
-- **Unified time expressions** – a single flexible syntax for all time input: single times, ranges, offsets, durations, `l`/`last` and `n`/`now` atoms. Works across journal, sleep, nap, and prayer.
-- **Header redesign** – modern centered date block with Jalali weekday, thin separator, Gregorian/Hijri dates, improved spacing.
-- **`recent` command** – layout matches `view` and `search` with wrapped categories and descriptions.
-- **State files moved into the database** – no more hidden dot‑files.
-- **Built‑in aliases** – `pray` → `p`, `sleep` → `s`, `h` → `?`, `qada` → now a full feature (not an alias).
-- **Travel mode** – disable location‑dependent features (weather, prayer nudges) with a smart slot selector for prayer.
-- **Day start hour** – shift the day boundary (default 4:00 AM) for hygiene and target calculations (`daystart`).
-- **Void scratchpad** – unfiltered thoughts, separate from the main journal (`v`, `void`, `vexport`).
-- **Manual chaining update** – `u` / `update` refreshes `last_action` for chaining.
-- **Termux‑dialog integration** – `-md` / `--termux-dialog` flag opens an Android text dialog for quick journal entries.
-- **Test isolation** – database path configurable via `DAILYDRIVER_DB`; tests use migrated, per-test database copies and mirror the application package layout.
-- **Minimal dependencies** – Python 3.10+, SQLite, `jdatetime`, `hijridate`, `porter2stemmer`.
+Your personal, terminal-based life tracker.
+Log prayers, sleep, hygiene routines, birthdays, intentions, targets, and
+free-form journal entries — all from a fast, keyboard-driven prompt.
+Built with Python, SQLite, and Jalali (Persian) calendar support.
 
 ---
 
-## Installation
+## Highlights
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/MSadraShakouri/DailyDriver.git
-   cd DailyDriver
-   ```
-
-2. Install the project and all dependencies:
-   ```bash
-   pip install .
-   ```
-
-   This automatically installs `jdatetime`, `hijridate`, and `porter2stemmer`.
-
-3. (Optional) Make the entry point executable:
-   ```bash
-   chmod +x main.py
-   ```
-
-4. Create a convenient command (optional):
-   - Symlink:
-     ```bash
-     ln -s /full/path/to/DailyDriver/main.py ~/.local/bin/daily
-     ```
-   - Alias (add to `~/.bashrc` or `~/.zshrc`):
-     ```bash
-     alias daily='python /path/to/DailyDriver/main.py'
-     ```
+- **Prayer & qada** — daily prayers with jamaat/shak options and dynamic Tehran
+  times; a backlog manager for missed prayers and fasting.
+- **Sleep, naps, journal** — smart, unified time parsing everywhere you type a
+  time.
+- **Targets** — finite goals (nazr) and repeating habits with intervals and
+  counters.
+- **Calendars** — Jalali, Gregorian, and Hijri at once, with events, reminders,
+  and an adjustable Hijri offset.
+- **Full-text search** with fuzzy time/date/category boosts.
+- **Smart categories** — TF-IDF keyword learning with an autocompleting,
+  ranked picker.
+- **Unified export** — one chronological timeline across journal, sleep, prayer,
+  qada, and targets.
+- **Fast input** — command autocompletion and persistent history via
+  prompt_toolkit, with automatic plain-terminal fallback.
 
 ---
 
-## Quick Start
-
-Launch the app:
+## Quick start
 
 ```bash
+git clone https://github.com/MSadraShakouri/DailyDriver.git
+cd DailyDriver
+pip install .
 ./main.py
-# or if you set up the symlink:
-daily
 ```
 
-You’ll see the daily header and a prompt `>`. Type `?` for a command overview, or just start writing a journal entry.
+At the `>` prompt, type `?` for a command summary, add `-h` after any command
+for details (e.g. `p -h`), or just start writing a journal entry.
 
-```
-> today was a productive day
-```
-
----
-
-## Basic Commands
-
-| Command | Description |
-|---------|-------------|
-| `p` | Log a prayer |
-| `p q` | Mark a past unlogged prayer as qada (logs at current time) |
-| `s` | Log sleep |
-| `nap` | Log a short nap |
-| `day` / `today` | View today or any past/future day (with navigation) |
-| `recent` | Show last 5 journal entries |
-| `view` | Browse journal entries |
-| `search` | Full‑text search with fuzzy boosts |
-| `stats` | Statistics (30 days) |
-| `cal` | Clean month calendar (today highlighted) |
-| `year` | Responsive year calendar |
-| `export` | Export a unified chronological timeline (`all` and `--txt` supported) |
-| `hijri` | Show/adjust Hijri date offset (interactive) |
-| `qada` | Interactive backlog manager for prayers and fasting |
-| `nazr` / `habit` / `targets` | Track finite and indefinite goals |
-| `travel` | Toggle travel mode (disables location‑dependent features) |
-| `daystart` | Show/set day boundary hour (default 4:00 AM) |
-| `v` / `void` | Scratchpad entry (no time parsing, no keywords) |
-| `u` / `update` | Manually refresh `last_action` for chaining |
-| `?` | Full help and keyword list |
-| `q` | Quit |
-
-**Aliases:** `pray` → `p`, `sleep` → `s`, `h` → `?`.
-
-For the complete command reference, see **[COMMANDS.md](COMMANDS.md)**.
-
----
-
-## Data Storage & Privacy
-
-All your data is stored in **`data/daily.db`** (SQLite). No network calls, no third‑party analytics.
-To inspect the database directly:
+A shell alias makes single-shot logging instant:
 
 ```bash
-sqlite3 data/daily.db ".tables"
-sqlite3 data/daily.db "SELECT * FROM entries;"
+alias da='python /path/to/DailyDriver/main.py'
+da p                 # log the current prayer
+da s 23:00 07:15     # log sleep
+da "worked on the report 9-11"
 ```
+
+See **[Getting Started](docs/getting-started.md)** for the `da` alias and the
+Termux quick-entry dialog.
 
 ---
 
-## Project Structure (abbreviated)
+## Documentation
 
-```
-dailydriver/
-├── core/          # database, migration, journal/, state/
-├── features/      # prayer, sleep, hygiene, birthdays, calendar, weather, intentions, qada, targets, void
-├── display/       # header renderer, header helpers, display utilities, stats
-├── cli/           # REPL, dispatcher, commands, search, calendar views, export
-├── ui/            # terminal abstraction
-└── utils/         # time helpers, unified time parser, intervals, prayer_times
-data/              # database, stopwords, event JSON files, hijri offset
-tools/             # event editor, keyword editor, reminder editor
-tests/             # test files (header, commands, state, journal, etc.)
-```
+Full documentation lives in **[`docs/`](docs/README.md)**:
+
+- [Getting Started](docs/getting-started.md)
+- Command reference — [Logging](docs/commands/logging.md),
+  [Prayer](docs/commands/prayer.md), [Qada](docs/commands/qada.md),
+  [Events & Chaining](docs/commands/events.md),
+  [Targets](docs/commands/targets.md),
+  [Viewing & Summaries](docs/commands/viewing.md),
+  [Calendar](docs/commands/calendar.md), [Tools & Setup](docs/commands/tools.md),
+  [Export](docs/commands/export.md)
+- Concepts — [Time Expressions](docs/concepts/time-expressions.md),
+  [Categories](docs/concepts/categories.md), [The Header](docs/concepts/header.md),
+  [Calendars](docs/concepts/calendars.md), [Day Start](docs/concepts/day-start.md)
+- [Architecture](docs/architecture.md) · [Roadmap](docs/roadmap.md)
 
 ---
 
-## Troubleshooting
+## Data & privacy
 
-**`ModuleNotFoundError: No module named 'jdatetime'`**
-→ `pip install jdatetime`
-
-**`ModuleNotFoundError: No module named 'hijridate'`**
-→ `pip install hijridate`
-
-**`ModuleNotFoundError: No module named 'porter2stemmer'`**
-→ `pip install porter2stemmer`
-
-**Header looks misaligned or truncated**
-→ Resize your terminal to at least 80 columns.
-
-**Database empty after moving the folder**
-→ Run `main.py` from the `DailyDriver/` directory.
-
-**Tests fail with "no such table" after clone**
-→ Run `pytest` – tests run against an isolated temporary database copy automatically. You can also set the environment variable `DAILYDRIVER_DB` to point to a custom database path for `pytest`‑based runs.
+All data is stored locally in `data/daily.db` (SQLite). No analytics; the only
+network calls are optional Tehran weather lookups. Point the app or tests at a
+different database with the `DAILYDRIVER_DB` environment variable.
 
 ---
 
 ## Contributing
 
-See **[CONTRIBUTING.md](CONTRIBUTING.md)** for guidelines.
-
----
+See **[CONTRIBUTING.md](CONTRIBUTING.md)** and the
+[architecture guide](docs/architecture.md).
 
 ## License
 
-MIT License. See `LICENSE` file for details.
+MIT License. See the `LICENSE` file.
 
 ---
 
-Made with ❤️ for a mindful, organised life.  
+Made with care for a mindful, organised life.
 May your prayers be on time and your sleep restful.

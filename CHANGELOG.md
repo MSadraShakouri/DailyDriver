@@ -1,5 +1,50 @@
 # Changelog
 
+## 2.0.0 (2026‑08‑24)
+
+### BREAKING
+- **`bd` is now fully interactive** – birthday creation no longer accepts inline
+  `name date` arguments (e.g. `bd Ali 1386/05/12`). Run `bd` and answer the
+  prompts. Logging commands keep their inline syntax; only creation moved fully
+  interactive.
+
+### Added
+- **prompt_toolkit input backend** – the REPL prompt gains command
+  autocompletion and persistent history, and the journal category picker becomes
+  an autocompleting, ranked selector. Output stays plain text. When
+  prompt_toolkit is unavailable or stdin/stdout is not a TTY (piped input,
+  redirects, most test contexts), the app silently falls back to plain prompts
+  and behaves exactly as before. Adds a `prompt_toolkit>=3` dependency.
+- **`-h` / `--help` on every command** – built from a single help registry
+  (`cli/help_registry.py`). The `?` / `h` summary is generated from the same
+  source, so per-command help and the overview can no longer drift apart. Help
+  flags are matched as exact tokens, so leading-dash arguments like `p -15` are
+  never mistaken for help.
+- **Documentation** – a full `docs/` tree: getting started, per-feature command
+  pages, concept guides (time expressions, categories, header, calendars, day
+  start), an architecture guide, and a roadmap built from real release history.
+
+### Changed
+- **Category suggestion ranking** – exact matches are now detected on whole path
+  segments (split on `/` and non-alphabetic characters, stemmed), eliminating
+  substring false positives like `art`→`start` or `log`→`blog`. The exact-match
+  boost is now scaled relative to the strongest TF-IDF score (with a floor), so
+  an exact match reliably surfaces near the top on any database instead of being
+  buried by a heavily trained category. IDF is clamped at 0.
+- **Command dispatch unified** – the REPL and single-command paths share one
+  `_dispatch_line` helper (help interception + handler/journal routing).
+- **Documentation restructure** – `COMMANDS.md`, `OPTIMIZATIONS.md`, `TODO.md`,
+  and `REVIEW_ACTIONS.md` removed from the repository root; their content is
+  rewritten into `docs/` (command pages, `docs/reference/optimizations.md`, and
+  `docs/roadmap.md`). Root keeps a slimmed `README.md`, `CONTRIBUTING.md`,
+  `CHANGELOG.md`, and `LICENSE`.
+
+### Tests
+- Added coverage for category ranking, the prompt_toolkit backend and fallback,
+  the help system (flag detection, alias resolution, summary generation, and a
+  guard that every registered command has a help entry), and the fully
+  interactive `bd`. Suite at **443 passing tests**.
+
 ## 1.8.0 (2026‑08‑23)
 
 ### Added
