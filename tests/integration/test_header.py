@@ -17,11 +17,26 @@ def test_header_builds_from_fully_migrated_database(db_path):
         "separator",
         "greg_hijri_line",
         "feature_lines",
+        "great_event_str",
+        "event_str",
         "is_today",
         "last_entry_time",
     } <= data.keys()
     assert data["is_today"] is True
     assert all(isinstance(line, (str, tuple)) for line in data["feature_lines"])
+
+
+def test_active_great_and_running_events_appear_in_header(db_path):
+    """Regression: great-event and running-event status must be built into the
+    header dict, not just exist as orphan helper functions."""
+    from dailydriver.core.state import save_pending_start, start_great_event
+
+    set_travel_mode(True)
+    start_great_event(["work"])
+    save_pending_start()
+    data = build_header_data()
+    assert "Great Event" in data["great_event_str"]
+    assert "Event running since" in data["event_str"]
 
 
 def test_structured_calendar_line_survives_registry_and_header_pipeline(db_path):
