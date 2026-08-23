@@ -14,12 +14,28 @@ from .keywords import find_matching_categories
 from .writer import inject_great_categories, save_entry
 
 
+def _persist_new_paths(conn, paths: list[str]) -> None:
+    """Insert any category paths that do not yet exist."""
+    cur = conn.cursor()
+    for path in paths:
+        cur.execute("INSERT OR IGNORE INTO categories (path) VALUES (?)", (path,))
+    conn.commit()
+
+
 def _choose_categories(conn, cmd: str) -> list[str] | None:
     cur = conn.cursor()
     selected_paths: list[str] = []
     matches = find_matching_categories(cmd)
     active_great_event = get_active_great_event()
     show_great_only = active_great_event is not None and bool(matches)
+
+    # Rich backends (prompt_toolkit) provide an autocompleting, ranked picker.
+    # It returns None to signal "fall back to the plain flow below".
+    all_paths = [row["path"] for row in cur.execute("SELECT path FROM categories ORDER BY path")]
+    picked = current_ui.select_categories(matches, all_paths, show_great_only=show_great_only)
+    if picked is not None:
+        _persist_new_paths(conn, picked)
+        return picked
 
     if matches:
         current_ui.print_line()
