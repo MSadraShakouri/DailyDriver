@@ -27,6 +27,9 @@ def log_event_end(cmd: str):
     if result is not None:
         clear_pending_start()
         return result
+    # Logging was cancelled: the timer is intentionally left running so nothing
+    # is lost, but say so explicitly — a silent no-op looks like a broken command.
+    current_ui.print_line("Log cancelled — the running event is still active (ee to end, ce to cancel).")
     return None
 
 
@@ -72,7 +75,11 @@ def end_great_event_cmd(line: str):
     result = log_free_text(text, started_at=started_at)
     if result is not None:
         clear_great_event()
-    return result
+        return result
+    # Logging was cancelled: the great event is intentionally left active so the
+    # entry isn't lost, but say so explicitly instead of silently doing nothing.
+    current_ui.print_line("Log cancelled — the great event is still active (ege to end, cge to cancel).")
+    return None
 
 
 def cancel_great_event_cmd(_=None):
