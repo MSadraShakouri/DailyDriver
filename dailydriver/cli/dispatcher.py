@@ -27,7 +27,7 @@ def make_dispatch():
     dispatch = {
         "q": lambda _: sys.exit(0),
         "view": lambda line: view_entries(line.split(maxsplit=1)[1] if len(line.split()) > 1 else None),
-        "?": lambda _: show_help(),
+        "?": lambda _: None,  # replaced below once all commands are registered
         "hygiene": lambda _: manage_hygiene(),
         "stats": lambda _: show_stats(),
         "day": show_day,
@@ -44,7 +44,7 @@ def make_dispatch():
         "export": export,
         "search": search,
         "recent": lambda _: show_last(),
-        "h": lambda _: show_help(),
+        "h": lambda _: None,  # replaced below once all commands are registered
         "travel": travel_command,
         "daystart": daystart_command,
     }
@@ -53,5 +53,11 @@ def make_dispatch():
         register = command_hook(feature)
         if register is not None:
             register(dispatch)
+
+    # Help needs the final command set so its summary lists exactly what is
+    # registered. Bind it after every feature has registered its commands.
+    command_names = sorted(dispatch.keys())
+    dispatch["?"] = lambda _: show_help(command_names)
+    dispatch["h"] = lambda _: show_help(command_names)
 
     return dispatch

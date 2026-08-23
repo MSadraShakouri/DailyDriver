@@ -2,10 +2,13 @@
 import sys
 
 from dailydriver.cli.dispatcher import make_dispatch
+from dailydriver.cli.help import show_command_help
 from dailydriver.core.journal import log_free_text
 from dailydriver.display.header import build_header_data
 from dailydriver.display.header_renderer import print_header
 from dailydriver.ui.terminal_ui import current_ui
+
+HELP_FLAGS = ("-h", "--help")
 
 
 def clear():
@@ -18,6 +21,40 @@ def _show_result(result):
     data = build_header_data()
     print_header(data)
     current_ui.print_line(result)
+
+
+def _wants_help(parts: list[str]) -> bool:
+    """True when a command line carries a -h/--help flag as a distinct token.
+
+    Matched against exact tokens so leading-dash arguments used by logging
+    commands (e.g. 'p -15') are never mistaken for a help request.
+    """
+    return any(token in HELP_FLAGS for token in parts[1:])
+
+
+def _dispatch_line(line: str, dispatch: dict) -> None:
+    """Route a single command line: help flags, then handler, then journal.
+
+    Any command supports -h/--help without each handler implementing it: the
+    flag is intercepted here and rendered from the help registry.
+    """
+    parts = line.split()
+    first = parts[0].lower()
+
+    if first in dispatch and _wants_help(parts):
+        show_command_help(first)
+        return
+
+    handler = dispatch.get(first)
+    try:
+        if handler:
+            result = handler(line)
+        else:
+            result = log_free_text(line)
+        if result:
+            _show_result(result)
+    except KeyboardInterrupt:
+        current_ui.print_line("\nCancelled.")
 
 
 def _submit_multiline(lines: list[str]) -> None:
@@ -89,24 +126,7 @@ def repl():
                 multi_buf.append(line)
                 continue
 
-            parts = line.split()
-            first = parts[0].lower()
-
-            handler = dispatch.get(first)
-            if handler:
-                try:
-                    result = handler(line)
-                    if result:
-                        _show_result(result)
-                except KeyboardInterrupt:
-                    current_ui.print_line("\nCancelled.")
-            else:
-                try:
-                    result = log_free_text(line)
-                    if result:
-                        _show_result(result)
-                except KeyboardInterrupt:
-                    current_ui.print_line("\nCancelled.")
+            _dispatch_line(line, dispatch)
 
             current_ui.prompt("Press Enter to continue.")
     except KeyboardInterrupt:
@@ -126,23 +146,6 @@ def run_single_command(line):
     current_ui.print_line(f"\n> {line}")
 
     dispatch = make_dispatch()
-    parts = line.split()
-    first = parts[0].lower()
-
-    handler = dispatch.get(first)
-    if handler:
-        try:
-            result = handler(line)
-            if result:
-                _show_result(result)
-        except KeyboardInterrupt:
-            current_ui.print_line("\nCancelled.")
-    else:
-        try:
-            result = log_free_text(line)
-            if result:
-                _show_result(result)
-        except KeyboardInterrupt:
-            current_ui.print_line("\nCancelled.")
+    _dispatch_line(line, dispatch)
 
     current_ui.prompt("Press Enter to exit.")
