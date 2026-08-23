@@ -3,7 +3,7 @@ import sqlite3
 import unittest
 from unittest.mock import MagicMock, patch
 
-from dailydriver.features.events._logic import (
+from dailydriver.features.events.state import (
     clear_great_event,
     clear_pending_start,
     discard_pending_start,
@@ -28,18 +28,18 @@ class TestLoggerState(unittest.TestCase):
     def tearDown(self):
         self.conn.close()
 
-    @patch("dailydriver.features.events._logic.get_connection_cm")
+    @patch("dailydriver.features.events.state.get_connection_cm")
     def test_get_last_action_time_none(self, mock_cm):
         mock_cm.return_value = self.mock_cm
         self.assertIsNone(get_last_action_time())
 
-    @patch("dailydriver.features.events._logic.get_connection_cm")
+    @patch("dailydriver.features.events.state.get_connection_cm")
     def test_get_last_action_time_value(self, mock_cm):
         self.conn.execute("INSERT INTO meta (key, value) VALUES ('last_action', '123456')")
         mock_cm.return_value = self.mock_cm
         self.assertEqual(get_last_action_time(), 123456)
 
-    @patch("dailydriver.features.events._logic.get_connection_cm")
+    @patch("dailydriver.features.events.state.get_connection_cm")
     def test_save_pending_start_and_get(self, mock_cm):
         mock_cm.return_value = self.mock_cm
         save_pending_start()
@@ -47,21 +47,21 @@ class TestLoggerState(unittest.TestCase):
         self.assertIsNotNone(ts)
         self.assertGreater(ts, 0)
 
-    @patch("dailydriver.features.events._logic.get_connection_cm")
+    @patch("dailydriver.features.events.state.get_connection_cm")
     def test_discard_pending_start_removes(self, mock_cm):
         mock_cm.return_value = self.mock_cm
         self.conn.execute("INSERT INTO meta (key, value) VALUES ('pending_start', '999')")
         discard_pending_start()
         self.assertIsNone(get_pending_start())
 
-    @patch("dailydriver.features.events._logic.get_connection_cm")
+    @patch("dailydriver.features.events.state.get_connection_cm")
     def test_clear_pending_start(self, mock_cm):
         mock_cm.return_value = self.mock_cm
         self.conn.execute("INSERT INTO meta (key, value) VALUES ('pending_start', '111')")
         clear_pending_start()
         self.assertIsNone(get_pending_start())
 
-    @patch("dailydriver.features.events._logic.get_connection_cm")
+    @patch("dailydriver.features.events.state.get_connection_cm")
     def test_start_great_event_and_get_active(self, mock_cm):
         mock_cm.return_value = self.mock_cm
         start_great_event(["work", "focus"])
@@ -69,7 +69,7 @@ class TestLoggerState(unittest.TestCase):
         self.assertIsNotNone(start_ts)
         self.assertEqual(cats, ["work", "focus"])
 
-    @patch("dailydriver.features.events._logic.get_connection_cm")
+    @patch("dailydriver.features.events.state.get_connection_cm")
     def test_start_duplicate_great_event_raises(self, mock_cm):
         mock_cm.return_value = self.mock_cm
         self.conn.execute("INSERT INTO meta (key, value) VALUES ('great_event_start', '1')")
@@ -77,7 +77,7 @@ class TestLoggerState(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             start_great_event(["another"])
 
-    @patch("dailydriver.features.events._logic.get_connection_cm")
+    @patch("dailydriver.features.events.state.get_connection_cm")
     def test_clear_great_event(self, mock_cm):
         mock_cm.return_value = self.mock_cm
         self.conn.execute("INSERT INTO meta (key, value) VALUES ('great_event_start', '2')")
@@ -85,7 +85,7 @@ class TestLoggerState(unittest.TestCase):
         clear_great_event()
         self.assertIsNone(get_active_great_event())
 
-    @patch("dailydriver.features.events._logic.get_connection_cm")
+    @patch("dailydriver.features.events.state.get_connection_cm")
     def test_event_lifecycle(self, mock_cm):
         mock_cm.return_value = self.mock_cm
         start_great_event(["a", "b"])

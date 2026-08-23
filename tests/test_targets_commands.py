@@ -6,8 +6,8 @@ from unittest.mock import patch
 
 import jdatetime
 
-from dailydriver.features.targets import _logic
-from dailydriver.features.targets._migrations import migrations
+from dailydriver.features.targets import api as targets
+from dailydriver.features.targets.migrations import migrations
 
 
 def create_test_entry(conn, name="Salavat", kind="nazr", target_total=1000):
@@ -31,19 +31,19 @@ class TestTargetsCounterHelpers(unittest.TestCase):
         for mig in migrations():
             mig(self.conn)
 
-        self.patcher_logic = patch("dailydriver.features.targets._logic.get_connection_cm")
+        self.patcher_logic = patch("dailydriver.features.targets.entries.get_connection_cm")
         self.mock_logic = self.patcher_logic.start()
         self.mock_logic.return_value.__enter__.return_value = self.conn
         self.mock_logic.return_value.__exit__.return_value = False
 
-        self.patcher_utils = patch("dailydriver.features.targets._utils.get_connection_cm")
+        self.patcher_utils = patch("dailydriver.features.targets.history.get_connection_cm")
         self.mock_utils = self.patcher_utils.start()
         self.mock_utils.return_value.__enter__.return_value = self.conn
         self.mock_utils.return_value.__exit__.return_value = False
 
-        from dailydriver.features.targets import _utils
+        from dailydriver.features.targets import history
 
-        self.utils = _utils
+        self.utils = history
 
         self.eid = create_test_entry(self.conn, "Salavat", "nazr")
 
@@ -74,21 +74,21 @@ class TestTargetsDailyTotal(unittest.TestCase):
         for mig in migrations():
             mig(self.conn)
 
-        self.patcher_logic = patch("dailydriver.features.targets._logic.get_connection_cm")
+        self.patcher_logic = patch("dailydriver.features.targets.entries.get_connection_cm")
         self.mock_logic = self.patcher_logic.start()
         self.mock_logic.return_value.__enter__.return_value = self.conn
         self.mock_logic.return_value.__exit__.return_value = False
 
-        self.patcher_utils = patch("dailydriver.features.targets._utils.get_connection_cm")
+        self.patcher_utils = patch("dailydriver.features.targets.history.get_connection_cm")
         self.mock_utils = self.patcher_utils.start()
         self.mock_utils.return_value.__enter__.return_value = self.conn
         self.mock_utils.return_value.__exit__.return_value = False
 
-        self.shift_patcher = patch("dailydriver.features.targets._logic.get_shifted_today")
+        self.shift_patcher = patch("dailydriver.features.targets.clock.today")
         self.mock_shifted = self.shift_patcher.start()
         self.mock_shifted.return_value = jdatetime.date(1405, 5, 3)
 
-        self.ui_patcher = patch("dailydriver.features.targets._logic.current_ui")
+        self.ui_patcher = patch("dailydriver.features.targets.commands.current_ui")
         self.mock_ui = self.ui_patcher.start()
 
         self.eid = create_test_entry(self.conn, "Anki", "habit", target_total=None)
@@ -101,37 +101,37 @@ class TestTargetsDailyTotal(unittest.TestCase):
         self.conn.close()
 
     def test_daily_total_normal(self):
-        _logic.log_progress("Anki", 5)
-        result = _logic.handle_daily_total("Anki 10")
+        targets.log_progress("Anki", 5)
+        result = targets.handle_daily_total("Anki 10")
         self.assertIn("Anki: 10/∞", result)
 
-        entry = _logic.get_entry_by_id(self.eid)
+        entry = targets.get_entry_by_id(self.eid)
         self.assertEqual(entry["logged_total"], 10)
 
     def test_daily_total_zero_diff(self):
-        _logic.log_progress("Anki", 10)
-        result = _logic.handle_daily_total("Anki 10")
+        targets.log_progress("Anki", 10)
+        result = targets.handle_daily_total("Anki 10")
         self.assertEqual(result, "No change. Nothing logged.")
 
-        entry = _logic.get_entry_by_id(self.eid)
+        entry = targets.get_entry_by_id(self.eid)
         self.assertEqual(entry["logged_total"], 10)
 
     def test_daily_total_negative_diff(self):
-        _logic.log_progress("Anki", 20)
+        targets.log_progress("Anki", 20)
         self.mock_ui.print_line = lambda x: None
 
-        result = _logic.handle_daily_total("Anki 10")
+        result = targets.handle_daily_total("Anki 10")
         self.assertEqual(result, "Negative amount not logged. Please adjust manually.")
 
-        entry = _logic.get_entry_by_id(self.eid)
+        entry = targets.get_entry_by_id(self.eid)
         self.assertEqual(entry["logged_total"], 20)
 
     def test_daily_total_entry_not_found(self):
-        result = _logic.handle_daily_total("NotFound 10")
+        result = targets.handle_daily_total("NotFound 10")
         self.assertIn("Entry not found", result)
 
     def test_daily_total_kind_mismatch(self):
-        result = _logic.handle_daily_total("Anki 10", kind="nazr")
+        result = targets.handle_daily_total("Anki 10", kind="nazr")
         self.assertIn("not a nazr", result)
 
 
@@ -142,17 +142,17 @@ class TestTargetsCounterTotal(unittest.TestCase):
         for mig in migrations():
             mig(self.conn)
 
-        self.patcher_logic = patch("dailydriver.features.targets._logic.get_connection_cm")
+        self.patcher_logic = patch("dailydriver.features.targets.entries.get_connection_cm")
         self.mock_logic = self.patcher_logic.start()
         self.mock_logic.return_value.__enter__.return_value = self.conn
         self.mock_logic.return_value.__exit__.return_value = False
 
-        self.patcher_utils = patch("dailydriver.features.targets._utils.get_connection_cm")
+        self.patcher_utils = patch("dailydriver.features.targets.history.get_connection_cm")
         self.mock_utils = self.patcher_utils.start()
         self.mock_utils.return_value.__enter__.return_value = self.conn
         self.mock_utils.return_value.__exit__.return_value = False
 
-        self.ui_patcher = patch("dailydriver.features.targets._logic.current_ui")
+        self.ui_patcher = patch("dailydriver.features.targets.commands.current_ui")
         self.mock_ui = self.ui_patcher.start()
 
         self.eid = create_test_entry(self.conn, "Salavat", "nazr", target_total=1000)
@@ -164,51 +164,51 @@ class TestTargetsCounterTotal(unittest.TestCase):
         self.conn.close()
 
     def test_counter_total_normal(self):
-        result = _logic.handle_counter_total("Salavat 50")
+        result = targets.handle_counter_total("Salavat 50")
         self.assertIn("Salavat: 50/1000", result)
 
-        entry = _logic.get_entry_by_id(self.eid)
+        entry = targets.get_entry_by_id(self.eid)
         self.assertEqual(entry["logged_total"], 50)
 
-        _logic.handle_counter_total("Salavat 100")
-        entry = _logic.get_entry_by_id(self.eid)
+        targets.handle_counter_total("Salavat 100")
+        entry = targets.get_entry_by_id(self.eid)
         self.assertEqual(entry["logged_total"], 100)
 
     def test_counter_total_zero_diff(self):
-        _logic.handle_counter_total("Salavat 50")
-        result = _logic.handle_counter_total("Salavat 50")
+        targets.handle_counter_total("Salavat 50")
+        result = targets.handle_counter_total("Salavat 50")
         self.assertEqual(result, "No change. Nothing logged.")
 
-        entry = _logic.get_entry_by_id(self.eid)
+        entry = targets.get_entry_by_id(self.eid)
         self.assertEqual(entry["logged_total"], 50)
 
     def test_counter_total_negative_diff(self):
-        _logic.handle_counter_total("Salavat 100")
+        targets.handle_counter_total("Salavat 100")
         self.mock_ui.print_line = lambda x: None
 
-        result = _logic.handle_counter_total("Salavat 50")
+        result = targets.handle_counter_total("Salavat 50")
         self.assertEqual(result, "Negative amount not logged. Please adjust manually.")
 
-        entry = _logic.get_entry_by_id(self.eid)
+        entry = targets.get_entry_by_id(self.eid)
         self.assertEqual(entry["logged_total"], 100)
 
     def test_counter_reset(self):
-        _logic.handle_counter_total("Salavat 100")
-        entry = _logic.get_entry_by_id(self.eid)
+        targets.handle_counter_total("Salavat 100")
+        entry = targets.get_entry_by_id(self.eid)
         self.assertEqual(entry["logged_total"], 100)
 
-        result = _logic.handle_counter_reset("Salavat")
+        result = targets.handle_counter_reset("Salavat")
         self.assertEqual(result, "Counter reset to 0 for Salavat")
 
-        entry = _logic.get_entry_by_id(self.eid)
+        entry = targets.get_entry_by_id(self.eid)
         self.assertEqual(entry["logged_total"], 100)
 
-        _logic.handle_counter_total("Salavat 50")
-        entry = _logic.get_entry_by_id(self.eid)
+        targets.handle_counter_total("Salavat 50")
+        entry = targets.get_entry_by_id(self.eid)
         self.assertEqual(entry["logged_total"], 150)
 
     def test_counter_reset_entry_not_found(self):
-        result = _logic.handle_counter_reset("NotFound")
+        result = targets.handle_counter_reset("NotFound")
         self.assertIn("Entry not found", result)
 
 

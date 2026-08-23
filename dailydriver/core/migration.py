@@ -367,12 +367,14 @@ def run_migrations():
     conn = get_connection(auto=False)
     try:
         import dailydriver.features as features_pkg
+        from dailydriver.features.registry import migration_hook, validate_migrations
 
         cur = conn.cursor()
         for feature in features_pkg.ENABLED:
-            if not hasattr(feature, "migrations"):
+            get_migrations = migration_hook(feature)
+            if get_migrations is None:
                 continue
-            feature_name = getattr(feature, "NAME", feature.__name__)
+            feature_name = feature.NAME
             # read current version
             cur.execute(
                 "SELECT version FROM feature_versions WHERE feature_name=?",
@@ -381,7 +383,7 @@ def run_migrations():
             row = cur.fetchone()
             current_ver = row[0] if row else 0
 
-            migration_list = feature.migrations()
+            migration_list = validate_migrations(feature, get_migrations())
             for idx in range(current_ver, len(migration_list)):
                 migration_list[idx](conn)
             if len(migration_list) > current_ver:

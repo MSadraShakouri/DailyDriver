@@ -7,10 +7,11 @@ import jdatetime
 from hijridate import Gregorian as HijriGregorian
 
 import dailydriver.features as features_pkg
+from dailydriver.features.registry import header_hook, validate_header_sections
 from dailydriver.core.database import get_connection_cm
 from dailydriver.display.display_utils import get_width, spread_line
-from dailydriver.features.calendar._logic import get_hijri_offset
-from dailydriver.features.events._header import get_last_entry_time
+from dailydriver.features.calendar.hijri import get_hijri_offset
+from dailydriver.features.events.header import get_last_entry_time
 from dailydriver.utils.time_utils import format_jalali, today_jalali
 
 
@@ -48,19 +49,16 @@ def build_header_data(day=None, is_today=True):
             separator = f"\033[2m{separator}\033[0m"
             greg_hijri_line = f"\033[2m{greg_hijri_line}\033[0m"
 
-        # Collect header lines from enabled feature packages
-        feature_lines = []
+        # Collect the single, explicit (priority, text) header representation.
+        sections = []
         for feature in features_pkg.ENABLED:
-            if hasattr(feature, "header_sections"):
-                lines = feature.header_sections(conn, today, target_date, is_today)
-                if isinstance(lines, list):
-                    feature_lines.extend(lines)
+            build_sections = header_hook(feature)
+            if build_sections is not None:
+                returned = build_sections(conn, today, target_date, is_today)
+                sections.extend(validate_header_sections(feature, returned))
 
-        # Sort: tuples by priority, plain strings stay on top
-        tupled = [item for item in feature_lines if isinstance(item, tuple)]
-        plain = [item for item in feature_lines if not isinstance(item, tuple)]
-        tupled.sort(key=lambda x: x[0])
-        feature_lines = plain + [text for _, text in tupled]
+        sections.sort(key=lambda item: item[0])
+        feature_lines = [text for _, text in sections]
 
         last_entry_time = get_last_entry_time(is_today)
 

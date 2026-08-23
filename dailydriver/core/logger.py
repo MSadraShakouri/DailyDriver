@@ -31,7 +31,7 @@ def log_free_text(cmd, started_at=None):
         else:
             now = datetime.now()
 
-            from dailydriver.features.events._logic import get_last_action_time
+            from dailydriver.features.events.state import get_last_action_time
 
             last_ts = get_last_action_time()
             last_time = datetime.fromtimestamp(last_ts) if last_ts else None

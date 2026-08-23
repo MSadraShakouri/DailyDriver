@@ -3,15 +3,15 @@ import unittest
 from dailydriver.cli.commands.export_cmd import export
 from dailydriver.cli.commands.search import search
 from dailydriver.cli.dispatcher import make_dispatch
-from dailydriver.features.events._logic import (
+from dailydriver.features.events.commands import (
     cancel_great_event_cmd,
     end_great_event_cmd,
     log_chain_now,
     log_event_end,
     start_great_event_cmd,
 )
-from dailydriver.features.prayer._logic import log_prayer
-from dailydriver.features.sleep._logic import log_nap, log_sleep
+from dailydriver.features.prayer.commands import log_prayer
+from dailydriver.features.sleep.commands import log_nap, log_sleep
 
 
 class TestDispatcher(unittest.TestCase):

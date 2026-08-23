@@ -3,7 +3,7 @@ import unittest
 
 import jdatetime
 
-from dailydriver.features.hygiene._header import get_hygiene_lines
+from dailydriver.features.hygiene.header import get_hygiene_lines
 
 
 class TestHygiene(unittest.TestCase):

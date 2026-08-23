@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import unittest
 
-from dailydriver.features.prayer._prayer_core import current_slot
+from dailydriver.features.prayer.schedule import current_slot
 
 
 class TestCurrentSlot(unittest.TestCase):

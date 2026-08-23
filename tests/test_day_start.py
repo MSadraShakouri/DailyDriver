@@ -179,13 +179,13 @@ class TestDayStartHygieneIntegration(unittest.TestCase):
         self.conn.commit()
 
         # Patch get_connection_cm for hygiene modules
-        self.patcher = patch("dailydriver.features.hygiene._logic.get_connection_cm")
+        self.patcher = patch("dailydriver.features.hygiene.manager.get_connection_cm")
         self.mock_cm = self.patcher.start()
         self.mock_cm.return_value.__enter__.return_value = self.conn
         self.mock_cm.return_value.__exit__.return_value = False
 
         # Patch get_shifted_today
-        self.date_patcher = patch("dailydriver.features.hygiene._header.get_shifted_today")
+        self.date_patcher = patch("dailydriver.features.hygiene.header.get_shifted_today")
         self.mock_shifted = self.date_patcher.start()
 
         # Insert a hygiene item
@@ -225,7 +225,7 @@ class TestDayStartHygieneIntegration(unittest.TestCase):
             cur.execute("INSERT INTO entry_categories (entry_id, category_id) VALUES (?, ?)", (entry_id, cat_id))
         self.conn.commit()
 
-        from dailydriver.features.hygiene._header import compute_hygiene_nudges
+        from dailydriver.features.hygiene.header import compute_hygiene_nudges
 
         # With shifted today = 1405-05-03, last log = 1405-05-02 → days_since = 1
         # Interval = 2 → days_left = 1 → not due today
@@ -273,19 +273,19 @@ class TestDayStartTargetsIntegration(unittest.TestCase):
         self.conn.commit()
 
         # Patch get_connection_cm for targets
-        self.patcher = patch("dailydriver.features.targets._logic.get_connection_cm")
+        self.patcher = patch("dailydriver.features.targets.entries.get_connection_cm")
         self.mock_cm = self.patcher.start()
         self.mock_cm.return_value.__enter__.return_value = self.conn
         self.mock_cm.return_value.__exit__.return_value = False
 
         # Patch get_shifted_today
-        self.date_patcher = patch("dailydriver.features.targets._logic.get_shifted_today")
+        self.date_patcher = patch("dailydriver.features.targets.clock.today")
         self.mock_shifted = self.date_patcher.start()
 
         # Set default day start to 0
         day_start.set_day_start_hour(0)
 
-        from dailydriver.features.targets import _logic as targets_logic
+        from dailydriver.features.targets import api as targets_logic
 
         self.targets_logic = targets_logic
 

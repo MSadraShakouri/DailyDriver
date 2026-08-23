@@ -4,8 +4,8 @@ import unittest
 
 import jdatetime
 
-from dailydriver.features.birthdays._header import get_birthday_lines
-from dailydriver.features.calendar._reminders import get_event_reminders, get_tomorrow_preview
+from dailydriver.features.birthdays.header import get_birthday_lines
+from dailydriver.features.calendar.reminders import get_event_reminders, get_tomorrow_preview
 
 
 class TestBirthdaySchedule(unittest.TestCase):

@@ -2,7 +2,7 @@
 import sqlite3
 import unittest
 
-from dailydriver.features.qada._migrations import migrations
+from dailydriver.features.qada.migrations import migrations
 
 
 class TestQadaMigrations(unittest.TestCase):

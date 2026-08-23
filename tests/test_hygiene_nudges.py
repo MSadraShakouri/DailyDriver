@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import jdatetime
 
-from dailydriver.features.hygiene._header import compute_hygiene_nudges
+from dailydriver.features.hygiene.header import compute_hygiene_nudges
 
 
 class TestHygieneNudges(unittest.TestCase):
@@ -45,7 +45,7 @@ class TestHygieneNudges(unittest.TestCase):
         )
         return ts
 
-    @patch("dailydriver.features.hygiene._header.get_last_hygiene_time")
+    @patch("dailydriver.features.hygiene.header.get_last_hygiene_time")
     def test_overdue(self, mock_last):
         self._insert_item("shower", 7)
         # last log 8 days ago
@@ -56,7 +56,7 @@ class TestHygieneNudges(unittest.TestCase):
         self.assertIn("overdue", nudges[0])
         self.assertIn("8d ago", nudges[0])
 
-    @patch("dailydriver.features.hygiene._header.get_last_hygiene_time")
+    @patch("dailydriver.features.hygiene.header.get_last_hygiene_time")
     def test_due_today(self, mock_last):
         self._insert_item("shower", 7, due_today=1)
         # last log exactly 7 days ago
@@ -66,14 +66,14 @@ class TestHygieneNudges(unittest.TestCase):
         self.assertIn("shower", nudges[0])
         self.assertIn("due today", nudges[0])
 
-    @patch("dailydriver.features.hygiene._header.get_last_hygiene_time")
+    @patch("dailydriver.features.hygiene.header.get_last_hygiene_time")
     def test_due_today_disabled(self, mock_last):
         self._insert_item("shower", 7, due_today=0)
         mock_last.return_value = self._set_last_time("shower", 7)
         nudges = compute_hygiene_nudges(self.conn, relative_to=self.today_j)
         self.assertEqual(nudges, [])
 
-    @patch("dailydriver.features.hygiene._header.get_last_hygiene_time")
+    @patch("dailydriver.features.hygiene.header.get_last_hygiene_time")
     def test_early_warning(self, mock_last):
         self._insert_item("shower", 7, early=1)
         # last log 6 days ago → 1 day remaining → within 2 days
@@ -83,14 +83,14 @@ class TestHygieneNudges(unittest.TestCase):
         self.assertIn("shower", nudges[0])
         self.assertIn("due in 1d", nudges[0])
 
-    @patch("dailydriver.features.hygiene._header.get_last_hygiene_time")
+    @patch("dailydriver.features.hygiene.header.get_last_hygiene_time")
     def test_early_warning_disabled(self, mock_last):
         self._insert_item("shower", 7, early=0)
         mock_last.return_value = self._set_last_time("shower", 6)
         nudges = compute_hygiene_nudges(self.conn, relative_to=self.today_j)
         self.assertEqual(nudges, [])
 
-    @patch("dailydriver.features.hygiene._header.get_last_hygiene_time")
+    @patch("dailydriver.features.hygiene.header.get_last_hygiene_time")
     def test_no_nudge_well_within_interval(self, mock_last):
         self._insert_item("shower", 7, early=1)
         # last log 5 days ago → 2 days remaining, threshold is 2 days for interval 7
@@ -101,7 +101,7 @@ class TestHygieneNudges(unittest.TestCase):
         nudges = compute_hygiene_nudges(self.conn, relative_to=self.today_j)
         self.assertEqual(nudges, [])
 
-    @patch("dailydriver.features.hygiene._header.get_last_hygiene_time")
+    @patch("dailydriver.features.hygiene.header.get_last_hygiene_time")
     def test_interval_15_early_3_days(self, mock_last):
         self._insert_item("shave", 15, early=1)
         # last log 13 days ago → remaining = 2, threshold = 3 → due in 2d
@@ -111,7 +111,7 @@ class TestHygieneNudges(unittest.TestCase):
         self.assertIn("shave", nudges[0])
         self.assertIn("due in 2d", nudges[0])
 
-    @patch("dailydriver.features.hygiene._header.get_last_hygiene_time")
+    @patch("dailydriver.features.hygiene.header.get_last_hygiene_time")
     def test_shift_before_day_start(self, mock_last):
         # Set day start to 4:00
         from dailydriver.core.day_start import set_day_start_hour

@@ -2,7 +2,7 @@ import sqlite3
 import unittest
 from datetime import datetime
 
-from dailydriver.features.sleep._header import get_nap_str, get_sleep_str
+from dailydriver.features.sleep.status import get_nap_str, get_sleep_str
 
 
 class TestSleep(unittest.TestCase):

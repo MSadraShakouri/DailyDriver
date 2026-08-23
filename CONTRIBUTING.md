@@ -1,57 +1,88 @@
 # Contributing
 
-Thanks for your interest in DailyDriver!
+Thanks for your interest in DailyDriver.
 
----
+## Package layout
 
-## Package Layout
-
-```
+```text
 dailydriver/
-├── core/           # data, parsing, logging (no UI)
-├── domains/        # one domain per file (prayer, sleep, hygiene, etc.)
-├── display/        # header building, stats, today view
-├── cli/            # REPL logic, command implementations
-├── ui/             # terminal abstraction (current_ui)
-└── utils/          # shared helpers, calendar events
+├── core/           # database, migrations, journal persistence, shared state
+├── features/       # enabled domain packages and their package-level hooks
+├── display/        # header orchestration, rendering, and statistics
+├── cli/            # REPL, dispatcher, and non-feature commands
+├── ui/             # terminal abstraction (`current_ui`)
+└── utils/          # domain-neutral parsing, dates, times, and intervals
 ```
 
-- **core/** modules never import from `domains/` or `cli/`.
-- **domains/** may import from `core/` and `utils/`.
-- **cli/** may import from `domains/` and `display/`.
-- **display/** may import from `core/`, `utils/`, and `domains/`.
+Dependency direction should normally be:
 
----
+- `core/` does not depend on `cli/` or display code;
+- `utils/` contains domain-neutral helpers and does not depend on features;
+- feature implementations may use `core/`, `utils/`, `ui/`, and display helpers;
+- `cli/` and `display/` discover feature capabilities through the feature
+  package hooks;
+- cross-feature calls use a deliberately named module or package export, never
+  a generic private `_logic` module.
 
-## Adding a New Domain
+## Adding a feature
 
-1. Create a new file in `dailydriver/domains/` (e.g. `exercise.py`).
-2. Write the core logic (using `get_connection_cm()` for DB access).
-3. Add a command handler in `dailydriver/cli/commander.py` and register it in `make_dispatch()`.
-4. Add a help entry in `dailydriver/cli/help.py`.
+Each feature is a package under `dailydriver/features/`. Its `__init__.py` is a
+small adapter exposing `NAME`, `VERSION`, and whichever optional hooks it needs:
 
----
+- `register_commands(dispatch)`;
+- `header_sections(conn, today, target_date, is_today)`;
+- `migrations()`.
 
-## Adding a New Command
+Add the package to `dailydriver/features/__init__.py`. The registry validates
+metadata and hooks at startup, and `tests/test_feature_registry.py` catches
+unregistered packages.
 
-1. Create a file in `dailydriver/cli/` if the logic is substantial, or write the handler directly in `commander.py` for small commands.
-2. Register the command in `make_dispatch()`.
-3. If it uses the raw line string (e.g. `export 7d`), add it to the tuple in `repl()` and `run_single_command()` so the line is passed directly.
+Only the package-level hook contract is enforced. **No internal filename such
+as `_logic.py` is required.** Prefer modules named for responsibilities or
+domain concepts, for example `commands.py`, `entries.py`, `schedule.py`,
+`header.py`, and `migrations.py`. Small features should stay small; large
+features should separate persistence, calculations, terminal UI, and command
+parsing.
 
----
+See [`dailydriver/features/HOOKS.md`](dailydriver/features/HOOKS.md) for the
+complete runtime contract.
+
+## Adding a command
+
+Feature-owned commands belong in the feature package and are registered by its
+`register_commands` hook. Primary names and aliases are registered together.
+
+A genuinely application-wide command may live under `dailydriver/cli/commands/`
+and be added to `make_dispatch()`. If it needs the unparsed command line, make
+sure both the REPL and single-command path pass it through consistently.
 
 ## Style
 
 - Follow the existing module docstrings and function naming.
-- Keep functions short and focused.
-- Use `current_ui.print_line()` and `current_ui.prompt()` for all I/O.
+- Keep package adapters declarative and free of import-time side effects.
+- Keep functions focused; extract shared, domain-neutral behavior rather than
+  copying it between feature managers.
+- Use `current_ui.print_line()` and `current_ui.prompt()` for terminal I/O.
+- Use `get_connection_cm()` for database ownership and close connections
+  predictably.
+- Keep lines at or below 120 characters where practical.
 
----
+## Tests
 
-## Pull Requests
+Install the project and test runner, then run:
 
-1. Fork the repo and create a branch.
-2. Make your changes and test thoroughly.
-3. Open a pull request with a clear description.
+```bash
+python -m pytest -q
+```
 
-For major changes, please open an issue first to discuss your ideas.
+During a feature refactor, run that feature's focused tests after each module
+move or extraction, then run the complete suite before submitting.
+
+## Pull requests
+
+1. Fork the repository and create a branch.
+2. Make focused changes and test thoroughly.
+3. Open a pull request with a clear description of behavior and architecture
+   changes.
+
+For major behavior changes, please open an issue first to discuss the design.

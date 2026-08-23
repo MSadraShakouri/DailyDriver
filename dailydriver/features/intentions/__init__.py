@@ -1,11 +1,10 @@
-# dailydriver/features/intentions/__init__.py
-"""Intentions feature – to‑dos with deadlines."""
+"""Intentions feature adapter."""
 
-from . import _logic
+from .commands import add_intention
 
 NAME = "intentions"
 VERSION = "1.0.0"
 
 
 def register_commands(dispatch):
-    dispatch["t"] = _logic.add_intention
+    dispatch["t"] = add_intention

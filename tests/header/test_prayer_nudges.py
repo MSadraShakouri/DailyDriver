@@ -4,7 +4,7 @@ from datetime import datetime
 
 import jdatetime
 
-from dailydriver.features.prayer._header import get_prayer_nudges
+from dailydriver.features.prayer.nudges import get_prayer_nudges
 
 
 class TestPrayerNudges(unittest.TestCase):

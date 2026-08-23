@@ -1,35 +1,21 @@
-# dailydriver/features/prayer/__init__.py
-"""Prayer feature – logging, qada, pre‑alert / overdue nudges."""
+"""Prayer logging and reminder feature adapter."""
 
-from . import _header, _logic, _migrations
+from dailydriver.display.display_utils import spread_line
+
+from .commands import log_prayer
+from .nudges import get_prayer_nudges
+from .status import get_prayer_parts
 
 NAME = "prayer"
 VERSION = "1.0.0"
 
 
 def register_commands(dispatch):
-    dispatch["p"] = _logic.log_prayer
-
-
-def register_aliases(dispatch):
-    dispatch["pray"] = _logic.log_prayer
+    dispatch["p"] = log_prayer
+    dispatch["pray"] = log_prayer
 
 
 def header_sections(conn, today, target_date, is_today):
-    from dailydriver.display.display_utils import spread_line
-
-    parts = _header.get_prayer_parts(conn, today)
-    nudges = _header.get_prayer_nudges(conn, target_date, today, is_today)
-
-    result = []
-    # prayer spread line as plain string → appears first (no priority needed)
-    prayer_line = spread_line(parts, prefix="🕌 ")
-    result.append(prayer_line)
-    # nudge lines with priority after hygiene
-    for n in nudges:
-        result.append((32, n))
-    return result
-
-
-def migrations():
-    return _migrations.migrations()
+    sections = [(0, spread_line(get_prayer_parts(conn, today), prefix="🕌 "))]
+    sections.extend((32, nudge) for nudge in get_prayer_nudges(conn, target_date, today, is_today))
+    return sections

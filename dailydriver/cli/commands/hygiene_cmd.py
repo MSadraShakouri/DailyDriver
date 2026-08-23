@@ -1,3 +1,3 @@
-from dailydriver.features.hygiene._logic import manage_hygiene
+from dailydriver.features.hygiene.manager import manage_hygiene
 
 __all__ = ["manage_hygiene"]

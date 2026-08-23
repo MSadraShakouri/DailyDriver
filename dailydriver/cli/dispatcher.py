@@ -1,13 +1,14 @@
 import sys
 
 import dailydriver.features as features_pkg
+from dailydriver.features.registry import command_hook
 from dailydriver.cli.commands.export_cmd import export
 from dailydriver.cli.commands.help_cmd import show_help
 from dailydriver.cli.commands.hygiene_cmd import manage_hygiene
 from dailydriver.cli.commands.search import search
 from dailydriver.cli.commands.stats_cmd import show_stats
 from dailydriver.cli.commands.viewing import show_day, show_last, view_entries
-from dailydriver.features.events._logic import discard_pending_start, save_pending_start
+from dailydriver.features.events.state import discard_pending_start, save_pending_start
 
 from .commands.daystart import daystart_command
 from .commands.travel import travel_command
@@ -32,13 +33,10 @@ def make_dispatch():
         "daystart": daystart_command,
     }
 
-    # Let features register their own commands
+    # Features expose command registration as an optional package capability.
     for feature in features_pkg.ENABLED:
-        if hasattr(feature, "register_commands"):
-            feature.register_commands(dispatch)
-
-        # Let features register their own aliases
-        if hasattr(feature, "register_aliases"):
-            feature.register_aliases(dispatch)
+        register = command_hook(feature)
+        if register is not None:
+            register(dispatch)
 
     return dispatch
