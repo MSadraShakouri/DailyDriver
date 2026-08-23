@@ -81,7 +81,7 @@ def get_all_entries(kind: str | None = None) -> list[dict]:
 
 def record_progress(entry_id: int, amount: int, new_total: int, instance_date: str, logged_at: int) -> None:
     """Atomically append a progress log and update the entry's cached total."""
-    with get_connection_cm(auto=False) as conn:
+    with get_connection_cm() as conn:
         conn.execute(
             "INSERT INTO target_logs (entry_id, amount, instance_date, logged_at) VALUES (?, ?, ?, ?)",
             (entry_id, amount, instance_date, logged_at),
