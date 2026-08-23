@@ -21,6 +21,13 @@ from prompt_toolkit.history import FileHistory, InMemoryHistory
 
 from dailydriver.ui.terminal_ui import TerminalUI
 
+# How many lines to reserve below the prompt for the completion dropdown.
+# prompt_toolkit defaults to 8, which pushes already-printed output (the header)
+# off-screen when the prompt sits low. 0 leaves no room to show suggestions at
+# all. A small value shows a few completions inline without scrolling the header
+# away.
+_MENU_LINES = 4
+
 
 def _history_dir() -> str:
     """Return the directory used to store per-context history files."""
@@ -89,15 +96,13 @@ class PromptToolkitUI(TerminalUI):
             if completions:
                 completer = FuzzyCompleter(WordCompleter(completions, ignore_case=True, sentence=False))
             session = self._session(history_key)
-            # reserve_space_for_menu=0 keeps the prompt inline: prompt_toolkit
-            # otherwise pre-reserves space for the completion menu, scrolling
-            # already-printed output (the header) off-screen. The menu still
-            # opens on demand; we only change input, never wipe output.
+            # Reserve only a few lines for the completion menu so it can show
+            # without scrolling already-printed output (the header) off-screen.
             result = session.prompt(
                 text,
                 completer=completer,
                 complete_while_typing=True,
-                reserve_space_for_menu=0,
+                reserve_space_for_menu=_MENU_LINES,
             )
             return result.strip()
         except (EOFError, KeyboardInterrupt):
@@ -151,7 +156,7 @@ class PromptToolkitUI(TerminalUI):
                 "> ",
                 completer=completer,
                 complete_while_typing=True,
-                reserve_space_for_menu=0,
+                reserve_space_for_menu=_MENU_LINES,
             ).strip()
         except (EOFError, KeyboardInterrupt):
             raise
