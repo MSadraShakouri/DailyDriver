@@ -11,7 +11,8 @@ from collections.abc import Callable, Iterable, Sequence
 from types import ModuleType
 from typing import Any, TypeAlias, TypeVar, cast
 
-HeaderSection: TypeAlias = tuple[int, str]
+HeaderLine: TypeAlias = str | tuple[str, str]
+HeaderSection: TypeAlias = tuple[int, HeaderLine]
 Migration: TypeAlias = Callable[[Any], None]
 CommandHandler: TypeAlias = Callable[[str], Any]
 CommandMap: TypeAlias = dict[str, CommandHandler]
@@ -86,16 +87,23 @@ def validate_header_sections(feature: ModuleType, sections: object) -> list[Head
 
     normalized: list[HeaderSection] = []
     for section in sections:
-        if (
-            not isinstance(section, tuple)
-            or len(section) != 2
-            or not isinstance(section[0], int)
-            or not isinstance(section[1], str)
-        ):
+        if not isinstance(section, tuple) or len(section) != 2 or not isinstance(section[0], int):
             raise FeatureContractError(
-                f"{feature.__name__}.header_sections entries must be (int priority, str text) tuples"
+                f"{feature.__name__}.header_sections entries must be (int priority, header line) tuples"
             )
-        normalized.append(section)
+
+        line = section[1]
+        structured_line = (
+            isinstance(line, tuple)
+            and len(line) == 2
+            and isinstance(line[0], str)
+            and isinstance(line[1], str)
+        )
+        if not isinstance(line, str) and not structured_line:
+            raise FeatureContractError(
+                f"{feature.__name__}.header_sections content must be text or a (prefix, title) tuple"
+            )
+        normalized.append(cast(HeaderSection, section))
     return normalized
 
 

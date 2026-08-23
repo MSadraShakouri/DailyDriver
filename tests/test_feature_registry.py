@@ -43,5 +43,18 @@ def test_present_hook_must_be_callable():
 def test_header_sections_have_one_explicit_ordering_representation():
     feature = _feature()
     assert validate_header_sections(feature, [(20, "weather")]) == [(20, "weather")]
-    with pytest.raises(FeatureContractError, match=r"\(int priority, str text\)"):
+    with pytest.raises(FeatureContractError, match=r"\(int priority, header line\)"):
         validate_header_sections(feature, ["implicitly first"])
+
+
+def test_header_sections_accept_calendar_prefix_title_lines():
+    """Calendar content keeps its structured line after priority wrapping."""
+    feature = _feature("calendar")
+    sections = [(46, ("🔆 ", "Nowruz"))]
+    assert validate_header_sections(feature, sections) == sections
+
+
+def test_header_sections_reject_malformed_structured_lines():
+    feature = _feature()
+    with pytest.raises(FeatureContractError, match=r"text or a \(prefix, title\) tuple"):
+        validate_header_sections(feature, [(46, ("🔆 ", 123))])

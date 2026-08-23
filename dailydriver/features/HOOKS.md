@@ -37,22 +37,28 @@ def register_commands(dispatch):
 
 Aliases are commands too, so there is no separate alias hook.
 
-### `header_sections(conn, today, target_date, is_today) -> sequence[(int, str)]`
+### `header_sections(conn, today, target_date, is_today) -> sequence[(int, HeaderLine)]`
 
-Return zero or more `(priority, text)` items:
+Return zero or more `(priority, line)` items:
 
 - `conn`: the header builder's open SQLite connection;
 - `today`: displayed Jalali date as `YYYY-MM-DD`;
 - `target_date`: displayed `jdatetime.date`;
 - `is_today`: whether the current day is being displayed.
 
-Lower priorities render first. Returning plain strings is not supported because
-it creates a second, implicit ordering system.
+A `HeaderLine` is either a plain string or a `(prefix, title)` pair. The pair
+form lets the renderer wrap long calendar/event titles while preserving their
+icon prefix. Lower priorities render first. Returning a bare line without its
+priority is not supported because that would create a second, implicit ordering
+system.
 
 ```python
 def header_sections(conn, today, target_date, is_today):
     line = header.weather_line(conn, today, is_today)
     return [(20, line)] if line else []
+
+# Structured content is also valid:
+# return [(46, ("🔆 ", "Nowruz"))]
 ```
 
 Header hooks should use the supplied connection for header-specific queries.
