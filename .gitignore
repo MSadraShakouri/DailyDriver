@@ -1,6 +1,7 @@
 *.db
 __pycache__/
 .venv/
+data/.history/
 .daily_edit.txt
 export_*.txt
 data/events_*_titles.txt

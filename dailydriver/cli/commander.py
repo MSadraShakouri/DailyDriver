@@ -54,6 +54,7 @@ def repl():
     collecting = False
 
     dispatch = make_dispatch()
+    command_names = sorted(dispatch.keys())
 
     try:
         while True:
@@ -66,7 +67,7 @@ def repl():
                     current_ui.print_line(f"... {line}")
                 line = current_ui.prompt("... ").strip()
             else:
-                line = current_ui.prompt("> ").strip()
+                line = current_ui.prompt("> ", completions=command_names, history_key="repl").strip()
 
             if line == "":
                 continue

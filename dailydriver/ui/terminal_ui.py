@@ -1,10 +1,17 @@
-# DailyDriver/ui.py
+# DailyDriver/ui/terminal_ui.py
 import os
 from abc import ABC, abstractmethod
 
 
 class UI(ABC):
-    """Abstract interface for user interaction."""
+    """Abstract interface for user interaction.
+
+    Only *input* is abstracted. Output (headers, tables, calendars) is plain
+    ``print`` and is shared by every backend. The ``prompt`` method accepts
+    optional ``completions`` and ``history_key`` hints; plain backends ignore
+    them while rich backends (prompt_toolkit) use them for autocompletion and
+    persistent history.
+    """
 
     @abstractmethod
     def clear(self): ...
@@ -13,7 +20,7 @@ class UI(ABC):
     def print_line(self, text: str = ""): ...
 
     @abstractmethod
-    def prompt(self, text: str) -> str: ...
+    def prompt(self, text: str, completions: list[str] | None = None, history_key: str | None = None) -> str: ...
 
     @abstractmethod
     def confirm(self, message: str, default_yes: bool = True) -> bool:
@@ -27,6 +34,22 @@ class UI(ABC):
 
     @abstractmethod
     def choose_from_list(self, items: list[str], prompt: str = "") -> int: ...
+
+    def select_categories(
+        self,
+        matches: list[tuple[str, float]],
+        all_paths: list[str],
+        show_great_only: bool = False,
+    ) -> list[str] | None:
+        """Interactively select one or more category paths.
+
+        Returns the chosen paths (possibly empty for "Great Event only"), or
+        ``None`` to signal that the caller should fall back to its own text
+        flow. The default returns ``None`` so plain backends keep their existing
+        numbered-list behavior; rich backends override this with an
+        autocompleting picker.
+        """
+        return None
 
     def show_header(self, data: dict):
         """Render the daily header. Default implementation prints it."""
@@ -44,7 +67,8 @@ class TerminalUI(UI):
     def print_line(self, text: str = ""):
         print(text)
 
-    def prompt(self, text: str) -> str:
+    def prompt(self, text: str, completions: list[str] | None = None, history_key: str | None = None) -> str:
+        # completions/history_key are ignored by the plain backend.
         return input(text).strip()
 
     def confirm(self, message: str, default_yes: bool = True) -> bool:
@@ -82,5 +106,30 @@ class TerminalUI(UI):
         return -1
 
 
-# Global instance – can be replaced at startup
-current_ui: UI = TerminalUI()
+def select_ui() -> UI:
+    """Choose the best available input backend.
+
+    Prefers the prompt_toolkit backend for interactive terminals, and falls
+    back to the plain :class:`TerminalUI` when prompt_toolkit is unavailable or
+    stdin/stdout is not an interactive TTY (piped input, redirects, dumb
+    terminals, most test contexts). The fallback behaves exactly as the app did
+    before prompt_toolkit was introduced, so nothing breaks if it cannot run.
+    """
+    import sys
+
+    try:
+        if not (sys.stdin.isatty() and sys.stdout.isatty()):
+            return TerminalUI()
+    except Exception:
+        return TerminalUI()
+
+    try:
+        from dailydriver.ui.ptk_ui import PromptToolkitUI
+
+        return PromptToolkitUI()
+    except Exception:
+        return TerminalUI()
+
+
+# Global instance – resolved at import time, can be replaced at startup.
+current_ui: UI = select_ui()

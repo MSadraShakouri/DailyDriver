@@ -13,6 +13,7 @@ dependencies = [
     "jdatetime",
     "hijridate",
     "porter2stemmer",
+    "prompt_toolkit>=3",
 ]
 
 [project.optional-dependencies]
