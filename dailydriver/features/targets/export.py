@@ -7,7 +7,6 @@ from dailydriver.core.export_utils import build_export_item, jalali_date_time
 _KIND_LABELS = {"nazr": "Nazr", "habit": "Habit"}
 
 
-
 def export_items(conn, cutoff: int) -> list[dict]:
     rows = conn.execute(
         """

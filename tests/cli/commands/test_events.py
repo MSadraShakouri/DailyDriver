@@ -3,11 +3,9 @@ from unittest.mock import Mock
 from dailydriver.cli.commands import events
 
 
-
 def test_end_pending_event_requires_start(monkeypatch):
     monkeypatch.setattr(events, "get_pending_start", lambda: None)
     assert events.log_event_end("ee work") == "No running event to end."
-
 
 
 def test_end_pending_event_logs_and_clears(monkeypatch):
@@ -21,7 +19,6 @@ def test_end_pending_event_logs_and_clears(monkeypatch):
     clear.assert_called_once_with()
 
 
-
 def test_chain_uses_last_action(monkeypatch):
     log = Mock(return_value="logged")
     monkeypatch.setattr(events, "get_last_action_time", lambda: 456)
@@ -30,11 +27,9 @@ def test_chain_uses_last_action(monkeypatch):
     log.assert_called_once_with("follow-up", started_at=456)
 
 
-
 def test_chain_requires_previous_action(monkeypatch):
     monkeypatch.setattr(events, "get_last_action_time", lambda: None)
     assert events.log_chain_now("ln follow-up") == "No previous action to chain from."
-
 
 
 def test_start_great_event_uses_inline_or_interactive_categories(ui, monkeypatch):
@@ -43,7 +38,6 @@ def test_start_great_event_uses_inline_or_interactive_categories(ui, monkeypatch
     assert "work, focus" in events.start_great_event_cmd("sge Work Focus")
     ui.queue("project")
     assert "project" in events.start_great_event_cmd("sge")
-
 
 
 def test_start_great_event_rejects_active_and_empty(ui, monkeypatch):
@@ -56,7 +50,6 @@ def test_start_great_event_rejects_active_and_empty(ui, monkeypatch):
     assert any("No categories" in line for line in ui.lines)
 
 
-
 def test_end_great_event_logs_and_clears(monkeypatch):
     log = Mock(return_value="ended")
     clear = Mock()
@@ -66,7 +59,6 @@ def test_end_great_event_logs_and_clears(monkeypatch):
     assert events.end_great_event_cmd("ege finished") == "ended"
     log.assert_called_once_with("finished", started_at=500)
     clear.assert_called_once_with()
-
 
 
 def test_cancel_great_event_handles_active_and_inactive(ui, monkeypatch):

@@ -11,6 +11,5 @@ def get_prayer_complete_until(conn=None) -> str | None:
     return get_meta_value(_COMPLETE_UNTIL_KEY, conn=conn)
 
 
-
 def set_prayer_complete_until(date_str: str, conn=None) -> None:
     set_meta_value(_COMPLETE_UNTIL_KEY, date_str, conn=conn)

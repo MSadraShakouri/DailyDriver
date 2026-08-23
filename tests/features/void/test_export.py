@@ -14,7 +14,6 @@ def test_duration_parser(value, days):
     assert _parse_duration(value) == days
 
 
-
 def test_export_validates_arguments(db_path, ui):
     assert export_void("vexport") is None
     assert "Usage" in ui.lines[-1]
@@ -22,10 +21,8 @@ def test_export_validates_arguments(db_path, ui):
     assert "Invalid duration" in ui.lines[-1]
 
 
-
 def test_export_reports_empty_range(db_path):
     assert export_void("vexport 7d") == "No void entries in the selected range."
-
 
 
 def test_export_writes_grouped_markdown(db_path, tmp_path, monkeypatch):

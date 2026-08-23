@@ -3,7 +3,6 @@ import pytest
 from dailydriver.core.state import events
 
 
-
 def test_last_action_defaults_to_none_and_reads_value(db_connection):
     from dailydriver.core.state import activity
 
@@ -11,7 +10,6 @@ def test_last_action_defaults_to_none_and_reads_value(db_connection):
     db_connection.execute("INSERT INTO meta (key, value) VALUES ('last_action', '123')")
     db_connection.commit()
     assert activity.get_last_action_time() == 123
-
 
 
 def test_pending_start_save_discard_and_clear(db_path):
@@ -27,7 +25,6 @@ def test_pending_start_save_discard_and_clear(db_path):
     assert events.get_pending_start() is None
 
 
-
 def test_great_event_lifecycle(db_path):
     timestamp = events.start_great_event(["work", "focus"])
     assert events.get_active_great_event() == (timestamp, ["work", "focus"])
@@ -35,7 +32,6 @@ def test_great_event_lifecycle(db_path):
         events.start_great_event(["other"])
     events.clear_great_event()
     assert events.get_active_great_event() is None
-
 
 
 def test_update_last_action_persists_timestamp(db_path):

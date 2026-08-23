@@ -5,7 +5,6 @@ import inspect
 from dailydriver.cli.dispatcher import make_dispatch
 
 
-
 def test_every_registered_handler_accepts_raw_command_line():
     failures = []
     for name, handler in make_dispatch().items():
@@ -16,7 +15,6 @@ def test_every_registered_handler_accepts_raw_command_line():
         except TypeError as error:
             failures.append(f"{name}: {error}")
     assert failures == []
-
 
 
 def test_expected_commands_and_aliases_are_registered():
@@ -56,7 +54,6 @@ def test_expected_commands_and_aliases_are_registered():
     assert expected <= dispatch.keys()
     assert dispatch["pray"] is dispatch["p"]
     assert dispatch["sleep"] is dispatch["s"]
-
 
 
 def test_feature_handlers_are_owned_by_feature_modules():

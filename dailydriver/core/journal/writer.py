@@ -44,7 +44,6 @@ def save_entry(conn, cmd: str, started_at: int | None, duration: int | None, sel
     return result.strip()
 
 
-
 def inject_great_categories(selected_paths: list[str]) -> None:
     """Append the active great event's categories without duplicating paths."""
     active = get_active_great_event()

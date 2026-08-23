@@ -15,7 +15,6 @@ def register_commands(dispatch):
     dispatch["qada"] = qada_command
 
 
-
 def header_sections(conn, today, target_date, is_today):
     if not is_today:
         return []

@@ -8,7 +8,6 @@ from dailydriver.features.prayer.commands import log_prayer
 from dailydriver.features.sleep.commands import log_nap, log_sleep
 
 
-
 def test_core_and_feature_commands_share_dispatch_table():
     dispatch = make_dispatch()
     assert dispatch["export"] is export
@@ -21,7 +20,6 @@ def test_core_and_feature_commands_share_dispatch_table():
     assert dispatch["sge"] is start_great_event_cmd
 
 
-
 def test_view_forwards_optional_argument():
     with patch("dailydriver.cli.dispatcher.view_entries") as view:
         dispatch = make_dispatch()
@@ -29,7 +27,6 @@ def test_view_forwards_optional_argument():
         dispatch["view"]("view")
     assert view.call_args_list[0].args == ("7d",)
     assert view.call_args_list[1].args == (None,)
-
 
 
 def test_every_enabled_feature_can_register_commands(monkeypatch):

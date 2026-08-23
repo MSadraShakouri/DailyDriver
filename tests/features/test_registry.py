@@ -61,7 +61,6 @@ def test_header_sections_reject_malformed_structured_lines():
         validate_header_sections(feature, [(46, ("🔆 ", 123))])
 
 
-
 def test_export_hook_is_optional_but_discoverable():
     feature = _feature()
     assert export_hook(feature) is None

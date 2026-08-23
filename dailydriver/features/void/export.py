@@ -17,7 +17,6 @@ def _parse_duration(arg: str) -> int | None:
     return parse_duration_arg(arg)
 
 
-
 def export_void(cmd: str) -> str | None:
     """Export void entries to a Markdown file."""
     parts = cmd.strip().split()

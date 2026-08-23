@@ -5,7 +5,6 @@ from __future__ import annotations
 from dailydriver.core.export_utils import build_export_item, format_time_range
 
 
-
 def export_items(conn, cutoff: int) -> list[dict]:
     items: list[dict] = []
 

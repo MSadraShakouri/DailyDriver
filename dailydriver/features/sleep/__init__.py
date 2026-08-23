@@ -17,7 +17,6 @@ def register_commands(dispatch):
     dispatch["nap"] = log_nap
 
 
-
 def header_sections(conn, today, target_date, is_today):
     sleep = get_sleep_str(conn, today)
     nap = get_nap_str(conn, today)

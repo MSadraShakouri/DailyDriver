@@ -14,7 +14,6 @@ from .keywords import find_matching_categories
 from .writer import inject_great_categories, save_entry
 
 
-
 def _choose_categories(conn, cmd: str) -> list[str] | None:
     cur = conn.cursor()
     selected_paths: list[str] = []
@@ -62,7 +61,6 @@ def _choose_categories(conn, cmd: str) -> list[str] | None:
     return selected_paths
 
 
-
 def log_free_text(cmd: str, started_at: int | None = None):
     with get_connection_cm() as conn:
         duration = None
@@ -98,9 +96,11 @@ def log_free_text(cmd: str, started_at: int | None = None):
                     current_ui.print_line("Time suggestions:")
                     for index, interpretation in enumerate(interpretations, 1):
                         current_ui.print_line(f"  [{index}] {interpretation.label}")
-                    choice = current_ui.prompt(
-                        "Enter=1, numbers to select, or type a new time expression (n=cancel) "
-                    ).strip().lower()
+                    choice = (
+                        current_ui.prompt("Enter=1, numbers to select, or type a new time expression (n=cancel) ")
+                        .strip()
+                        .lower()
+                    )
                     if choice == "":
                         selected = interpretations[0]
                         started_at = int(selected.start.timestamp())

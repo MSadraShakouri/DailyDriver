@@ -16,7 +16,6 @@ def register_commands(dispatch):
     dispatch["pray"] = log_prayer
 
 
-
 def header_sections(conn, today, target_date, is_today):
     sections = [(0, spread_line(get_prayer_parts(conn, today), prefix="🕌 "))]
     sections.extend((32, nudge) for nudge in get_prayer_nudges(conn, target_date, today, is_today))

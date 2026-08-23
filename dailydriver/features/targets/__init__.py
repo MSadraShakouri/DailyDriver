@@ -13,7 +13,6 @@ def header_sections(conn, today, target_date, is_today):
     return header.header_sections(conn, today, target_date, is_today)
 
 
-
 def register_commands(command_map):
     command_map["nazr"] = lambda command: dispatch(command, kind="nazr")
     command_map["habit"] = lambda command: dispatch(command, kind="habit")

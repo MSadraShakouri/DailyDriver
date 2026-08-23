@@ -7,7 +7,6 @@ from datetime import datetime
 
 from .meta import get_meta_value, set_meta_value
 
-
 _LAST_ACTION_KEY = "last_action"
 
 

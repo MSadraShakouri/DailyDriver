@@ -14,8 +14,7 @@ class TestTravelModeDisabled(unittest.TestCase):
         self.conn = sqlite3.connect(":memory:")
         self.conn.row_factory = sqlite3.Row
         self.conn.execute("CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT)")
-        self.conn.execute(
-            """
+        self.conn.execute("""
             CREATE TABLE prayer_logs (
                 id INTEGER PRIMARY KEY,
                 prayer_slot TEXT,
@@ -24,8 +23,7 @@ class TestTravelModeDisabled(unittest.TestCase):
                 status TEXT,
                 logged_at INTEGER
             )
-            """
-        )
+            """)
         self.today = jdatetime.date.today().strftime("%Y-%m-%d")
 
         self.patcher = patch("dailydriver.core.state.meta.get_connection_cm")

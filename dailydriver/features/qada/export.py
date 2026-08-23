@@ -5,7 +5,6 @@ from __future__ import annotations
 from dailydriver.core.export_utils import build_export_item, jalali_date_time
 
 
-
 def export_items(conn, cutoff: int) -> list[dict]:
     rows = conn.execute(
         """

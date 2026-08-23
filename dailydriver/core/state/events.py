@@ -20,7 +20,6 @@ def save_pending_start() -> str:
     return f"Start saved: {datetime.fromtimestamp(ts).strftime('%H:%M')}"
 
 
-
 def discard_pending_start() -> str:
     value = get_meta_value(_PENDING_START_KEY)
     if not value:
@@ -30,16 +29,13 @@ def discard_pending_start() -> str:
     return f"Saved start ({datetime.fromtimestamp(ts).strftime('%H:%M')}) discarded."
 
 
-
 def get_pending_start() -> int | None:
     value = get_meta_value(_PENDING_START_KEY)
     return int(value) if value else None
 
 
-
 def clear_pending_start() -> None:
     delete_meta_keys(_PENDING_START_KEY)
-
 
 
 def start_great_event(categories: list[str]) -> int:
@@ -59,7 +55,6 @@ def start_great_event(categories: list[str]) -> int:
         return ts
 
 
-
 def get_active_great_event() -> tuple[int, list[str]] | None:
     with get_connection_cm(auto=False) as conn:
         start_value = get_meta_value(_GREAT_EVENT_START_KEY, conn=conn)
@@ -68,7 +63,6 @@ def get_active_great_event() -> tuple[int, list[str]] | None:
         categories_value = get_meta_value(_GREAT_EVENT_CATEGORIES_KEY, "", conn=conn) or ""
         categories = categories_value.split() if categories_value.strip() else []
         return int(start_value), categories
-
 
 
 def clear_great_event() -> None:

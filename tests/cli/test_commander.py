@@ -20,13 +20,11 @@ def test_multiline_event_commands_use_real_router(lines, target, argument):
     handler.assert_called_once_with(argument)
 
 
-
 def test_plain_multiline_is_logged_as_journal_entry(monkeypatch):
     log = Mock()
     monkeypatch.setattr(commander, "log_free_text", log)
     commander._submit_multiline(["first", "second"])
     log.assert_called_once_with("first\nsecond")
-
 
 
 def test_single_command_routes_handler_and_displays_result(ui, monkeypatch):
@@ -41,7 +39,6 @@ def test_single_command_routes_handler_and_displays_result(ui, monkeypatch):
     assert shown == ["done"]
 
 
-
 def test_single_unknown_command_uses_journal_logger(ui, monkeypatch):
     monkeypatch.setattr(commander, "make_dispatch", lambda: {})
     monkeypatch.setattr(commander, "build_header_data", lambda: {})
@@ -50,7 +47,6 @@ def test_single_unknown_command_uses_journal_logger(ui, monkeypatch):
     monkeypatch.setattr(commander, "log_free_text", log)
     commander.run_single_command("free text")
     log.assert_called_once_with("free text")
-
 
 
 def test_empty_single_command_does_not_dispatch(ui, monkeypatch):

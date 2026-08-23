@@ -1,5 +1,5 @@
-from datetime import datetime
 import time
+from datetime import datetime
 
 import jdatetime
 
@@ -11,10 +11,8 @@ from dailydriver.features.targets.entries import add_entry as add_target
 from dailydriver.features.targets.progress import log_progress
 
 
-
 def _jalali_iso_from_timestamp(ts: int) -> str:
     return jdatetime.date.fromgregorian(date=datetime.fromtimestamp(ts).date()).strftime("%Y-%m-%d")
-
 
 
 def test_duration_parser_supports_all():
@@ -23,13 +21,11 @@ def test_duration_parser_supports_all():
     assert _parse_duration("bad") is None
 
 
-
 def test_export_validates_arguments(db_path, ui):
     assert export("export") is None
     assert "Usage" in ui.lines[-1]
     assert export("export forever") is None
     assert "Invalid duration" in ui.lines[-1]
-
 
 
 def test_export_writes_unified_markdown_timeline(db_path, tmp_path, monkeypatch):
@@ -76,8 +72,12 @@ def test_export_writes_unified_markdown_timeline(db_path, tmp_path, monkeypatch)
     assert "**work**" in content
     assert "journal/work" not in content
     assert "> journal details" in content
-    assert content.index("**💤 Sleep**") < content.index("**🕌 Fajr**") < content.index("**📿 Qada: Fajr**") < content.index("**work**")
-
+    assert (
+        content.index("**💤 Sleep**")
+        < content.index("**🕌 Fajr**")
+        < content.index("**📿 Qada: Fajr**")
+        < content.index("**work**")
+    )
 
 
 def test_export_text_uses_unified_day_blocks(db_path, tmp_path, monkeypatch):

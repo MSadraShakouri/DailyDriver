@@ -18,7 +18,6 @@ from dailydriver.core.state import (
 from dailydriver.ui.terminal_ui import current_ui
 
 
-
 def log_event_end(cmd: str):
     started_at = get_pending_start()
     if started_at is None:
@@ -31,14 +30,12 @@ def log_event_end(cmd: str):
     return None
 
 
-
 def log_chain_now(line: str):
     last_ts = get_last_action_time()
     if last_ts is None:
         return "No previous action to chain from."
     text = line.strip().split(maxsplit=1)[1] if len(line.strip().split(maxsplit=1)) > 1 else ""
     return log_free_text(text, started_at=last_ts)
-
 
 
 def start_great_event_cmd(line: str):
@@ -65,7 +62,6 @@ def start_great_event_cmd(line: str):
     return f"Great event started at {datetime.fromtimestamp(timestamp).strftime('%H:%M')} with: {', '.join(categories)}"
 
 
-
 def end_great_event_cmd(line: str):
     active = get_active_great_event()
     if active is None:
@@ -77,7 +73,6 @@ def end_great_event_cmd(line: str):
     if result is not None:
         clear_great_event()
     return result
-
 
 
 def cancel_great_event_cmd(_=None):

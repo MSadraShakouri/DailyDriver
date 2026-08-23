@@ -29,12 +29,10 @@ def parse_duration_arg(arg: str) -> int | None:
     return None
 
 
-
 def jalali_date_time(ts: int | float) -> tuple[str, str]:
     """Return ``(DD Month YYYY, HH:MM)`` for a local Unix timestamp."""
     dt = jdatetime.datetime.fromtimestamp(ts)
     return dt.strftime("%d %B %Y"), dt.strftime("%H:%M")
-
 
 
 def format_duration_minutes(minutes: int | None) -> str:
@@ -49,7 +47,6 @@ def format_duration_minutes(minutes: int | None) -> str:
     return f"{mins}m"
 
 
-
 def format_time_range(start_ts: int, duration_minutes: int | None) -> str:
     """Return ``HH:MM`` or ``HH:MM → HH:MM (dur)`` from a start timestamp."""
     _, start_time = jalali_date_time(start_ts)
@@ -59,7 +56,6 @@ def format_time_range(start_ts: int, duration_minutes: int | None) -> str:
     _, finish_time = jalali_date_time(finish_ts)
     duration = format_duration_minutes(duration_minutes)
     return f"{start_time} → {finish_time} ({duration})" if duration else f"{start_time} → {finish_time}"
-
 
 
 def build_export_item(

@@ -22,11 +22,7 @@ def load_stopwords() -> set[str]:
     """Load stop words from ``data/stopwords.txt``."""
     try:
         with open(STOPWORDS_PATH, encoding="utf-8") as handle:
-            return {
-                word.lower()
-                for raw_line in handle
-                if (word := raw_line.strip()) and not word.startswith("#")
-            }
+            return {word.lower() for raw_line in handle if (word := raw_line.strip()) and not word.startswith("#")}
     except FileNotFoundError:
         return {"the", "and", "for", "not", "you", "but", "are"}
 
@@ -53,7 +49,6 @@ def tokenize(text: str, stem_words: bool = True) -> list[str]:
             seen.add(token)
             unique.append(token)
     return unique
-
 
 
 def find_matching_categories(text: str) -> list[tuple[str, float]]:
@@ -99,7 +94,6 @@ def find_matching_categories(text: str) -> list[tuple[str, float]]:
                 break
             results.append((all_cats[cat_id], score))
         return results
-
 
 
 def learn_keywords(text: str, category_paths: list[str], conn=None) -> None:

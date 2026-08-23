@@ -23,13 +23,11 @@ def get_day_start_hour() -> int:
         return _DEFAULT_DAY_START_HOUR
 
 
-
 def set_day_start_hour(hour: int) -> None:
     """Persist the hour at which a new day begins."""
     if not (0 <= hour <= 23):
         raise ValueError(f"Hour must be between 0 and 23, got {hour}")
     set_meta_value(_DAY_START_KEY, str(hour))
-
 
 
 def get_shifted_today(now: datetime | None = None) -> jdatetime.date:
@@ -39,7 +37,6 @@ def get_shifted_today(now: datetime | None = None) -> jdatetime.date:
     if now.hour < get_day_start_hour():
         return jdate - timedelta(days=1)
     return jdate
-
 
 
 def shift_timestamp_to_date(timestamp: int | float) -> jdatetime.date:

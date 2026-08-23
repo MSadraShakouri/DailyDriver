@@ -5,7 +5,6 @@ from __future__ import annotations
 from dailydriver.core.export_utils import build_export_item, format_time_range, jalali_date_time
 
 
-
 def _display_categories(raw_categories: str | None) -> str:
     """Render journal category paths without the redundant leading ``journal/``."""
     if not raw_categories:
@@ -18,7 +17,6 @@ def _display_categories(raw_categories: str | None) -> str:
         else:
             display_paths.append(path)
     return ", ".join(display_paths) if display_paths else "(none)"
-
 
 
 def get_export_items(conn, cutoff: int) -> list[dict]:

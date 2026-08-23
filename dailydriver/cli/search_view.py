@@ -9,8 +9,7 @@ import jdatetime
 from dailydriver.cli.entry_viewer import edit_entry
 from dailydriver.cli.search.scoring import compute_final_scores
 from dailydriver.core.database import get_connection_cm
-from dailydriver.core.journal import tokenize
-from dailydriver.core.journal import log_free_text
+from dailydriver.core.journal import log_free_text, tokenize
 from dailydriver.display.display_utils import pline_wrap, wrap_line
 from dailydriver.ui.terminal_ui import current_ui
 

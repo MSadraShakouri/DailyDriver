@@ -18,10 +18,8 @@ def _parse_duration(arg: str) -> int | None:
     return parse_duration_arg(arg)
 
 
-
 def _range_label(duration_arg: str, days: int) -> str:
     return "all time" if duration_arg.strip().lower() == "all" else f"last {days} days"
-
 
 
 def _render_markdown(range_label: str, items: list[dict]) -> str:
@@ -43,7 +41,6 @@ def _render_markdown(range_label: str, items: list[dict]) -> str:
     return "\n".join(lines).rstrip() + "\n"
 
 
-
 def _render_text(range_label: str, items: list[dict]) -> str:
     lines = [f"══════ Export ({range_label}) ══════", ""]
     if not items:
@@ -60,7 +57,6 @@ def _render_text(range_label: str, items: list[dict]) -> str:
                     lines.append(f"    {detail_line}")
             lines.append("")
     return "\n".join(lines).rstrip() + "\n"
-
 
 
 def export(cmd: str):

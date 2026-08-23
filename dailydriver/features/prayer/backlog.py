@@ -12,15 +12,12 @@ from dailydriver.utils.time_utils import today_jalali
 from .schedule import PRAYER_SLOTS
 
 
-
 def _get_complete_until(conn):
     return get_prayer_complete_until(conn=conn)
 
 
-
 def _set_complete_until(conn, date_str):
     set_prayer_complete_until(date_str, conn=conn)
-
 
 
 def _update_complete_until(conn):
@@ -51,7 +48,6 @@ def _update_complete_until(conn):
         d_date += jdatetime.timedelta(days=1)
     new_until = (d_date - jdatetime.timedelta(days=1)).strftime("%Y-%m-%d")
     _set_complete_until(conn, new_until)
-
 
 
 def _get_unlogged_past_slots(conn, now=None):
@@ -95,7 +91,6 @@ def _get_unlogged_past_slots(conn, now=None):
         d += jdatetime.timedelta(days=1)
     missing.sort(key=lambda item: item[0], reverse=True)
     return missing
-
 
 
 def log_qada(time_of_day_minutes=None, offset_minutes=None):

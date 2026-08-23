@@ -15,7 +15,6 @@ _STATUS_ICONS = {"on_time": "✅", "qada": "🕯️", "missed": "❌"}
 _STATUS_TEXT = {"on_time": "On-time", "qada": "Qada", "missed": "Missed"}
 
 
-
 def _format_jalali_iso_date(date_str: str | None) -> str | None:
     if not date_str:
         return None
@@ -24,7 +23,6 @@ def _format_jalali_iso_date(date_str: str | None) -> str | None:
         return jdatetime.date(year, month, day).strftime("%d %B %Y")
     except (TypeError, ValueError):
         return date_str
-
 
 
 def export_items(conn, cutoff: int) -> list[dict]:

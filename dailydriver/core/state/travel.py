@@ -12,7 +12,6 @@ def is_travel_mode() -> bool:
     return get_meta_value(_TRAVEL_MODE_KEY) == "1"
 
 
-
 def set_travel_mode(enabled: bool) -> None:
     """Enable or disable travel mode."""
     if enabled:
