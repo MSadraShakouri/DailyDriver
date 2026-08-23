@@ -4,7 +4,7 @@ from datetime import datetime
 
 import jdatetime
 
-from dailydriver.core.travel_mode import is_travel_mode
+from dailydriver.core.state import get_prayer_complete_until, is_travel_mode
 from dailydriver.utils.prayer_times import get_approximate_times
 
 
@@ -24,12 +24,6 @@ def get_prayer_nudges(conn, target_date, today_str, is_today, now=None):
     RESET = "\033[0m"
 
     nudges = []
-
-    # Helper to read meta
-    def _get_complete_until(cursor):
-        cursor.execute("SELECT value FROM meta WHERE key='prayer_complete_until'")
-        row = cursor.fetchone()
-        return row["value"] if row else None
 
     # Today's prayer times
     today_j = jdatetime.date.today()
@@ -62,7 +56,7 @@ def get_prayer_nudges(conn, target_date, today_str, is_today, now=None):
                 nudges.append(f"{RED}⚠️ {label} not logged (today){RESET}")
 
     # Past overdue scan (up to 5)
-    complete_until = _get_complete_until(cur)
+    complete_until = get_prayer_complete_until(conn=conn)
     if complete_until:
         cu_y, cu_m, cu_d = map(int, complete_until.split("-"))
         complete_j = jdatetime.date(cu_y, cu_m, cu_d)

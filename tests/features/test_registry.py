@@ -6,6 +6,7 @@ import pytest
 import dailydriver.features as features_pkg
 from dailydriver.features.registry import (
     FeatureContractError,
+    export_hook,
     optional_hook,
     validate_feature,
     validate_header_sections,
@@ -58,3 +59,11 @@ def test_header_sections_reject_malformed_structured_lines():
     feature = _feature()
     with pytest.raises(FeatureContractError, match=r"text or a \(prefix, title\) tuple"):
         validate_header_sections(feature, [(46, ("🔆 ", 123))])
+
+
+
+def test_export_hook_is_optional_but_discoverable():
+    feature = _feature()
+    assert export_hook(feature) is None
+    feature.export_items = lambda conn, cutoff: []
+    assert export_hook(feature)(None, 0) == []

@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import jdatetime
 
 from dailydriver.core.database import get_connection_cm
+from dailydriver.core.state import get_prayer_complete_until, set_prayer_complete_until
 from dailydriver.ui.terminal_ui import current_ui
 from dailydriver.utils.prayer_times import get_approximate_times
 from dailydriver.utils.time_utils import today_jalali
@@ -11,19 +12,15 @@ from dailydriver.utils.time_utils import today_jalali
 from .schedule import PRAYER_SLOTS
 
 
+
 def _get_complete_until(conn):
-    cur = conn.cursor()
-    cur.execute("SELECT value FROM meta WHERE key='prayer_complete_until'")
-    row = cur.fetchone()
-    return row["value"] if row else None
+    return get_prayer_complete_until(conn=conn)
+
 
 
 def _set_complete_until(conn, date_str):
-    cur = conn.cursor()
-    cur.execute(
-        "INSERT OR REPLACE INTO meta (key, value) VALUES ('prayer_complete_until', ?)",
-        (date_str,),
-    )
+    set_prayer_complete_until(date_str, conn=conn)
+
 
 
 def _update_complete_until(conn):
@@ -31,9 +28,7 @@ def _update_complete_until(conn):
     cur = conn.cursor()
     complete_until = _get_complete_until(conn)
     if complete_until is None:
-        # initialize: find earliest prayer log date
-        cur.execute("SELECT MIN(jalali_date) FROM prayer_logs")
-        row = cur.fetchone()
+        row = cur.execute("SELECT MIN(jalali_date) FROM prayer_logs").fetchone()
         if row and row[0]:
             start_str = row[0]
         else:
@@ -43,15 +38,11 @@ def _update_complete_until(conn):
         start_str = complete_until
     y, m, d = map(int, start_str.split("-"))
     d_date = jdatetime.date(y, m, d)
-    # Advance to last fully logged date
     while d_date <= jdatetime.date.today():
         date_str = d_date.strftime("%Y-%m-%d")
         complete = True
         for slot in PRAYER_SLOTS:
-            cur.execute(
-                "SELECT id FROM prayer_logs WHERE prayer_slot=? AND jalali_date=?",
-                (slot, date_str),
-            )
+            cur.execute("SELECT id FROM prayer_logs WHERE prayer_slot=? AND jalali_date=?", (slot, date_str))
             if not cur.fetchone():
                 complete = False
                 break
@@ -60,6 +51,7 @@ def _update_complete_until(conn):
         d_date += jdatetime.timedelta(days=1)
     new_until = (d_date - jdatetime.timedelta(days=1)).strftime("%Y-%m-%d")
     _set_complete_until(conn, new_until)
+
 
 
 def _get_unlogged_past_slots(conn, now=None):
@@ -81,22 +73,8 @@ def _get_unlogged_past_slots(conn, now=None):
         approx = get_approximate_times(d.month, d.day)
         gdate = d.togregorian()
         try:
-            fajr_dt = datetime(
-                gdate.year,
-                gdate.month,
-                gdate.day,
-                approx["fajr"][0],
-                approx["fajr"][1],
-                0,
-            )
-            dhuhr_dt = datetime(
-                gdate.year,
-                gdate.month,
-                gdate.day,
-                approx["dhuhr"][0],
-                approx["dhuhr"][1],
-                0,
-            )
+            fajr_dt = datetime(gdate.year, gdate.month, gdate.day, approx["fajr"][0], approx["fajr"][1], 0)
+            dhuhr_dt = datetime(gdate.year, gdate.month, gdate.day, approx["dhuhr"][0], approx["dhuhr"][1], 0)
             maghrib_dt = datetime(
                 gdate.year,
                 gdate.month,
@@ -108,22 +86,16 @@ def _get_unlogged_past_slots(conn, now=None):
         except ValueError:
             d += jdatetime.timedelta(days=1)
             continue
-        slot_times = {
-            "fajr": fajr_dt,
-            "dhuhr_asr": dhuhr_dt,
-            "maghrib_isha": maghrib_dt,
-        }
+        slot_times = {"fajr": fajr_dt, "dhuhr_asr": dhuhr_dt, "maghrib_isha": maghrib_dt}
         for slot in PRAYER_SLOTS:
             cur = conn.cursor()
-            cur.execute(
-                "SELECT id FROM prayer_logs WHERE prayer_slot=? AND jalali_date=?",
-                (slot, date_str),
-            )
+            cur.execute("SELECT id FROM prayer_logs WHERE prayer_slot=? AND jalali_date=?", (slot, date_str))
             if not cur.fetchone() and slot_times[slot] <= now:
                 missing.append((date_str, slot))
         d += jdatetime.timedelta(days=1)
-    missing.sort(key=lambda x: x[0], reverse=True)
+    missing.sort(key=lambda item: item[0], reverse=True)
     return missing
+
 
 
 def log_qada(time_of_day_minutes=None, offset_minutes=None):

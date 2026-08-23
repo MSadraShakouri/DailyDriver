@@ -122,10 +122,10 @@ def show_help():
 
     # ── Export ──
     current_ui.print_line("📤 Export")
-    current_ui.print_line("  export <duration> [--txt|--md]")
-    current_ui.print_line("     export 7d        → Markdown (default)")
-    current_ui.print_line("     export 2w --txt  → plain text")
-    current_ui.print_line("     Creates a human‑readable file.")
+    current_ui.print_line("  export <duration|all> [--txt|--md]")
+    current_ui.print_line("     export 7d        → Markdown timeline (default)")
+    current_ui.print_line("     export all --txt → plain text timeline")
+    current_ui.print_line("     Creates a human‑readable chronological file.")
     current_ui.print_line()
 
     # ── Other ──

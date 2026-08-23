@@ -16,13 +16,15 @@ HeaderSection: TypeAlias = tuple[int, HeaderLine]
 Migration: TypeAlias = Callable[[Any], None]
 CommandHandler: TypeAlias = Callable[[str], Any]
 CommandMap: TypeAlias = dict[str, CommandHandler]
+ExportItem: TypeAlias = dict[str, Any]
 
 Hook = TypeVar("Hook", bound=Callable[..., Any])
-_HOOK_NAMES = ("register_commands", "header_sections", "migrations")
+_HOOK_NAMES = ("register_commands", "header_sections", "migrations", "export_items")
 
 
 class FeatureContractError(TypeError):
     """Raised when an enabled package does not satisfy the feature contract."""
+
 
 
 def optional_hook(feature: ModuleType, name: str) -> Callable[..., Any] | None:
@@ -40,6 +42,7 @@ def optional_hook(feature: ModuleType, name: str) -> Callable[..., Any] | None:
     return hook
 
 
+
 def validate_feature(feature: ModuleType) -> ModuleType:
     """Validate package-level metadata and any hooks a feature exposes."""
     name = getattr(feature, "NAME", None)
@@ -53,6 +56,7 @@ def validate_feature(feature: ModuleType) -> ModuleType:
     return feature
 
 
+
 def validate_features(features: Iterable[ModuleType]) -> tuple[ModuleType, ...]:
     """Validate enabled features and reject duplicate stable names."""
     validated = tuple(validate_feature(feature) for feature in features)
@@ -63,9 +67,11 @@ def validate_features(features: Iterable[ModuleType]) -> tuple[ModuleType, ...]:
     return validated
 
 
+
 def command_hook(feature: ModuleType) -> Callable[[CommandMap], None] | None:
     """Return the feature's command registration hook, if provided."""
     return cast(Callable[[CommandMap], None] | None, optional_hook(feature, "register_commands"))
+
 
 
 def header_hook(feature: ModuleType) -> Callable[..., Sequence[HeaderSection]] | None:
@@ -73,9 +79,17 @@ def header_hook(feature: ModuleType) -> Callable[..., Sequence[HeaderSection]] |
     return cast(Callable[..., Sequence[HeaderSection]] | None, optional_hook(feature, "header_sections"))
 
 
+
 def migration_hook(feature: ModuleType) -> Callable[[], Sequence[Migration]] | None:
     """Return the feature's migration hook, if provided."""
     return cast(Callable[[], Sequence[Migration]] | None, optional_hook(feature, "migrations"))
+
+
+
+def export_hook(feature: ModuleType) -> Callable[..., Sequence[ExportItem]] | None:
+    """Return the feature's unified-export hook, if provided."""
+    return cast(Callable[..., Sequence[ExportItem]] | None, optional_hook(feature, "export_items"))
+
 
 
 def validate_header_sections(feature: ModuleType, sections: object) -> list[HeaderSection]:
@@ -102,6 +116,7 @@ def validate_header_sections(feature: ModuleType, sections: object) -> list[Head
             )
         normalized.append(cast(HeaderSection, section))
     return normalized
+
 
 
 def validate_migrations(feature: ModuleType, migrations: object) -> list[Migration]:

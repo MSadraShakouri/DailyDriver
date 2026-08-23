@@ -74,6 +74,23 @@ released migration: progress is tracked by list position.
 
 Features without feature-owned schema do not define this hook.
 
+### `export_items(conn, cutoff) -> sequence[dict]`
+
+Return zero or more timeline items for the main `export` command.
+
+- `conn`: an open SQLite connection owned by the export coordinator;
+- `cutoff`: Unix timestamp lower bound; `0` means "all time".
+
+Items are merged with core journal entries and other feature data into one
+strictly chronological timeline. At minimum, each item should provide:
+
+- `timestamp` – primary numeric sort key;
+- `display_date` – rendered day label;
+- `display_time` – rendered time or time range;
+- `text` – the visible item label/content.
+
+Features may include additional display fields such as `details`.
+
 ## Internal organization
 
 No internal module is required—not `_logic.py`, `_header.py`, or any other

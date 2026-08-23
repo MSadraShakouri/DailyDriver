@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 
 import jdatetime
 
-from dailydriver.core.travel_mode import is_travel_mode
+from dailydriver.core.state import is_travel_mode
 
 from .conditions import translate_condition
 from .service import get_weather

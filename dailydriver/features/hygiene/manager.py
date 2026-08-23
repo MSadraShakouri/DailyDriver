@@ -1,7 +1,7 @@
 """Interactive hygiene interval manager."""
 
 from dailydriver.core.database import get_connection_cm, get_last_hygiene_time
-from dailydriver.core.day_start import get_shifted_today, shift_timestamp_to_date
+from dailydriver.core.state import get_shifted_today, shift_timestamp_to_date
 from dailydriver.display.display_utils import get_width, spread_line
 from dailydriver.display.header import build_header_data
 from dailydriver.display.header_renderer import print_header

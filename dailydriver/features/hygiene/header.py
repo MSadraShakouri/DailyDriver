@@ -1,7 +1,7 @@
 """Day-boundary-aware hygiene nudges for the daily header."""
 
 from dailydriver.core.database import get_last_hygiene_time
-from dailydriver.core.day_start import get_shifted_today, shift_timestamp_to_date
+from dailydriver.core.state import get_shifted_today, shift_timestamp_to_date
 
 
 def compute_hygiene_nudges(conn, relative_to=None):
