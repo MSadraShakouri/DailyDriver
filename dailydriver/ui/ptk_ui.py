@@ -89,7 +89,16 @@ class PromptToolkitUI(TerminalUI):
             if completions:
                 completer = FuzzyCompleter(WordCompleter(completions, ignore_case=True, sentence=False))
             session = self._session(history_key)
-            result = session.prompt(text, completer=completer, complete_while_typing=True)
+            # reserve_space_for_menu=0 keeps the prompt inline: prompt_toolkit
+            # otherwise pre-reserves space for the completion menu, scrolling
+            # already-printed output (the header) off-screen. The menu still
+            # opens on demand; we only change input, never wipe output.
+            result = session.prompt(
+                text,
+                completer=completer,
+                complete_while_typing=True,
+                reserve_space_for_menu=0,
+            )
             return result.strip()
         except (EOFError, KeyboardInterrupt):
             raise
@@ -138,7 +147,12 @@ class PromptToolkitUI(TerminalUI):
         completer = _RankedCompleter(ranked_paths, all_paths)
         try:
             session = self._session("categories")
-            raw = session.prompt("> ", completer=completer, complete_while_typing=True).strip()
+            raw = session.prompt(
+                "> ",
+                completer=completer,
+                complete_while_typing=True,
+                reserve_space_for_menu=0,
+            ).strip()
         except (EOFError, KeyboardInterrupt):
             raise
         except Exception:
