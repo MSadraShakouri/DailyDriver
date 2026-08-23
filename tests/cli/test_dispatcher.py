@@ -36,4 +36,6 @@ def test_every_enabled_feature_can_register_commands(monkeypatch):
 
     monkeypatch.setattr("dailydriver.cli.dispatcher.command_hook", hook)
     make_dispatch()
-    assert {"birthdays", "calendar", "events", "intentions", "prayer", "qada", "sleep", "targets", "void"} <= set(called)
+    assert {"birthdays", "calendar", "events", "intentions", "prayer", "qada", "sleep", "targets", "void"} <= set(
+        called
+    )

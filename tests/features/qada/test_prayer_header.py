@@ -1,8 +1,8 @@
 from datetime import datetime
+
 import jdatetime
 
 from dailydriver.features.qada import header
-
 
 ENTRY = {
     "id": 1,

@@ -1,4 +1,5 @@
 """Persistent state for chaining and long-running events."""
+
 import time
 from datetime import datetime
 
@@ -94,9 +95,6 @@ def clear_great_event():
         cur = conn.cursor()
         cur.execute("DELETE FROM meta WHERE key IN ('great_event_start', 'great_event_categories')")
         conn.commit()
-
-
-
 
 
 def update_last_action() -> str:

@@ -9,10 +9,7 @@ def test_migrations_build_current_schema_and_preserve_logs():
     try:
         for migration in migrations():
             migration(connection)
-        tables = {
-            row["name"]
-            for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")
-        }
+        tables = {row["name"] for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")}
         assert {"qada_entries", "qada_logs"} <= tables
         assert "qada_declines" not in tables
         columns = {row["name"] for row in connection.execute("PRAGMA table_info(qada_entries)")}

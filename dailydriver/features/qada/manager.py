@@ -5,12 +5,12 @@ import jdatetime
 from dailydriver.display.display_utils import get_width, spread_line
 from dailydriver.display.header import build_header_data
 from dailydriver.display.header_renderer import print_header
+from dailydriver.ui.terminal_ui import current_ui
 
 from . import entries as entry_store
 from . import logging, overview
-from .table import render_entries
 from .editor import edit_entry
-from dailydriver.ui.terminal_ui import current_ui
+from .table import render_entries
 
 
 def show_qada_manager():
@@ -75,14 +75,6 @@ def _show_help():
     current_ui.print_line("│ ?      - Show this help                        │")
     current_ui.print_line("│ q      - Quit manager                          │")
     current_ui.print_line("└─────────────────────────────────────────────────┘")
-
-
-
-
-
-
-
-
 
 
 def _log_entry(choice):

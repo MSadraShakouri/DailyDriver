@@ -11,10 +11,7 @@ def test_environment_selects_test_database(db_path):
 
 def test_migrated_database_contains_required_tables(db_path):
     with get_connection_cm(auto=False) as connection:
-        tables = {
-            row["name"]
-            for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")
-        }
+        tables = {row["name"] for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")}
     assert {
         "categories",
         "entries",

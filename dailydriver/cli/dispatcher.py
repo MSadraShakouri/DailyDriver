@@ -1,7 +1,6 @@
 import sys
 
 import dailydriver.features as features_pkg
-from dailydriver.features.registry import command_hook
 from dailydriver.cli.commands.export_cmd import export
 from dailydriver.cli.commands.help_cmd import show_help
 from dailydriver.cli.commands.hygiene_cmd import manage_hygiene
@@ -9,6 +8,7 @@ from dailydriver.cli.commands.search import search
 from dailydriver.cli.commands.stats_cmd import show_stats
 from dailydriver.cli.commands.viewing import show_day, show_last, view_entries
 from dailydriver.features.events.state import discard_pending_start, save_pending_start
+from dailydriver.features.registry import command_hook
 
 from .commands.daystart import daystart_command
 from .commands.travel import travel_command

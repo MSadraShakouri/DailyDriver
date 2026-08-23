@@ -6,11 +6,10 @@ import jdatetime
 
 from dailydriver.core.travel_mode import is_travel_mode
 from dailydriver.features.presentation import is_paused
+from dailydriver.utils.prayer_times import get_approximate_times
 
 from .entries import list_entries
 from .schedule import compute_pending_instance, get_current_pending_instance
-from dailydriver.utils.prayer_times import get_approximate_times
-
 
 
 def get_prayer_nudges(conn, target_date, now=None):

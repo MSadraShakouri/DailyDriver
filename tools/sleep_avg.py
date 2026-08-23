@@ -1,9 +1,12 @@
-import sqlite3
-from jdatetime import date as jdate, timedelta
 import os
+import sqlite3
+
+from jdatetime import date as jdate
+from jdatetime import timedelta
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB_PATH = os.path.join(PROJECT_ROOT, "data", "daily.db")
+
 
 def main():
     conn = sqlite3.connect(DB_PATH)
@@ -34,19 +37,19 @@ def main():
     max_date_str = max(sleep_by_date.keys())
 
     # Convert to jdatetime objects
-    min_date = jdate(*map(int, min_date_str.split('-')))
-    max_date = jdate(*map(int, max_date_str.split('-')))
+    min_date = jdate(*map(int, min_date_str.split("-")))
+    max_date = jdate(*map(int, max_date_str.split("-")))
 
     # Iterate over all days in range
     total_minutes = 0
     day_count = 0
     current = min_date
     while current <= max_date:
-        date_str = current.strftime('%Y-%m-%d')
+        date_str = current.strftime("%Y-%m-%d")
         minutes = sleep_by_date.get(date_str, 0)  # 0 if no log
         total_minutes += minutes
         day_count += 1
-        current += timedelta(days=1)   # <-- fixed: timedelta from jdatetime
+        current += timedelta(days=1)  # <-- fixed: timedelta from jdatetime
 
     # Compute averages
     avg_minutes = total_minutes / day_count
@@ -65,6 +68,7 @@ def main():
     print(f"Average in minutes:         {avg_minutes:.1f} min")
 
     conn.close()
+
 
 if __name__ == "__main__":
     main()

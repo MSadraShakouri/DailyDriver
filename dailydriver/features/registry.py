@@ -94,10 +94,7 @@ def validate_header_sections(feature: ModuleType, sections: object) -> list[Head
 
         line = section[1]
         structured_line = (
-            isinstance(line, tuple)
-            and len(line) == 2
-            and isinstance(line[0], str)
-            and isinstance(line[1], str)
+            isinstance(line, tuple) and len(line) == 2 and isinstance(line[0], str) and isinstance(line[1], str)
         )
         if not isinstance(line, str) and not structured_line:
             raise FeatureContractError(

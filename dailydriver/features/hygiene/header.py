@@ -11,11 +11,9 @@ def compute_hygiene_nudges(conn, relative_to=None):
     (for past‑day views); otherwise use today's shifted date.
     """
     cur = conn.cursor()
-    cur.execute(
-        """SELECT id, item, desired_interval_days, early_warning_enabled, show_due_today
+    cur.execute("""SELECT id, item, desired_interval_days, early_warning_enabled, show_due_today
            FROM hygiene_config
-           ORDER BY item"""
-    )
+           ORDER BY item""")
     hygiene_items = cur.fetchall()
     nudge_lines = []
 

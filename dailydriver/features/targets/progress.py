@@ -2,7 +2,6 @@
 
 import time
 
-
 from . import clock
 from .entries import get_entry_by_name, record_progress
 

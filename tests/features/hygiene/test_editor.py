@@ -16,9 +16,7 @@ def test_add_item_persists_configuration(db_connection, ui):
 
 
 def test_add_item_rejects_duplicate_and_invalid_interval(db_connection, ui):
-    db_connection.execute(
-        "INSERT INTO hygiene_config (item, desired_interval_days) VALUES ('shower', 3)"
-    )
+    db_connection.execute("INSERT INTO hygiene_config (item, desired_interval_days) VALUES ('shower', 3)")
     db_connection.commit()
     ui.queue("shower", "")
     add_hygiene_item(db_connection)
@@ -31,11 +29,9 @@ def test_add_item_rejects_duplicate_and_invalid_interval(db_connection, ui):
 
 
 def test_edit_item_changes_name_interval_and_flags(db_connection, ui):
-    db_connection.execute(
-        """INSERT INTO hygiene_config
+    db_connection.execute("""INSERT INTO hygiene_config
            (item, desired_interval_days, early_warning_enabled, show_due_today)
-           VALUES ('shower', 3, 1, 1)"""
-    )
+           VALUES ('shower', 3, 1, 1)""")
     db_connection.commit()
     ui.queue("shower", "bath", "5", "n", "n", "")
     edit_hygiene_item(db_connection)

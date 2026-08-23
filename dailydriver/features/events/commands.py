@@ -14,6 +14,7 @@ from .state import (
     start_great_event,
 )
 
+
 def log_event_end(cmd):
     started_at = get_pending_start()
     if started_at is None:

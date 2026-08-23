@@ -7,11 +7,11 @@ import jdatetime
 from hijridate import Gregorian as HijriGregorian
 
 import dailydriver.features as features_pkg
-from dailydriver.features.registry import header_hook, validate_header_sections
 from dailydriver.core.database import get_connection_cm
 from dailydriver.display.display_utils import get_width, spread_line
 from dailydriver.features.calendar.hijri import get_hijri_offset
 from dailydriver.features.events.header import get_last_entry_time
+from dailydriver.features.registry import header_hook, validate_header_sections
 from dailydriver.utils.time_utils import format_jalali, today_jalali
 
 

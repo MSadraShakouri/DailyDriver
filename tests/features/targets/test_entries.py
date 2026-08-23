@@ -40,14 +40,17 @@ def test_add_and_fetch_round_trip(db_path):
     )
     by_id = entries.get_entry_by_id(entry_id)
     assert by_id == entries.get_entry_by_name("Salavat")
-    assert {key: by_id[key] for key in (
-        "name",
-        "kind",
-        "target_total",
-        "interval_type",
-        "interval_value",
-        "target_per_interval",
-    )} == {
+    assert {
+        key: by_id[key]
+        for key in (
+            "name",
+            "kind",
+            "target_total",
+            "interval_type",
+            "interval_value",
+            "target_per_interval",
+        )
+    } == {
         "name": "Salavat",
         "kind": "nazr",
         "target_total": 1000,

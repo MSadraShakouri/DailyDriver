@@ -12,9 +12,7 @@ _fetch_failed_this_session = False
 
 
 def _latest_weather(conn):
-    return conn.execute(
-        "SELECT temp_c, condition_fa, timestamp FROM weather_log ORDER BY id DESC LIMIT 1"
-    ).fetchone()
+    return conn.execute("SELECT temp_c, condition_fa, timestamp FROM weather_log ORDER BY id DESC LIMIT 1").fetchone()
 
 
 def _store_fresh_weather(conn) -> tuple[int, str] | None:

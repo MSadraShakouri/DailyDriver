@@ -18,11 +18,9 @@ def test_empty_manager_quits(db_path, ui):
 
 
 def test_manager_renders_configured_item(db_connection, ui, monkeypatch):
-    db_connection.execute(
-        """INSERT INTO hygiene_config
+    db_connection.execute("""INSERT INTO hygiene_config
            (item, desired_interval_days, early_warning_enabled, show_due_today)
-           VALUES ('shower', 3, 1, 1)"""
-    )
+           VALUES ('shower', 3, 1, 1)""")
     db_connection.commit()
     ui.queue("q")
     monkeypatch.setattr("dailydriver.features.hygiene.manager.get_width", lambda: 80)

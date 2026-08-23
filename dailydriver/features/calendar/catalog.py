@@ -65,8 +65,8 @@ def _get_hijri_year_for_jalali_year(jalali_year):
     return [cur_hijri_year, cur_hijri_year + 1]
 
 
-
 from .hijri import get_hijri_offset
+
 
 def _convert_all_events(target_jalali_year):
     """

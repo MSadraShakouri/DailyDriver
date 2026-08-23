@@ -9,13 +9,9 @@ def test_migrations_build_current_schema():
     try:
         for migration in migrations():
             migration(connection)
-        columns = {
-            row["name"] for row in connection.execute("PRAGMA table_info(target_entries)")
-        }
+        columns = {row["name"] for row in connection.execute("PRAGMA table_info(target_entries)")}
         assert "last_counter_value" in columns
-        assert connection.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name='target_logs'"
-        ).fetchone()
+        assert connection.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='target_logs'").fetchone()
     finally:
         connection.close()
 

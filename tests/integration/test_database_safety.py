@@ -9,12 +9,10 @@ from dailydriver.core.migration import run_migrations
 
 def _logical_fingerprint(connection):
     digest = hashlib.sha256()
-    objects = connection.execute(
-        """SELECT type, name, COALESCE(sql, '') AS sql
+    objects = connection.execute("""SELECT type, name, COALESCE(sql, '') AS sql
            FROM sqlite_master
            WHERE name NOT LIKE 'sqlite_%'
-           ORDER BY type, name"""
-    ).fetchall()
+           ORDER BY type, name""").fetchall()
     for object_type, name, sql in objects:
         digest.update(json.dumps([object_type, name, sql]).encode())
         if object_type != "table" or name.endswith("_fts"):
