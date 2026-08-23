@@ -1,6 +1,14 @@
 from dailydriver.core.database import get_connection_cm
-from dailydriver.features.birthdays.commands import add_birthday
 from dailydriver.features.birthdays.manager import _word_wrap, manage_birthdays
+
+
+def _insert_birthday(name, day, month, year=None, remind_level=0):
+    with get_connection_cm() as conn:
+        conn.execute(
+            "INSERT INTO birthdays (name, day, month, year, remind_level) VALUES (?,?,?,?,?)",
+            (name, day, month, year, remind_level),
+        )
+        conn.commit()
 
 
 def test_word_wrap_preserves_words():
@@ -14,7 +22,7 @@ def test_empty_manager_quits(db_path, ui):
 
 
 def test_manager_toggles_reminder_level(db_path, ui):
-    add_birthday("bd Alice 1400/1/1")
+    _insert_birthday("Alice", 1, 1, 1400)
     with get_connection_cm(auto=False) as connection:
         identifier = connection.execute("SELECT id FROM birthdays WHERE name='Alice'").fetchone()[0]
     ui.queue(f"t {identifier}", "", "q")
