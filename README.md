@@ -1,4 +1,4 @@
-# DailyDriver v1.7.0
+# DailyDriver v1.8.0
 
 Your personal, terminal‑based life tracker.  
 Log prayers, sleep, hygiene routines, birthdays, intentions, and free‑form journal entries – all from a fast, keyboard‑driven REPL.  
@@ -9,9 +9,9 @@ Built with Python, SQLite, and Jalali calendar support.
 ## Features
 
 - **Prayer tracking** – Fajr, Dhuhr/Asr, Maghrib/Isha with jamaat and shak options, dynamic Tehran times. Includes **backlog marking (`p q`)** for overdue prayers (logs at current time) and smart header nudges.
-- **Qada & Fasting** – interactive backlog manager for missed prayers and fasting with progress tracking, pause/resume, and interval scheduling (`qada`).
+- **Qada & Fasting** – interactive backlog manager for missed prayers and fasting with progress tracking, pause/resume, and interval scheduling (`qada`). Overdue entries are persistently shown in header nudges.
 - **Targets (Nazr & Habits)** – track finite (nazr) and indefinite (habit) goals with daily/weekly/n‑day intervals, counter support, and interactive manager (`nazr`, `habit`, `targets`).
-- **Sleep & nap logging** – bed/wake times, auto‑calculated duration; track short naps separately.
+- **Sleep & nap logging** – bed/wake times, auto‑calculated duration; supports multiple sleep entries per day with cumulative durations; track short naps separately.
 - **Weather** – Tehran weather scraped from IRIMO, displayed in the header with emoji (cached hourly).
 - **Day navigation** – browse any day with `day YYYY-MM-DD` or `-1`, and jump multiple days (e.g. `5n`, `5p`).
 - **Hygiene reminders** – define intervals for habits, get nudges when overdue. Respects day‑start hour (default 4:00 AM) for before‑dawn logs.
@@ -170,7 +170,7 @@ tests/             # test files (header, commands, logger state, etc.)
 → Run `main.py` from the `DailyDriver/` directory.
 
 **Tests fail with "no such table" after clone**
-→ Run `python tests/run_all.py` – it creates a temporary database automatically. You can also set the environment variable `DAILYDRIVER_DB` to point to a writable path for `pytest`‑based runs.
+→ Run `pytest` – tests run against an isolated temporary database copy automatically. You can also set the environment variable `DAILYDRIVER_DB` to point to a custom database path for `pytest`‑based runs.
 
 ---
 

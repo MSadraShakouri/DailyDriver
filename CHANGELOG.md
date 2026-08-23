@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.8.0 (2026‑08‑23)
+
+### Added
+- **Multiple sleep sessions per day** – removed single-entry restriction on `sleep_logs` (migration v1). Daily header now shows total duration and individual time ranges.
+- **Sleep analysis tool** – `tools/sleep_avg.py` computes true daily sleep and nap averages across any date range (unlogged days counted as 0).
+- **New Jalali event** – Martyrdom of Mohsen Hojaji (2017).
+
+### Changed
+- **Feature package architecture overhaul** – formalized capability-based feature contracts (`NAME`, `VERSION`, `register_commands`, `header_sections`, `migrations`). Removed monolithic `_logic.py`/`_header.py`/`_manager.py` files across all features in favor of domain modules (`commands`, `manager`, `editor`, `schedule`, `table`, etc.). Aliases now registered directly in `register_commands`.
+- **Presentation & registry helpers** – added `features/presentation.py` for shared terminal UI formatting and `features/registry.py` for feature validation. Documented contract in `features/HOOKS.md`.
+- **Nap header** – now displays interval time ranges consistent with sleep.
+
+### Fixed
+- **Qada nudges** – overdue entries now persistently shown in header nudges; today's scheduled instances shown only in the final hour before prayer. Nudges sorted chronologically.
+- **Hijri offset** – fixed offset for Rabi al-Awwal in `data/hijri_offset.txt`.
+- **Code style** – applied `isort` and `black` formatting across the codebase.
+
+### Tests
+- **Test suite rewrite** – rebuilt entire test suite around package boundaries (`tests/cli/`, `tests/core/`, `tests/display/`, `tests/features/`, `tests/integration/`, `tests/ui/`, `tests/utils/`). Isolated SQLite template fixture, deterministic `ui` recorder, and expanded to **395 passing tests**.
+
 ## 1.7.0 (2026‑08‑04)
 
 ### BREAKING
