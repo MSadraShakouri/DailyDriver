@@ -7,7 +7,7 @@ import sys
 import jdatetime
 
 from dailydriver.core.database import get_connection_cm
-from dailydriver.core.logger import log_free_text
+from dailydriver.core.journal import log_free_text
 from dailydriver.display.display_utils import pline_wrap, wrap_line
 from dailydriver.ui.terminal_ui import current_ui
 

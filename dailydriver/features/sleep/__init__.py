@@ -3,6 +3,7 @@
 from dailydriver.display.display_utils import spread_line
 
 from .commands import log_nap, log_sleep
+from .export import export_items
 from .migrations import migrations
 from .status import get_nap_str, get_sleep_str
 
@@ -14,6 +15,7 @@ def register_commands(dispatch):
     dispatch["s"] = log_sleep
     dispatch["sleep"] = log_sleep
     dispatch["nap"] = log_nap
+
 
 
 def header_sections(conn, today, target_date, is_today):

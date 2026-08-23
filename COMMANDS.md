@@ -80,6 +80,9 @@ The app will:
 2. Suggest categories based on learned keywords.
 3. Ask for a category if none matched.
 
+If a great event is active and suggestions are shown, the category picker also
+offers `0 = Great Event only`.
+
 Examples:
 ```
 > read Quran for 30 minutes
@@ -215,7 +218,7 @@ Unfiltered thoughts, completely separate from the main journal. No time parsing,
 |-------|-------------|
 | `v <text>` | Log a void entry |
 | `void <text>` | Log a void entry (alias) |
-| `vexport <duration>` | Export void entries to Markdown (e.g., `vexport 7d`) |
+| `vexport <duration\|all>` | Export void entries to Markdown (e.g., `vexport 7d`, `vexport all`) |
 
 ---
 
@@ -302,13 +305,16 @@ Official holidays are listed below the grid.
 
 | Usage | Description |
 |-------|-------------|
-| `export 7d` | Export last 7 days (Markdown) |
-| `export 2w --txt` | Export last 2 weeks as plain text |
+| `export 7d` | Export last 7 days as a Markdown timeline |
+| `export 2w --txt` | Export last 2 weeks as a plain-text timeline |
 | `export 3m` | Export last 3 months |
 | `export 1y` | Export last 1 year |
+| `export all` | Export everything with no cutoff |
 
-By default, creates a Markdown (`.md`) file with tables, emojis, and day separators.
-Use `--txt` for the old plain‑text format.
+The export is a single chronological timeline grouped by day. Journal entries,
+sleep, naps, prayers, qada progress, and target logs are interleaved naturally.
+Markdown keeps the familiar journal-style bullets, times, and quoted details;
+`--txt` produces the same timeline in plain text.
 
 ---
 

@@ -1,6 +1,6 @@
 """Day start command – view and set day_start_hour."""
 
-from dailydriver.core.day_start import get_day_start_hour, set_day_start_hour
+from dailydriver.core.state import get_day_start_hour, set_day_start_hour
 
 
 def daystart_command(cmd: str) -> str:

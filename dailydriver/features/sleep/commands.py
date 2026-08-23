@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from dailydriver.core.database import get_connection_cm
-from dailydriver.features.events.state import get_last_action_time
+from dailydriver.core.state import get_last_action_time
 from dailydriver.ui.terminal_ui import current_ui
 from dailydriver.utils.time_parser import parse_time_expressions
 from dailydriver.utils.time_utils import today_jalali

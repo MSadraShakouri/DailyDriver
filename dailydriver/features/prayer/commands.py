@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import jdatetime
 
 from dailydriver.core.database import get_connection_cm
-from dailydriver.core.travel_mode import is_travel_mode
+from dailydriver.core.state import is_travel_mode
 from dailydriver.ui.terminal_ui import current_ui
 from dailydriver.utils.prayer_times import get_approximate_times
 from dailydriver.utils.time_parser import parse_prayer_args, parse_time_expressions

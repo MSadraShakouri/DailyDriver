@@ -1,6 +1,6 @@
 """Travel command — toggle location-dependent features."""
 
-from dailydriver.core.travel_mode import is_travel_mode, set_travel_mode
+from dailydriver.core.state import is_travel_mode, set_travel_mode
 
 
 def travel_command(cmd: str) -> str:

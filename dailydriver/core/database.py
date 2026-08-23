@@ -36,13 +36,11 @@ class _AutoCommitConnection:
         self._conn = conn
 
     def commit(self):
-        # Record the last action timestamp before committing everything
+        # Record the last action timestamp before committing everything.
         try:
-            cur = self._conn.cursor()
-            cur.execute(
-                "INSERT OR REPLACE INTO meta (key, value) VALUES ('last_action', ?)",
-                (str(int(time.time())),),
-            )
+            from dailydriver.core.state import touch_last_action
+
+            touch_last_action(conn=self._conn)
         except Exception:
             pass
         self._conn.commit()

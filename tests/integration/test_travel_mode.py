@@ -6,19 +6,16 @@ from unittest.mock import patch
 
 import jdatetime
 
-from dailydriver.core import travel_mode
+from dailydriver.core.state import set_travel_mode
 
 
 class TestTravelModeDisabled(unittest.TestCase):
     def setUp(self):
         self.conn = sqlite3.connect(":memory:")
         self.conn.row_factory = sqlite3.Row
-
-        # Create meta table (needed for travel mode)
         self.conn.execute("CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT)")
-
-        # Also create prayer_logs table (needed for prayer nudges)
-        self.conn.execute("""
+        self.conn.execute(
+            """
             CREATE TABLE prayer_logs (
                 id INTEGER PRIMARY KEY,
                 prayer_slot TEXT,
@@ -27,11 +24,11 @@ class TestTravelModeDisabled(unittest.TestCase):
                 status TEXT,
                 logged_at INTEGER
             )
-        """)
-
+            """
+        )
         self.today = jdatetime.date.today().strftime("%Y-%m-%d")
 
-        self.patcher = patch("dailydriver.core.travel_mode.get_connection_cm")
+        self.patcher = patch("dailydriver.core.state.meta.get_connection_cm")
         self.mock_cm = self.patcher.start()
         self.mock_cm.return_value.__enter__.return_value = self.conn
         self.mock_cm.return_value.__exit__.return_value = False
@@ -41,14 +38,14 @@ class TestTravelModeDisabled(unittest.TestCase):
         self.conn.close()
 
     def test_weather_shows_travel_mode_instead_of_weather(self):
-        travel_mode.set_travel_mode(True)
+        set_travel_mode(True)
         from dailydriver.features.weather.header import get_weather_str
 
         result = get_weather_str(self.conn, self.today, is_today=True)
         self.assertEqual(result, "🌍 Travel mode")
 
     def test_weather_shows_weather_when_disabled(self):
-        travel_mode.set_travel_mode(False)
+        set_travel_mode(False)
         with patch("dailydriver.features.weather.header.get_weather") as mock_weather:
             mock_weather.return_value = {"temp_c": 28, "condition_en": "clear", "condition_emoji": "☀️", "timestamp": 0}
             from dailydriver.features.weather.header import get_weather_str
@@ -58,16 +55,15 @@ class TestTravelModeDisabled(unittest.TestCase):
             mock_weather.assert_called_once()
 
     def test_prayer_nudges_disabled(self):
-        travel_mode.set_travel_mode(True)
+        set_travel_mode(True)
         from dailydriver.features.prayer.nudges import get_prayer_nudges
 
         result = get_prayer_nudges(self.conn, jdatetime.date.today(), self.today, is_today=True)
-        # In travel mode, we now show the first unlogged prayer slot as an overdue-style nudge.
         expected = ["\x1b[31m⚠️ Fajr not logged (today)\x1b[0m"]
         self.assertEqual(result, expected)
 
     def test_qada_nudges_disabled(self):
-        travel_mode.set_travel_mode(True)
+        set_travel_mode(True)
         from dailydriver.features.qada.header import get_prayer_nudges
 
         result = get_prayer_nudges(self.conn, jdatetime.date.today())

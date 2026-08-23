@@ -1,6 +1,7 @@
 """Finite goals and indefinite habits feature adapter."""
 
 from . import header
+from .export import export_items
 from .migrations import migrations
 from .router import dispatch
 
@@ -10,6 +11,7 @@ VERSION = "1.0.0"
 
 def header_sections(conn, today, target_date, is_today):
     return header.header_sections(conn, today, target_date, is_today)
+
 
 
 def register_commands(command_map):

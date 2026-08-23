@@ -2,7 +2,7 @@
 import sys
 
 from dailydriver.cli.dispatcher import make_dispatch
-from dailydriver.core.logger import log_free_text
+from dailydriver.core.journal import log_free_text
 from dailydriver.display.header import build_header_data
 from dailydriver.display.header_renderer import print_header
 from dailydriver.ui.terminal_ui import current_ui
@@ -36,15 +36,15 @@ def _submit_multiline(lines: list[str]) -> None:
     description = "\n".join(description_lines)
 
     if command == "ln":
-        from dailydriver.features.events.commands import log_chain_now
+        from dailydriver.cli.commands.events import log_chain_now
 
         log_chain_now(f"ln {description}")
     elif command == "ege":
-        from dailydriver.features.events.commands import end_great_event_cmd
+        from dailydriver.cli.commands.events import end_great_event_cmd
 
         end_great_event_cmd(f"ege {description}")
     else:
-        from dailydriver.features.events.commands import log_event_end
+        from dailydriver.cli.commands.events import log_event_end
 
         log_event_end(f"ee {description}")
 

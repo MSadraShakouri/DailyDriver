@@ -18,7 +18,8 @@ Built with Python, SQLite, and Jalali calendar support.
 - **Birthday list** – Jalali dates, upcoming birthday alerts with age, reminder levels.
 - **Intentions** – to‑dos with deadlines and expected durations.
 - **Journal entries** – free‑text with smart time parsing (e.g. `13:00`, `2‑3`, `yesterday`).
-- **Great events & chaining** – start a long activity, later end and log it.
+- **Unified exports** – export one chronological timeline where journal entries, sleep, naps, prayers, qada, and targets appear together (`export 7d`, `export all`, `--txt`).
+- **Great events & chaining** – start a long activity, later end and log it; handled as core event/chaining utilities rather than a pluggable feature.
 - **Smart categories** – TF‑IDF keyword learning from your entries (exact path‑match boost).
 - **Statistics** – prayer adherence, sleep averages, hygiene conformance, top categories.
 - **Three‑calendar events** – Jalali, Gregorian, and Hijri events with per‑calendar icons (🔆🌐🌙) and holiday confetti (🎊). Reminders with configurable schedules and a visual reminder editor.
@@ -106,7 +107,7 @@ You’ll see the daily header and a prompt `>`. Type `?` for a command overview,
 | `stats` | Statistics (30 days) |
 | `cal` | Clean month calendar (today highlighted) |
 | `year` | Responsive year calendar |
-| `export` | Export sleep/prayers/entries to Markdown (use `--txt` for plain text) |
+| `export` | Export a unified chronological timeline (`all` and `--txt` supported) |
 | `hijri` | Show/adjust Hijri date offset (interactive) |
 | `qada` | Interactive backlog manager for prayers and fasting |
 | `nazr` / `habit` / `targets` | Track finite and indefinite goals |
@@ -139,15 +140,15 @@ sqlite3 data/daily.db "SELECT * FROM entries;"
 
 ```
 dailydriver/
-├── core/          # database, migration, logger, keyword learner
-├── features/      # prayer, sleep, hygiene, birthdays, calendar, events, weather, intentions, qada, targets, void
-├── display/       # header renderer, display utilities, stats
+├── core/          # database, migration, journal/, state/
+├── features/      # prayer, sleep, hygiene, birthdays, calendar, weather, intentions, qada, targets, void
+├── display/       # header renderer, header helpers, display utilities, stats
 ├── cli/           # REPL, dispatcher, commands, search, calendar views, export
 ├── ui/            # terminal abstraction
 └── utils/         # time helpers, unified time parser, intervals, prayer_times
 data/              # database, stopwords, event JSON files, hijri offset
 tools/             # event editor, keyword editor, reminder editor
-tests/             # test files (header, commands, logger state, etc.)
+tests/             # test files (header, commands, state, journal, etc.)
 ```
 
 ---

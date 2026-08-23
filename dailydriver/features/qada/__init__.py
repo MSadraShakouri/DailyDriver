@@ -3,6 +3,7 @@
 from datetime import datetime
 
 from .commands import qada_command
+from .export import export_items
 from .header import get_fasting_nudges, get_prayer_nudges
 from .migrations import migrations
 
@@ -12,6 +13,7 @@ VERSION = "1.0.0"
 
 def register_commands(dispatch):
     dispatch["qada"] = qada_command
+
 
 
 def header_sections(conn, today, target_date, is_today):

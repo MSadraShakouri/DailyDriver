@@ -1,7 +1,7 @@
 # dailydriver/cli/search/scoring.py
 """Merge FTS/LIKE results and compute final scores."""
 
-from dailydriver.core.keyword_learner import tokenize
+from dailydriver.core.journal import tokenize
 
 from .fuzzy_categories import score_categories
 from .fuzzy_dates import score_dates

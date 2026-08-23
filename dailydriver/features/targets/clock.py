@@ -2,7 +2,7 @@
 
 import jdatetime
 
-from dailydriver.core.day_start import get_shifted_today
+from dailydriver.core.state import get_shifted_today
 
 
 def today() -> jdatetime.date:
