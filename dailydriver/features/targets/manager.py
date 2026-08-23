@@ -15,8 +15,8 @@ def show_manager(kind: str | None = None):
         data = build_header_data()
         print_header(data)
 
-        entries = entries.get_all_entries(kind=kind)
-        if not entries:
+        entry_rows = entries.get_all_entries(kind=kind)
+        if not entry_rows:
             current_ui.print_line("  No entries found.")
             current_ui.print_line()
             current_ui.print_line("  (a)dd  (q)uit")
@@ -27,7 +27,7 @@ def show_manager(kind: str | None = None):
                 break
             continue
 
-        table.render_entries(entries)
+        table.render_entries(entry_rows)
 
         current_ui.print_line()  # breather before commands
         _print_commands()

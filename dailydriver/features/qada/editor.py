@@ -21,13 +21,13 @@ def edit_entry(choice):
         current_ui.prompt("Press Enter to continue.")
         return
 
-    entries = overview.get_all_entries_with_progress()
-    if idx < 1 or idx > len(entries):
+    entry_rows = overview.get_all_entries_with_progress()
+    if idx < 1 or idx > len(entry_rows):
         current_ui.print_line(f"Entry #{idx} not found.")
         current_ui.prompt("Press Enter to continue.")
         return
 
-    entry = entries[idx - 1]
+    entry = entry_rows[idx - 1]
     entry_id = entry["id"]
     target = entry["target_total"]
 

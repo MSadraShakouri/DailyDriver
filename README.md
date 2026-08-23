@@ -36,7 +36,7 @@ Built with Python, SQLite, and Jalali calendar support.
 - **Void scratchpad** – unfiltered thoughts, separate from the main journal (`v`, `void`, `vexport`).
 - **Manual chaining update** – `u` / `update` refreshes `last_action` for chaining.
 - **Termux‑dialog integration** – `-md` / `--termux-dialog` flag opens an Android text dialog for quick journal entries.
-- **Test isolation** – database path configurable via `DAILYDRIVER_DB` env var; tests pass on clean clone. **306 tests** total.
+- **Test isolation** – database path configurable via `DAILYDRIVER_DB`; tests use migrated, per-test database copies and mirror the application package layout.
 - **Minimal dependencies** – Python 3.10+, SQLite, `jdatetime`, `hijridate`, `porter2stemmer`.
 
 ---

@@ -20,6 +20,35 @@ def _show_result(result):
     current_ui.print_line(result)
 
 
+def _submit_multiline(lines: list[str]) -> None:
+    """Submit a collected multiline entry to its real command handler."""
+    full_text = "\n".join(lines)
+    first_line = lines[0].strip() if lines else ""
+    first_parts = first_line.split(maxsplit=1)
+    command = first_parts[0].lower() if first_parts else ""
+
+    if command not in ("ln", "ee", "ege"):
+        log_free_text(full_text)
+        return
+
+    first_description = first_parts[1] if len(first_parts) > 1 else ""
+    description_lines = ([first_description] if first_description else []) + lines[1:]
+    description = "\n".join(description_lines)
+
+    if command == "ln":
+        from dailydriver.features.events.commands import log_chain_now
+
+        log_chain_now(f"ln {description}")
+    elif command == "ege":
+        from dailydriver.features.events.commands import end_great_event_cmd
+
+        end_great_event_cmd(f"ege {description}")
+    else:
+        from dailydriver.features.events.commands import log_event_end
+
+        log_event_end(f"ee {description}")
+
+
 def repl():
     multi_buf = []
     collecting = False
@@ -44,34 +73,7 @@ def repl():
 
             if line == "---":
                 if collecting:
-                    full_text = "\n".join(multi_buf)
-                    first_line = multi_buf[0].strip() if multi_buf else ""
-                    first_parts = first_line.split(maxsplit=1)
-                    cmd_check = first_parts[0].lower() if first_parts else ""
-
-                    if cmd_check in ("ln", "ee", "ege") and len(first_parts) > 0:
-                        rest_first = first_parts[1] if len(first_parts) > 1 else ""
-                        if rest_first:
-                            new_lines = [rest_first] + multi_buf[1:]
-                        else:
-                            new_lines = multi_buf[1:]
-                        desc = "\n".join(new_lines) if new_lines else ""
-                        if cmd_check == "ln":
-                            from dailydriver.features.events.commands import log_chain_now
-
-                            log_chain_now(f"ln {desc}")
-                        elif cmd_check == "ege":
-                            from dailydriver.features.events.commands import (
-                                end_great_event_cmd,
-                            )
-
-                            end_great_event_cmd(f"ege {desc}")
-                        else:  # 'ee'
-                            from dailydriver.features.events.commands import log_event_end
-
-                            log_event_end(f"ee {desc}")
-                    else:
-                        log_free_text(full_text)
+                    _submit_multiline(multi_buf)
                     multi_buf = []
                     collecting = False
                     current_ui.prompt("Press Enter to continue.")
