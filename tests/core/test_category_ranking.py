@@ -103,3 +103,32 @@ class TestBasics:
         assert len(results) <= 10
         scores = [s for _, s in results]
         assert scores == sorted(scores, reverse=True)
+
+
+class TestFullVsPartialMatch:
+    def test_full_path_match_outranks_deeper_partial_match(self, db_path):
+        # A frequently used parent category should outrank a rare child that
+        # only partially matches, when the query matches the parent fully.
+        _train("free_learning", "read about learning and study", times=10)
+        _train("free_learning/art", "art drawing", times=1)
+        results = find_matching_categories("learning study")
+        paths = [p for p, _ in results]
+        assert paths.index("free_learning") < paths.index("free_learning/art")
+
+    def test_full_coverage_beats_partial_for_same_query(self, db_path):
+        # Two untrained categories: the one the query fully covers wins.
+        _add_category("art")
+        _add_category("art/painting")
+        results = dict(find_matching_categories("art"))
+        assert results["art"] > results["art/painting"]
+
+    def test_boost_does_not_overpower_strong_tfidf(self, db_path):
+        # With a realistic catalog (so IDF is meaningful), a heavily trained
+        # category dominated by TF-IDF must clearly outrank a category that only
+        # earns the exact-match boost.
+        for i in range(15):
+            _add_category(f"filler{i}/topic")
+        _train("work/coding", "coding project sprint", times=20)
+        _add_category("coding")  # untrained; only earns the boost from "coding"
+        results = dict(find_matching_categories("coding sprint"))
+        assert results["work/coding"] > results["coding"]

@@ -15,15 +15,21 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(o
 STOPWORDS_PATH = os.path.join(PROJECT_ROOT, "data", "stopwords.txt")
 
 # --- Exact path-match boost -------------------------------------------------
-# A category whose *path* contains a query word (matched on whole segments,
-# not substrings) is almost always the right bucket, yet a raw constant is
-# easily buried by a heavily trained category's accumulated TF-IDF mass. So the
-# boost is *relative* to the strongest TF-IDF score in this query: an exact
-# match reliably lands near the top (typically #1-#3) on any database, without
-# hard-pinning it to #1. ``EXACT_MATCH_FLOOR`` keeps the boost meaningful when
-# TF-IDF scores are tiny or absent (e.g. a fresh database).
-EXACT_MATCH_RELATIVE = 0.6
-EXACT_MATCH_FLOOR = 2.0
+# A category whose *path* contains a query word (matched on whole segments, not
+# substrings) is usually the right bucket. But such a category almost always
+# *also* has that word as a learned keyword, so it already earns TF-IDF credit
+# for the match; the boost only needs to be a gentle nudge/tiebreaker, not a
+# sledgehammer that leapfrogs a frequently used category with a rare one-off.
+#
+# The base boost is a small fraction of the strongest TF-IDF score in this query
+# (with a floor so it still matters on a fresh database), then:
+#   * scaled by *coverage* — the fraction of the path's segments the query
+#     matches — so a single-segment partial match gets only a small bump; and
+#   * given an extra ``FULL_MATCH_BONUS`` when the query covers the entire path,
+#     so a full exact match always outranks a partial one.
+EXACT_MATCH_RELATIVE = 0.25
+EXACT_MATCH_FLOOR = 1.0
+FULL_MATCH_BONUS = 0.5
 MIN_SCORE = 0.1
 MAX_RESULTS = 10
 
@@ -126,13 +132,23 @@ def find_matching_categories(text: str) -> list[tuple[str, float]]:
                 idf = max(0.0, math.log(total_cats / (df + 1)))
                 scores[cat_id] = scores.get(cat_id, 0.0) + tf * idf
 
-        # --- Stage 2: relative exact-segment boost ---
-        top_tfidf = max(scores.values(), default=0.0)
-        boost = max(EXACT_MATCH_FLOOR, EXACT_MATCH_RELATIVE * top_tfidf)
+        # --- Stage 2: gentle, coverage-proportional exact-segment boost ---
+        # TF-IDF already rewards these matches, so this is a nudge. The boost is
+        # scaled by how much of the *path* the query covers, and a fully covered
+        # path earns an extra bonus so an exact full match beats a partial one.
+        base_boost = max(EXACT_MATCH_FLOOR, EXACT_MATCH_RELATIVE * max(scores.values(), default=0.0))
         for cat_id, path in all_cats.items():
-            overlap = len(path_segments(path) & token_set)
-            if overlap:
-                scores[cat_id] = scores.get(cat_id, 0.0) + boost * overlap
+            segments = path_segments(path)
+            if not segments:
+                continue
+            matched = segments & token_set
+            if not matched:
+                continue
+            coverage = len(matched) / len(segments)
+            boost = base_boost * coverage
+            if matched == segments:
+                boost += base_boost * FULL_MATCH_BONUS
+            scores[cat_id] = scores.get(cat_id, 0.0) + boost
 
         results: list[tuple[str, float]] = []
         for cat_id, score in sorted(scores.items(), key=lambda item: item[1], reverse=True):

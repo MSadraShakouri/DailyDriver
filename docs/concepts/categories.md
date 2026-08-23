@@ -21,22 +21,29 @@ adds `tf × idf`:
   appears in almost every category never subtracts from a score. Words that are
   distinctive to a few categories carry more weight.
 
-### 2. Relative exact-match boost
+### 2. Gentle exact-match boost
 
-A category whose **path** contains one of your words is almost always the right
+A category whose **path** contains one of your words is usually the right
 bucket. Matching is done on whole path *segments* (the path is split on `/` and
 non-alphabetic characters and stemmed), so `art` matches `art/painting` but not
 `start/routine`, and `log` matches `log/system` but not `blog/writing`.
 
-Each exact segment match adds a boost scaled to the strongest TF-IDF score in
-the current query (`EXACT_MATCH_RELATIVE`, with an `EXACT_MATCH_FLOOR` for fresh
-databases where TF-IDF scores are tiny). Because the boost scales with the query,
-an exact match reliably surfaces near the top (typically #1–#3) on any
-database — even against a heavily trained but unrelated category — without being
-hard-pinned to #1. Matching more segments of a path boosts it further.
+Because such a category almost always *also* has that word as a learned keyword,
+it already earns TF-IDF credit for the match — so the boost is a gentle
+tiebreaker, not a sledgehammer. It is a small fraction of the strongest TF-IDF
+score in the query (`EXACT_MATCH_RELATIVE`, with an `EXACT_MATCH_FLOOR` for fresh
+databases), and it is shaped two ways:
+
+- **Coverage-proportional** — scaled by the fraction of the path's segments the
+  query matches, so a single-segment partial match of a deep path gets only a
+  small bump.
+- **Full-match bonus** — when the query covers *all* of a path's segments, it
+  earns an extra `FULL_MATCH_BONUS`, so a full exact match reliably outranks a
+  deeper partial one (e.g. `free_learning` beats `free_learning/art` for the
+  query "learning").
 
 The top matches (up to `MAX_RESULTS`, default 10) are returned already ordered.
-These constants live at the top of
+These constants (EXACT_MATCH_RELATIVE, EXACT_MATCH_FLOOR, FULL_MATCH_BONUS, MIN_SCORE, MAX_RESULTS) live at the top of
 `dailydriver/core/journal/keywords.py` and are easy to tune.
 
 ## Selecting categories
