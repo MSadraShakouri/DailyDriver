@@ -42,16 +42,16 @@ class TestTravelModeDisabled(unittest.TestCase):
 
     def test_weather_shows_travel_mode_instead_of_weather(self):
         travel_mode.set_travel_mode(True)
-        from dailydriver.features.weather._header import get_weather_str
+        from dailydriver.features.weather.header import get_weather_str
 
         result = get_weather_str(self.conn, self.today, is_today=True)
         self.assertEqual(result, "🌍 Travel mode")
 
     def test_weather_shows_weather_when_disabled(self):
         travel_mode.set_travel_mode(False)
-        with patch("dailydriver.features.weather._header.get_weather") as mock_weather:
+        with patch("dailydriver.features.weather.header.get_weather") as mock_weather:
             mock_weather.return_value = {"temp_c": 28, "condition_en": "clear", "condition_emoji": "☀️", "timestamp": 0}
-            from dailydriver.features.weather._header import get_weather_str
+            from dailydriver.features.weather.header import get_weather_str
 
             result = get_weather_str(self.conn, self.today, is_today=True)
             self.assertIn("28°C", result)
@@ -59,7 +59,7 @@ class TestTravelModeDisabled(unittest.TestCase):
 
     def test_prayer_nudges_disabled(self):
         travel_mode.set_travel_mode(True)
-        from dailydriver.features.prayer._header import get_prayer_nudges
+        from dailydriver.features.prayer.nudges import get_prayer_nudges
 
         result = get_prayer_nudges(self.conn, jdatetime.date.today(), self.today, is_today=True)
         # In travel mode, we now show the first unlogged prayer slot as an overdue-style nudge.
@@ -68,7 +68,7 @@ class TestTravelModeDisabled(unittest.TestCase):
 
     def test_qada_nudges_disabled(self):
         travel_mode.set_travel_mode(True)
-        from dailydriver.features.qada._header import get_prayer_nudges
+        from dailydriver.features.qada.header import get_prayer_nudges
 
         result = get_prayer_nudges(self.conn, jdatetime.date.today())
         self.assertEqual(result, [])

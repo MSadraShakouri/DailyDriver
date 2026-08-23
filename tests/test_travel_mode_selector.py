@@ -8,7 +8,7 @@ from unittest.mock import patch
 import jdatetime
 
 from dailydriver.core import travel_mode
-from dailydriver.features.prayer import _prayer_log
+from dailydriver.features.prayer import commands
 
 
 class TestTravelModeSelector(unittest.TestCase):
@@ -34,7 +34,7 @@ class TestTravelModeSelector(unittest.TestCase):
         """)
 
         # Patch BOTH modules that use get_connection_cm
-        self.patcher1 = patch("dailydriver.features.prayer._prayer_log.get_connection_cm")
+        self.patcher1 = patch("dailydriver.features.prayer.commands.get_connection_cm")
         self.patcher2 = patch("dailydriver.core.travel_mode.get_connection_cm")
 
         self.mock_cm1 = self.patcher1.start()
@@ -44,7 +44,7 @@ class TestTravelModeSelector(unittest.TestCase):
         self.mock_cm1.return_value.__enter__.return_value = self.conn
         self.mock_cm2.return_value.__enter__.return_value = self.conn
 
-        self.ui_patcher = patch("dailydriver.features.prayer._prayer_log.current_ui")
+        self.ui_patcher = patch("dailydriver.features.prayer.commands.current_ui")
         self.mock_ui = self.ui_patcher.start()
 
         # Enable travel mode (now works because both modules use the same connection)
@@ -63,7 +63,7 @@ class TestTravelModeSelector(unittest.TestCase):
         self.mock_ui.confirm.return_value = True
         self.mock_ui.prompt.return_value = ""
 
-        _prayer_log.log_prayer("p")
+        commands.log_prayer("p")
 
         self.mock_ui.print_line.assert_any_call("\nTravel mode: select prayer slot")
         self.mock_ui.print_line.assert_any_call("  [1] Fajr (suggested)")
@@ -75,7 +75,7 @@ class TestTravelModeSelector(unittest.TestCase):
         self.mock_ui.confirm.return_value = True
         self.mock_ui.prompt.return_value = ""
 
-        _prayer_log.log_prayer("p")
+        commands.log_prayer("p")
 
         cur = self.conn.cursor()
         cur.execute("SELECT prayer_slot FROM prayer_logs")
@@ -87,7 +87,7 @@ class TestTravelModeSelector(unittest.TestCase):
         self.mock_ui.confirm.return_value = True
         self.mock_ui.prompt.return_value = "1"
 
-        _prayer_log.log_prayer("p")
+        commands.log_prayer("p")
 
         cur = self.conn.cursor()
         cur.execute("SELECT prayer_slot FROM prayer_logs")
@@ -98,7 +98,7 @@ class TestTravelModeSelector(unittest.TestCase):
         self.mock_ui.confirm.return_value = True
         self.mock_ui.prompt.return_value = "2"
 
-        _prayer_log.log_prayer("p")
+        commands.log_prayer("p")
 
         cur = self.conn.cursor()
         cur.execute("SELECT prayer_slot FROM prayer_logs")
@@ -109,7 +109,7 @@ class TestTravelModeSelector(unittest.TestCase):
         self.mock_ui.confirm.return_value = True
         self.mock_ui.prompt.return_value = "3"
 
-        _prayer_log.log_prayer("p")
+        commands.log_prayer("p")
 
         cur = self.conn.cursor()
         cur.execute("SELECT prayer_slot FROM prayer_logs")
@@ -119,7 +119,7 @@ class TestTravelModeSelector(unittest.TestCase):
     def test_n_cancels(self):
         self.mock_ui.prompt.return_value = "n"
 
-        result = _prayer_log.log_prayer("p")
+        result = commands.log_prayer("p")
         self.assertIsNone(result)
 
         cur = self.conn.cursor()
@@ -132,7 +132,7 @@ class TestTravelModeSelector(unittest.TestCase):
         self.mock_ui.confirm.return_value = True
         self.mock_ui.prompt.return_value = "2"  # Select Dhuhr
 
-        _prayer_log.log_prayer("p 14:30")
+        commands.log_prayer("p 14:30")
 
         # Menu should be shown (for slot selection)
         self.mock_ui.print_line.assert_any_call("\nTravel mode: select prayer slot")
@@ -151,7 +151,7 @@ class TestTravelModeSelector(unittest.TestCase):
         self.mock_ui.confirm.return_value = True
         self.mock_ui.prompt.return_value = "3"  # Select Maghrib
 
-        _prayer_log.log_prayer("p -30")
+        commands.log_prayer("p -30")
 
         # Menu should be shown (for slot selection)
         self.mock_ui.print_line.assert_any_call("\nTravel mode: select prayer slot")

@@ -1,9 +1,12 @@
-# dailydriver/features/__init__.py
-"""
-Feature packages – see HOOKS.md for the hook specification.
-Each enabled feature is imported below.
+"""Enabled DailyDriver feature packages.
+
+Only package-level metadata and hooks are part of the feature contract. See
+``HOOKS.md`` and :mod:`dailydriver.features.registry`.
 """
 
 from . import birthdays, calendar, events, hygiene, intentions, prayer, qada, sleep, targets, void, weather
+from .registry import validate_features
 
-ENABLED = [events, sleep, weather, hygiene, birthdays, calendar, intentions, prayer, qada, void, targets]
+ENABLED = validate_features(
+    (events, sleep, weather, hygiene, birthdays, calendar, intentions, prayer, qada, void, targets)
+)

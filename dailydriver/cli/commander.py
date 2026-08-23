@@ -57,17 +57,17 @@ def repl():
                             new_lines = multi_buf[1:]
                         desc = "\n".join(new_lines) if new_lines else ""
                         if cmd_check == "ln":
-                            from dailydriver.features.events._logic import log_chain_now
+                            from dailydriver.features.events.commands import log_chain_now
 
                             log_chain_now(f"ln {desc}")
                         elif cmd_check == "ege":
-                            from dailydriver.features.events._logic import (
+                            from dailydriver.features.events.commands import (
                                 end_great_event_cmd,
                             )
 
                             end_great_event_cmd(f"ege {desc}")
                         else:  # 'ee'
-                            from dailydriver.features.events._logic import log_event_end
+                            from dailydriver.features.events.commands import log_event_end
 
                             log_event_end(f"ee {desc}")
                     else:

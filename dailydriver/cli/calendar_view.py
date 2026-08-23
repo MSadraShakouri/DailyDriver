@@ -3,7 +3,7 @@
 
 import jdatetime
 
-from dailydriver.features.calendar._logic import get_events, get_upcoming_events
+from dailydriver.features.calendar.catalog import get_events, get_upcoming_events
 from dailydriver.ui.terminal_ui import current_ui
 
 _JALALI_MONTHS_EN = [

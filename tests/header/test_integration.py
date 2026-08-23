@@ -27,26 +27,26 @@ class TestIntegration(unittest.TestCase):
             mock_cm.return_value.__enter__.return_value = conn
             with (
                 patch(
-                    "dailydriver.features.events._header.get_active_great_event",
+                    "dailydriver.features.events.header.get_active_great_event",
                     return_value=None,
                 ),
                 patch(
-                    "dailydriver.features.events._logic.get_pending_start",
+                    "dailydriver.features.events.header.get_pending_start",
                     return_value=None,
                 ),
-                patch("dailydriver.features.calendar._logic.get_events", return_value=[]),
-                patch("dailydriver.features.calendar._logic.get_todays_events", return_value=[]),
-                patch("dailydriver.features.calendar._logic.get_upcoming_events", return_value=[]),
+                patch("dailydriver.features.calendar.catalog.get_events", return_value=[]),
+                patch("dailydriver.features.calendar.catalog.get_todays_events", return_value=[]),
+                patch("dailydriver.features.calendar.catalog.get_upcoming_events", return_value=[]),
                 patch(
-                    "dailydriver.features.weather._header.get_weather",
+                    "dailydriver.features.weather.header.get_weather",
                     return_value=None,
                 ),
                 patch(
-                    "dailydriver.features.qada._header.get_prayer_nudges",
+                    "dailydriver.features.qada.header.get_prayer_nudges",
                     return_value=[],
                 ),
                 patch(
-                    "dailydriver.features.targets._header.header_sections",
+                    "dailydriver.features.targets.header.header_sections",
                     return_value=[],
                 ),
             ):

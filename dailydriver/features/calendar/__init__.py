@@ -1,79 +1,17 @@
-# dailydriver/features/calendar/__init__.py
-"""Calendar feature – events, reminders, commands (cal, year, hijri)."""
+"""Calendar feature adapter."""
 
-from . import _commands, _header, _logic, _reminders
+from .commands import hijri_command, show_calendar, show_year
+from .sections import build_sections
 
 NAME = "calendar"
 VERSION = "1.0.0"
 
 
 def register_commands(dispatch):
-    dispatch["cal"] = _commands.show_calendar
-    dispatch["year"] = lambda _: _commands.show_year()
-    dispatch["hijri"] = _commands.hijri_command
+    dispatch["cal"] = show_calendar
+    dispatch["year"] = lambda _: show_year()
+    dispatch["hijri"] = hijri_command
 
 
 def header_sections(conn, today, target_date, is_today):
-    all_events = _logic.get_events() or []
-
-    # --- event reminders (bell lines) ---
-    reminder_lines = _reminders.get_event_reminders(conn, all_events, target_date)
-
-    # --- suppressed calendar lines (filter out today‑reminded events) ---
-    reminded_today_ids = set()
-    cur = conn.cursor()
-    for jdate, ev in all_events:
-        ev_id = ev.get("id")
-        if ev_id is not None:
-            cur.execute(
-                "SELECT level FROM event_reminders WHERE event_id=? AND level > 0",
-                (ev_id,),
-            )
-            row = cur.fetchone()
-            if row:
-                level = row["level"]
-                schedule = _reminders.EVENT_SCHEDULE.get(level, [])
-                if 0 in schedule and (jdate - target_date).days == 0:
-                    reminded_today_ids.add(ev_id)
-
-    calendar_lines = _header.get_calendar_lines(target_date, is_today, reminded_today_ids)
-
-    # --- tomorrow preview ---
-    reminded_tomorrow_ids = set()
-    for jdate, ev in all_events:
-        ev_id = ev.get("id")
-        if ev_id is not None:
-            cur.execute(
-                "SELECT level FROM event_reminders WHERE event_id=? AND level > 0",
-                (ev_id,),
-            )
-            row = cur.fetchone()
-            if row:
-                level = row["level"]
-                schedule = _reminders.EVENT_SCHEDULE.get(level, [])
-                if 1 in schedule and (jdate - target_date).days == 1:
-                    reminded_tomorrow_ids.add(ev_id)
-
-    tomorrow_lines = _reminders.get_tomorrow_preview(all_events, target_date, reminded_tomorrow_ids)
-
-    # --- old reminders_str (kept for backward compat, if still used) ---
-    reminders_str = _header.get_reminders_str(target_date, is_today)
-
-    # --- assemble results with priorities ---
-    result = []
-    if reminder_lines:
-        result.append((35, ""))  # breather before reminders
-        for line in reminder_lines:
-            result.append((36, line))
-    if tomorrow_lines:
-        result.append((40, ""))  # breather before tomorrow
-        for line in tomorrow_lines:
-            result.append((41, line))
-    if calendar_lines:
-        result.append((45, ""))  # breather before today's events
-        for line in calendar_lines:
-            result.append((46, line))
-    if reminders_str:
-        result.append((50, reminders_str))
-
-    return result
+    return build_sections(conn, today, target_date, is_today)

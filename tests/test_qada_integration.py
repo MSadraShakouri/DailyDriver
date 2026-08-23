@@ -1,10 +1,10 @@
 # tests/test_qada_integration.py
 from dailydriver.core.database import get_connection_cm
-from dailydriver.features.qada import _logic
+from dailydriver.features.qada import entries
 
 
 def test_add_entry_persists(isolated_db):
-    eid = _logic.add_entry("Fajr", "prayer", "n_days", "1", slot="fajr")
+    eid = entries.add_entry("Fajr", "prayer", "n_days", "1", slot="fajr")
     with get_connection_cm(auto=False) as conn:
         cur = conn.cursor()
         row = cur.execute(
@@ -19,8 +19,8 @@ def test_add_entry_persists(isolated_db):
 
 
 def test_toggle_pause_persists(isolated_db):
-    eid = _logic.add_entry("Fasting", "fasting", "daily", None, slot=None)
-    _logic.toggle_pause(eid, days=3)
+    eid = entries.add_entry("Fasting", "fasting", "daily", None, slot=None)
+    entries.toggle_pause(eid, days=3)
     with get_connection_cm(auto=False) as conn:
         cur = conn.cursor()
         row = cur.execute("SELECT paused_until FROM qada_entries WHERE id=?", (eid,)).fetchone()
@@ -36,11 +36,11 @@ def test_toggle_pause_persists(isolated_db):
 
 
 def test_toggle_pause_toggle_off(isolated_db):
-    eid = _logic.add_entry("Fasting", "fasting", "daily", None, slot=None)
+    eid = entries.add_entry("Fasting", "fasting", "daily", None, slot=None)
     # Pause
-    _logic.toggle_pause(eid, days=3)
+    entries.toggle_pause(eid, days=3)
     # Unpause
-    _logic.toggle_pause(eid)
+    entries.toggle_pause(eid)
     with get_connection_cm(auto=False) as conn:
         cur = conn.cursor()
         row = cur.execute("SELECT paused_until FROM qada_entries WHERE id=?", (eid,)).fetchone()
@@ -48,8 +48,8 @@ def test_toggle_pause_toggle_off(isolated_db):
 
 
 def test_delete_entry_persists(isolated_db):
-    eid = _logic.add_entry("ToDelete", "prayer", "daily", None, slot="fajr")
-    _logic.delete_entry(eid)
+    eid = entries.add_entry("ToDelete", "prayer", "daily", None, slot="fajr")
+    entries.delete_entry(eid)
     with get_connection_cm(auto=False) as conn:
         cur = conn.cursor()
         row = cur.execute("SELECT id FROM qada_entries WHERE id=?", (eid,)).fetchone()
@@ -57,8 +57,8 @@ def test_delete_entry_persists(isolated_db):
 
 
 def test_edit_entry_persists(isolated_db):
-    eid = _logic.add_entry("OldName", "prayer", "daily", None, slot="fajr")
-    _logic.edit_entry(eid, name="NewName", interval_type="weekly", interval_value="2")
+    eid = entries.add_entry("OldName", "prayer", "daily", None, slot="fajr")
+    entries.edit_entry(eid, name="NewName", interval_type="weekly", interval_value="2")
     with get_connection_cm(auto=False) as conn:
         cur = conn.cursor()
         row = cur.execute("SELECT name, interval_type, interval_value FROM qada_entries WHERE id=?", (eid,)).fetchone()

@@ -6,8 +6,8 @@ from unittest.mock import patch
 
 import jdatetime
 
-from dailydriver.features.qada import _header
-from dailydriver.features.qada._migrations import migrations
+from dailydriver.features.qada import header
+from dailydriver.features.qada.migrations import migrations
 
 
 class TestQadaFastingNudges(unittest.TestCase):
@@ -30,7 +30,7 @@ class TestQadaFastingNudges(unittest.TestCase):
         self.entry_id = self.conn.execute("SELECT id FROM qada_entries WHERE name='Ramadan'").fetchone()["id"]
 
         # Patch get_connection_cm in _logic.py (used by list_entries)
-        self.patcher = patch("dailydriver.features.qada._logic.get_connection_cm")
+        self.patcher = patch("dailydriver.features.qada.entries.get_connection_cm")
         self.mock_cm = self.patcher.start()
         self.mock_cm.return_value.__enter__.return_value = self.conn
         self.mock_cm.return_value.__exit__.return_value = False
@@ -40,9 +40,9 @@ class TestQadaFastingNudges(unittest.TestCase):
         self.conn.close()
 
     def test_nudge_shows_when_pending_today(self):
-        with patch("dailydriver.features.qada._header.compute_pending_instance") as mock_compute:
+        with patch("dailydriver.features.qada.header.compute_pending_instance") as mock_compute:
             mock_compute.return_value = self.today_j
-            nudges = _header.get_fasting_nudges(self.conn, self.today_j)
+            nudges = header.get_fasting_nudges(self.conn, self.today_j)
             self.assertEqual(len(nudges), 1)
             self.assertIn("🌙 Fasting pending", nudges[0])
 
@@ -53,24 +53,24 @@ class TestQadaFastingNudges(unittest.TestCase):
         )
         self.conn.commit()
 
-        with patch("dailydriver.features.qada._header.compute_pending_instance") as mock_compute:
+        with patch("dailydriver.features.qada.header.compute_pending_instance") as mock_compute:
             mock_compute.return_value = self.today_j
-            nudges = _header.get_fasting_nudges(self.conn, self.today_j)
+            nudges = header.get_fasting_nudges(self.conn, self.today_j)
             self.assertEqual(nudges, [])
 
     def test_nudge_shows_overdue(self):
         yesterday = self.today_j - jdatetime.timedelta(days=1)
-        with patch("dailydriver.features.qada._header.compute_pending_instance") as mock_compute:
+        with patch("dailydriver.features.qada.header.compute_pending_instance") as mock_compute:
             mock_compute.return_value = yesterday
-            nudges = _header.get_fasting_nudges(self.conn, self.today_j)
+            nudges = header.get_fasting_nudges(self.conn, self.today_j)
             self.assertEqual(len(nudges), 1)
             self.assertIn("🌙 Fasting overdue!", nudges[0])
 
     def test_nudge_does_not_show_for_future_date(self):
         tomorrow = self.today_j + jdatetime.timedelta(days=1)
-        with patch("dailydriver.features.qada._header.compute_pending_instance") as mock_compute:
+        with patch("dailydriver.features.qada.header.compute_pending_instance") as mock_compute:
             mock_compute.return_value = tomorrow
-            nudges = _header.get_fasting_nudges(self.conn, self.today_j)
+            nudges = header.get_fasting_nudges(self.conn, self.today_j)
             self.assertEqual(nudges, [])
 
     def test_nudge_hides_if_paused(self):
@@ -81,9 +81,9 @@ class TestQadaFastingNudges(unittest.TestCase):
         )
         self.conn.commit()
 
-        with patch("dailydriver.features.qada._header.compute_pending_instance") as mock_compute:
+        with patch("dailydriver.features.qada.header.compute_pending_instance") as mock_compute:
             mock_compute.return_value = self.today_j
-            nudges = _header.get_fasting_nudges(self.conn, self.today_j)
+            nudges = header.get_fasting_nudges(self.conn, self.today_j)
             self.assertEqual(nudges, [])
 
     def test_nudge_shows_not_set_for_unbounded(self):
@@ -95,9 +95,9 @@ class TestQadaFastingNudges(unittest.TestCase):
         self.conn.commit()
         unbounded_id = self.conn.execute("SELECT id FROM qada_entries WHERE name='Unbounded'").fetchone()["id"]
 
-        with patch("dailydriver.features.qada._header.compute_pending_instance") as mock_compute:
+        with patch("dailydriver.features.qada.header.compute_pending_instance") as mock_compute:
             mock_compute.return_value = self.today_j
-            nudges = _header.get_fasting_nudges(self.conn, self.today_j)
+            nudges = header.get_fasting_nudges(self.conn, self.today_j)
             # Should show "not set" for unbounded
             self.assertTrue(any("not set" in n for n in nudges))
 

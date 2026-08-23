@@ -1,55 +1,18 @@
-"""Targets feature – tracking nazr (finite) and habit (indefinite)."""
+"""Finite goals and indefinite habits feature adapter."""
 
-from . import _header, _logic, _migrations
-from ._manager import show_manager
+from . import header
+from .migrations import migrations
+from .router import dispatch
 
 NAME = "targets"
 VERSION = "1.0.0"
 
 
-def migrations():
-    return _migrations.migrations()
-
-
 def header_sections(conn, today, target_date, is_today):
-    """Header integration hook."""
-    return _header.header_sections(conn, today, target_date, is_today)
+    return header.header_sections(conn, today, target_date, is_today)
 
 
-def _targets_dispatcher(cmd: str, kind: str | None = None):
-    """
-    Dispatcher for targets commands.
-
-    kind: 'nazr' or 'habit' to filter entries by kind.
-          None means all entries.
-    """
-    parts = cmd.strip().split()
-    if len(parts) == 1:
-        show_manager(kind=kind)
-        return None
-
-    sub = parts[1].lower()
-    args = " ".join(parts[2:])  # everything after the sub-command
-
-    if sub == "log":
-        return _logic.handle_log_command(args, kind)
-    elif sub == "daily_total":
-        return _logic.handle_daily_total(args, kind)
-    elif sub == "counter_total":
-        return _logic.handle_counter_total(args, kind)
-    elif sub == "counter_reset":
-        return _logic.handle_counter_reset(args, kind)
-    else:
-        return f"Unknown sub-command: {sub}\nUsage: nazr log <name> <amount>"
-
-
-def register_commands(dispatch):
-    """Register commands with the dispatcher."""
-    # nazr → shows only nazr entries
-    dispatch["nazr"] = lambda cmd: _targets_dispatcher(cmd, kind="nazr")
-
-    # habit → shows only habit entries
-    dispatch["habit"] = lambda cmd: _targets_dispatcher(cmd, kind="habit")
-
-    # targets → shows all entries
-    dispatch["targets"] = lambda cmd: _targets_dispatcher(cmd, kind=None)
+def register_commands(command_map):
+    command_map["nazr"] = lambda command: dispatch(command, kind="nazr")
+    command_map["habit"] = lambda command: dispatch(command, kind="habit")
+    command_map["targets"] = lambda command: dispatch(command, kind=None)

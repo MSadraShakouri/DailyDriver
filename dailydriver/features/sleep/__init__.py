@@ -1,31 +1,22 @@
-# dailydriver/features/sleep/__init__.py
-"""Sleep & nap feature – logging and header display."""
+"""Sleep and nap feature adapter."""
 
-from . import _header, _logic, _migrations
+from dailydriver.display.display_utils import spread_line
+
+from .commands import log_nap, log_sleep
+from .migrations import migrations
+from .status import get_nap_str, get_sleep_str
 
 NAME = "sleep"
 VERSION = "1.0.0"
 
 
-def migrations():
-    return _migrations.migrations()
-
-
 def register_commands(dispatch):
-    dispatch["s"] = _logic.log_sleep
-    dispatch["nap"] = _logic.log_nap
-
-
-def register_aliases(dispatch):
-    dispatch["sleep"] = _logic.log_sleep
+    dispatch["s"] = log_sleep
+    dispatch["sleep"] = log_sleep
+    dispatch["nap"] = log_nap
 
 
 def header_sections(conn, today, target_date, is_today):
-    from dailydriver.display.display_utils import spread_line
-
-    sleep_str = _header.get_sleep_str(conn, today)
-    nap_str = _header.get_nap_str(conn, today)
-    if nap_str:
-        combined = spread_line([sleep_str, nap_str])
-        return [(10, combined)]
-    return [(10, sleep_str)]
+    sleep = get_sleep_str(conn, today)
+    nap = get_nap_str(conn, today)
+    return [(10, spread_line([sleep, nap]) if nap else sleep)]
