@@ -34,7 +34,7 @@ small adapter exposing `NAME`, `VERSION`, and whichever optional hooks it needs:
 - `migrations()`.
 
 Add the package to `dailydriver/features/__init__.py`. The registry validates
-metadata and hooks at startup, and `tests/test_feature_registry.py` catches
+metadata and hooks at startup, and `tests/features/test_registry.py` catches
 unregistered packages.
 
 Only the package-level hook contract is enforced. **No internal filename such
@@ -69,11 +69,19 @@ sure both the REPL and single-command path pass it through consistently.
 
 ## Tests
 
-Install the project and test runner, then run:
+Install the test extra, then run the suite and configured coverage check:
 
 ```bash
-python -m pytest -q
+python -m pip install -e '.[test]'
+python -m pytest
+coverage run -m pytest
+coverage report
 ```
+
+The test tree mirrors `dailydriver/`; feature tests belong under
+`tests/features/<feature>/`. Database use is opt-in through `db_path` or
+`db_connection`, while interactive tests use the shared `ui` recorder. See
+[`tests/README.md`](tests/README.md) for the full conventions.
 
 During a feature refactor, run that feature's focused tests after each module
 move or extraction, then run the complete suite before submitting.

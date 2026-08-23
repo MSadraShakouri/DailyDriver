@@ -45,7 +45,7 @@ def _parse_log(args_str):
 def _parse_fasting(args_str):
     """Parse 'qada fasting yes|no' and execute."""
     tokens = args_str.strip().split()
-    if not tokens or tokens[0] not in ("yes", "no"):
+    if len(tokens) != 1 or tokens[0] not in ("yes", "no"):
         return "Usage: qada fasting yes | qada fasting no"
 
     response = tokens[0]
