@@ -8,7 +8,7 @@ from dailydriver.core.export_utils import build_export_item, format_time_range, 
 def _display_categories(raw_categories: str | None) -> str:
     """Render journal category paths without the redundant leading ``journal/``."""
     if not raw_categories:
-        return "(none)"
+        return "(no category)"
     display_paths = []
     for path in [part.strip() for part in raw_categories.split(",") if part.strip()]:
         if path.startswith("journal/"):
@@ -16,7 +16,7 @@ def _display_categories(raw_categories: str | None) -> str:
             display_paths.append(stripped or "journal")
         else:
             display_paths.append(path)
-    return ", ".join(display_paths) if display_paths else "(none)"
+    return ", ".join(display_paths) if display_paths else "(no category)"
 
 
 def get_export_items(conn, start: int, end: int | None = None) -> list[dict]:
