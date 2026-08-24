@@ -2,8 +2,12 @@
 
 ## Day view — `day` (alias `today`)
 
-Show a full day, adapting the header to that date (prayers, sleep, weather,
-events).
+Show a full day: the header adapts to that date (prayers, sleep, weather,
+events) and the body is a unified chronological timeline of everything logged
+that day — journal entries, prayers (🕌), sleep (💤), naps (😴), qada progress
+(📿), and target logs (🎯). Journal entries appear as their category list
+(without the `journal/` prefix), with the description underneath, and show a
+time range (`HH:MM → HH:MM (dur)`) when a duration was logged.
 
 | Usage | Meaning |
 |-------|---------|
@@ -14,6 +18,18 @@ events).
 Inside the view: `p`/`n` for previous/next day, `5n`/`5p` to jump multiple days,
 type a `YYYY-MM-DD` date to go there, `q` to quit. From `view` or `search`,
 `d <id>` opens the day of that entry.
+
+`m` toggles the day boundary between two modes (persisted across sessions,
+default **midnight**):
+
+- **midnight** — the day runs 00:00 → 24:00;
+- **day start** — the day runs from the configured day-start hour (see
+  `daystart`, default 04:00) to the same hour the next day, so late-night
+  activity counts toward the evening's day.
+
+Items are placed on a day by their start time (falling back to log time),
+the same rule `export` uses. Prayers and sleep also appear summarized in the
+header; the timeline shows them in chronological context.
 
 ## Browse entries — `view`
 

@@ -147,14 +147,18 @@ HELP: dict[str, HelpEntry] = {
     ),
     # ── Viewing & summaries ──
     "day": HelpEntry(
-        summary="Show a day view",
+        summary="Show a day timeline",
         group="Viewing & Summaries",
         usage=[
-            "day                today's view",
+            "day                today's timeline",
             "day -1             yesterday",
             "day 1405-02-15     a specific Jalali date",
         ],
-        notes="Inside: p/n navigate, 5n/5p jump, a date to go there, q to quit.",
+        notes=(
+            "Unified timeline: journal, prayers, sleep, naps, qada, targets. "
+            "Inside: p/n navigate, 5n/5p jump, m toggles the day boundary "
+            "(midnight vs day-start hour), a date to go there, q to quit."
+        ),
     ),
     "today": HelpEntry(summary="Alias for day", group="Viewing & Summaries", alias_of="day"),
     "view": HelpEntry(

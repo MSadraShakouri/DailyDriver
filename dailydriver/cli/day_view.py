@@ -6,7 +6,15 @@ from datetime import datetime, timedelta
 
 import jdatetime
 
+from dailydriver.cli.timeline import collect_timeline_items
 from dailydriver.core.database import get_connection_cm
+from dailydriver.core.state import (
+    DAY_VIEW_MODE_DAY_START,
+    DAY_VIEW_MODE_MIDNIGHT,
+    get_day_start_hour,
+    get_day_view_mode,
+    set_day_view_mode,
+)
 from dailydriver.display.display_utils import pline_wrap, wrap_line
 from dailydriver.display.header import build_header_data
 from dailydriver.display.header_renderer import print_header
@@ -26,7 +34,7 @@ def show_day(cmd=None):
         arg = parts[1].strip() if len(parts) > 1 else ""
 
         if command == "today":
-            _show_day_body(today, True)
+            _show_day_body(today, get_day_view_mode())
             return
 
         # If no command recognised, treat the entire string as a possible date
@@ -51,6 +59,7 @@ def show_day(cmd=None):
                     return
 
     is_today = target == today
+    mode = get_day_view_mode()
 
     # Day view loop
     while True:
@@ -59,15 +68,22 @@ def show_day(cmd=None):
         data = build_header_data(day=date_str, is_today=is_today)
         print_header(data)
 
-        _show_day_body(target, is_today)
+        _show_day_body(target, mode)
 
-        current_ui.print_line("\033[1m(p)rev  (n)ext  (q)uit  or YYYY-MM-DD\033[0m")
+        if mode == DAY_VIEW_MODE_DAY_START:
+            mode_label = f"day start ({get_day_start_hour():02d}:00)"
+        else:
+            mode_label = "midnight"
+        current_ui.print_line(f"\033[1m(p)rev  (n)ext  (m)ode [{mode_label}]  (q)uit  or YYYY-MM-DD\033[0m")
         current_ui.print_line("\033[1mn/p = next/prev day, 5n = 5 days\033[0m")
         current_ui.print_line()
         choice = current_ui.prompt("> ").strip().lower()
 
         if choice == "q":
             break
+        elif choice == "m":
+            mode = DAY_VIEW_MODE_MIDNIGHT if mode == DAY_VIEW_MODE_DAY_START else DAY_VIEW_MODE_DAY_START
+            set_day_view_mode(mode)
         elif re.match(r"^\d{4}-\d{2}-\d{2}$", choice):
             try:
                 y, m, d = map(int, choice.split("-"))
@@ -85,48 +101,38 @@ def show_day(cmd=None):
         is_today = target == today
 
 
-def _show_day_body(target, is_today):
-    """Print naps, entries for a given date. (Prayers and sleep are in the header.)"""
-    with get_connection_cm() as conn:
-        cur = conn.cursor()
+def _day_window(target, mode):
+    """Return the [start, end] inclusive timestamp bounds for *target*.
 
-        # Date boundaries for entries (Gregorian)
-        gdate = target.togregorian()
-        gstart = datetime(gdate.year, gdate.month, gdate.day, 0, 0, 0)
-        gend = gstart + timedelta(hours=24)
+    In midnight mode the day runs 00:00 → 24:00; in day-start mode it runs
+    from the configured day-start hour to the same hour the next day.
+    """
+    gdate = target.togregorian()
+    shift_hour = get_day_start_hour() if mode == DAY_VIEW_MODE_DAY_START else 0
+    gstart = datetime(gdate.year, gdate.month, gdate.day) + timedelta(hours=shift_hour)
+    gend = gstart + timedelta(hours=24)
+    return int(gstart.timestamp()), int(gend.timestamp()) - 1
 
-        # Entries
-        current_ui.print_line("\n📝 Entries:")
-        cur.execute(
-            """
-            SELECT e.id, e.description, e.created_at,
-                   GROUP_CONCAT(c.path, ', ') AS cats
-            FROM entries e
-            LEFT JOIN entry_categories ec ON e.id = ec.entry_id
-            LEFT JOIN categories c ON ec.category_id = c.id
-            WHERE e.created_at BETWEEN ? AND ?
-            GROUP BY e.id
-            ORDER BY e.created_at ASC
-        """,
-            (int(gstart.timestamp()), int(gend.timestamp())),
-        )
-        entries = cur.fetchall()
-        if not entries:
-            current_ui.print_line("   No entries.")
-        else:
-            for e in entries:
-                dt = datetime.fromtimestamp(e["created_at"])
-                time_str = dt.strftime("%H:%M")
 
-                cats = e["cats"] or "(no category)"
-                desc = (e["description"] or "").replace("\n", " ")
+def _show_day_body(target, mode):
+    """Print the unified timeline for a given date."""
+    start, end = _day_window(target, mode)
+    with get_connection_cm(auto=False) as conn:
+        items = collect_timeline_items(conn, start, end)
 
-                # Categories: prefix = "  HH:MM    ", continuation indent = same width
-                prefix = f"  {time_str}    "
-                indent = " " * len(prefix)
-                wrap_line(prefix, cats, indent)
+    current_ui.print_line("\n📝 Timeline:")
+    if not items:
+        current_ui.print_line("   Nothing logged.")
+        current_ui.print_line()
+        return
 
-                # --- description (8‑space indent, max 2 lines) ---
-                if desc:
-                    pline_wrap(desc, indent=8, max_lines=2)
-                current_ui.print_line()
+    for item in items:
+        # Label with the time range on the left, wrapped to the same width.
+        prefix = f"  {item['display_time']}  "
+        indent = " " * len(prefix)
+        wrap_line(prefix, item["text"], indent)
+
+        details = (item.get("details") or "").replace("\n", " ").strip()
+        if details:
+            pline_wrap(details, indent=8, max_lines=2)
+        current_ui.print_line()
