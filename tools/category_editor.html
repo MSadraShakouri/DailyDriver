@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes">
+  <title>Category Editor</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 18px;
+      margin: 0;
+      background: #f5f5f5;
+      color: #333;
+      padding-bottom: 80px;
+    }
+    header {
+      background: #007bff;
+      color: white;
+      padding: 12px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    header h1 { margin: 0 0 8px 0; font-size: 24px; }
+    .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+    .tab {
+      padding: 8px 14px;
+      background: rgba(255,255,255,0.25);
+      border: none;
+      border-radius: 6px 6px 0 0;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      touch-action: manipulation;
+    }
+    .tab.active { background: white; color: #007bff; font-weight: bold; }
+    #search {
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-top: 8px;
+    }
+    .toolbar {
+      padding: 8px 16px;
+      background: white;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      border-bottom: 1px solid #ddd;
+    }
+    .toolbar button {
+      font-size: 14px;
+      padding: 6px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    .toolbar button:active { background: #e9e9e9; }
+    .selected-count { font-weight: bold; margin-left: auto; font-size: 14px; }
+    main { padding: 12px 16px; }
+
+    /* ---- cards (categories + suggestions) ---- */
+    .cat-card {
+      background: white;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+    .cat-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .cat-info { flex: 1; min-width: 140px; }
+    .cat-path {
+      font-weight: bold;
+      font-size: 18px;
+      word-break: break-all;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .cat-meta { color: #888; font-size: 14px; margin-top: 2px; }
+    .mini {
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: white;
+      padding: 1px 8px;
+      margin-left: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      vertical-align: middle;
+    }
+    .mini:disabled { opacity: .4; cursor: not-allowed; }
+    .sel-label { display: flex; align-items: center; gap: 4px; cursor: pointer; font-size: 14px; flex-shrink: 0; }
+    .sel-label input {
+      width: 24px;
+      height: 24px;
+      appearance: none;
+      border: 2px solid #ccc;
+      border-radius: 6px;
+      position: relative;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .sel-label input:checked { border-color: transparent; background: #007bff; }
+    .sel-label input:checked::after {
+      content: '✓';
+      position: absolute;
+      left: 3px;
+      top: -2px;
+      color: white;
+      font-weight: bold;
+      font-size: 20px;
+    }
+    .cat-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+    .cat-actions button {
+      font-size: 14px;
+      padding: 6px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    .cat-actions button:active { background: #e9e9e9; }
+    .cat-actions button:disabled { opacity: .4; cursor: not-allowed; }
+    .danger { color: #c62828 !important; border-color: #ef9a9a !important; }
+
+    /* ---- entry preview (card + merge dialog) ---- */
+    .preview-box, .e-box {
+      border-top: 1px solid #eee;
+      margin-top: 10px;
+      max-height: 180px;
+      overflow-y: auto;
+      font-size: 15px;
+    }
+    .e-box { border: 1px solid #eee; border-radius: 6px; margin: 4px 0 10px; padding: 6px 10px; }
+    .e-item { padding: 4px 0; border-bottom: 1px dashed #e0e0e0; word-break: break-word; }
+    .e-item:last-child { border-bottom: none; }
+    .e-empty { color: #888; padding: 4px 0; }
+    .e-more { color: #777; font-size: 13px; font-style: italic; padding: 4px 0; }
+    .e-meta { font-size: 14px; color: #666; }
+
+    /* ---- suggestions (tab rows + merge dialog rows) ---- */
+    .sug-title { font-size: 14px; color: #777; margin: 0 2px 8px; }
+    .sug-card { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .sug-pair { flex: 1; min-width: 160px; word-break: break-all; font-family: ui-monospace, Menlo, monospace; font-size: 15px; }
+    .sug-score { color: #888; font-size: 14px; white-space: nowrap; }
+    .sug-card button {
+      font-size: 14px;
+      padding: 6px 12px;
+      border: 1px solid #007bff;
+      border-radius: 6px;
+      background: #e7f1ff;
+      color: #007bff;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .sug-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border: 1px solid #eee;
+      border-radius: 6px;
+      margin-bottom: 4px;
+      cursor: pointer;
+      font-size: 15px;
+      word-break: break-all;
+    }
+    .sug-row:active { background: #f0f7ff; }
+    .sug-row .p { flex: 1; font-family: ui-monospace, Menlo, monospace; font-size: 14px; }
+    .sug-row .s { color: #888; font-size: 13px; flex-shrink: 0; }
+    .sug-row.disabled { cursor: default; color: #888; }
+    .sug-empty { color: #888; font-size: 15px; }
+    /* In-dialog suggestions: a bordered panel, visually distinct from the
+       typeahead popup (which floats with a shadow and only appears while
+       typing). */
+    #mergeSug {
+      margin: 12px 0 4px;
+      padding: 10px 12px;
+      background: #f7f8fa;
+      border: 1px solid #e6e8eb;
+      border-radius: 8px;
+    }
+    #mergeSug .sug-title { margin-bottom: 8px; font-weight: 600; color: #555; }
+    #mergeSug .sug-row { background: white; }
+
+    /* ---- typeahead (prompt-toolkit style) ---- */
+    .ac-wrap { position: relative; }
+    .ac-drop {
+      display: none;
+      position: absolute;
+      top: calc(100% + 3px);
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      max-height: 240px;
+      overflow-y: auto;
+      z-index: 120;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+    }
+    .ac-drop.open { display: block; }
+    .ac-item {
+      padding: 9px 12px;
+      font-size: 15px;
+      cursor: pointer;
+      word-break: break-all;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .ac-item .n { float: right; color: #888; font-size: 13px; }
+    .ac-item.active { background: #007bff; color: white; }
+    .ac-item.active .n { color: #dbeafe; }
+
+    /* ---- floating merge-selected button ---- */
+    .floating-merge {
+      position: fixed;
+      bottom: 16px;
+      left: 16px;
+      right: 16px;
+      background: #28a745;
+      color: white;
+      font-size: 18px;
+      padding: 14px;
+      border: none;
+      border-radius: 50px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      cursor: pointer;
+      z-index: 20;
+      touch-action: manipulation;
+      text-align: center;
+      display: none;
+    }
+    .floating-merge:active { background: #1e7e34; }
+
+    /* ---- modals ---- */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+      z-index: 100;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: white;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 480px;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 16px;
+      box-shadow: 0 8px 30px rgba(0,0,0,.25);
+    }
+    .modal h2 { margin: 0 0 12px; font-size: 20px; }
+    .modal label { display: block; font-size: 14px; color: #555; margin: 12px 0 4px; }
+    .modal input[type=text] {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    .radios { font-size: 16px; }
+    .radios label { display: inline-flex; align-items: center; gap: 6px; margin: 4px 12px 0 0; font-size: 16px; color: #333; }
+    .radios input { width: auto; }
+    .hint { font-size: 13px; color: #888; margin-top: 4px; }
+    .btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+    .btns button {
+      font-size: 16px;
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      background: white;
+      cursor: pointer;
+    }
+    .btns button:active { background: #e9e9e9; }
+    .btns .primary { background: #007bff; border-color: #007bff; color: white; }
+    .btns .primary:disabled { background: #a8cdf5; border-color: #a8cdf5; cursor: not-allowed; }
+    .btns .danger { background: #c62828; border-color: #c62828; color: white; }
+    .btns .danger:disabled { background: #e0a9a9; border-color: #e0a9a9; cursor: not-allowed; }
+
+    /* ---- toast (same style as sibling editors) ---- */
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      left: 16px;
+      right: 16px;
+      background: #333;
+      color: white;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 14px;
+      text-align: center;
+      opacity: 0;
+      z-index: 30;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 0.9; }
+    .empty-note { text-align: center; color: #888; padding: 30px 16px; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Category Editor</h1>
+    <div class="tabs">
+      <button class="tab active" id="tabCats" onclick="switchTab('cats')">Categories</button>
+      <button class="tab" id="tabSug" onclick="switchTab('sug')">Suggestions</button>
+    </div>
+    <input type="text" id="search" placeholder="Search..." oninput="renderCurrent()">
+  </header>
+
+  <div id="catsView">
+    <div class="toolbar">
+      <button onclick="refresh()">Refresh</button>
+      <button onclick="openMerge()">Merge</button>
+      <span class="selected-count"><span id="selCount">0</span> selected</span>
+    </div>
+    <main>
+      <div id="catList"></div>
+      <div id="emptyNote" class="empty-note" style="display:none"></div>
+    </main>
+  </div>
+
+  <div id="sugView" style="display:none">
+    <main id="sugMain"></main>
+  </div>
+
+  <button class="floating-merge" id="mergeSelBtn" onclick="mergeSelected()">Merge (0)</button>
+
+  <!-- Rename -->
+  <div class="modal-backdrop" id="renameModal">
+    <div class="modal">
+      <h2>Rename Category</h2>
+      <div class="e-meta" id="renameInfo"></div>
+      <label for="renameInput">New path</label>
+      <input type="text" id="renameInput" autocomplete="off">
+      <div class="hint">Must be non-empty and unique (case-insensitive).</div>
+      <div class="btns">
+        <button onclick="closeModals()">Cancel</button>
+        <button class="primary" onclick="doRename()">Rename</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Merge -->
+  <div class="modal-backdrop" id="mergeModal">
+    <div class="modal">
+      <h2>Merge Categories</h2>
+
+      <label for="mSrc">Source (will be deleted)</label>
+      <div class="ac-wrap">
+        <input type="text" id="mSrc" autocomplete="off"
+               oninput="onMergeField('mSrc')"
+               onkeydown="acKey(event, 'mSrc')">
+        <div class="ac-drop" id="ac-mSrc"></div>
+      </div>
+      <div class="e-meta" id="srcMeta"></div>
+      <div class="e-box" id="srcBox" style="display:none"></div>
+
+      <label for="mTgt">Target (will be kept)</label>
+      <div class="ac-wrap">
+        <input type="text" id="mTgt" autocomplete="off"
+               oninput="onMergeField('mTgt')"
+               onkeydown="acKey(event, 'mTgt')">
+        <div class="ac-drop" id="ac-mTgt"></div>
+      </div>
+      <div class="e-meta" id="tgtMeta"></div>
+      <div class="e-box" id="tgtBox" style="display:none"></div>
+
+      <div id="mergeSug"></div>
+
+      <label>Resulting name</label>
+      <div class="radios">
+        <label><input type="radio" name="mn" value="target" checked onchange="validateMerge()">Target name</label>
+        <label><input type="radio" name="mn" value="source" onchange="validateMerge()">Source name</label>
+        <label><input type="radio" name="mn" value="custom" onchange="validateMerge()">Custom</label>
+      </div>
+      <input type="text" id="mCustom" placeholder="custom/path" style="display:none" oninput="validateMerge()">
+
+      <label for="mConfirm">Type <b>merge</b> to confirm</label>
+      <input type="text" id="mConfirm" autocomplete="off" oninput="validateMerge()">
+      <div class="hint">Entries tagged with both categories keep only the target. Keyword counts are summed.</div>
+
+      <div class="btns">
+        <button onclick="closeModals()">Cancel</button>
+        <button class="primary" id="mGo" onclick="doMerge()" disabled>Merge</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete -->
+  <div class="modal-backdrop" id="deleteModal">
+    <div class="modal">
+      <h2>Delete Category</h2>
+      <div class="e-meta" id="deleteInfo"></div>
+      <label for="dConfirm">Type <b>delete</b> to confirm</label>
+      <input type="text" id="dConfirm" autocomplete="off" oninput="validateDelete()">
+      <div class="btns">
+        <button onclick="closeModals()">Cancel</button>
+        <button class="danger" id="dGo" onclick="doDelete()" disabled>Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    let cats = [];
+    let sel = new Set();           // ids selected for merge
+    let previewOpen = new Set();   // card ids with preview expanded
+    let previewCache = {};         // id -> {entries,total,has_more}
+    let entryCache = {};           // id -> {entries,total,has_more} (merge dialog)
+    let tab = "cats";
+    let sugPairs = [];             // top-10 pairs for the Suggestions tab
+    let sugLoaded = false;
+    let mergeSugRows = [];         // top-10 rows for the merge dialog
+    let toastTimer = null;
+    let acState = { field: null, items: [], active: -1 };  // typeahead state
+
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, (c) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+      }[c]));
+    }
+
+    async function api(path) {
+      const res = await fetch(path);
+      const data = await res.json().catch(() => ({ error: "Bad response from server." }));
+      if (!res.ok) throw new Error(data.error || ("Request failed (" + res.status + ")"));
+      return data;
+    }
+
+    async function post(path, body) {
+      const res = await fetch(path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json().catch(() => ({ error: "Bad response from server." }));
+      if (!res.ok) throw new Error(data.error || ("Request failed (" + res.status + ")"));
+      return data;
+    }
+
+    function toast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove("show"), 3000);
+    }
+
+    // ---------- tabs ----------
+
+    function switchTab(name) {
+      tab = name;
+      document.getElementById("tabCats").classList.toggle("active", name === "cats");
+      document.getElementById("tabSug").classList.toggle("active", name === "sug");
+      document.getElementById("catsView").style.display = name === "cats" ? "block" : "none";
+      document.getElementById("sugView").style.display = name === "sug" ? "block" : "none";
+      if (name === "sug" && !sugLoaded) loadSuggestions();
+      else renderCurrent();
+    }
+
+    function renderCurrent() {
+      if (tab === "cats") render();
+      else renderSugList();
+    }
+
+    // ---------- categories list ----------
+
+    async function loadCats() {
+      cats = await api("/categories");
+      previewCache = {};
+      entryCache = {};
+      previewOpen.clear();
+      // drop selections that no longer exist
+      for (const id of [...sel]) if (!cats.find((c) => c.id === id)) sel.delete(id);
+      render();
+    }
+
+    function visibleCats() {
+      const q = document.getElementById("search").value.toLowerCase();
+      return cats.filter((c) => !q || c.path.toLowerCase().includes(q));
+    }
+
+    function byId(id) { return cats.find((c) => c.id === id); }
+    function byPath(p) {
+      const q = (p || "").trim().toLowerCase();
+      return q ? cats.find((c) => c.path.toLowerCase() === q) : null;
+    }
+
+    function render() {
+      const list = document.getElementById("catList");
+      list.innerHTML = "";
+      const rows = visibleCats();
+      const note = document.getElementById("emptyNote");
+      note.style.display = rows.length ? "none" : "block";
+      note.textContent = cats.length
+        ? "No categories match your search."
+        : "No categories yet. Add some by logging entries.";
+
+      for (const c of rows) {
+        const n = c.entry_count;
+        const card = document.createElement("div");
+        card.className = "cat-card";
+        card.innerHTML = `
+          <div class="cat-top">
+            <div class="cat-info">
+              <div class="cat-path">${esc(c.path)}</div>
+              <div class="cat-meta">${n} ${n === 1 ? "entry" : "entries"}
+                <button class="mini" onclick="togglePreview(${c.id})" ${n ? "" : "disabled"}>📄</button>
+              </div>
+            </div>
+            <label class="sel-label" title="Select for merge">
+              <input type="checkbox" ${sel.has(c.id) ? "checked" : ""} onchange="toggleSel(${c.id}, this.checked)">
+              <span>Merge</span>
+            </label>
+          </div>
+          <div class="cat-actions">
+            <button onclick="openRename(${c.id})">Rename</button>
+            <button onclick="openMergeById(${c.id})">Merge</button>
+            <button class="danger" onclick="openDelete(${c.id})" ${n ? "disabled" : ""}>Delete</button>
+          </div>
+          <div class="preview-box" id="prev-${c.id}" style="display:none"></div>`;
+        list.appendChild(card);
+        if (previewOpen.has(c.id)) showPreview(c.id);
+      }
+      updateSelUi();
+    }
+
+    function toggleSel(id, on) {
+      if (on) sel.add(id); else sel.delete(id);
+      updateSelUi();
+    }
+
+    function updateSelUi() {
+      document.getElementById("selCount").textContent = sel.size;
+      const btn = document.getElementById("mergeSelBtn");
+      btn.style.display = sel.size === 2 ? "block" : "none";
+      btn.textContent = "Merge (" + sel.size + ")";
+    }
+
+    function mergeSelected() {
+      if (sel.size !== 2) return;
+      const [a, b] = [...sel].map(byId);
+      if (a && b) openMerge(a.path, b.path);
+    }
+
+    // ---------- entry preview ----------
+
+    async function showPreview(id) {
+      const box = document.getElementById("prev-" + id);
+      if (!box) return;
+      box.style.display = "block";
+      if (previewCache[id]) {
+        fillEntries(box, previewCache[id]);
+        return;
+      }
+      box.innerHTML = '<div class="e-empty">Loading…</div>';
+      try {
+        const data = await api("/entries?category_id=" + id);
+        previewCache[id] = data;
+        fillEntries(box, data);
+      } catch (e) {
+        box.innerHTML = '<div class="e-empty">' + esc(e.message) + "</div>";
+      }
+    }
+
+    function fillEntries(box, data) {
+      if (!data.entries.length) {
+        box.innerHTML = '<div class="e-empty">No entries.</div>';
+        return;
+      }
+      let html = data.entries.map((e) =>
+        '<div class="e-item">' + esc(e.description || "(no description)") + "</div>"
+      ).join("");
+      if (data.has_more) html += '<div class="e-more">… and ' + (data.total - data.entries.length) + " more</div>";
+      box.innerHTML = html;
+    }
+
+    function togglePreview(id) {
+      const box = document.getElementById("prev-" + id);
+      if (previewOpen.has(id)) {
+        previewOpen.delete(id);
+        if (box) box.style.display = "none";
+      } else {
+        previewOpen.add(id);
+        showPreview(id);
+      }
+    }
+
+    // ---------- suggestions tab (top 10, no score floor) ----------
+
+    async function loadSuggestions() {
+      const main = document.getElementById("sugMain");
+      main.innerHTML = '<div class="sug-empty">Checking for similar categories…</div>';
+      try {
+        sugPairs = await api("/suggest");
+        sugLoaded = true;
+        if (tab === "sug") renderSugList();
+      } catch (e) {
+        main.innerHTML = '<div class="sug-empty">' + esc(e.message) + "</div>";
+      }
+    }
+
+    function renderSugList() {
+      const main = document.getElementById("sugMain");
+      if (cats.length < 2) {
+        main.innerHTML = '<div class="sug-empty">Need at least two categories to compare.</div>';
+        return;
+      }
+      const q = document.getElementById("search").value.toLowerCase();
+      const rows = sugPairs.filter((s) =>
+        !q || s.source_path.toLowerCase().includes(q) || s.target_path.toLowerCase().includes(q));
+      if (!rows.length) {
+        main.innerHTML = '<div class="sug-empty">No suggestions match your search.</div>';
+        return;
+      }
+      let html = '<div class="sug-title">Top ' + rows.length + ' most similar pairs (source → target)</div>';
+      html += rows.map((s, i) => `
+        <div class="cat-card sug-card">
+          <div class="sug-pair">${esc(s.source_path)} → ${esc(s.target_path)}</div>
+          <span class="sug-score">${s.similarity}</span>
+          <button onclick="mergeSug(${sugPairs.indexOf(s)})">Merge</button>
+        </div>`).join("");
+      main.innerHTML = html;
+    }
+
+    function mergeSug(i) {
+      const s = sugPairs[i];
+      if (s) openMerge(s.source_path, s.target_path);
+    }
+
+    // ---------- rename ----------
+
+    let renameId = null;
+
+    function openRename(id) {
+      const c = byId(id);
+      if (!c) return;
+      renameId = id;
+      document.getElementById("renameInfo").textContent = "Current path: " + c.path;
+      const input = document.getElementById("renameInput");
+      input.value = c.path;
+      openModal("renameModal");
+      input.focus();
+      input.select();
+    }
+
+    async function doRename() {
+      try {
+        const res = await post("/rename", { id: renameId, new_path: document.getElementById("renameInput").value });
+        toast(res.message);
+        (res.warnings || []).forEach((w) => toast(w));
+        closeModals();
+        await afterMutation();
+      } catch (e) { toast(e.message); }
+    }
+
+    // ---------- delete ----------
+
+    let deleteId = null;
+
+    function openDelete(id) {
+      const c = byId(id);
+      if (!c || c.entry_count > 0) return;
+      deleteId = id;
+      document.getElementById("deleteInfo").innerHTML =
+        "Category <b>" + esc(c.path) + "</b><br>Entries: <b>0</b><br>Its keywords will be deleted too.";
+      document.getElementById("dConfirm").value = "";
+      validateDelete();
+      openModal("deleteModal");
+    }
+
+    function validateDelete() {
+      document.getElementById("dGo").disabled =
+        document.getElementById("dConfirm").value.trim().toLowerCase() !== "delete";
+    }
+
+    async function doDelete() {
+      try {
+        const res = await post("/delete", { id: deleteId });
+        toast(res.message);
+        closeModals();
+        await afterMutation();
+      } catch (e) { toast(e.message); }
+    }
+
+    // ---------- merge ----------
+
+    function openMergeById(id) {
+      const c = byId(id);
+      if (c) openMerge(c.path, "");
+    }
+
+    function openMerge(srcPath = "", tgtPath = "") {
+      document.getElementById("mSrc").value = srcPath;
+      document.getElementById("mTgt").value = tgtPath;
+      document.querySelector('input[name="mn"][value="target"]').checked = true;
+      document.getElementById("mCustom").value = "";
+      document.getElementById("mCustom").style.display = "none";
+      document.getElementById("mConfirm").value = "";
+      hideAc();
+      onMergeField();
+      openModal("mergeModal");
+    }
+
+    function currentMode() {
+      const r = document.querySelector('input[name="mn"]:checked');
+      return r ? r.value : "target";
+    }
+
+    // Trigger = which input changed ("" when set programmatically).
+    async function onMergeField(trigger) {
+      document.getElementById("mCustom").style.display = currentMode() === "custom" ? "block" : "none";
+      await showFieldEntries("mSrc", "srcMeta", "srcBox");
+      await showFieldEntries("mTgt", "tgtMeta", "tgtBox");
+      showMergeSuggestions();
+      validateMerge();
+      if (trigger) showAc(trigger);
+      else hideAc();
+    }
+
+    async function showFieldEntries(inputId, metaId, boxId) {
+      const meta = document.getElementById(metaId);
+      const box = document.getElementById(boxId);
+      const c = byPath(document.getElementById(inputId).value);
+      if (!c) {
+        meta.textContent = "";
+        box.style.display = "none";
+        box.innerHTML = "";
+        return;
+      }
+      const n = c.entry_count;
+      meta.textContent = n + (n === 1 ? " entry" : " entries");
+      box.style.display = "block";
+      if (entryCache[c.id]) {
+        fillEntries(box, entryCache[c.id]);
+        return;
+      }
+      box.innerHTML = '<div class="e-empty">Loading…</div>';
+      try {
+        entryCache[c.id] = await api("/entries?category_id=" + c.id);
+        fillEntries(box, entryCache[c.id]);
+      } catch (e) {
+        box.innerHTML = '<div class="e-empty">' + esc(e.message) + "</div>";
+      }
+    }
+
+    // Suggestions section: top 10 most similar to the selected source,
+    // regardless of score. Separate from the typeahead (which is search).
+    async function showMergeSuggestions() {
+      const box = document.getElementById("mergeSug");
+      const srcCat = byPath(document.getElementById("mSrc").value);
+      if (!srcCat) {
+        box.innerHTML = "";
+        mergeSugRows = [];
+        return;
+      }
+      try {
+        const data = await api("/suggest?path=" + encodeURIComponent(srcCat.path));
+        const tgtCat = byPath(document.getElementById("mTgt").value);
+        mergeSugRows = data
+          .map((s) => {
+            const other = s.source_path.toLowerCase() === srcCat.path.toLowerCase()
+              ? s.target_path : s.source_path;
+            return { path: other, sim: s.similarity };
+          })
+          .filter((r) => !tgtCat || byPath(r.path) !== tgtCat);
+        box.innerHTML =
+          '<div class="sug-title">Top ' + mergeSugRows.length + ' similar to “' + esc(srcCat.path) + '” — tap to set target</div>' +
+          (mergeSugRows.length
+            ? mergeSugRows.map((r, i) => `
+              <div class="sug-row" onclick="pickSuggestion(${i})">
+                <span class="p">${esc(r.path)}</span><span class="s">${r.sim}</span>
+              </div>`).join("")
+            : '<div class="sug-row disabled">No other categories to compare.</div>');
+      } catch (e) {
+        box.innerHTML = "";
+      }
+    }
+
+    function pickSuggestion(i) {
+      const r = mergeSugRows[i];
+      if (!r) return;
+      document.getElementById("mTgt").value = r.path;
+      onMergeField();
+    }
+
+    // ---------- typeahead (prompt-toolkit style) ----------
+
+    // Substring match over all categories: prefix matches first, then the
+    // rest alphabetically, top 10. Excludes the category picked in the
+    // other field (like the REPL dropping already-committed entries).
+    function acMatches(value, excludeId) {
+      const q = (value || "").trim().toLowerCase();
+      const prefix = [], other = [];
+      for (const c of cats) {
+        if (c.id === excludeId) continue;
+        const p = c.path.toLowerCase();
+        if (!q || p.includes(q)) (q && p.startsWith(q) ? prefix : other).push(c);
+      }
+      prefix.sort((a, b) => a.path.localeCompare(b.path, undefined, { sensitivity: "base" }));
+      other.sort((a, b) => a.path.localeCompare(b.path, undefined, { sensitivity: "base" }));
+      return prefix.concat(other).slice(0, 10);
+    }
+
+    function showAc(fieldId) {
+      hideAc();
+      const value = document.getElementById(fieldId).value;
+      // Only while typing — a plain focus must not pop a list (that would
+      // look like the suggestions section).
+      if (!value.trim()) return;
+      const otherId = fieldId === "mSrc" ? "mTgt" : "mSrc";
+      const otherCat = byPath(document.getElementById(otherId).value);
+      const items = acMatches(value, otherCat ? otherCat.id : null);
+      if (!items.length) return;
+      const drop = document.getElementById("ac-" + fieldId);
+      drop.innerHTML = items.map((c, i) =>
+        '<div class="ac-item" data-i="' + i + '"><span class="n">' + c.entry_count + '</span>' + esc(c.path) + "</div>"
+      ).join("");
+      drop.classList.add("open");
+      acState = { field: fieldId, items: items, active: -1 };
+      drop.querySelectorAll(".ac-item").forEach((el) => {
+        el.addEventListener("mousedown", (e) => {
+          e.preventDefault(); // keep input focus
+          pickAc(parseInt(el.dataset.i, 10));
+        });
+      });
+    }
+
+    function pickAc(i) {
+      const it = acState.items[i];
+      if (!it) return;
+      document.getElementById(acState.field).value = it.path;
+      hideAc();
+      onMergeField();
+    }
+
+    function acKey(e, fieldId) {
+      if (acState.field !== fieldId) return;
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        acState.active = Math.min(acState.active + 1, acState.items.length - 1);
+        paintAc();
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        acState.active = Math.max(acState.active - 1, 0);
+        paintAc();
+      } else if (e.key === "Enter") {
+        if (acState.active >= 0) {
+          e.preventDefault();
+          pickAc(acState.active);
+        }
+      } else if (e.key === "Escape") {
+        hideAc();
+      }
+    }
+
+    function paintAc() {
+      const drop = document.getElementById("ac-" + acState.field);
+      drop.querySelectorAll(".ac-item").forEach((el, i) =>
+        el.classList.toggle("active", i === acState.active));
+      const act = drop.querySelector(".ac-item.active");
+      if (act) act.scrollIntoView({ block: "nearest" });
+    }
+
+    function hideAc() {
+      document.querySelectorAll(".ac-drop").forEach((d) => d.classList.remove("open"));
+      acState = { field: null, items: [], active: -1 };
+    }
+
+    document.addEventListener("mousedown", (e) => {
+      if (!e.target.closest(".ac-wrap")) hideAc();
+    });
+
+    function validateMerge() {
+      document.getElementById("mCustom").style.display = currentMode() === "custom" ? "block" : "none";
+      const src = byPath(document.getElementById("mSrc").value);
+      const tgt = byPath(document.getElementById("mTgt").value);
+      const ok = src && tgt && src.id !== tgt.id &&
+        document.getElementById("mConfirm").value.trim().toLowerCase() === "merge";
+      document.getElementById("mGo").disabled = !ok;
+    }
+
+    async function doMerge() {
+      const src = byPath(document.getElementById("mSrc").value);
+      const tgt = byPath(document.getElementById("mTgt").value);
+      if (!src || !tgt) return;
+      const mode = currentMode();
+      const new_name = mode === "source" ? src.path : mode === "custom"
+        ? document.getElementById("mCustom").value.trim()
+        : tgt.path;
+      try {
+        const res = await post("/merge", { source_id: src.id, target_id: tgt.id, new_name });
+        toast(res.message);
+        closeModals();
+        await afterMutation();
+      } catch (e) { toast(e.message); }
+    }
+
+    // ---------- shared ----------
+
+    function openModal(id) { document.getElementById(id).classList.add("open"); }
+    function closeModals() {
+      document.querySelectorAll(".modal-backdrop").forEach((m) => m.classList.remove("open"));
+    }
+    document.querySelectorAll(".modal-backdrop").forEach((m) => {
+      m.addEventListener("click", (e) => { if (e.target === m) closeModals(); });
+    });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModals(); });
+
+    async function refresh() {
+      try {
+        await loadCats();
+        sugLoaded = false;
+        if (tab === "sug") loadSuggestions();
+        toast("Categories refreshed.");
+      } catch (e) { toast(e.message); }
+    }
+
+    // After any successful change: reload list, mark suggestions stale,
+    // refresh the Suggestions tab if it is on screen.
+    async function afterMutation() {
+      await loadCats();
+      sugLoaded = false;
+      if (tab === "sug") loadSuggestions();
+    }
+
+    loadCats().catch((e) => toast(e.message));
+  </script>
+</body>
+</html>
