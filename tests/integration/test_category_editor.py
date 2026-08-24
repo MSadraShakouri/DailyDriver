@@ -132,24 +132,27 @@ def test_get_entries_limit_most_recent_and_null_description(db_path):
 # suggestions
 # ---------------------------------------------------------------------------
 
-def test_suggestions_threshold_direction_and_dedup(db_path):
+def test_suggestions_top10_no_floor(db_path):
     conn = _conn(db_path)
-    _seed(conn, categories=["health", "Health", "dinner", "dinner2", "zzz"])
+    _seed(conn, categories=["health", "Health", "dinner", "dinner2", "zzz", "apple"])
     conn.commit()
     conn.close()
 
+    # 6 categories -> 15 pairs -> only the top 10 are returned
     suggestions = ce.get_suggestions()
-    pairs = {(s["source_path"], s["target_path"]) for s in suggestions}
-    assert ("Health", "health") in pairs  # case variants, alphabetical order
-    assert ("dinner", "dinner2") in pairs
-    # every pair appears exactly once, never reversed
-    all_paths = []
+    assert len(suggestions) == 10
+    # sorted descending, and no score floor: low-similarity pairs are included
+    scores = [s["similarity"] for s in suggestions]
+    assert scores == sorted(scores, reverse=True)
+    assert any(s["similarity"] < 0.5 for s in suggestions)
+    # best pair is dinner/dinner2 (0.857), case variants also ranked
+    assert suggestions[0]["source_path"] == "dinner"
+    assert suggestions[0]["target_path"] == "dinner2"
+    # every pair appears exactly once, in deterministic direction
+    pairs = [(s["source_path"], s["target_path"]) for s in suggestions]
+    assert len(pairs) == len(set(pairs))
     for s in suggestions:
-        all_paths.append((s["source_path"], s["target_path"]))
-    assert len(all_paths) == len(set(all_paths))
-    for s in suggestions:
-        assert s["similarity"] >= 0.80
-    assert not any("zzz" in (s["source_path"], s["target_path"]) for s in suggestions)
+        assert (s["source_path"].lower(), s["source_path"]) <= (s["target_path"].lower(), s["target_path"])
 
 
 def test_suggestions_only_path_filter(db_path):
@@ -159,10 +162,15 @@ def test_suggestions_only_path_filter(db_path):
     conn.close()
 
     # case-insensitive match, returns only pairs involving that path
+    # (top 10, no score floor: all 4 dinner pairs rank in)
     subset = ce.get_suggestions(only_path="DINNER")
-    assert [(s["source_path"], s["target_path"]) for s in subset] == [("dinner", "dinner2")]
-    # a path with no near-duplicates returns nothing
-    assert ce.get_suggestions(only_path="zzz") == []
+    assert len(subset) == 4
+    assert all("dinner" in (s["source_path"], s["target_path"]) for s in subset)
+    assert subset[0]["source_path"] == "dinner" and subset[0]["target_path"] == "dinner2"
+    scores = [s["similarity"] for s in subset]
+    assert scores == sorted(scores, reverse=True)
+    # a path that does not exist returns nothing
+    assert ce.get_suggestions(only_path="nope") == []
 
 
 # ---------------------------------------------------------------------------

@@ -4,13 +4,16 @@
 
 ### Added
 - **Category editor** (`tools/category_editor.py` + `category_editor.html`,
-  port 8768) for long-term category maintenance: list categories by usage
-  (with live search and per-category entry previews), rename (case-insensitive
+  port 8768) for long-term category maintenance: list categories
+  alphabetically (with entry counts, live search, two-select merge, and
+  per-category entry previews), rename (case-insensitive
   uniqueness, path-shape validation), merge (transactional: entry references
   re-pointed, per-entry duplicate references removed, keyword counts summed,
   source category and keywords removed), and safe delete (empty categories
-  only). Smart merge suggestions via normalised Levenshtein similarity
-  (≥ 0.80) with one-click pre-filled merge. Renames keep the active great
+  only). A Suggestions tab lists the top 10 most similar category pairs
+  (normalised Levenshtein, no score floor) with one-click pre-filled merge;
+  the merge dialog offers prompt-toolkit-style typeahead on both fields plus
+  a top-10 similarity list for the selected source. Renames keep the active
   event's stored category paths consistent and warn when a hygiene item's
   path-suffix match would be broken. Destructive actions require typed
   confirmation; all mutations run in a single transaction that rolls back on

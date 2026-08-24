@@ -23,6 +23,18 @@
       z-index: 10;
     }
     header h1 { margin: 0 0 8px 0; font-size: 24px; }
+    .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+    .tab {
+      padding: 8px 14px;
+      background: rgba(255,255,255,0.25);
+      border: none;
+      border-radius: 6px 6px 0 0;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      touch-action: manipulation;
+    }
+    .tab.active { background: white; color: #007bff; font-weight: bold; }
     #search {
       width: 100%;
       padding: 12px;
@@ -116,7 +128,7 @@
     .cat-actions button:disabled { opacity: .4; cursor: not-allowed; }
     .danger { color: #c62828 !important; border-color: #ef9a9a !important; }
 
-    /* ---- entry preview (card + merge modal) ---- */
+    /* ---- entry preview (card + merge dialog) ---- */
     .preview-box, .e-box {
       border-top: 1px solid #eee;
       margin-top: 10px;
@@ -131,8 +143,7 @@
     .e-more { color: #777; font-size: 13px; font-style: italic; padding: 4px 0; }
     .e-meta { font-size: 14px; color: #666; }
 
-    /* ---- suggestions section ---- */
-    #sugSection { margin-bottom: 14px; }
+    /* ---- suggestions (tab rows + merge dialog rows) ---- */
     .sug-title { font-size: 14px; color: #777; margin: 0 2px 8px; }
     .sug-card { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .sug-pair { flex: 1; min-width: 160px; word-break: break-all; font-family: ui-monospace, Menlo, monospace; font-size: 15px; }
@@ -147,7 +158,53 @@
       cursor: pointer;
       flex-shrink: 0;
     }
+    .sug-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border: 1px solid #eee;
+      border-radius: 6px;
+      margin-bottom: 4px;
+      cursor: pointer;
+      font-size: 15px;
+      word-break: break-all;
+    }
+    .sug-row:active { background: #f0f7ff; }
+    .sug-row .p { flex: 1; font-family: ui-monospace, Menlo, monospace; font-size: 14px; }
+    .sug-row .s { color: #888; font-size: 13px; flex-shrink: 0; }
+    .sug-row.disabled { cursor: default; color: #888; }
     .sug-empty { color: #888; font-size: 15px; }
+    #mergeSug { margin: 10px 0 4px; }
+    #mergeSug .sug-title { margin-bottom: 6px; }
+
+    /* ---- typeahead (prompt-toolkit style) ---- */
+    .ac-wrap { position: relative; }
+    .ac-drop {
+      display: none;
+      position: absolute;
+      top: calc(100% + 3px);
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      max-height: 240px;
+      overflow-y: auto;
+      z-index: 120;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+    }
+    .ac-drop.open { display: block; }
+    .ac-item {
+      padding: 9px 12px;
+      font-size: 15px;
+      cursor: pointer;
+      word-break: break-all;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .ac-item .n { float: right; color: #888; font-size: 13px; }
+    .ac-item.active { background: #007bff; color: white; }
+    .ac-item.active .n { color: #dbeafe; }
 
     /* ---- floating merge-selected button ---- */
     .floating-merge {
@@ -220,24 +277,6 @@
     .btns .danger { background: #c62828; border-color: #c62828; color: white; }
     .btns .danger:disabled { background: #e0a9a9; border-color: #e0a9a9; cursor: not-allowed; }
 
-    /* ---- mini suggestions in merge modal ---- */
-    .mini-sug { margin: 6px 0 4px; }
-    .mini-sug .title { font-size: 13px; color: #777; margin-bottom: 4px; }
-    .mini-sug .row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 8px;
-      border: 1px solid #eee;
-      border-radius: 6px;
-      margin-bottom: 4px;
-      cursor: pointer;
-      font-size: 15px;
-    }
-    .mini-sug .row:active { background: #f0f7ff; }
-    .mini-sug .row .p { flex: 1; word-break: break-all; font-family: ui-monospace, Menlo, monospace; font-size: 14px; }
-    .mini-sug .row .s { color: #888; font-size: 13px; }
-
     /* ---- toast (same style as sibling editors) ---- */
     .toast {
       position: fixed;
@@ -262,21 +301,28 @@
 <body>
   <header>
     <h1>Category Editor</h1>
-    <input type="text" id="search" placeholder="Search categories..." oninput="render()">
+    <div class="tabs">
+      <button class="tab active" id="tabCats" onclick="switchTab('cats')">Categories</button>
+      <button class="tab" id="tabSug" onclick="switchTab('sug')">Suggestions</button>
+    </div>
+    <input type="text" id="search" placeholder="Search..." oninput="renderCurrent()">
   </header>
 
-  <div class="toolbar">
-    <button onclick="refresh()">Refresh</button>
-    <button onclick="toggleSuggestions()">Suggestions</button>
-    <button onclick="openMerge()">Merge</button>
-    <span class="selected-count"><span id="selCount">0</span> selected</span>
+  <div id="catsView">
+    <div class="toolbar">
+      <button onclick="refresh()">Refresh</button>
+      <button onclick="openMerge()">Merge</button>
+      <span class="selected-count"><span id="selCount">0</span> selected</span>
+    </div>
+    <main>
+      <div id="catList"></div>
+      <div id="emptyNote" class="empty-note" style="display:none"></div>
+    </main>
   </div>
 
-  <main>
-    <div id="sugSection" style="display:none"></div>
-    <div id="catList"></div>
-    <div id="emptyNote" class="empty-note" style="display:none"></div>
-  </main>
+  <div id="sugView" style="display:none">
+    <main id="sugMain"></main>
+  </div>
 
   <button class="floating-merge" id="mergeSelBtn" onclick="mergeSelected()">Merge (0)</button>
 
@@ -286,7 +332,7 @@
       <h2>Rename Category</h2>
       <div class="e-meta" id="renameInfo"></div>
       <label for="renameInput">New path</label>
-      <input type="text" id="renameInput" list="catNames" autocomplete="off">
+      <input type="text" id="renameInput" autocomplete="off">
       <div class="hint">Must be non-empty and unique (case-insensitive).</div>
       <div class="btns">
         <button onclick="closeModals()">Cancel</button>
@@ -301,16 +347,26 @@
       <h2>Merge Categories</h2>
 
       <label for="mSrc">Source (will be deleted)</label>
-      <input type="text" id="mSrc" list="catNames" autocomplete="off" oninput="onMergeField()">
+      <div class="ac-wrap">
+        <input type="text" id="mSrc" autocomplete="off"
+               oninput="onMergeField('mSrc')" onfocus="onMergeField('mSrc')"
+               onkeydown="acKey(event, 'mSrc')">
+        <div class="ac-drop" id="ac-mSrc"></div>
+      </div>
       <div class="e-meta" id="srcMeta"></div>
       <div class="e-box" id="srcBox" style="display:none"></div>
 
       <label for="mTgt">Target (will be kept)</label>
-      <input type="text" id="mTgt" list="catNames" autocomplete="off" oninput="onMergeField()">
+      <div class="ac-wrap">
+        <input type="text" id="mTgt" autocomplete="off"
+               oninput="onMergeField('mTgt')" onfocus="onMergeField('mTgt')"
+               onkeydown="acKey(event, 'mTgt')">
+        <div class="ac-drop" id="ac-mTgt"></div>
+      </div>
       <div class="e-meta" id="tgtMeta"></div>
       <div class="e-box" id="tgtBox" style="display:none"></div>
 
-      <div class="mini-sug" id="miniSug"></div>
+      <div id="mergeSug"></div>
 
       <label>Resulting name</label>
       <div class="radios">
@@ -346,18 +402,19 @@
   </div>
 
   <div class="toast" id="toast"></div>
-  <datalist id="catNames"></datalist>
 
   <script>
     let cats = [];
     let sel = new Set();           // ids selected for merge
     let previewOpen = new Set();   // card ids with preview expanded
     let previewCache = {};         // id -> {entries,total,has_more}
-    let entryCache = {};           // id -> {entries,total,has_more} (merge modal)
-    let sugShown = false;
-    let sugPairs = [];          // current /suggest results (index referenced by onclick)
-    let miniPairs = [];         // current mini-suggestion rows
+    let entryCache = {};           // id -> {entries,total,has_more} (merge dialog)
+    let tab = "cats";
+    let sugPairs = [];             // top-10 pairs for the Suggestions tab
+    let sugLoaded = false;
+    let mergeSugRows = [];         // top-10 rows for the merge dialog
     let toastTimer = null;
+    let acState = { field: null, items: [], active: -1 };  // typeahead state
 
     function esc(s) {
       return String(s).replace(/[&<>"']/g, (c) => ({
@@ -391,7 +448,24 @@
       toastTimer = setTimeout(() => el.classList.remove("show"), 3000);
     }
 
-    // ---------- list ----------
+    // ---------- tabs ----------
+
+    function switchTab(name) {
+      tab = name;
+      document.getElementById("tabCats").classList.toggle("active", name === "cats");
+      document.getElementById("tabSug").classList.toggle("active", name === "sug");
+      document.getElementById("catsView").style.display = name === "cats" ? "block" : "none";
+      document.getElementById("sugView").style.display = name === "sug" ? "block" : "none";
+      if (name === "sug" && !sugLoaded) loadSuggestions();
+      else renderCurrent();
+    }
+
+    function renderCurrent() {
+      if (tab === "cats") render();
+      else renderSugList();
+    }
+
+    // ---------- categories list ----------
 
     async function loadCats() {
       cats = await api("/categories");
@@ -400,13 +474,7 @@
       previewOpen.clear();
       // drop selections that no longer exist
       for (const id of [...sel]) if (!cats.find((c) => c.id === id)) sel.delete(id);
-      buildDatalist();
       render();
-    }
-
-    function buildDatalist() {
-      document.getElementById("catNames").innerHTML =
-        cats.map((c) => `<option value="${esc(c.path)}"></option>`).join("");
     }
 
     function visibleCats() {
@@ -454,7 +522,7 @@
           </div>
           <div class="preview-box" id="prev-${c.id}" style="display:none"></div>`;
         list.appendChild(card);
-        if (previewOpen.has(c.id)) showPreview(c.id, true);
+        if (previewOpen.has(c.id)) showPreview(c.id);
       }
       updateSelUi();
     }
@@ -479,7 +547,7 @@
 
     // ---------- entry preview ----------
 
-    async function showPreview(id, fromRender) {
+    async function showPreview(id) {
       const box = document.getElementById("prev-" + id);
       if (!box) return;
       box.style.display = "block";
@@ -520,40 +588,46 @@
       }
     }
 
-    // ---------- suggestions (global section) ----------
+    // ---------- suggestions tab (top 10, no score floor) ----------
 
-    function toggleSuggestions() {
-      if (sugShown) {
-        sugShown = false;
-        document.getElementById("sugSection").style.display = "none";
-      } else {
-        loadSuggestions();
+    async function loadSuggestions() {
+      const main = document.getElementById("sugMain");
+      main.innerHTML = '<div class="sug-empty">Checking for similar categories…</div>';
+      try {
+        sugPairs = await api("/suggest");
+        sugLoaded = true;
+        if (tab === "sug") renderSugList();
+      } catch (e) {
+        main.innerHTML = '<div class="sug-empty">' + esc(e.message) + "</div>";
       }
     }
 
-    async function loadSuggestions() {
-      const section = document.getElementById("sugSection");
-      section.style.display = "block";
-      section.innerHTML = '<div class="sug-empty">Checking for near-duplicates…</div>';
-      try {
-        const data = await api("/suggest");
-        sugShown = true;
-        if (!data.length) {
-          section.innerHTML = '<div class="sug-empty">No near-duplicate categories found (similarity ≥ 0.80).</div>';
-          return;
-        }
-        sugPairs = data;
-        let html = '<div class="sug-title">Near-duplicate suggestions (source → target)</div>';
-        html += data.map((s, i) => `
-          <div class="cat-card sug-card">
-            <div class="sug-pair">${esc(s.source_path)} → ${esc(s.target_path)}</div>
-            <span class="sug-score">${s.similarity}</span>
-            <button onclick="mergeSug(${i})">Merge</button>
-          </div>`).join("");
-        section.innerHTML = html;
-      } catch (e) {
-        section.innerHTML = '<div class="sug-empty">' + esc(e.message) + "</div>";
+    function renderSugList() {
+      const main = document.getElementById("sugMain");
+      if (cats.length < 2) {
+        main.innerHTML = '<div class="sug-empty">Need at least two categories to compare.</div>';
+        return;
       }
+      const q = document.getElementById("search").value.toLowerCase();
+      const rows = sugPairs.filter((s) =>
+        !q || s.source_path.toLowerCase().includes(q) || s.target_path.toLowerCase().includes(q));
+      if (!rows.length) {
+        main.innerHTML = '<div class="sug-empty">No suggestions match your search.</div>';
+        return;
+      }
+      let html = '<div class="sug-title">Top ' + rows.length + ' most similar pairs (source → target)</div>';
+      html += rows.map((s, i) => `
+        <div class="cat-card sug-card">
+          <div class="sug-pair">${esc(s.source_path)} → ${esc(s.target_path)}</div>
+          <span class="sug-score">${s.similarity}</span>
+          <button onclick="mergeSug(${sugPairs.indexOf(s)})">Merge</button>
+        </div>`).join("");
+      main.innerHTML = html;
+    }
+
+    function mergeSug(i) {
+      const s = sugPairs[i];
+      if (s) openMerge(s.source_path, s.target_path);
     }
 
     // ---------- rename ----------
@@ -625,6 +699,7 @@
       document.getElementById("mCustom").value = "";
       document.getElementById("mCustom").style.display = "none";
       document.getElementById("mConfirm").value = "";
+      hideAc();
       onMergeField();
       openModal("mergeModal");
     }
@@ -634,13 +709,15 @@
       return r ? r.value : "target";
     }
 
-    // Refresh entry info boxes + mini suggestions for the source field.
-    async function onMergeField() {
+    // Trigger = which input changed ("" when set programmatically).
+    async function onMergeField(trigger) {
       document.getElementById("mCustom").style.display = currentMode() === "custom" ? "block" : "none";
       await showFieldEntries("mSrc", "srcMeta", "srcBox");
       await showFieldEntries("mTgt", "tgtMeta", "tgtBox");
-      showMiniSuggestions();
+      showMergeSuggestions();
       validateMerge();
+      if (trigger) showAc(trigger);
+      else hideAc();
     }
 
     async function showFieldEntries(inputId, metaId, boxId) {
@@ -669,42 +746,128 @@
       }
     }
 
-    // Small suggestion list for the source field only.
-    async function showMiniSuggestions() {
-      const box = document.getElementById("miniSug");
-      const src = document.getElementById("mSrc").value.trim();
-      if (!byPath(src)) {
+    // Suggestions section: top 10 most similar to the selected source,
+    // regardless of score. Separate from the typeahead (which is search).
+    async function showMergeSuggestions() {
+      const box = document.getElementById("mergeSug");
+      const srcCat = byPath(document.getElementById("mSrc").value);
+      if (!srcCat) {
         box.innerHTML = "";
+        mergeSugRows = [];
         return;
       }
       try {
-        const data = await api("/suggest?path=" + encodeURIComponent(src));
-        const tgt = byPath(document.getElementById("mTgt").value);
-        miniPairs = data.filter((s) => !tgt || s.target_path !== tgt.path);
-        if (!miniPairs.length) {
-          box.innerHTML = '<div class="title">No near-duplicates for “' + esc(src) + "”.</div>";
-          return;
-        }
-        box.innerHTML = '<div class="title">Similar to “' + esc(src) + '”:</div>' + miniPairs.map((s, i) => `
-          <div class="row" onclick="pickSuggestion(${i})">
-            <span class="p">${esc(s.target_path)}</span><span class="s">${s.similarity}</span>
-          </div>`).join("");
+        const data = await api("/suggest?path=" + encodeURIComponent(srcCat.path));
+        const tgtCat = byPath(document.getElementById("mTgt").value);
+        mergeSugRows = data
+          .map((s) => {
+            const other = s.source_path.toLowerCase() === srcCat.path.toLowerCase()
+              ? s.target_path : s.source_path;
+            return { path: other, sim: s.similarity };
+          })
+          .filter((r) => !tgtCat || byPath(r.path) !== tgtCat);
+        box.innerHTML =
+          '<div class="sug-title">Top ' + mergeSugRows.length + ' similar to “' + esc(srcCat.path) + '” — tap to set target</div>' +
+          (mergeSugRows.length
+            ? mergeSugRows.map((r, i) => `
+              <div class="sug-row" onclick="pickSuggestion(${i})">
+                <span class="p">${esc(r.path)}</span><span class="s">${r.sim}</span>
+              </div>`).join("")
+            : '<div class="sug-row disabled">No other categories to compare.</div>');
       } catch (e) {
         box.innerHTML = "";
       }
     }
 
     function pickSuggestion(i) {
-      const s = miniPairs[i];
-      if (!s) return;
-      document.getElementById("mTgt").value = s.target_path;
+      const r = mergeSugRows[i];
+      if (!r) return;
+      document.getElementById("mTgt").value = r.path;
       onMergeField();
     }
 
-    function mergeSug(i) {
-      const s = sugPairs[i];
-      if (s) openMerge(s.source_path, s.target_path);
+    // ---------- typeahead (prompt-toolkit style) ----------
+
+    // Substring match over all categories: prefix matches first, then the
+    // rest alphabetically, top 10. Excludes the category picked in the
+    // other field (like the REPL dropping already-committed entries).
+    function acMatches(value, excludeId) {
+      const q = (value || "").trim().toLowerCase();
+      const prefix = [], other = [];
+      for (const c of cats) {
+        if (c.id === excludeId) continue;
+        const p = c.path.toLowerCase();
+        if (!q || p.includes(q)) (q && p.startsWith(q) ? prefix : other).push(c);
+      }
+      prefix.sort((a, b) => a.path.localeCompare(b.path, undefined, { sensitivity: "base" }));
+      other.sort((a, b) => a.path.localeCompare(b.path, undefined, { sensitivity: "base" }));
+      return prefix.concat(other).slice(0, 10);
     }
+
+    function showAc(fieldId) {
+      hideAc();
+      const otherId = fieldId === "mSrc" ? "mTgt" : "mSrc";
+      const otherCat = byPath(document.getElementById(otherId).value);
+      const items = acMatches(document.getElementById(fieldId).value, otherCat ? otherCat.id : null);
+      if (!items.length) return;
+      const drop = document.getElementById("ac-" + fieldId);
+      drop.innerHTML = items.map((c, i) =>
+        '<div class="ac-item" data-i="' + i + '"><span class="n">' + c.entry_count + '</span>' + esc(c.path) + "</div>"
+      ).join("");
+      drop.classList.add("open");
+      acState = { field: fieldId, items: items, active: -1 };
+      drop.querySelectorAll(".ac-item").forEach((el) => {
+        el.addEventListener("mousedown", (e) => {
+          e.preventDefault(); // keep input focus
+          pickAc(parseInt(el.dataset.i, 10));
+        });
+      });
+    }
+
+    function pickAc(i) {
+      const it = acState.items[i];
+      if (!it) return;
+      document.getElementById(acState.field).value = it.path;
+      hideAc();
+      onMergeField();
+    }
+
+    function acKey(e, fieldId) {
+      if (acState.field !== fieldId) return;
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        acState.active = Math.min(acState.active + 1, acState.items.length - 1);
+        paintAc();
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        acState.active = Math.max(acState.active - 1, 0);
+        paintAc();
+      } else if (e.key === "Enter") {
+        if (acState.active >= 0) {
+          e.preventDefault();
+          pickAc(acState.active);
+        }
+      } else if (e.key === "Escape") {
+        hideAc();
+      }
+    }
+
+    function paintAc() {
+      const drop = document.getElementById("ac-" + acState.field);
+      drop.querySelectorAll(".ac-item").forEach((el, i) =>
+        el.classList.toggle("active", i === acState.active));
+      const act = drop.querySelector(".ac-item.active");
+      if (act) act.scrollIntoView({ block: "nearest" });
+    }
+
+    function hideAc() {
+      document.querySelectorAll(".ac-drop").forEach((d) => d.classList.remove("open"));
+      acState = { field: null, items: [], active: -1 };
+    }
+
+    document.addEventListener("mousedown", (e) => {
+      if (!e.target.closest(".ac-wrap")) hideAc();
+    });
 
     function validateMerge() {
       document.getElementById("mCustom").style.display = currentMode() === "custom" ? "block" : "none";
@@ -745,15 +908,18 @@
     async function refresh() {
       try {
         await loadCats();
-        if (sugShown) loadSuggestions();
+        sugLoaded = false;
+        if (tab === "sug") loadSuggestions();
         toast("Categories refreshed.");
       } catch (e) { toast(e.message); }
     }
 
-    // After any successful change: reload list, refresh suggestions if shown.
+    // After any successful change: reload list, mark suggestions stale,
+    // refresh the Suggestions tab if it is on screen.
     async function afterMutation() {
       await loadCats();
-      if (sugShown) loadSuggestions();
+      sugLoaded = false;
+      if (tab === "sug") loadSuggestions();
     }
 
     loadCats().catch((e) => toast(e.message));

@@ -30,7 +30,7 @@ from urllib.parse import parse_qs, urlparse
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PORT = 8768
-SIMILARITY_THRESHOLD = 0.80
+SUGGESTION_LIMIT = 10
 ENTRY_PREVIEW_LIMIT = 20
 GREAT_EVENT_CATEGORIES_KEY = "great_event_categories"
 
@@ -161,17 +161,18 @@ def similarity(a: str, b: str) -> float:
     return 1 - (levenshtein(a, b) / longest)
 
 
-def get_suggestions(threshold=SIMILARITY_THRESHOLD, only_path=None):
-    """Unordered pairs of categories whose paths look like near-duplicates.
+def get_suggestions(only_path=None, limit=SUGGESTION_LIMIT):
+    """The ``limit`` most similar unordered category pairs, no minimum score.
 
-    Direction is deterministic (alphabetical by path) so the UI can label
-    one side "source" (to be removed) and the other "target" (to be kept).
-    Similarity is computed case-sensitively, which deliberately flags
-    case-only duplicates ("Health" vs "health") too.
+    "Top N, to any level" — even a low-similarity pair is shown if it ranks
+    in the top ``limit``.  Direction is deterministic (alphabetical by path)
+    so the UI can label one side "source" (to be removed) and the other
+    "target" (to be kept).  Similarity is computed case-sensitively, which
+    deliberately flags case-only duplicates ("Health" vs "health") too.
 
     If ``only_path`` is given, only pairs involving that path (matched
-    case-insensitively) are returned — used for the small suggestion list
-    shown inside the merge dialog for one selected category.
+    case-insensitively) are ranked — used for the suggestion list shown
+    inside the merge dialog for one selected category.
     """
     conn = _connect()
     try:
@@ -183,12 +184,10 @@ def get_suggestions(threshold=SIMILARITY_THRESHOLD, only_path=None):
 
     suggestions = []
     for a, b in combinations(rows, 2):
-        score = similarity(a["path"], b["path"])
-        if score < threshold:
-            continue
         if only is not None:
             if only not in (a["path"].lower(), b["path"].lower()):
                 continue
+        score = similarity(a["path"], b["path"])
         first, second = sorted((a, b), key=lambda r: (r["path"].lower(), r["path"]))
         suggestions.append(
             {
@@ -200,7 +199,7 @@ def get_suggestions(threshold=SIMILARITY_THRESHOLD, only_path=None):
             }
         )
     suggestions.sort(key=lambda s: (-s["similarity"], s["source_path"], s["target_path"]))
-    return suggestions
+    return suggestions[:limit]
 
 
 # ---------------------------------------------------------------------------
