@@ -30,6 +30,12 @@
   start), an architecture guide, and a roadmap built from real release history.
 
 ### Changed
+- **Unified export timeline** – `export` renders one chronological timeline
+  interleaving journal entries with sleep, naps, prayers, qada progress, and
+  target logs, grouped by day. Features contribute items through a new
+  `export_items(conn, cutoff)` hook in the feature contract (documented in
+  `features/HOOKS.md`); the void scratchpad stays separate (`vexport`).
+  Markdown remains the default (`--md`/`--txt`).
 - **Category suggestion ranking** – exact matches are now detected on whole path
   segments (split on `/` and non-alphabetic characters, stemmed), eliminating
   substring false positives like `art`→`start` or `log`→`blog`. The exact-match
@@ -51,6 +57,9 @@
   `CHANGELOG.md`, and `LICENSE`.
 
 ### Fixed
+- **Target progress now updates `last_action`** – progress logs are real logged
+  activity (and part of the unified export timeline), so they now refresh the
+  chaining timestamp on commit like other writes.
 - **Great/running event never shown in the header** – a pre-existing regression
   from the v1.8.0 feature-package refactor (the header builder stopped calling
   the event status helpers). Restored, so `sge`/`se` are visible and clearly
