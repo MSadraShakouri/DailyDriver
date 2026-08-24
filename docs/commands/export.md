@@ -2,7 +2,9 @@
 
 Export a single, chronological timeline where journal entries, sleep, naps,
 prayers, qada progress, and target logs are interleaved naturally by time and
-grouped by day.
+grouped by day. Day headers show the Jalali date with an abbreviated weekday
+(derived from the Gregorian equivalent, like the app header), e.g.
+`Mon, 02 Shahrivar 1405`.
 
 | Usage | Meaning |
 |-------|---------|

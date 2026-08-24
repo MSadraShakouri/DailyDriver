@@ -150,3 +150,27 @@ def test_export_items_hooks_respect_end_bound(db_path):
         assert [i["timestamp"] for i in qada_items(conn, 0, late)] == [late]
         # Inclusive both ends.
         assert [i["timestamp"] for i in get_export_items(conn, late, late)] == [late]
+
+
+def test_export_date_headers_include_abbreviated_weekday(db_path, tmp_path, monkeypatch):
+    from datetime import datetime as _dt
+
+    now = int(time.time())
+    with get_connection_cm() as conn:
+        conn.execute(
+            "INSERT INTO entries (created_at, started_at, duration_minutes, description) VALUES (?,?,?,?)",
+            (now, now, None, "weekday check"),
+        )
+        conn.commit()
+
+    weekday = _dt.fromtimestamp(now).strftime("%a")
+    jalali = jdatetime.datetime.fromtimestamp(now).strftime("%d %B %Y")
+
+    monkeypatch.chdir(tmp_path)
+    export("export all --md")
+    md = (tmp_path / "export_all.md").read_text()
+    assert f"### {weekday}, {jalali}" in md
+
+    export("export all --txt")
+    txt = (tmp_path / "export_all.txt").read_text()
+    assert f"── {weekday}, {jalali} ──" in txt
