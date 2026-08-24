@@ -26,7 +26,7 @@ from dailydriver.ui.terminal_ui import TerminalUI
 # off-screen when the prompt sits low. 0 leaves no room to show suggestions at
 # all. A small value shows a few completions inline without scrolling the header
 # away.
-_MENU_LINES = 4
+_MENU_LINES = 6
 
 
 def _history_dir() -> str:
