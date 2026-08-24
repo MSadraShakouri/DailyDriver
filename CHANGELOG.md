@@ -1,5 +1,21 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- **Category editor** (`tools/category_editor.py` + `category_editor.html`,
+  port 8768) for long-term category maintenance: list categories by usage
+  (with live search and per-category entry previews), rename (case-insensitive
+  uniqueness, path-shape validation), merge (transactional: entry references
+  re-pointed, per-entry duplicate references removed, keyword counts summed,
+  source category and keywords removed), and safe delete (empty categories
+  only). Smart merge suggestions via normalised Levenshtein similarity
+  (≥ 0.80) with one-click pre-filled merge. Renames keep the active great
+  event's stored category paths consistent and warn when a hygiene item's
+  path-suffix match would be broken. Destructive actions require typed
+  confirmation; all mutations run in a single transaction that rolls back on
+  failure.
+
 ## 2.0.0 (2026‑08‑24)
 
 ### BREAKING
