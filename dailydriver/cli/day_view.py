@@ -15,7 +15,7 @@ from dailydriver.core.state import (
     get_day_view_mode,
     set_day_view_mode,
 )
-from dailydriver.display.display_utils import pline_wrap, wrap_line
+from dailydriver.display.display_utils import pline_wrap
 from dailydriver.display.header import build_header_data
 from dailydriver.display.header_renderer import print_header
 from dailydriver.ui.terminal_ui import current_ui
@@ -127,12 +127,12 @@ def _show_day_body(target, mode):
         return
 
     for item in items:
-        # Label with the time range on the left, wrapped to the same width.
-        prefix = f"  {item['display_time']}  "
-        indent = " " * len(prefix)
-        wrap_line(prefix, item["text"], indent)
+        # Time on its own line, label/categories on the next (both indented
+        # deeper), description on the last (pulled back left).
+        current_ui.print_line(f"    {item['display_time']}")
+        pline_wrap(item["text"], indent=4)
 
         details = (item.get("details") or "").replace("\n", " ").strip()
         if details:
-            pline_wrap(details, indent=8, max_lines=2)
+            pline_wrap(details, indent=2, max_lines=2)
         current_ui.print_line()
