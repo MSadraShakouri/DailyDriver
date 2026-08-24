@@ -38,9 +38,16 @@ def test_query_terms_dedupes_by_stem():
 
 
 def test_group_header_wording():
-    assert _group_header(3, 3, 12) == "── All 3 terms (12 entries) ──"
-    assert _group_header(2, 3, 1) == "── 2 of 3 terms (1 entry) ──"
-    assert _group_header(1, 1, 4) == "── 1 term (4 entries) ──"
+    assert strip_ansi(_group_header(3, 3, 12)) == "── All 3 terms (12 entries) ──"
+    assert strip_ansi(_group_header(2, 3, 1)) == "── 2 of 3 terms (1 entry) ──"
+    assert strip_ansi(_group_header(1, 1, 4)) == "── 1 term (4 entries) ──"
+    assert strip_ansi(_group_header(1, 1, 15, cont=True)) == "── 1 term (15 entries, cont.) ──"
+
+
+def test_group_header_is_bold_colored():
+    header = _group_header(3, 3, 12)
+    assert header.startswith("\033[1;36m")
+    assert header.endswith("\033[0m")
 
 
 def test_search_usage_and_no_terms(db_path, ui):

@@ -74,7 +74,10 @@ def _highlight_words(text: str, matched_stems: set[str]) -> str:
     return _WORD_RE.sub(replace, text)
 
 
-def _group_header(matched: int, total_terms: int, count: int) -> str:
+_GROUP_HEADER_STYLE = "\033[1;36m{}\033[0m"  # bold cyan
+
+
+def _group_header(matched: int, total_terms: int, count: int, cont: bool = False) -> str:
     noun = "entry" if count == 1 else "entries"
     if total_terms == 1:
         label = "1 term"
@@ -82,7 +85,15 @@ def _group_header(matched: int, total_terms: int, count: int) -> str:
         label = f"All {total_terms} terms"
     else:
         label = f"{matched} of {total_terms} terms"
-    return f"── {label} ({count} {noun}) ──"
+    suffix = ", cont." if cont else ""
+    return _GROUP_HEADER_STYLE.format(f"── {label} ({count} {noun}{suffix}) ──")
+
+
+def _print_group_header(matched: int, total_terms: int, count: int, cont: bool = False) -> None:
+    """Print a group header set off by blank lines so transitions stand out."""
+    current_ui.print_line()
+    current_ui.print_line(_group_header(matched, total_terms, count, cont))
+    current_ui.print_line()
 
 
 def search(cmd):
@@ -146,12 +157,11 @@ def search(cmd):
         previous_count = results[offset - 1][0] if offset > 0 else None
         for index, (match_count, row, matched) in enumerate(page):
             if match_count != previous_count:
-                # A group starts here: print its header inline.
-                current_ui.print_line(_group_header(match_count, total_terms, group_sizes[match_count]))
+                # A group starts here: print its header.
+                _print_group_header(match_count, total_terms, group_sizes[match_count])
             elif index == 0:
                 # Page starts mid-group: repeat the header as a continuation.
-                header_line = _group_header(match_count, total_terms, group_sizes[match_count])
-                current_ui.print_line(header_line.replace(") ──", ", cont.) ──"))
+                _print_group_header(match_count, total_terms, group_sizes[match_count], cont=True)
             previous_count = match_count
 
             time_str = entry_time_display(row["started_at"], row["created_at"], row["duration_minutes"])
