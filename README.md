@@ -17,7 +17,7 @@ Built with Python, SQLite, and Jalali (Persian) calendar support.
   counters.
 - **Calendars** — Jalali, Gregorian, and Hijri at once, with events, reminders,
   and an adjustable Hijri offset.
-- **Full-text search** with fuzzy time/date/category boosts.
+- **Search** over journal text and categories, grouped by how many words match.
 - **Smart categories** — TF-IDF keyword learning with an autocompleting,
   ranked picker.
 - **Unified export** — one chronological timeline across journal, sleep, prayer,

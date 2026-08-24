@@ -94,8 +94,9 @@ drift apart. A test guards that every registered command has a help entry.
 
 State is a single SQLite database at `data/daily.db` (override with
 `DAILYDRIVER_DB`). Core tables include `categories`, `keywords`, `entries`,
-`entry_categories`, prayer/sleep logs, a key/value `meta` table, and FTS indexes
-for search. Each feature owns its own tables and its own ordered migration
+`entry_categories`, prayer/sleep logs, a key/value `meta` table, and an FTS
+index (kept in sync on writes; `search` itself is a token filter, not
+FTS-ranked). Each feature owns its own tables and its own ordered migration
 sequence; per-feature migration progress is tracked in `feature_versions`.
 Released migrations are append-only — never reorder or remove one, since progress
 is tracked by list position.

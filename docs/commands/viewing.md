@@ -46,21 +46,28 @@ open that entry's day, `q` to quit.
 
 ## Search — `search`
 
-Full-text search over descriptions and categories, with fuzzy scoring that
-boosts time-of-day, relative dates, weekdays, month names (Jalali, Gregorian,
-Hijri), and category matches. Uses SQLite FTS5 with a LIKE fallback, and
-tolerates misspellings (`mornig` → morning).
+A simple filter over journal descriptions and category paths — no relevance
+scoring. Query words are tokenized the same way journal keywords are (words
+under 3 letters and stopwords are dropped, and the header reports them as
+ignored). A word matches an entry when its stem equals the stem of a whole
+word in the description or the category path — so `art` never matches
+"start", while `meetings` finds "meeting".
 
 | Usage | Meaning |
 |-------|---------|
 | `search programming` | Entries containing "programming" |
-| `search morning` | Entries in the morning window (time boost) |
-| `search yesterday` | Entries from the last few days (date boost) |
-| `search monday` | Entries near the most recent Monday |
-| `search programming night` | Combined text + time/category scoring |
+| `search python project` | Entries containing either word, best matches first |
 
-Results paginate with `n`/`p`/`5n`; matches are highlighted. Type an entry ID to
-edit, `d <id>` to open its day, `q` to quit.
+Results are grouped by how many query words matched: entries with **all**
+words first, then one fewer, and so on. Within each group entries are newest
+first (by start time). Each group has a header like
+`── All 3 terms (12 entries) ──`; when a page starts mid-group the header is
+repeated with `cont.`. Entries with a logged duration show the export-style
+time range `HH:MM → HH:MM (dur)`.
+
+Results paginate with `n`/`p`/`5n`; matching words are highlighted in both the
+description and the categories. Type an entry ID to edit, `d <id>` to open its
+day, `q` to quit.
 
 ## Recent — `recent`
 

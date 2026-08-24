@@ -171,14 +171,17 @@ HELP: dict[str, HelpEntry] = {
         notes="Inside: n/p (or 5n/5p) navigate, an id edits, 'd <id>' opens that day.",
     ),
     "search": HelpEntry(
-        summary="Full-text search with fuzzy boosts",
+        summary="Search journal text and categories",
         group="Viewing & Summaries",
         usage=[
-            "search <query>     text + time/date/category scoring",
-            "search morning     time-of-day boost",
-            "search yesterday   relative-date boost",
+            "search <words>     entries containing the words",
         ],
-        notes="FTS5 with LIKE fallback; misspellings tolerated. n/p/5n paginate.",
+        notes=(
+            "A filter, not a ranking: results are grouped by how many words "
+            "match (all first), newest first within a group. Words match "
+            "whole words (stemmed) in the text or category path; matches are "
+            "highlighted. n/p/5n paginate."
+        ),
     ),
     "recent": HelpEntry(summary="Show the last 5 journal entries", group="Viewing & Summaries", usage=["recent"]),
     "stats": HelpEntry(
