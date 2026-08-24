@@ -49,6 +49,11 @@ later entries into its category. Active great events appear in the header.
 While a great event is active, the journal category picker offers a
 `0 = Great Event only` option so an entry can be attributed solely to the event.
 
+If you cancel the time confirmation when ending with `ege` (or `ee` for a running
+event), the entry is not logged and the event is **kept active** so nothing is
+lost — the app tells you it's still running and how to end (`ege`/`ee`) or cancel
+(`cge`/`ce`) it.
+
 ## Manual chaining update — `u` (alias `update`)
 
 Refresh the `last_action` timestamp to now. Handy when you did something but

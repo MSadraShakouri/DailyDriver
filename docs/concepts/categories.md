@@ -42,21 +42,34 @@ databases), and it is shaped two ways:
   deeper partial one (e.g. `free_learning` beats `free_learning/art` for the
   query "learning").
 
-The top matches (up to `MAX_RESULTS`, default 10) are returned already ordered.
-These constants (EXACT_MATCH_RELATIVE, EXACT_MATCH_FLOOR, FULL_MATCH_BONUS, MIN_SCORE, MAX_RESULTS) live at the top of
-`dailydriver/core/journal/keywords.py` and are easy to tune.
+Results are returned already ordered. The short numbered list shows the top
+`MAX_RESULTS` (default 5); the rich dropdown asks for more (`DROPDOWN_RANKED`,
+default 20) so its live completions stay relevance-ordered well past the
+numbered list, after which the remaining catalog follows alphabetically. All the
+tuning constants (`EXACT_MATCH_RELATIVE`, `EXACT_MATCH_FLOOR`,
+`FULL_MATCH_BONUS`, `MIN_SCORE`, `MAX_RESULTS`, `DROPDOWN_RANKED`) live at the
+top of `dailydriver/core/journal/keywords.py`.
 
 ## Selecting categories
 
-The suggestions are shown in that ranked order. On an interactive terminal the
-picker autocompletes as you type (ranked matches first, then the rest of your
-catalog):
+A short numbered list of the top suggestions is shown in ranked order. On an
+interactive terminal the picker also autocompletes as you type, with a live
+dropdown ordered by relevance (the ranked list first, then the rest of your
+catalog alphabetically):
 
-- **Enter** alone accepts the top-ranked suggestion.
-- Type **numbers** (space-separated) to pick several from the list.
+- **Enter** alone always accepts suggestion **#1**, regardless of whether a
+  great event is active.
+- Type **numbers** (space-separated) to pick several from the visible numbered
+  list.
 - Type a **new path** to create it on the spot; multiple space-separated paths
   are all applied.
-- **`0`** selects "Great Event only" when a great event is active.
+- **`0`** is the explicit opt-in for "Great Event only" when a great event is
+  active (a convenient fallback when you don't want #1 and don't want to type
+  the full event category).
+
+The live dropdown drops entries you've already committed on the line — by path,
+or by number (typing `3` removes the third suggestion) — and selecting the same
+category twice (e.g. by number and by name) is collapsed to one.
 
 On non-interactive input (piped, redirected) it falls back to the classic
 numbered prompt with the same options.

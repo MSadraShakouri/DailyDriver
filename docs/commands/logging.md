@@ -24,12 +24,14 @@ If a great event is active and suggestions are shown, the picker also offers
 
 ### Category selection
 
-When suggestions exist they are listed in ranked order (best match first). In an
-interactive terminal the picker autocompletes as you type — press Tab to
-complete, space-separate to choose several, or type a brand-new path. Press
-Enter alone to accept the top suggestion. See
+When suggestions exist, a short numbered list is shown in ranked order (best
+match first). In an interactive terminal the picker also autocompletes as you
+type, with a live dropdown that drops categories you've already picked (by name
+or by number). Press Tab to complete, space-separate to choose several, or type
+a brand-new path. Press **Enter alone to accept suggestion #1**; type `0` for
+"Great Event only" when a great event is active. See
 [Categories & Keyword Learning](../concepts/categories.md) for how the ranking
-works.
+and selection work.
 
 ## Sleep — `s` (alias `sleep`)
 

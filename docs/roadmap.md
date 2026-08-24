@@ -7,16 +7,24 @@ collects ideas that are not yet built.
 
 ## Shipped
 
+> Release tags are created manually (the `version` in `pyproject.toml` is just
+> package metadata and does not create a git tag). After the v2.0.0 branch is
+> merged, tag it: `git tag v2.0.0 <merge-commit> && git push origin v2.0.0`, or
+> cut a GitHub Release named `v2.0.0`.
+
 ### ✅ v2.0.0 — 2026-08-24
 - Category ranking reworked: whole-segment path matching (no more `art`→`start`
-  false positives) and a relative exact-match boost that surfaces exact matches
-  near the top on any database.
+  false positives) and a gentle, coverage-proportional exact-match boost where a
+  full path match outranks a deeper partial one.
 - prompt_toolkit input backend: command autocompletion, persistent history, and
-  an autocompleting, ranked category picker — with automatic fallback to plain
-  input when non-interactive.
+  an autocompleting category picker (5 numbered suggestions, a 20-deep ranked
+  live dropdown that removes already-chosen entries, Enter = suggestion #1) —
+  with automatic fallback to plain input when non-interactive.
 - `-h`/`--help` on every command from a single help registry; the `?` summary is
   generated from the same source.
 - Birthday creation (`bd`) is now fully interactive; inline date parsing removed.
+- Fixed the header event lines (great/running event) and the `ege`/`ee`
+  cancelled-log behavior.
 - **Breaking:** `bd` no longer accepts inline `name date` arguments.
 - Documentation rebuilt into `docs/`; `COMMANDS.md` removed in favor of the new
   per-feature command pages.
