@@ -46,7 +46,7 @@ VERSION = "1.0.0"      # human-facing feature API version
 def register_commands(dispatch): ...        # add command names + aliases
 def header_sections(conn, today, target_date, is_today): ...  # header content
 def migrations(): ...                        # ordered schema migrations
-def export_items(conn, cutoff): ...          # timeline items for `export`
+def export_items(conn, start, end=None): ...  # timeline items for `export`/`day`
 ```
 
 Hooks are duck-typed and all optional; the registry validates metadata and hook

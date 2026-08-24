@@ -7,16 +7,17 @@ from dailydriver.core.export_utils import build_export_item, jalali_date_time
 _KIND_LABELS = {"nazr": "Nazr", "habit": "Habit"}
 
 
-def export_items(conn, cutoff: int) -> list[dict]:
+def export_items(conn, start: int, end: int | None = None) -> list[dict]:
     rows = conn.execute(
         """
         SELECT tl.id, tl.logged_at, tl.amount, te.name, te.kind
         FROM target_logs tl
         JOIN target_entries te ON te.id = tl.entry_id
         WHERE tl.logged_at >= ?
+          AND (? IS NULL OR tl.logged_at <= ?)
         ORDER BY tl.logged_at, tl.id
         """,
-        (cutoff,),
+        (start, end, end),
     ).fetchall()
 
     items = []

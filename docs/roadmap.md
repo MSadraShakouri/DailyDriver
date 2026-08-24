@@ -86,6 +86,10 @@ candidates, not commitments, roughly grouped by priority.
 ### High priority
 - **Category editor** — extend the keyword editor to merge, rename, or delete
   categories for long-term maintenance.
+- **Export a date range** — `export YYYY-MM-DD YYYY-MM-DD` in addition to the
+  current last-X-days form. The `export_items(conn, start, end=None)` hook
+  already supports an upper bound; only the `export` command's argument
+  parsing needs to change.
 
 ### Medium priority
 - **Read-only entry view** from `view`/`search` (a separate `e`/`edit` key to

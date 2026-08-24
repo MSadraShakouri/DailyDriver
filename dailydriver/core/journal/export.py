@@ -19,8 +19,12 @@ def _display_categories(raw_categories: str | None) -> str:
     return ", ".join(display_paths) if display_paths else "(none)"
 
 
-def get_export_items(conn, cutoff: int) -> list[dict]:
-    """Return journal entries as unified export timeline items."""
+def get_export_items(conn, start: int, end: int | None = None) -> list[dict]:
+    """Return journal entries as unified export timeline items.
+
+    *start* is the inclusive lower timestamp bound (``0`` means all time);
+    *end* is an optional inclusive upper bound (``None`` means no upper bound).
+    """
     rows = conn.execute(
         """
         SELECT e.id, e.created_at, e.started_at, e.duration_minutes, e.description,
@@ -28,11 +32,12 @@ def get_export_items(conn, cutoff: int) -> list[dict]:
         FROM entries e
         LEFT JOIN entry_categories ec ON e.id = ec.entry_id
         LEFT JOIN categories c ON ec.category_id = c.id
-        WHERE CASE WHEN e.started_at IS NOT NULL THEN e.started_at ELSE e.created_at END >= ?
+        WHERE COALESCE(e.started_at, e.created_at) >= ?
+          AND (? IS NULL OR COALESCE(e.started_at, e.created_at) <= ?)
         GROUP BY e.id
-        ORDER BY CASE WHEN e.started_at IS NOT NULL THEN e.started_at ELSE e.created_at END, e.id
+        ORDER BY COALESCE(e.started_at, e.created_at), e.id
         """,
-        (cutoff,),
+        (start, end, end),
     ).fetchall()
 
     items = []

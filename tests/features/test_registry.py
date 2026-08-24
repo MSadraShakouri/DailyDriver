@@ -64,5 +64,6 @@ def test_header_sections_reject_malformed_structured_lines():
 def test_export_hook_is_optional_but_discoverable():
     feature = _feature()
     assert export_hook(feature) is None
-    feature.export_items = lambda conn, cutoff: []
+    feature.export_items = lambda conn, start, end=None: []
     assert export_hook(feature)(None, 0) == []
+    assert export_hook(feature)(None, 0, 100) == []

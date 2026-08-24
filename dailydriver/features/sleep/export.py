@@ -5,7 +5,7 @@ from __future__ import annotations
 from dailydriver.core.export_utils import build_export_item, format_time_range
 
 
-def export_items(conn, cutoff: int) -> list[dict]:
+def export_items(conn, start: int, end: int | None = None) -> list[dict]:
     items: list[dict] = []
 
     sleep_rows = conn.execute(
@@ -13,9 +13,10 @@ def export_items(conn, cutoff: int) -> list[dict]:
         SELECT id, sleep_time, duration_minutes
         FROM sleep_logs
         WHERE sleep_time >= ?
+          AND (? IS NULL OR sleep_time <= ?)
         ORDER BY sleep_time, id
         """,
-        (cutoff,),
+        (start, end, end),
     ).fetchall()
     for row in sleep_rows:
         items.append(
@@ -32,9 +33,10 @@ def export_items(conn, cutoff: int) -> list[dict]:
         SELECT id, start_time, duration_minutes, description
         FROM nap_logs
         WHERE start_time >= ?
+          AND (? IS NULL OR start_time <= ?)
         ORDER BY start_time, id
         """,
-        (cutoff,),
+        (start, end, end),
     ).fetchall()
     for row in nap_rows:
         items.append(
