@@ -1,7 +1,7 @@
 # DailyDriver Documentation
 
 DailyDriver is a personal, terminal-based life tracker: prayers, sleep, hygiene,
-journal, targets, calendars, and full-text search — all from a fast,
+journal, targets, calendars, and search — all from a fast,
 keyboard-driven prompt, with Jalali (Persian) calendar support.
 
 This folder is the single source of truth for DailyDriver's documentation. It is

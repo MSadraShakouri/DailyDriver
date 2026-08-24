@@ -104,8 +104,9 @@ is tracked by list position.
 ## Tools
 
 `tools/` contains standalone helpers that are not part of the REPL: HTML/Python
-editors for events, keywords, and reminders, plus analysis scripts like
-`sleep_avg.py`. They operate directly on the database or data files.
+editors for events, keywords, reminders, and categories (the category editor
+on port 8768 supports rename, merge, and safe delete), plus analysis scripts
+like `sleep_avg.py`. They operate directly on the database or data files.
 
 See [CONTRIBUTING](../CONTRIBUTING.md) for workflow, style, and testing
 conventions.

@@ -12,8 +12,13 @@ The day-start hour is applied to:
 - **Hygiene** — nudges and the manager: an entry before the day-start hour
   counts toward the previous day.
 - **Targets** — daily totals and interval calculations use the shifted day.
+- **Day view (optional)** — the `day` timeline has two boundary modes,
+  toggled with `m` inside the view: **midnight** (the default, 00:00 → 24:00)
+  and **day start**, which runs from the day-start hour to the same hour the
+  next day. The last-used mode is remembered.
 
-Other views (journal timestamps, calendars) use the real calendar date.
+Other views (journal timestamps, calendars, export) use the real calendar
+date.
 
 ## Changing it
 

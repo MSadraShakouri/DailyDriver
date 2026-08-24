@@ -8,9 +8,32 @@ collects ideas that are not yet built.
 ## Shipped
 
 > Release tags are created manually (the `version` in `pyproject.toml` is just
-> package metadata and does not create a git tag). After the v2.0.0 branch is
-> merged, tag it: `git tag v2.0.0 <merge-commit> && git push origin v2.0.0`, or
-> cut a GitHub Release named `v2.0.0`.
+> package metadata and does not create a git tag). After the v2.1.0 branch is
+> merged, tag it: `git tag v2.1.0 <merge-commit> && git push origin v2.1.0`, or
+> cut a GitHub Release named `v2.1.0`.
+
+### ✅ v2.1.0 — 2026-08-24
+- **Unified day timeline**: `day` shows everything logged that day in
+  chronological order — journal entries, prayers, sleep, naps, qada, and
+  targets — sharing one timeline builder with `export`; items are placed by
+  start time. Each item renders as time, then label/categories, then the
+  description.
+- **Day-boundary modes**: `m` inside the day view toggles midnight
+  (default) vs the configured day-start hour; the choice persists in the
+  meta table.
+- **Search rewritten as a token filter**: no relevance scoring; whole-word
+  stem matching over descriptions and category paths, results grouped by how
+  many query words matched (styled group headers, ignored-word reporting).
+  The FTS/fuzzy scoring modules were removed.
+- **Time ranges everywhere**: `view` and `search` show export's
+  `HH:MM → HH:MM (dur)` format and sort/jump by start time.
+- **Export polish**: day headers gain an abbreviated weekday
+  (`Mon, 02 Shahrivar 1405`); the `export_items` hook accepts an optional
+  inclusive end bound for future range export.
+- **Category editor** (`tools/category_editor.py`, port 8768): list, rename,
+  merge, and safe-delete categories, with a similar-pairs Suggestions tab.
+- Fixed an ANSI-slicing bug in `pline_wrap` truncation; first test suites for
+  search, day view, and the entry browser (499 tests).
 
 ### ✅ v2.0.0 — 2026-08-24
 - Category ranking reworked: whole-segment path matching (no more `art`→`start`
@@ -84,8 +107,6 @@ Ideas gathered from the former `TODO.md` and the code review notes. These are
 candidates, not commitments, roughly grouped by priority.
 
 ### High priority
-- **Category editor** — extend the keyword editor to merge, rename, or delete
-  categories for long-term maintenance.
 - **Export a date range** — `export YYYY-MM-DD YYYY-MM-DD` in addition to the
   current last-X-days form. The `export_items(conn, start, end=None)` hook
   already supports an upper bound; only the `export` command's argument

@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.1.0 (2026-08-24)
 
 ### Added
 - **Unified day timeline**: the `day` view now shows everything logged that
@@ -18,6 +18,21 @@
 - **Time ranges in `view` and `search`**: entries with a logged duration show
   export's `HH:MM → HH:MM (dur)` format; sorting is newest-first by start
   time, and `d <id>` jumps to the day of the start time.
+- **Category editor** (`tools/category_editor.py` + `category_editor.html`,
+  port 8768) for long-term category maintenance: list categories
+  alphabetically (with entry counts, live search, two-select merge, and
+  per-category entry previews), rename (case-insensitive
+  uniqueness, path-shape validation), merge (transactional: entry references
+  re-pointed, per-entry duplicate references removed, keyword counts summed,
+  source category and keywords removed), and safe delete (empty categories
+  only). A Suggestions tab lists the top 10 most similar category pairs
+  (normalised Levenshtein, no score floor) with one-click pre-filled merge;
+  the merge dialog offers prompt-toolkit-style typeahead on both fields plus
+  a top-10 similarity list for the selected source. Renames keep the active
+  event's stored category paths consistent and warn when a hygiene item's
+  path-suffix match would be broken. Destructive actions require typed
+  confirmation; all mutations run in a single transaction that rolls back on
+  failure.
 - First test suites for search, the day view, and the entry browser.
 
 ### Changed
@@ -35,26 +50,15 @@
   YYYY-MM-DD YYYY-MM-DD` CLI is a roadmap to-do.
 - Empty categories render as `(no category)` everywhere (export previously
   used `(none)`).
+- **Day-view item layout**: each timeline item renders on three lines — the
+  time (range), then the label/categories (both indented deeper), then the
+  description pulled back left — instead of a single prefixed line.
+- **Search group headers** are bold cyan and set off by blank lines, so the
+  transition between match-count groups is unmistakable while paging.
 
 ### Fixed
 - `pline_wrap` truncation no longer slices ANSI escape codes, which could
   leak reverse-video highlighting into subsequent lines on narrow terminals.
-
-- **Category editor** (`tools/category_editor.py` + `category_editor.html`,
-  port 8768) for long-term category maintenance: list categories
-  alphabetically (with entry counts, live search, two-select merge, and
-  per-category entry previews), rename (case-insensitive
-  uniqueness, path-shape validation), merge (transactional: entry references
-  re-pointed, per-entry duplicate references removed, keyword counts summed,
-  source category and keywords removed), and safe delete (empty categories
-  only). A Suggestions tab lists the top 10 most similar category pairs
-  (normalised Levenshtein, no score floor) with one-click pre-filled merge;
-  the merge dialog offers prompt-toolkit-style typeahead on both fields plus
-  a top-10 similarity list for the selected source. Renames keep the active
-  event's stored category paths consistent and warn when a hygiene item's
-  path-suffix match would be broken. Destructive actions require typed
-  confirmation; all mutations run in a single transaction that rolls back on
-  failure.
 
 ## 2.0.0 (2026‑08‑24)
 
