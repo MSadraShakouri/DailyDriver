@@ -35,8 +35,11 @@ header; the timeline shows them in chronological context.
 
 | Usage | Meaning |
 |-------|---------|
-| `view` | All entries, newest first |
+| `view` | All entries, newest first (by start time) |
 | `view <filter>` | Filter by category text (e.g. `view project`) |
+
+Entries with a logged duration show the full time range in export's format:
+`YYYY-MM-DD HH:MM → HH:MM (dur)`; otherwise just the start time.
 
 Inside: `n`/`p` (or `5n`/`5p`) to page, type an entry ID to edit it, `d <id>` to
 open that entry's day, `q` to quit.
