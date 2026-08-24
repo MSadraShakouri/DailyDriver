@@ -38,10 +38,18 @@ class UI(ABC):
     def select_categories(
         self,
         matches: list[tuple[str, float]],
+        ranked_paths: list[str],
         all_paths: list[str],
         show_great_only: bool = False,
     ) -> list[str] | None:
         """Interactively select one or more category paths.
+
+        - *matches* are the top ranked (path, score) pairs shown as a short
+          numbered list.
+        - *ranked_paths* is a longer relevance-ordered list of paths used to
+          order the live dropdown (it starts with the same items as *matches*).
+        - *all_paths* is the full catalog; entries not in *ranked_paths* follow
+          alphabetically in the dropdown.
 
         Returns the chosen paths (possibly empty for "Great Event only"), or
         ``None`` to signal that the caller should fall back to its own text

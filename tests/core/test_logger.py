@@ -13,7 +13,7 @@ def interpretation(hour=9, duration=30, label="09:00 → 09:30"):
 def prepare(monkeypatch, interpretations):
     save = Mock(return_value="saved")
     monkeypatch.setattr(logger, "parse_time_expressions", lambda *args: interpretations)
-    monkeypatch.setattr(logger, "find_matching_categories", lambda command: [])
+    monkeypatch.setattr(logger, "find_matching_categories", lambda command, limit=None: [])
     monkeypatch.setattr(logger, "inject_great_categories", Mock())
     monkeypatch.setattr(logger, "save_entry", save)
     monkeypatch.setattr(logger, "get_active_great_event", lambda: None)
@@ -69,7 +69,9 @@ def test_chained_entry_honors_confirmation(db_path, ui, monkeypatch):
 def test_suggested_categories_support_numbers_and_new_paths(db_path, ui, monkeypatch):
     selected = interpretation()
     save = prepare(monkeypatch, [selected])
-    monkeypatch.setattr(logger, "find_matching_categories", lambda command: [("work/code", 1), ("work/review", 0.5)])
+    monkeypatch.setattr(
+        logger, "find_matching_categories", lambda command, limit=None: [("work/code", 1), ("work/review", 0.5)]
+    )
     ui.queue("2 custom/path")
     logger.log_free_text("09:00-09:30 work")
     assert save.call_args.args[4] == ["work/review", "custom/path"]
@@ -78,7 +80,9 @@ def test_suggested_categories_support_numbers_and_new_paths(db_path, ui, monkeyp
 def test_great_event_only_option_clears_regular_selection(db_path, ui, monkeypatch):
     selected = interpretation()
     save = prepare(monkeypatch, [selected])
-    monkeypatch.setattr(logger, "find_matching_categories", lambda command: [("work/code", 1), ("work/review", 0.5)])
+    monkeypatch.setattr(
+        logger, "find_matching_categories", lambda command, limit=None: [("work/code", 1), ("work/review", 0.5)]
+    )
     monkeypatch.setattr(logger, "get_active_great_event", lambda: (1, ["deep/work"]))
     ui.queue("0")
     logger.log_free_text("09:00-09:30 work")
@@ -96,7 +100,7 @@ def test_auto_selected_time_can_be_rejected(db_path, ui, monkeypatch):
 def test_rich_picker_result_is_used_and_new_paths_persisted(db_path, ui, monkeypatch):
     selected = interpretation()
     save = prepare(monkeypatch, [selected])
-    monkeypatch.setattr(logger, "find_matching_categories", lambda command: [("work/code", 1)])
+    monkeypatch.setattr(logger, "find_matching_categories", lambda command, limit=None: [("work/code", 1)])
     # Simulate a rich backend returning an explicit selection including a new path.
     monkeypatch.setattr(logger.current_ui, "select_categories", lambda *a, **k: ["work/code", "fresh/topic"])
     logger.log_free_text("09:00-09:30 work")
@@ -112,7 +116,9 @@ def test_rich_picker_result_is_used_and_new_paths_persisted(db_path, ui, monkeyp
 def test_plain_flow_used_when_picker_returns_none(db_path, ui, monkeypatch):
     selected = interpretation()
     save = prepare(monkeypatch, [selected])
-    monkeypatch.setattr(logger, "find_matching_categories", lambda command: [("work/code", 1), ("work/review", 0.5)])
+    monkeypatch.setattr(
+        logger, "find_matching_categories", lambda command, limit=None: [("work/code", 1), ("work/review", 0.5)]
+    )
     # Default TerminalUI.select_categories returns None -> plain numbered flow.
     monkeypatch.setattr(logger.current_ui, "select_categories", lambda *a, **k: None)
     ui.queue("2")

@@ -22,11 +22,10 @@ from prompt_toolkit.history import FileHistory, InMemoryHistory
 from dailydriver.ui.terminal_ui import TerminalUI
 
 # How many lines to reserve below the prompt for the completion dropdown.
-# prompt_toolkit defaults to 8, which pushes already-printed output (the header)
-# off-screen when the prompt sits low. 0 leaves no room to show suggestions at
-# all. A small value shows a few completions inline without scrolling the header
-# away.
-_MENU_LINES = 6
+# prompt_toolkit defaults to 8 and its menu itself caps at 16 rows. With a short
+# 5-item numbered list we can afford to reserve more so the live dropdown shows
+# plenty at once, while still keeping the header on screen.
+_MENU_LINES = 11
 
 
 def _history_dir() -> str:
@@ -52,17 +51,45 @@ class _RankedCompleter(Completer):
     The order of ``ranked`` is preserved (it already reflects the keyword
     system's TF-IDF + exact-boost ordering); remaining catalog entries follow.
     Only entries containing the current word (case-insensitive) are offered.
+
+    Completions already committed on the line are dropped live: a fully typed
+    path is excluded, and a fully typed number (e.g. ``3``) resolves through the
+    ranked list to its path and excludes that too. Only tokens *before* the word
+    currently being typed count as committed, so the in-progress word still
+    completes normally.
     """
 
-    def __init__(self, ranked: list[str], catalog: list[str]):
+    def __init__(self, numbered: list[str], ranked: list[str], catalog: list[str]):
+        # ``numbered`` maps typed numbers (as shown in the visible list) to paths.
+        # ``ranked`` orders the dropdown; the rest of the catalog follows.
+        self.numbered = list(numbered)
         self.ranked = list(ranked)
         seen = set(self.ranked)
         self.rest = [item for item in catalog if item not in seen]
 
+    def _already_chosen(self, document) -> set[str]:
+        """Paths already committed on the line (by name or by visible number)."""
+        text_before = document.text_before_cursor
+        # Everything up to the last space is committed; the final chunk is the
+        # word still being typed (handled by the normal filter below).
+        committed = text_before.rsplit(" ", 1)[0] if " " in text_before else ""
+        chosen: set[str] = set()
+        for token in committed.split():
+            if token.isdigit():
+                idx = int(token) - 1
+                if 0 <= idx < len(self.numbered):
+                    chosen.add(self.numbered[idx].lower())
+            else:
+                chosen.add(token.lower())
+        return chosen
+
     def get_completions(self, document, complete_event):
         word = document.get_word_before_cursor(WORD=True)
         lowered = word.lower()
+        chosen = self._already_chosen(document)
         for item in self.ranked + self.rest:
+            if item.lower() in chosen:
+                continue
             if lowered in item.lower():
                 yield Completion(item, start_position=-len(word))
 
@@ -114,33 +141,34 @@ class PromptToolkitUI(TerminalUI):
     def select_categories(
         self,
         matches: list[tuple[str, float]],
+        ranked_paths: list[str],
         all_paths: list[str],
         show_great_only: bool = False,
     ) -> list[str] | None:
         """Autocompleting, ranked, space-separated multi-select category picker.
 
-        - Enter on an empty line accepts the top-ranked suggestion (or, when
-          ``show_great_only`` is set and there are matches, "Great Event only").
-        - Otherwise the user types space-separated paths; ranked suggestions are
-          offered first via autocompletion, and brand-new paths may be typed
-          freely.
-        - "0" selects "Great Event only" when offered.
+        - Enter on an empty line always accepts suggestion #1 (never "Great
+          Event only"), regardless of whether a great event is active.
+        - Otherwise the user types space-separated numbers (from the visible
+          list) and/or paths; the live dropdown is ordered by *ranked_paths* and
+          drops entries already committed on the line. Brand-new paths may be
+          typed freely.
+        - "0" is the explicit opt-in for "Great Event only" when offered.
 
         Returns the selected paths, or ``None`` to let the caller fall back.
         """
-        ranked_paths = [path for path, _ in matches]
+        numbered = [path for path, _ in matches]
 
-        # Show the ranked suggestions so the user sees the same list as before.
-        if ranked_paths:
+        if numbered:
             self.print_line()
             self.print_line("Suggested categories (Tab to autocomplete, space-separate to pick several):")
             if show_great_only:
                 self.print_line("  [0] Great Event only")
-            for index, path in enumerate(ranked_paths, 1):
+            for index, path in enumerate(numbered, 1):
                 self.print_line(f"  [{index}] {path}")
-            hint = "Enter=top suggestion, numbers or names to select, or type new paths"
+            hint = "Enter=1, numbers or names to select, or type new paths"
             if show_great_only:
-                hint = "Enter=top, 0=Great Event only, numbers/names to select, or type new paths"
+                hint = "Enter=1, 0=Great Event only, numbers/names to select, or type new paths"
         else:
             self.print_line()
             self.print_line("No suggestions. Type a category path (Tab to autocomplete) or Enter to skip.")
@@ -149,7 +177,10 @@ class PromptToolkitUI(TerminalUI):
         if hint:
             self.print_line(hint)
 
-        completer = _RankedCompleter(ranked_paths, all_paths)
+        # The completer orders the dropdown by the longer ranked list and maps
+        # its numbers for live removal; the numbers the user *types* map to the
+        # short visible list via _resolve_selection.
+        completer = _RankedCompleter(numbered, ranked_paths, all_paths)
         try:
             session = self._session("categories")
             raw = session.prompt(
@@ -163,26 +194,40 @@ class PromptToolkitUI(TerminalUI):
         except Exception:
             return None
 
-        return self._resolve_selection(raw, ranked_paths, show_great_only)
+        return self._resolve_selection(raw, numbered, show_great_only)
 
     @staticmethod
-    def _resolve_selection(raw: str, ranked_paths: list[str], show_great_only: bool) -> list[str]:
+    def _resolve_selection(raw: str, numbered: list[str], show_great_only: bool) -> list[str]:
+        """Resolve typed input to paths.
+
+        Empty input always accepts suggestion #1 (never "Great Event only").
+        "0" is the explicit opt-in for great-event-only. Numbers map to the
+        visible numbered list; anything else is treated as a path. Duplicates
+        (e.g. typing both ``3`` and its path) are collapsed while preserving
+        order.
+        """
         choice = raw.strip()
         if choice == "":
-            return [ranked_paths[0]] if ranked_paths else []
+            return [numbered[0]] if numbered else []
 
-        lowered = choice.lower()
-        if lowered == "0" and show_great_only:
+        if choice.lower() == "0" and show_great_only:
             return []
 
         selected: list[str] = []
+        seen: set[str] = set()
+
+        def add(path: str) -> None:
+            if path not in seen:
+                seen.add(path)
+                selected.append(path)
+
         for token in choice.split():
             if token == "0" and show_great_only:
                 return []
             if token.isdigit():
                 idx = int(token) - 1
-                if 0 <= idx < len(ranked_paths):
-                    selected.append(ranked_paths[idx])
+                if 0 <= idx < len(numbered):
+                    add(numbered[idx])
             else:
-                selected.append(token.lower())
+                add(token.lower())
         return selected
