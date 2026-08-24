@@ -19,6 +19,18 @@ def test_end_pending_event_logs_and_clears(monkeypatch):
     clear.assert_called_once_with()
 
 
+def test_end_pending_event_cancel_keeps_timer_and_warns(ui, monkeypatch):
+    # Regression: when logging is cancelled (log_free_text -> None) the running
+    # event must stay active AND the user must be told, not silently no-op.
+    clear = Mock()
+    monkeypatch.setattr(events, "get_pending_start", lambda: 123)
+    monkeypatch.setattr(events, "log_free_text", lambda *a, **k: None)
+    monkeypatch.setattr(events, "clear_pending_start", clear)
+    assert events.log_event_end("ee work") is None
+    clear.assert_not_called()
+    assert any("still active" in line for line in ui.lines)
+
+
 def test_chain_uses_last_action(monkeypatch):
     log = Mock(return_value="logged")
     monkeypatch.setattr(events, "get_last_action_time", lambda: 456)
@@ -59,6 +71,19 @@ def test_end_great_event_logs_and_clears(monkeypatch):
     assert events.end_great_event_cmd("ege finished") == "ended"
     log.assert_called_once_with("finished", started_at=500)
     clear.assert_called_once_with()
+
+
+def test_end_great_event_cancel_keeps_event_and_warns(ui, monkeypatch):
+    # Regression: the live bug — declining the time confirmation makes
+    # log_free_text return None; the great event must remain active AND the
+    # user must be warned, instead of the command silently doing nothing.
+    clear = Mock()
+    monkeypatch.setattr(events, "get_active_great_event", lambda: (500, ["work"]))
+    monkeypatch.setattr(events, "log_free_text", lambda *a, **k: None)
+    monkeypatch.setattr(events, "clear_great_event", clear)
+    assert events.end_great_event_cmd("ege finished") is None
+    clear.assert_not_called()
+    assert any("still active" in line for line in ui.lines)
 
 
 def test_cancel_great_event_handles_active_and_inactive(ui, monkeypatch):

@@ -2,6 +2,9 @@
 
 Thanks for your interest in DailyDriver.
 
+User-facing and design documentation lives in [`docs/`](docs/README.md); the
+[architecture guide](docs/architecture.md) expands on the summary below.
+
 ## Package layout
 
 ```text

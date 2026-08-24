@@ -88,7 +88,7 @@ class UIRecorder:
     def queue(self, *responses: str) -> None:
         self.responses.extend(responses)
 
-    def prompt(self, text: str = "") -> str:
+    def prompt(self, text: str = "", completions=None, history_key=None) -> str:
         self.prompts.append(text)
         return self.responses.popleft() if self.responses else ""
 

@@ -9,7 +9,11 @@ from hijridate import Gregorian as HijriGregorian
 import dailydriver.features as features_pkg
 from dailydriver.core.database import get_connection_cm
 from dailydriver.display.display_utils import get_width, spread_line
-from dailydriver.display.header.events import get_last_entry_time
+from dailydriver.display.header.events import (
+    get_great_event_str,
+    get_last_entry_time,
+    get_running_event_str,
+)
 from dailydriver.features.calendar.hijri import get_hijri_offset
 from dailydriver.features.registry import header_hook, validate_header_sections
 from dailydriver.utils.time_utils import format_jalali, today_jalali
@@ -56,6 +60,15 @@ def build_header_data(day=None, is_today=True):
             if build_sections is not None:
                 returned = build_sections(conn, today, target_date, is_today)
                 sections.extend(validate_header_sections(feature, returned))
+
+        # Great/running event status are core (not a feature package), but they
+        # join the same priority-ordered stream so they render in their historic
+        # slot: just under prayer (0) and above sleep (10). Priorities 5 and 6
+        # match the pre-refactor events feature.
+        if great_event := get_great_event_str(is_today):
+            sections.append((5, great_event))
+        if running_event := get_running_event_str(is_today):
+            sections.append((6, running_event))
 
         sections.sort(key=lambda item: item[0])
         feature_lines = [text for _, text in sections]

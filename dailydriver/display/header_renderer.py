@@ -24,6 +24,8 @@ def print_header(data: dict, add_separator: bool = True):
     current_ui.print_line(data["greg_hijri_line"])  # already centered by spread_line
     current_ui.print_line()  # breather
 
+    # feature_lines carries every priority-ordered header section, including the
+    # great/running event status (priorities 5 and 6).
     for line in data.get("feature_lines", []):
         if isinstance(line, tuple):
             prefix, title = line
@@ -31,14 +33,6 @@ def print_header(data: dict, add_separator: bool = True):
             wrap_line(prefix, title, indent)
         else:
             pline(line)
-
-    # Great event
-    if ge_str := data.get("great_event_str", ""):
-        pline(ge_str)
-
-    # Running event
-    if event_str := data.get("event_str", ""):
-        pline(event_str)
 
     for line in data.get("hygiene_lines", []):
         pline(line)

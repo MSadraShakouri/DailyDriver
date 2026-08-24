@@ -13,9 +13,29 @@ from dailydriver.core.database import get_connection, get_connection_cm
 _stemmer = Porter2Stemmer()
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
 STOPWORDS_PATH = os.path.join(PROJECT_ROOT, "data", "stopwords.txt")
-EXACT_MATCH_BOOST = 5.0
+
+# --- Exact path-match boost -------------------------------------------------
+# A category whose *path* contains a query word (matched on whole segments, not
+# substrings) is usually the right bucket. But such a category almost always
+# *also* has that word as a learned keyword, so it already earns TF-IDF credit
+# for the match; the boost only needs to be a gentle nudge/tiebreaker, not a
+# sledgehammer that leapfrogs a frequently used category with a rare one-off.
+#
+# The base boost is a small fraction of the strongest TF-IDF score in this query
+# (with a floor so it still matters on a fresh database), then:
+#   * scaled by *coverage* — the fraction of the path's segments the query
+#     matches — so a single-segment partial match gets only a small bump; and
+#   * given an extra ``FULL_MATCH_BONUS`` when the query covers the entire path,
+#     so a full exact match always outranks a partial one.
+EXACT_MATCH_RELATIVE = 0.25
+EXACT_MATCH_FLOOR = 1.0
+FULL_MATCH_BONUS = 0.5
 MIN_SCORE = 0.1
-MAX_RESULTS = 10
+# How many ranked suggestions the numbered picker shows by default. The rich
+# dropdown asks for more (``DROPDOWN_RANKED``) so its live completions stay
+# relevance-ordered well past the short numbered list.
+MAX_RESULTS = 5
+DROPDOWN_RANKED = 20
 
 
 def load_stopwords() -> set[str]:
@@ -51,11 +71,44 @@ def tokenize(text: str, stem_words: bool = True) -> list[str]:
     return unique
 
 
-def find_matching_categories(text: str) -> list[tuple[str, float]]:
-    """Return up to ``MAX_RESULTS`` categories scored by TF-IDF plus path boosts."""
+def path_segments(path: str) -> set[str]:
+    """Split a category *path* into its comparable word segments.
+
+    Paths are split on ``/`` and any non-alphabetic character, then each segment
+    is lowered and stemmed the same way query tokens are. This lets exact-match
+    detection compare whole words ("art" vs "start") instead of naive
+    substrings, eliminating false positives like "art" in "start" or "log" in
+    "blog".
+    """
+    if not path:
+        return set()
+    segments: set[str] = set()
+    for raw in re.split(r"[^a-zA-Z]+", path.lower()):
+        if len(raw) < 3:
+            continue
+        try:
+            segments.add(_stemmer.stem(raw))
+        except Exception:
+            segments.add(raw)
+    return segments
+
+
+def find_matching_categories(text: str, limit: int = MAX_RESULTS) -> list[tuple[str, float]]:
+    """Return up to *limit* categories scored by TF-IDF plus path boosts.
+
+    Scoring has two stages. First, TF-IDF accumulates evidence from learned
+    keywords. Then any category whose path *segments* contain a query token
+    receives a boost scaled to the strongest TF-IDF score in this query, so an
+    exact match surfaces near the top regardless of how well other categories
+    are trained. Results are returned already ordered for direct display.
+
+    *limit* lets the caller ask for more ranked results than the default
+    numbered picker shows (e.g. the rich dropdown requests ``DROPDOWN_RANKED``).
+    """
     tokens = tokenize(text)
     if not tokens:
         return []
+    token_set = set(tokens)
 
     with get_connection_cm() as conn:
         cur = conn.cursor()
@@ -66,11 +119,7 @@ def find_matching_categories(text: str) -> list[tuple[str, float]]:
         all_cats = {row["id"]: row["path"] for row in cur.execute("SELECT id, path FROM categories")}
         scores: dict[int, float] = {}
 
-        for token in tokens:
-            for cat_id, path in all_cats.items():
-                if token.lower() in path.lower():
-                    scores[cat_id] = scores.get(cat_id, 0.0) + EXACT_MATCH_BOOST
-
+        # --- Stage 1: TF-IDF over learned keywords ---
         for token in tokens:
             rows = cur.execute(
                 """
@@ -85,12 +134,32 @@ def find_matching_categories(text: str) -> list[tuple[str, float]]:
                 cat_id = row["category_id"]
                 tf = row["count"]
                 df = row["df"]
-                idf = math.log(total_cats / (df + 1))
+                # Clamp IDF at 0: a word present in most categories carries no
+                # discriminating signal and must never subtract from a score.
+                idf = max(0.0, math.log(total_cats / (df + 1)))
                 scores[cat_id] = scores.get(cat_id, 0.0) + tf * idf
+
+        # --- Stage 2: gentle, coverage-proportional exact-segment boost ---
+        # TF-IDF already rewards these matches, so this is a nudge. The boost is
+        # scaled by how much of the *path* the query covers, and a fully covered
+        # path earns an extra bonus so an exact full match beats a partial one.
+        base_boost = max(EXACT_MATCH_FLOOR, EXACT_MATCH_RELATIVE * max(scores.values(), default=0.0))
+        for cat_id, path in all_cats.items():
+            segments = path_segments(path)
+            if not segments:
+                continue
+            matched = segments & token_set
+            if not matched:
+                continue
+            coverage = len(matched) / len(segments)
+            boost = base_boost * coverage
+            if matched == segments:
+                boost += base_boost * FULL_MATCH_BONUS
+            scores[cat_id] = scores.get(cat_id, 0.0) + boost
 
         results: list[tuple[str, float]] = []
         for cat_id, score in sorted(scores.items(), key=lambda item: item[1], reverse=True):
-            if score < MIN_SCORE or len(results) >= MAX_RESULTS:
+            if score < MIN_SCORE or len(results) >= limit:
                 break
             results.append((all_cats[cat_id], score))
         return results

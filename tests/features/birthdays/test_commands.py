@@ -10,34 +10,42 @@ def _birthday(name):
     return dict(row) if row else None
 
 
-def test_add_parses_full_and_short_dates(db_path):
-    assert add_birthday("bd Alice 1400/2/3 1") == "Birthday added: Alice (1400/02/03) [important]"
-    assert add_birthday("bd Bob 4/5") == "Birthday added: Bob (????/04/05)"
-    assert (_birthday("Alice")["year"], _birthday("Alice")["remind_level"]) == (1400, 1)
+def test_add_is_fully_interactive(db_path, ui):
+    # name, day, month, year, reminder level
+    ui.queue("Alice", "3", "2", "1400", "1")
+    assert add_birthday("bd") == "Birthday added: Alice (1400/02/03) [important]"
+    row = _birthday("Alice")
+    assert (row["day"], row["month"], row["year"], row["remind_level"]) == (3, 2, 1400, 1)
+
+
+def test_add_without_year_or_reminder(db_path, ui):
+    ui.queue("Bob", "5", "4", "", "")
+    assert add_birthday("bd") == "Birthday added: Bob (????/04/05)"
     assert _birthday("Bob")["year"] is None
+    assert _birthday("Bob")["remind_level"] == 0
 
 
-def test_add_prompts_when_only_name_is_supplied(db_path, ui):
-    ui.queue("6", "7", "1390")
-    assert add_birthday("bd Charlie") == "Birthday added: Charlie (1390/07/06)"
+def test_inline_arguments_are_ignored(db_path, ui):
+    # As of v2.0 any inline args are ignored; prompts still drive creation.
+    ui.queue("Charlie", "7", "6", "1390", "")
+    assert add_birthday("bd Ali 1386/05/12") == "Birthday added: Charlie (1390/06/07)"
+    assert _birthday("Ali") is None
+    assert _birthday("Charlie")["month"] == 6
 
 
-def test_bare_add_is_fully_interactive(db_path, ui):
-    ui.queue("Dana", "8", "9", "1380", "1")
-    assert "[important]" in add_birthday("bd")
-    assert _birthday("Dana")["month"] == 9
+def test_empty_name_cancels(db_path, ui):
+    ui.queue("")
+    assert add_birthday("bd") is None
 
 
 @pytest.mark.parametrize(
-    ("command", "responses", "message"),
+    ("responses", "message"),
     [
-        ("bd", ("",), None),
-        ("bd Name", ("bad", "2", ""), "Invalid numbers."),
-        ("bd Name 13/32", (), "Invalid date."),
+        (("Name", "bad", "2", "", ""), "Invalid numbers."),
+        (("Name", "32", "13", "", ""), "Invalid date."),
     ],
 )
-def test_add_rejects_incomplete_or_invalid_input(db_path, ui, command, responses, message):
+def test_add_rejects_invalid_input(db_path, ui, responses, message):
     ui.queue(*responses)
-    assert add_birthday(command) is None
-    if message:
-        assert message in ui.lines
+    assert add_birthday("bd") is None
+    assert message in ui.lines

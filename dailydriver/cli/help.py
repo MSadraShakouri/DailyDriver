@@ -1,136 +1,17 @@
 # dailydriver/cli/help.py
+"""Help rendering built from the single-source-of-truth help registry."""
+
+from dailydriver.cli.help_registry import build_summary, command_help
 from dailydriver.ui.terminal_ui import current_ui
 
 
-def show_help():
-    current_ui.print_line("═" * 50)
-    current_ui.print_line("  DailyDriver — Quick Reference")
-    current_ui.print_line("═" * 50)
-    current_ui.print_line()
+def show_help(command_names: list[str] | None = None) -> None:
+    """Print the grouped command summary (the ``?`` / ``h`` view)."""
+    for line in build_summary(command_names):
+        current_ui.print_line(line)
 
-    # ── Logging ──
-    current_ui.print_line("📝 Logging")
-    current_ui.print_line("  p [time/offset]")
-    current_ui.print_line("     Log a prayer (Enter confirms)")
-    current_ui.print_line("     p          → current slot")
-    current_ui.print_line("     p -15      → 15m before fixed time")
-    current_ui.print_line("     p 05:30    → explicitly at 05:30")
-    current_ui.print_line()
-    current_ui.print_line("  s <sleep> <wake>")
-    current_ui.print_line("     Log sleep duration")
-    current_ui.print_line("     s 23:00 07:15")
-    current_ui.print_line("     s 23-7:15  (compact form)")
-    current_ui.print_line("     s n 08:00  (n = now)")
-    current_ui.print_line()
-    current_ui.print_line("  Any other text = free‑form journal")
-    current_ui.print_line("     worked on project 9-12")
-    current_ui.print_line()
-    current_ui.print_line("  nap <start> <end>")
-    current_ui.print_line("     Log a nap (like sleep)")
-    current_ui.print_line("     nap 14:00 14:25")
-    current_ui.print_line("     nap 14-14:25  (compact form)")
-    current_ui.print_line()
 
-    # ── Prayer management ──
-    current_ui.print_line("🕌 Prayer Management")
-    current_ui.print_line("  p [time/offset]")
-    current_ui.print_line("     Log a prayer (Enter confirms)")
-    current_ui.print_line("     p          → current slot")
-    current_ui.print_line("     p -15      → 15m before fixed time")
-    current_ui.print_line("     p 05:30    → explicitly at 05:30")
-    current_ui.print_line("     p q        → mark a past unlogged prayer as qada")
-    current_ui.print_line("     p q -15    → mark with 15 min ago")
-    current_ui.print_line("     p q 03:11  → mark at 03:11 on past date")
-    current_ui.print_line()
-
-    # ── Events ──
-    current_ui.print_line("⏱ Events (start / end / cancel)")
-    current_ui.print_line("  se")
-    current_ui.print_line("     Start a running event timer")
-    current_ui.print_line("  ee [text]")
-    current_ui.print_line("     End event & log entry")
-    current_ui.print_line("     ee finished report")
-    current_ui.print_line("  ce")
-    current_ui.print_line("     Cancel the running event")
-    current_ui.print_line()
-
-    # ── Chaining ──
-    current_ui.print_line("🔗 Chaining")
-    current_ui.print_line("  ln [text]")
-    current_ui.print_line("     Log entry from last action")
-    current_ui.print_line("     to now")
-    current_ui.print_line("     ln replied to emails")
-    current_ui.print_line()
-
-    # ── Viewing & Summaries ──
-    current_ui.print_line("👁 Viewing & Summaries")
-    current_ui.print_line("  day [YYYY-MM-DD | -1]")
-    current_ui.print_line("     Show day view (today by default)")
-    current_ui.print_line("     day -1         → yesterday")
-    current_ui.print_line("     day 1405-02-12 → specific date")
-    current_ui.print_line("     Inside: p/n/q to navigate, also YYYY-MM-DD or 5n/5p")
-    current_ui.print_line()
-    current_ui.print_line("  view [filter]")
-    current_ui.print_line("     Browse entries (n=next p=prev, n/p can have a count like 5n)")
-    current_ui.print_line("     view project")
-    current_ui.print_line("     Inside: id=edit entry, d <id> = open day of that entry")
-    current_ui.print_line()
-    current_ui.print_line("  search [query]")
-    current_ui.print_line("     Full‑text search journal entries (also 5n/5p for multi-page)")
-    current_ui.print_line("     search programming")
-    current_ui.print_line("     search morning")
-    current_ui.print_line()
-    current_ui.print_line("  recent")
-    current_ui.print_line("     Show the last 5 journal entries")
-    current_ui.print_line()
-    current_ui.print_line("  stats")
-    current_ui.print_line("     Prayer/sleep/hygiene stats")
-    current_ui.print_line()
-
-    # ── Tools ──
-    current_ui.print_line("⚙ Tools & Configuration")
-    current_ui.print_line("  bd [name date]")
-    current_ui.print_line("     Add birthday (Jalali)")
-    current_ui.print_line("     bd Ali 1386/05/12")
-    current_ui.print_line("     bd Zahra 5/12")
-    current_ui.print_line("  birthdays")
-    current_ui.print_line("     Manage birthday list (toggle, add, delete)")
-    current_ui.print_line("  t [description]")
-    current_ui.print_line("     Add intention / to‑do")
-    current_ui.print_line("     t finish report")
-    current_ui.print_line("  hygiene")
-    current_ui.print_line("     Manage hygiene intervals")
-    current_ui.print_line()
-
-    # ── Calendar ──
-    current_ui.print_line("📅 Calendar")
-    current_ui.print_line("  cal [month] [year]")
-    current_ui.print_line("     Show month grid + upcoming events")
-    current_ui.print_line("  year")
-    current_ui.print_line("     Show full‑year grid (adaptive columns)")
-    current_ui.print_line("  hijri")
-    current_ui.print_line("     Show/adjust Hijri date offset interactively")
-    current_ui.print_line()
-
-    # ── Multi‑line ──
-    current_ui.print_line("📄 Multi‑line entries")
-    current_ui.print_line("  :m")
-    current_ui.print_line("     Start collecting lines")
-    current_ui.print_line("  ---")
-    current_ui.print_line("     (alone) End & log collected lines")
-    current_ui.print_line()
-
-    # ── Export ──
-    current_ui.print_line("📤 Export")
-    current_ui.print_line("  export <duration|all> [--txt|--md]")
-    current_ui.print_line("     export 7d        → Markdown timeline (default)")
-    current_ui.print_line("     export all --txt → plain text timeline")
-    current_ui.print_line("     Creates a human‑readable chronological file.")
-    current_ui.print_line()
-
-    # ── Other ──
-    current_ui.print_line("❓ Other")
-    current_ui.print_line("  ?          This help")
-    current_ui.print_line("  q          Quit")
-    current_ui.print_line()
-    current_ui.print_line("Weather is shown automatically in the header (IRIMO, Tehran).")
+def show_command_help(name: str) -> None:
+    """Print the detailed help block for a single command."""
+    for line in command_help(name):
+        current_ui.print_line(line)

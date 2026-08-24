@@ -1,5 +1,74 @@
 # Changelog
 
+## 2.0.0 (2026‑08‑24)
+
+### BREAKING
+- **`bd` is now fully interactive** – birthday creation no longer accepts inline
+  `name date` arguments (e.g. `bd Ali 1386/05/12`). Run `bd` and answer the
+  prompts. Logging commands keep their inline syntax; only creation moved fully
+  interactive.
+
+### Added
+- **prompt_toolkit input backend** – the REPL prompt gains command
+  autocompletion and persistent history, and the journal category picker becomes
+  an autocompleting, ranked selector. The category dropdown is ordered by
+  relevance (20 ranked entries, then the rest of the catalog alphabetically),
+  drops entries you've already committed on the line (by name or by number), and
+  reserves enough height to show plenty at once without scrolling the header off.
+  Pressing Enter on an empty line always accepts suggestion #1 (`0` is the
+  explicit opt-in for "Great Event only"). Output stays plain text. When
+  prompt_toolkit is unavailable or stdin/stdout is not a TTY (piped input,
+  redirects, most test contexts), the app silently falls back to plain prompts
+  and behaves exactly as before. Adds a `prompt_toolkit>=3` dependency.
+- **`-h` / `--help` on every command** – built from a single help registry
+  (`cli/help_registry.py`). The `?` / `h` summary is generated from the same
+  source, so per-command help and the overview can no longer drift apart. Help
+  flags are matched as exact tokens, so leading-dash arguments like `p -15` are
+  never mistaken for help.
+- **Documentation** – a full `docs/` tree: getting started, per-feature command
+  pages, concept guides (time expressions, categories, header, calendars, day
+  start), an architecture guide, and a roadmap built from real release history.
+
+### Changed
+- **Category suggestion ranking** – exact matches are now detected on whole path
+  segments (split on `/` and non-alphabetic characters, stemmed), eliminating
+  substring false positives like `art`→`start` or `log`→`blog`. The exact-match
+  boost is a gentle, coverage-proportional tiebreaker (scaled to the strongest
+  TF-IDF score, with a floor), and a fully covered path earns an extra bonus so a
+  full exact match outranks a deeper partial one (e.g. `free_learning` beats
+  `free_learning/art` for "learning"). IDF is clamped at 0. The numbered picker
+  now shows 5 suggestions; the rich dropdown ranks 20.
+- **Command dispatch unified** – the REPL and single-command paths share one
+  `_dispatch_line` helper (help interception + handler/journal routing).
+- **Header event lines** – the great-event and running-event status lines are
+  built into the priority-ordered header stream at their historic position (just
+  under prayers, above sleep). A refactor had stopped rendering them entirely;
+  they are restored without reintroducing a feature package.
+- **Documentation restructure** – `COMMANDS.md`, `OPTIMIZATIONS.md`, `TODO.md`,
+  and `REVIEW_ACTIONS.md` removed from the repository root; their content is
+  rewritten into `docs/` (command pages, `docs/reference/optimizations.md`, and
+  `docs/roadmap.md`). Root keeps a slimmed `README.md`, `CONTRIBUTING.md`,
+  `CHANGELOG.md`, and `LICENSE`.
+
+### Fixed
+- **Great/running event never shown in the header** – a pre-existing regression
+  from the v1.8.0 feature-package refactor (the header builder stopped calling
+  the event status helpers). Restored, so `sge`/`se` are visible and clearly
+  disappear on `ege`/`ee`/`cge`/`ce`.
+- **`ege`/`ee` silently kept the event when logging was cancelled** – if the time
+  confirmation was declined, the entry wasn't logged *and* the event wasn't
+  cleared, with no feedback. The event is intentionally kept (so nothing is lost)
+  but now says so explicitly and tells you how to end or cancel it. Long-standing
+  bug, not new to v2.0.
+
+### Tests
+- Added coverage for category ranking (including full-vs-partial preference), the
+  prompt_toolkit backend and fallback (live dropdown removal, dedupe, empty-Enter
+  semantics), the help system (flag detection, alias resolution, summary
+  generation, and a guard that every registered command has a help entry), the
+  fully interactive `bd`, header event placement/ordering, and the cancelled-log
+  event paths. Suite at **456 passing tests**.
+
 ## 1.8.0 (2026‑08‑23)
 
 ### Added
