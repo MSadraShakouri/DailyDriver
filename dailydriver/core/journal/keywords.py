@@ -31,7 +31,11 @@ EXACT_MATCH_RELATIVE = 0.25
 EXACT_MATCH_FLOOR = 1.0
 FULL_MATCH_BONUS = 0.5
 MIN_SCORE = 0.1
-MAX_RESULTS = 10
+# How many ranked suggestions the numbered picker shows by default. The rich
+# dropdown asks for more (``DROPDOWN_RANKED``) so its live completions stay
+# relevance-ordered well past the short numbered list.
+MAX_RESULTS = 5
+DROPDOWN_RANKED = 20
 
 
 def load_stopwords() -> set[str]:
@@ -89,14 +93,17 @@ def path_segments(path: str) -> set[str]:
     return segments
 
 
-def find_matching_categories(text: str) -> list[tuple[str, float]]:
-    """Return up to ``MAX_RESULTS`` categories scored by TF-IDF plus path boosts.
+def find_matching_categories(text: str, limit: int = MAX_RESULTS) -> list[tuple[str, float]]:
+    """Return up to *limit* categories scored by TF-IDF plus path boosts.
 
     Scoring has two stages. First, TF-IDF accumulates evidence from learned
     keywords. Then any category whose path *segments* contain a query token
     receives a boost scaled to the strongest TF-IDF score in this query, so an
     exact match surfaces near the top regardless of how well other categories
     are trained. Results are returned already ordered for direct display.
+
+    *limit* lets the caller ask for more ranked results than the default
+    numbered picker shows (e.g. the rich dropdown requests ``DROPDOWN_RANKED``).
     """
     tokens = tokenize(text)
     if not tokens:
@@ -152,7 +159,7 @@ def find_matching_categories(text: str) -> list[tuple[str, float]]:
 
         results: list[tuple[str, float]] = []
         for cat_id, score in sorted(scores.items(), key=lambda item: item[1], reverse=True):
-            if score < MIN_SCORE or len(results) >= MAX_RESULTS:
+            if score < MIN_SCORE or len(results) >= limit:
                 break
             results.append((all_cats[cat_id], score))
         return results

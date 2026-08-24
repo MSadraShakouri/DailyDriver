@@ -10,7 +10,7 @@ from dailydriver.core.state import get_active_great_event, get_last_action_time
 from dailydriver.ui.terminal_ui import current_ui
 from dailydriver.utils.time_parser import parse_time_expressions
 
-from .keywords import find_matching_categories
+from .keywords import DROPDOWN_RANKED, MAX_RESULTS, find_matching_categories
 from .writer import inject_great_categories, save_entry
 
 
@@ -25,14 +25,18 @@ def _persist_new_paths(conn, paths: list[str]) -> None:
 def _choose_categories(conn, cmd: str) -> list[str] | None:
     cur = conn.cursor()
     selected_paths: list[str] = []
-    matches = find_matching_categories(cmd)
+    # A longer ranked list orders the rich dropdown; the short numbered list is
+    # the head of it.
+    ranked = find_matching_categories(cmd, limit=DROPDOWN_RANKED)
+    matches = ranked[:MAX_RESULTS]
+    ranked_paths = [path for path, _ in ranked]
     active_great_event = get_active_great_event()
     show_great_only = active_great_event is not None and bool(matches)
 
     # Rich backends (prompt_toolkit) provide an autocompleting, ranked picker.
     # It returns None to signal "fall back to the plain flow below".
     all_paths = [row["path"] for row in cur.execute("SELECT path FROM categories ORDER BY path")]
-    picked = current_ui.select_categories(matches, all_paths, show_great_only=show_great_only)
+    picked = current_ui.select_categories(matches, ranked_paths, all_paths, show_great_only=show_great_only)
     if picked is not None:
         _persist_new_paths(conn, picked)
         return picked
