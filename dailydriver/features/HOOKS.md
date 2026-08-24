@@ -74,12 +74,16 @@ released migration: progress is tracked by list position.
 
 Features without feature-owned schema do not define this hook.
 
-### `export_items(conn, cutoff) -> sequence[dict]`
+### `export_items(conn, start, end=None) -> sequence[dict]`
 
-Return zero or more timeline items for the main `export` command.
+Return zero or more timeline items for the main `export` command and the
+unified day timeline.
 
-- `conn`: an open SQLite connection owned by the export coordinator;
-- `cutoff`: Unix timestamp lower bound; `0` means "all time".
+- `conn`: an open SQLite connection owned by the coordinator;
+- `start`: inclusive Unix timestamp lower bound; `0` means "all time";
+- `end`: optional inclusive Unix timestamp upper bound; `None` (the default)
+  means "no upper bound". Never use `0` as an upper-bound sentinel — it is a
+  valid timestamp and would silently exclude everything.
 
 Items are merged with core journal entries and other feature data into one
 strictly chronological timeline. At minimum, each item should provide:

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from datetime import datetime
+
 import jdatetime
 
 
@@ -33,6 +35,16 @@ def jalali_date_time(ts: int | float) -> tuple[str, str]:
     """Return ``(DD Month YYYY, HH:MM)`` for a local Unix timestamp."""
     dt = jdatetime.datetime.fromtimestamp(ts)
     return dt.strftime("%d %B %Y"), dt.strftime("%H:%M")
+
+
+def jalali_date_with_weekday(ts: int | float) -> str:
+    """Return ``Www, DD Month YYYY`` (Jalali date, Gregorian-derived weekday).
+
+    The abbreviated weekday comes from the Gregorian equivalent, matching the
+    header (e.g. ``Mon, 02 Shahrivar 1405``).
+    """
+    weekday = datetime.fromtimestamp(ts).strftime("%a")
+    return f"{weekday}, {jalali_date_time(ts)[0]}"
 
 
 def format_duration_minutes(minutes: int | None) -> str:
@@ -67,10 +79,10 @@ def build_export_item(
     sort_key=None,
 ) -> dict:
     """Create a normalized unified timeline item."""
-    display_date, inferred_time = jalali_date_time(timestamp)
+    _, inferred_time = jalali_date_time(timestamp)
     return {
         "timestamp": int(timestamp),
-        "display_date": display_date,
+        "display_date": jalali_date_with_weekday(timestamp),
         "display_time": display_time or inferred_time,
         "text": text,
         "details": details or "",

@@ -61,9 +61,10 @@ Tehran. Prayer logging switches to a smart slot selector.
 
 ## Day start hour — `daystart`
 
-Shift the day boundary used by hygiene and target calculations. Default is
-4:00 AM, so before-dawn logs count toward the previous day. See
-[Day Start Hour](../concepts/day-start.md).
+Shift the day boundary used by hygiene and target calculations — and, when
+the day view is switched to day-start mode (`m` inside `day`), the boundary
+of the day timeline. Default is 4:00 AM, so before-dawn logs count toward the
+previous day. See [Day Start Hour](../concepts/day-start.md).
 
 | Usage | Meaning |
 |-------|---------|

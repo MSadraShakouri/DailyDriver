@@ -5,11 +5,9 @@ from __future__ import annotations
 import time
 from itertools import groupby
 
-import dailydriver.features as features_pkg
+from dailydriver.cli.timeline import collect_timeline_items
 from dailydriver.core.database import get_connection_cm
 from dailydriver.core.export_utils import parse_duration_arg
-from dailydriver.core.journal import get_export_items as get_journal_export_items
-from dailydriver.features.registry import export_hook
 from dailydriver.ui.terminal_ui import current_ui
 
 
@@ -85,16 +83,10 @@ def export(cmd: str):
         return None
 
     cutoff = 0 if days == 0 else int(time.time()) - days * 86400
-    all_items: list[dict] = []
 
     with get_connection_cm(auto=False) as conn:
-        all_items.extend(get_journal_export_items(conn, cutoff))
-        for feature in features_pkg.ENABLED:
-            hook = export_hook(feature)
-            if hook is not None:
-                all_items.extend(hook(conn, cutoff))
+        all_items = collect_timeline_items(conn, cutoff)
 
-    all_items.sort(key=lambda item: item.get("sort_key", (item["timestamp"], item["text"])))
     label = _range_label(duration_arg, days)
     content = _render_text(label, all_items) if file_format == "txt" else _render_markdown(label, all_items)
     filename = f"export_{duration_arg.strip().lower()}.{file_format}"

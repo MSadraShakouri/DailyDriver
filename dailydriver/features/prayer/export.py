@@ -25,15 +25,16 @@ def _format_jalali_iso_date(date_str: str | None) -> str | None:
         return date_str
 
 
-def export_items(conn, cutoff: int) -> list[dict]:
+def export_items(conn, start: int, end: int | None = None) -> list[dict]:
     rows = conn.execute(
         """
         SELECT id, prayer_slot, status, jalali_date, prayer_time, logged_at, jamaat_location, shak_count
         FROM prayer_logs
         WHERE COALESCE(prayer_time, logged_at) >= ?
+          AND (? IS NULL OR COALESCE(prayer_time, logged_at) <= ?)
         ORDER BY COALESCE(prayer_time, logged_at), id
         """,
-        (cutoff,),
+        (start, end, end),
     ).fetchall()
 
     items = []

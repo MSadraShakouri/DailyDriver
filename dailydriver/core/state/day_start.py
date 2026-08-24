@@ -11,6 +11,26 @@ from .meta import get_meta_value, set_meta_value
 _DAY_START_KEY = "day_start_hour"
 _DEFAULT_DAY_START_HOUR = 4
 
+_DAY_VIEW_MODE_KEY = "day_view_mode"
+DAY_VIEW_MODE_MIDNIGHT = "midnight"
+DAY_VIEW_MODE_DAY_START = "daystart"
+_VALID_DAY_VIEW_MODES = (DAY_VIEW_MODE_MIDNIGHT, DAY_VIEW_MODE_DAY_START)
+
+
+def get_day_view_mode() -> str:
+    """Return the persisted day-view boundary mode, defaulting to midnight."""
+    value = get_meta_value(_DAY_VIEW_MODE_KEY)
+    if value in _VALID_DAY_VIEW_MODES:
+        return value
+    return DAY_VIEW_MODE_MIDNIGHT
+
+
+def set_day_view_mode(mode: str) -> None:
+    """Persist the day-view boundary mode ('midnight' or 'daystart')."""
+    if mode not in _VALID_DAY_VIEW_MODES:
+        raise ValueError(f"Mode must be one of {_VALID_DAY_VIEW_MODES}, got {mode!r}")
+    set_meta_value(_DAY_VIEW_MODE_KEY, mode)
+
 
 def get_day_start_hour() -> int:
     """Return the configured day-boundary hour, defaulting to 4."""

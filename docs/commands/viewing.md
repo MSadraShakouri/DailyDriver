@@ -2,8 +2,12 @@
 
 ## Day view — `day` (alias `today`)
 
-Show a full day, adapting the header to that date (prayers, sleep, weather,
-events).
+Show a full day: the header adapts to that date (prayers, sleep, weather,
+events) and the body is a unified chronological timeline of everything logged
+that day — journal entries, prayers (🕌), sleep (💤), naps (😴), qada progress
+(📿), and target logs (🎯). Journal entries appear as their category list
+(without the `journal/` prefix), with the description underneath, and show a
+time range (`HH:MM → HH:MM (dur)`) when a duration was logged.
 
 | Usage | Meaning |
 |-------|---------|
@@ -15,33 +19,55 @@ Inside the view: `p`/`n` for previous/next day, `5n`/`5p` to jump multiple days,
 type a `YYYY-MM-DD` date to go there, `q` to quit. From `view` or `search`,
 `d <id>` opens the day of that entry.
 
+`m` toggles the day boundary between two modes (persisted across sessions,
+default **midnight**):
+
+- **midnight** — the day runs 00:00 → 24:00;
+- **day start** — the day runs from the configured day-start hour (see
+  `daystart`, default 04:00) to the same hour the next day, so late-night
+  activity counts toward the evening's day.
+
+Items are placed on a day by their start time (falling back to log time),
+the same rule `export` uses. Prayers and sleep also appear summarized in the
+header; the timeline shows them in chronological context.
+
 ## Browse entries — `view`
 
 | Usage | Meaning |
 |-------|---------|
-| `view` | All entries, newest first |
+| `view` | All entries, newest first (by start time) |
 | `view <filter>` | Filter by category text (e.g. `view project`) |
+
+Entries with a logged duration show the full time range in export's format:
+`YYYY-MM-DD HH:MM → HH:MM (dur)`; otherwise just the start time.
 
 Inside: `n`/`p` (or `5n`/`5p`) to page, type an entry ID to edit it, `d <id>` to
 open that entry's day, `q` to quit.
 
 ## Search — `search`
 
-Full-text search over descriptions and categories, with fuzzy scoring that
-boosts time-of-day, relative dates, weekdays, month names (Jalali, Gregorian,
-Hijri), and category matches. Uses SQLite FTS5 with a LIKE fallback, and
-tolerates misspellings (`mornig` → morning).
+A simple filter over journal descriptions and category paths — no relevance
+scoring. Query words are tokenized the same way journal keywords are (words
+under 3 letters and stopwords are dropped, and the header reports them as
+ignored). A word matches an entry when its stem equals the stem of a whole
+word in the description or the category path — so `art` never matches
+"start", while `meetings` finds "meeting".
 
 | Usage | Meaning |
 |-------|---------|
 | `search programming` | Entries containing "programming" |
-| `search morning` | Entries in the morning window (time boost) |
-| `search yesterday` | Entries from the last few days (date boost) |
-| `search monday` | Entries near the most recent Monday |
-| `search programming night` | Combined text + time/category scoring |
+| `search python project` | Entries containing either word, best matches first |
 
-Results paginate with `n`/`p`/`5n`; matches are highlighted. Type an entry ID to
-edit, `d <id>` to open its day, `q` to quit.
+Results are grouped by how many query words matched: entries with **all**
+words first, then one fewer, and so on. Within each group entries are newest
+first (by start time). Each group has a header like
+`── All 3 terms (12 entries) ──`; when a page starts mid-group the header is
+repeated with `cont.`. Entries with a logged duration show the export-style
+time range `HH:MM → HH:MM (dur)`.
+
+Results paginate with `n`/`p`/`5n`; matching words are highlighted in both the
+description and the categories. Type an entry ID to edit, `d <id>` to open its
+day, `q` to quit.
 
 ## Recent — `recent`
 

@@ -7,9 +7,22 @@ import sys
 import jdatetime
 
 from dailydriver.core.database import get_connection_cm
+from dailydriver.core.export_utils import format_time_range
 from dailydriver.core.journal import log_free_text
 from dailydriver.display.display_utils import pline_wrap, wrap_line
 from dailydriver.ui.terminal_ui import current_ui
+
+
+def entry_time_display(started_at, created_at, duration_minutes) -> str:
+    """Return 'YYYY-MM-DD HH:MM' or 'YYYY-MM-DD HH:MM → HH:MM (dur)'.
+
+    Uses the start time when available (falling back to log time) and appends
+    the end time and duration when a duration was logged — the same
+    `HH:MM → HH:MM (dur)` format as export.
+    """
+    ts = started_at if started_at is not None else created_at
+    date_part = jdatetime.datetime.fromtimestamp(ts).strftime("%Y-%m-%d")
+    return f"{date_part} {format_time_range(ts, duration_minutes)}"
 
 
 def view_entries(category_filter=None):
@@ -20,7 +33,7 @@ def view_entries(category_filter=None):
 
         # Base query (without LIMIT, for counting later)
         base_sql = """
-            SELECT e.id, e.created_at, e.duration_minutes, e.description,
+            SELECT e.id, e.created_at, e.started_at, e.duration_minutes, e.description,
                    GROUP_CONCAT(c.path, ', ') AS categories
             FROM entries e
             LEFT JOIN entry_categories ec ON e.id = ec.entry_id
@@ -37,7 +50,7 @@ def view_entries(category_filter=None):
 
         query_sql = base_sql + where_clause + """
             GROUP BY e.id
-            ORDER BY e.created_at DESC
+            ORDER BY COALESCE(e.started_at, e.created_at) DESC
             LIMIT ? OFFSET ?
         """
 
@@ -53,9 +66,9 @@ def view_entries(category_filter=None):
             filter_str = f" [filter: {category_filter}]" if category_filter else ""
             current_ui.print_line(f"─────── Journal Entries{filter_str} ───────")
             for row in rows:
-                jdt = jdatetime.datetime.fromtimestamp(row["created_at"])
-                # Line 1: ID + date + time
-                current_ui.print_line(f"[{row['id']}] {jdt.strftime('%Y-%m-%d %H:%M')}")
+                # Line 1: ID + date + time (range with duration when available)
+                time_str = entry_time_display(row["started_at"], row["created_at"], row["duration_minutes"])
+                current_ui.print_line(f"[{row['id']}] {time_str}")
                 # Categories indented under the date
                 cats = row["categories"] or "(no category)"
                 cats_indent = " " * len(f"[{row['id']}] ")
@@ -94,10 +107,13 @@ def view_entries(category_filter=None):
 
                     with get_connection_cm() as conn2:
                         cur2 = conn2.cursor()
-                        cur2.execute("SELECT created_at FROM entries WHERE id=?", (int(eid),))
+                        cur2.execute(
+                            "SELECT COALESCE(started_at, created_at) AS ts FROM entries WHERE id=?",
+                            (int(eid),),
+                        )
                         row2 = cur2.fetchone()
                         if row2:
-                            jd = jdatetime.datetime.fromtimestamp(row2["created_at"])
+                            jd = jdatetime.datetime.fromtimestamp(row2["ts"])
                             show_day(jd.strftime("%Y-%m-%d"))
                             return
                         else:

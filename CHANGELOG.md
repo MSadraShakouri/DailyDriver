@@ -1,8 +1,23 @@
 # Changelog
 
-## Unreleased
+## 2.1.0 (2026-08-24)
 
 ### Added
+- **Unified day timeline**: the `day` view now shows everything logged that
+  day in chronological order — journal entries (plain, `journal/` prefix
+  stripped, time ranges when a duration exists), prayers 🕌, sleep 💤, naps 😴,
+  qada 📿, and targets 🎯 — using the same shared timeline builder as `export`.
+  Items are placed by start time (falling back to log time).
+- **Day-boundary modes** in the day view: `m` toggles between **midnight**
+  (default, 00:00 → 24:00) and **day start** (the configurable day-start hour
+  to the same hour next day); the last-used mode is persisted in the meta
+  table.
+- **Weekday in export day headers**: `### Mon, 02 Shahrivar 1405` (Markdown)
+  and `── Mon, 02 Shahrivar 1405 ──` (text), abbreviated and derived from the
+  Gregorian equivalent like the app header.
+- **Time ranges in `view` and `search`**: entries with a logged duration show
+  export's `HH:MM → HH:MM (dur)` format; sorting is newest-first by start
+  time, and `d <id>` jumps to the day of the start time.
 - **Category editor** (`tools/category_editor.py` + `category_editor.html`,
   port 8768) for long-term category maintenance: list categories
   alphabetically (with entry counts, live search, two-select merge, and
@@ -18,6 +33,32 @@
   path-suffix match would be broken. Destructive actions require typed
   confirmation; all mutations run in a single transaction that rolls back on
   failure.
+- First test suites for search, the day view, and the entry browser.
+
+### Changed
+- **Search rewritten as a token filter** (no relevance scoring): query words
+  are tokenized/stemmed like journal keywords (ignored words are reported),
+  a word matches whole words in the description or category path ("art" no
+  longer matches "start"), and results are grouped by how many words matched
+  — all terms first — newest first within each group, with group headers and
+  `cont.` markers across pages. Matches are highlighted in both text and
+  categories. The FTS/fuzzy scoring modules were removed (`search yesterday`
+  date boosts are gone).
+- **`export_items` hook** signature is now `export_items(conn, start,
+  end=None)` with an optional inclusive upper bound (`None` = unbounded),
+  shared by `export` and the day timeline. A range-based `export
+  YYYY-MM-DD YYYY-MM-DD` CLI is a roadmap to-do.
+- Empty categories render as `(no category)` everywhere (export previously
+  used `(none)`).
+- **Day-view item layout**: each timeline item renders on three lines — the
+  time (range), then the label/categories (both indented deeper), then the
+  description pulled back left — instead of a single prefixed line.
+- **Search group headers** are bold cyan and set off by blank lines, so the
+  transition between match-count groups is unmistakable while paging.
+
+### Fixed
+- `pline_wrap` truncation no longer slices ANSI escape codes, which could
+  leak reverse-video highlighting into subsequent lines on narrow terminals.
 
 ## 2.0.0 (2026‑08‑24)
 

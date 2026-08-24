@@ -147,14 +147,18 @@ HELP: dict[str, HelpEntry] = {
     ),
     # ── Viewing & summaries ──
     "day": HelpEntry(
-        summary="Show a day view",
+        summary="Show a day timeline",
         group="Viewing & Summaries",
         usage=[
-            "day                today's view",
+            "day                today's timeline",
             "day -1             yesterday",
             "day 1405-02-15     a specific Jalali date",
         ],
-        notes="Inside: p/n navigate, 5n/5p jump, a date to go there, q to quit.",
+        notes=(
+            "Unified timeline: journal, prayers, sleep, naps, qada, targets. "
+            "Inside: p/n navigate, 5n/5p jump, m toggles the day boundary "
+            "(midnight vs day-start hour), a date to go there, q to quit."
+        ),
     ),
     "today": HelpEntry(summary="Alias for day", group="Viewing & Summaries", alias_of="day"),
     "view": HelpEntry(
@@ -167,14 +171,17 @@ HELP: dict[str, HelpEntry] = {
         notes="Inside: n/p (or 5n/5p) navigate, an id edits, 'd <id>' opens that day.",
     ),
     "search": HelpEntry(
-        summary="Full-text search with fuzzy boosts",
+        summary="Search journal text and categories",
         group="Viewing & Summaries",
         usage=[
-            "search <query>     text + time/date/category scoring",
-            "search morning     time-of-day boost",
-            "search yesterday   relative-date boost",
+            "search <words>     entries containing the words",
         ],
-        notes="FTS5 with LIKE fallback; misspellings tolerated. n/p/5n paginate.",
+        notes=(
+            "A filter, not a ranking: results are grouped by how many words "
+            "match (all first), newest first within a group. Words match "
+            "whole words (stemmed) in the text or category path; matches are "
+            "highlighted. n/p/5n paginate."
+        ),
     ),
     "recent": HelpEntry(summary="Show the last 5 journal entries", group="Viewing & Summaries", usage=["recent"]),
     "stats": HelpEntry(

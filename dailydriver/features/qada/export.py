@@ -5,16 +5,17 @@ from __future__ import annotations
 from dailydriver.core.export_utils import build_export_item, jalali_date_time
 
 
-def export_items(conn, cutoff: int) -> list[dict]:
+def export_items(conn, start: int, end: int | None = None) -> list[dict]:
     rows = conn.execute(
         """
         SELECT ql.id, ql.logged_at, ql.amount, qe.name, qe.kind, qe.slot
         FROM qada_logs ql
         JOIN qada_entries qe ON qe.id = ql.entry_id
         WHERE ql.logged_at >= ?
+          AND (? IS NULL OR ql.logged_at <= ?)
         ORDER BY ql.logged_at, ql.id
         """,
-        (cutoff,),
+        (start, end, end),
     ).fetchall()
 
     items = []

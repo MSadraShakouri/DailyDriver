@@ -46,7 +46,7 @@ VERSION = "1.0.0"      # human-facing feature API version
 def register_commands(dispatch): ...        # add command names + aliases
 def header_sections(conn, today, target_date, is_today): ...  # header content
 def migrations(): ...                        # ordered schema migrations
-def export_items(conn, cutoff): ...          # timeline items for `export`
+def export_items(conn, start, end=None): ...  # timeline items for `export`/`day`
 ```
 
 Hooks are duck-typed and all optional; the registry validates metadata and hook
@@ -94,8 +94,9 @@ drift apart. A test guards that every registered command has a help entry.
 
 State is a single SQLite database at `data/daily.db` (override with
 `DAILYDRIVER_DB`). Core tables include `categories`, `keywords`, `entries`,
-`entry_categories`, prayer/sleep logs, a key/value `meta` table, and FTS indexes
-for search. Each feature owns its own tables and its own ordered migration
+`entry_categories`, prayer/sleep logs, a key/value `meta` table, and an FTS
+index (kept in sync on writes; `search` itself is a token filter, not
+FTS-ranked). Each feature owns its own tables and its own ordered migration
 sequence; per-feature migration progress is tracked in `feature_versions`.
 Released migrations are append-only — never reorder or remove one, since progress
 is tracked by list position.
@@ -103,8 +104,9 @@ is tracked by list position.
 ## Tools
 
 `tools/` contains standalone helpers that are not part of the REPL: HTML/Python
-editors for events, keywords, and reminders, plus analysis scripts like
-`sleep_avg.py`. They operate directly on the database or data files.
+editors for events, keywords, reminders, and categories (the category editor
+on port 8768 supports rename, merge, and safe delete), plus analysis scripts
+like `sleep_avg.py`. They operate directly on the database or data files.
 
 See [CONTRIBUTING](../CONTRIBUTING.md) for workflow, style, and testing
 conventions.

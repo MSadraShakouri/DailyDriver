@@ -65,6 +65,34 @@ def pline_center(s: str):
     current_ui.print_line(" " * left + s)
 
 
+def truncate_display(s: str, max_width: int) -> str:
+    """Truncate *s* to at most *max_width* display columns, ANSI-aware.
+
+    ANSI escape sequences are preserved (they occupy no columns), and if any
+    are present a reset code is appended so styling never leaks past the
+    truncation point.
+    """
+    out: list[str] = []
+    width = 0
+    i = 0
+    while i < len(s):
+        match = ANSI_ESCAPE.match(s, i)
+        if match:
+            out.append(match.group())
+            i = match.end()
+            continue
+        w = char_width(s[i])
+        if width + w > max_width:
+            break
+        out.append(s[i])
+        width += w
+        i += 1
+    result = "".join(out)
+    if ANSI_ESCAPE.search(result):
+        result += "\033[0m"
+    return result
+
+
 def pline_wrap(s: str, indent: int = 0, max_lines: int = 0, first_indent: int | None = None):
     """Print a line, wrapping at word boundaries to fit terminal width.
     If max_lines > 0, print at most that many lines; the last printed
@@ -92,10 +120,10 @@ def pline_wrap(s: str, indent: int = 0, max_lines: int = 0, first_indent: int | 
     if max_lines > 0 and len(lines) > max_lines:
         lines = lines[:max_lines]
         last = lines[-1].rstrip()
-        if display_width(last) + 3 <= tw:
+        if display_width(last) < tw:
             last += "…"
         else:
-            last = last[: max(0, display_width(last) - 3)] + "…"
+            last = truncate_display(last, max(0, tw - 1)) + "…"
         lines[-1] = last
 
     for line in lines:

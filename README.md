@@ -1,4 +1,4 @@
-# DailyDriver v2.0.0
+# DailyDriver v2.1.0
 
 Your personal, terminal-based life tracker.
 Log prayers, sleep, hygiene routines, birthdays, intentions, targets, and
@@ -17,7 +17,10 @@ Built with Python, SQLite, and Jalali (Persian) calendar support.
   counters.
 - **Calendars** — Jalali, Gregorian, and Hijri at once, with events, reminders,
   and an adjustable Hijri offset.
-- **Full-text search** with fuzzy time/date/category boosts.
+- **Unified day timeline** — `day` interleaves journal, prayers, sleep, naps,
+  qada, and targets chronologically, with a midnight / day-start boundary
+  toggle.
+- **Search** over journal text and categories, grouped by how many words match.
 - **Smart categories** — TF-IDF keyword learning with an autocompleting,
   ranked picker.
 - **Unified export** — one chronological timeline across journal, sleep, prayer,
