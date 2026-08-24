@@ -175,8 +175,18 @@
     .sug-row .s { color: #888; font-size: 13px; flex-shrink: 0; }
     .sug-row.disabled { cursor: default; color: #888; }
     .sug-empty { color: #888; font-size: 15px; }
-    #mergeSug { margin: 10px 0 4px; }
-    #mergeSug .sug-title { margin-bottom: 6px; }
+    /* In-dialog suggestions: a bordered panel, visually distinct from the
+       typeahead popup (which floats with a shadow and only appears while
+       typing). */
+    #mergeSug {
+      margin: 12px 0 4px;
+      padding: 10px 12px;
+      background: #f7f8fa;
+      border: 1px solid #e6e8eb;
+      border-radius: 8px;
+    }
+    #mergeSug .sug-title { margin-bottom: 8px; font-weight: 600; color: #555; }
+    #mergeSug .sug-row { background: white; }
 
     /* ---- typeahead (prompt-toolkit style) ---- */
     .ac-wrap { position: relative; }
@@ -349,7 +359,7 @@
       <label for="mSrc">Source (will be deleted)</label>
       <div class="ac-wrap">
         <input type="text" id="mSrc" autocomplete="off"
-               oninput="onMergeField('mSrc')" onfocus="onMergeField('mSrc')"
+               oninput="onMergeField('mSrc')"
                onkeydown="acKey(event, 'mSrc')">
         <div class="ac-drop" id="ac-mSrc"></div>
       </div>
@@ -359,7 +369,7 @@
       <label for="mTgt">Target (will be kept)</label>
       <div class="ac-wrap">
         <input type="text" id="mTgt" autocomplete="off"
-               oninput="onMergeField('mTgt')" onfocus="onMergeField('mTgt')"
+               oninput="onMergeField('mTgt')"
                onkeydown="acKey(event, 'mTgt')">
         <div class="ac-drop" id="ac-mTgt"></div>
       </div>
@@ -806,9 +816,13 @@
 
     function showAc(fieldId) {
       hideAc();
+      const value = document.getElementById(fieldId).value;
+      // Only while typing — a plain focus must not pop a list (that would
+      // look like the suggestions section).
+      if (!value.trim()) return;
       const otherId = fieldId === "mSrc" ? "mTgt" : "mSrc";
       const otherCat = byPath(document.getElementById(otherId).value);
-      const items = acMatches(document.getElementById(fieldId).value, otherCat ? otherCat.id : null);
+      const items = acMatches(value, otherCat ? otherCat.id : null);
       if (!items.length) return;
       const drop = document.getElementById("ac-" + fieldId);
       drop.innerHTML = items.map((c, i) =>
