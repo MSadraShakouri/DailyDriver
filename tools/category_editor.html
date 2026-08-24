@@ -1,678 +1,762 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes">
-<title>Category Editor</title>
-<style>
-  * { box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-size: 18px;
-    margin: 0;
-    background: #f5f5f5;
-    color: #333;
-    padding-bottom: 80px;
-  }
-  header {
-    background: #007bff;
-    color: white;
-    padding: 12px 16px;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-  header h1 { margin: 0 0 10px 0; font-size: 22px; }
-  .toolbar {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-  .toolbar button {
-    font-size: 15px;
-    padding: 8px 14px;
-    border: 1px solid rgba(255,255,255,.4);
-    border-radius: 6px;
-    background: rgba(255,255,255,.15);
-    color: white;
-    cursor: pointer;
-    touch-action: manipulation;
-  }
-  .toolbar button:active { background: rgba(255,255,255,.35); }
-  #search {
-    flex: 1 1 100%;
-    padding: 10px 12px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    margin-top: 8px;
-    background: white;
-    color: #333;
-  }
-  main { padding: 12px 16px; }
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes">
+  <title>Category Editor</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 18px;
+      margin: 0;
+      background: #f5f5f5;
+      color: #333;
+      padding-bottom: 80px;
+    }
+    header {
+      background: #007bff;
+      color: white;
+      padding: 12px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    header h1 { margin: 0 0 8px 0; font-size: 24px; }
+    #search {
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-top: 8px;
+    }
+    .toolbar {
+      padding: 8px 16px;
+      background: white;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      border-bottom: 1px solid #ddd;
+    }
+    .toolbar button {
+      font-size: 14px;
+      padding: 6px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    .toolbar button:active { background: #e9e9e9; }
+    .selected-count { font-weight: bold; margin-left: auto; font-size: 14px; }
+    main { padding: 12px 16px; }
 
-  /* ---- suggestions ---- */
-  #suggestions { display: none; margin-bottom: 12px; }
-  #suggestions .card {
-    background: #fff8e1;
-    border: 1px solid #ffe082;
-    border-radius: 10px;
-    padding: 10px 12px;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  #suggestions .pair { flex: 1 1 100%; font-size: 16px; word-break: break-all; }
-  #suggestions .score {
-    background: #f9a825;
-    color: white;
-    border-radius: 10px;
-    padding: 2px 8px;
-    font-size: 13px;
-    white-space: nowrap;
-  }
-  #suggestions .no-match { color: #795548; font-size: 15px; }
+    /* ---- cards (categories + suggestions) ---- */
+    .cat-card {
+      background: white;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+    .cat-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .cat-info { flex: 1; min-width: 140px; }
+    .cat-path {
+      font-weight: bold;
+      font-size: 18px;
+      word-break: break-all;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .cat-meta { color: #888; font-size: 14px; margin-top: 2px; }
+    .mini {
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: white;
+      padding: 1px 8px;
+      margin-left: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      vertical-align: middle;
+    }
+    .mini:disabled { opacity: .4; cursor: not-allowed; }
+    .sel-label { display: flex; align-items: center; gap: 4px; cursor: pointer; font-size: 14px; flex-shrink: 0; }
+    .sel-label input {
+      width: 24px;
+      height: 24px;
+      appearance: none;
+      border: 2px solid #ccc;
+      border-radius: 6px;
+      position: relative;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .sel-label input:checked { border-color: transparent; background: #007bff; }
+    .sel-label input:checked::after {
+      content: '✓';
+      position: absolute;
+      left: 3px;
+      top: -2px;
+      color: white;
+      font-weight: bold;
+      font-size: 20px;
+    }
+    .cat-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+    .cat-actions button {
+      font-size: 14px;
+      padding: 6px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    .cat-actions button:active { background: #e9e9e9; }
+    .cat-actions button:disabled { opacity: .4; cursor: not-allowed; }
+    .danger { color: #c62828 !important; border-color: #ef9a9a !important; }
 
-  /* ---- table ---- */
-  .table-wrap {
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    overflow-x: auto;
-  }
-  table { width: 100%; border-collapse: collapse; min-width: 480px; }
-  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
-  th { font-size: 14px; text-transform: uppercase; color: #777; letter-spacing: .4px; }
-  tr:last-child td { border-bottom: none; }
-  tr.cat-row { cursor: default; }
-  tr.cat-row:active { background: #f0f7ff; }
-  .path { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 15px; word-break: break-all; }
-  .entries-cell { white-space: nowrap; }
-  .count { display: inline-block; min-width: 2ch; font-weight: 600; }
-  .toggle-btn {
-    border: 1px solid #ccc;
-    background: white;
-    border-radius: 6px;
-    padding: 2px 8px;
-    margin-left: 8px;
-    cursor: pointer;
-    font-size: 15px;
-  }
-  .actions { white-space: nowrap; }
-  .actions button {
-    font-size: 14px;
-    padding: 6px 10px;
-    margin-right: 6px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    background: white;
-    cursor: pointer;
-  }
-  .actions button:disabled { opacity: .4; cursor: not-allowed; }
-  .actions .danger { color: #c62828; border-color: #ef9a9a; }
-  .actions .warn { color: #e65100; border-color: #ffcc80; }
+    /* ---- entry preview (card + merge modal) ---- */
+    .preview-box, .e-box {
+      border-top: 1px solid #eee;
+      margin-top: 10px;
+      max-height: 180px;
+      overflow-y: auto;
+      font-size: 15px;
+    }
+    .e-box { border: 1px solid #eee; border-radius: 6px; margin: 4px 0 10px; padding: 6px 10px; }
+    .e-item { padding: 4px 0; border-bottom: 1px dashed #e0e0e0; word-break: break-word; }
+    .e-item:last-child { border-bottom: none; }
+    .e-empty { color: #888; padding: 4px 0; }
+    .e-more { color: #777; font-size: 13px; font-style: italic; padding: 4px 0; }
+    .e-meta { font-size: 14px; color: #666; }
 
-  /* ---- entry preview ---- */
-  tr.preview-row td { background: #fafafa; padding: 0; }
-  .preview-box {
-    max-height: 220px;
-    overflow-y: auto;
-    padding: 10px 14px;
-    border-top: 2px solid #e3f2fd;
-  }
-  .preview-entry { padding: 6px 0; border-bottom: 1px dashed #e0e0e0; font-size: 15px; word-break: break-word; }
-  .preview-entry:last-child { border-bottom: none; }
-  .preview-entry .ts { color: #999; font-size: 13px; margin-right: 8px; }
-  .preview-more { padding: 8px 0 2px 0; color: #777; font-size: 14px; font-style: italic; }
-  .preview-empty, .preview-loading { color: #777; font-size: 15px; padding: 10px 14px; }
+    /* ---- suggestions section ---- */
+    #sugSection { margin-bottom: 14px; }
+    .sug-title { font-size: 14px; color: #777; margin: 0 2px 8px; }
+    .sug-card { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .sug-pair { flex: 1; min-width: 160px; word-break: break-all; font-family: ui-monospace, Menlo, monospace; font-size: 15px; }
+    .sug-score { color: #888; font-size: 14px; white-space: nowrap; }
+    .sug-card button {
+      font-size: 14px;
+      padding: 6px 12px;
+      border: 1px solid #007bff;
+      border-radius: 6px;
+      background: #e7f1ff;
+      color: #007bff;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .sug-empty { color: #888; font-size: 15px; }
 
-  /* ---- modals ---- */
-  .modal-backdrop {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.45);
-    z-index: 100;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-  }
-  .modal-backdrop.open { display: flex; }
-  .modal {
-    background: white;
-    border-radius: 12px;
-    width: 100%;
-    max-width: 460px;
-    padding: 18px 16px;
-    box-shadow: 0 8px 30px rgba(0,0,0,.25);
-  }
-  .modal h2 { margin: 0 0 14px 0; font-size: 19px; }
-  .modal label { display: block; font-size: 14px; color: #555; margin: 12px 0 4px 0; }
-  .modal input[type=text], .modal select {
-    width: 100%;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background: white;
-  }
-  .modal select { appearance: auto; }
-  .modal .hint { font-size: 13px; color: #888; margin-top: 4px; }
-  .modal .result-name { font-size: 14px; color: #1565c0; margin-top: 8px; word-break: break-all; }
-  .radio-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; font-size: 16px; }
-  .radio-row input { width: auto; }
-  .confirm-row { display: flex; gap: 8px; align-items: center; }
-  .confirm-row span { font-family: ui-monospace, Menlo, monospace; font-size: 15px; white-space: nowrap; }
-  .confirm-row input { flex: 1; }
-  .modal .btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
-  .modal .btns button {
-    font-size: 16px;
-    padding: 10px 18px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    background: white;
-    cursor: pointer;
-  }
-  .modal .btns .primary { background: #007bff; border-color: #007bff; color: white; }
-  .modal .btns .danger { background: #c62828; border-color: #c62828; color: white; }
-  .modal .btns button:disabled { opacity: .45; cursor: not-allowed; }
-  .modal .info { font-size: 15px; background: #e3f2fd; border-radius: 8px; padding: 10px 12px; margin-bottom: 4px; }
+    /* ---- floating merge-selected button ---- */
+    .floating-merge {
+      position: fixed;
+      bottom: 16px;
+      left: 16px;
+      right: 16px;
+      background: #28a745;
+      color: white;
+      font-size: 18px;
+      padding: 14px;
+      border: none;
+      border-radius: 50px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      cursor: pointer;
+      z-index: 20;
+      touch-action: manipulation;
+      text-align: center;
+      display: none;
+    }
+    .floating-merge:active { background: #1e7e34; }
 
-  /* ---- toasts ---- */
-  #toasts {
-    position: fixed;
-    bottom: 16px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 200;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    width: min(92vw, 420px);
-  }
-  .toast {
-    border-radius: 10px;
-    padding: 12px 14px;
-    font-size: 15px;
-    color: white;
-    box-shadow: 0 4px 14px rgba(0,0,0,.25);
-    animation: slide-up .18s ease-out;
-    word-break: break-word;
-  }
-  .toast.success { background: #2e7d32; }
-  .toast.error { background: #c62828; }
-  .toast.warning { background: #ef6c00; }
-  @keyframes slide-up { from { transform: translateY(8px); opacity: 0; } to { transform: none; opacity: 1; } }
+    /* ---- modals ---- */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+      z-index: 100;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: white;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 480px;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 16px;
+      box-shadow: 0 8px 30px rgba(0,0,0,.25);
+    }
+    .modal h2 { margin: 0 0 12px; font-size: 20px; }
+    .modal label { display: block; font-size: 14px; color: #555; margin: 12px 0 4px; }
+    .modal input[type=text] {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    .radios { font-size: 16px; }
+    .radios label { display: inline-flex; align-items: center; gap: 6px; margin: 4px 12px 0 0; font-size: 16px; color: #333; }
+    .radios input { width: auto; }
+    .hint { font-size: 13px; color: #888; margin-top: 4px; }
+    .btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+    .btns button {
+      font-size: 16px;
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      background: white;
+      cursor: pointer;
+    }
+    .btns button:active { background: #e9e9e9; }
+    .btns .primary { background: #007bff; border-color: #007bff; color: white; }
+    .btns .primary:disabled { background: #a8cdf5; border-color: #a8cdf5; cursor: not-allowed; }
+    .btns .danger { background: #c62828; border-color: #c62828; color: white; }
+    .btns .danger:disabled { background: #e0a9a9; border-color: #e0a9a9; cursor: not-allowed; }
 
-  .empty-note { text-align: center; color: #888; padding: 30px 16px; font-size: 16px; }
-  .muted { color: #888; }
-</style>
+    /* ---- mini suggestions in merge modal ---- */
+    .mini-sug { margin: 6px 0 4px; }
+    .mini-sug .title { font-size: 13px; color: #777; margin-bottom: 4px; }
+    .mini-sug .row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border: 1px solid #eee;
+      border-radius: 6px;
+      margin-bottom: 4px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+    .mini-sug .row:active { background: #f0f7ff; }
+    .mini-sug .row .p { flex: 1; word-break: break-all; font-family: ui-monospace, Menlo, monospace; font-size: 14px; }
+    .mini-sug .row .s { color: #888; font-size: 13px; }
+
+    /* ---- toast (same style as sibling editors) ---- */
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      left: 16px;
+      right: 16px;
+      background: #333;
+      color: white;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 14px;
+      text-align: center;
+      opacity: 0;
+      z-index: 30;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 0.9; }
+    .empty-note { text-align: center; color: #888; padding: 30px 16px; font-size: 16px; }
+  </style>
 </head>
 <body>
+  <header>
+    <h1>Category Editor</h1>
+    <input type="text" id="search" placeholder="Search categories..." oninput="render()">
+  </header>
 
-<header>
-  <h1>Category Editor</h1>
   <div class="toolbar">
-    <button id="refresh-btn" type="button">&#x21bb; Refresh</button>
-    <button id="suggest-btn" type="button">Find Suggestions</button>
+    <button onclick="refresh()">Refresh</button>
+    <button onclick="toggleSuggestions()">Suggestions</button>
+    <button onclick="openMerge()">Merge</button>
+    <span class="selected-count"><span id="selCount">0</span> selected</span>
   </div>
-  <input id="search" type="search" placeholder="Search categories&hellip;" autocomplete="off">
-</header>
 
-<main>
-  <section id="suggestions" aria-live="polite"></section>
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr><th>Path</th><th>Entries</th><th>Actions</th></tr>
-      </thead>
-      <tbody id="cat-tbody"></tbody>
-    </table>
-    <div id="empty-note" class="empty-note" style="display:none"></div>
-  </div>
-</main>
+  <main>
+    <div id="sugSection" style="display:none"></div>
+    <div id="catList"></div>
+    <div id="emptyNote" class="empty-note" style="display:none"></div>
+  </main>
 
-<!-- Rename modal -->
-<div class="modal-backdrop" id="rename-modal">
-  <div class="modal">
-    <h2>Rename Category</h2>
-    <div class="info" id="rename-info"></div>
-    <label for="rename-input">New path</label>
-    <input type="text" id="rename-input" autocomplete="off">
-    <div class="hint">Must be non-empty and unique (case-insensitive). Entries and keywords follow automatically.</div>
-    <div class="btns">
-      <button type="button" class="cancel">Cancel</button>
-      <button type="button" class="primary" id="rename-submit">Rename</button>
+  <button class="floating-merge" id="mergeSelBtn" onclick="mergeSelected()">Merge (0)</button>
+
+  <!-- Rename -->
+  <div class="modal-backdrop" id="renameModal">
+    <div class="modal">
+      <h2>Rename Category</h2>
+      <div class="e-meta" id="renameInfo"></div>
+      <label for="renameInput">New path</label>
+      <input type="text" id="renameInput" list="catNames" autocomplete="off">
+      <div class="hint">Must be non-empty and unique (case-insensitive).</div>
+      <div class="btns">
+        <button onclick="closeModals()">Cancel</button>
+        <button class="primary" onclick="doRename()">Rename</button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- Merge modal -->
-<div class="modal-backdrop" id="merge-modal">
-  <div class="modal">
-    <h2>Merge Categories</h2>
-    <label for="merge-source">Source (to be deleted)</label>
-    <select id="merge-source"></select>
-    <label for="merge-target">Target (to be kept)</label>
-    <select id="merge-target"></select>
-    <label>Resulting name</label>
-    <div class="radio-row"><input type="radio" name="merge-name" id="mn-source" value="source"><label for="mn-source">Source name</label></div>
-    <div class="radio-row"><input type="radio" name="merge-name" id="mn-target" value="target" checked><label for="mn-target">Target name</label></div>
-    <div class="radio-row"><input type="radio" name="merge-name" id="mn-custom" value="custom"><label for="mn-custom">Custom name</label></div>
-    <div id="custom-name-wrap" style="display:none">
-      <input type="text" id="custom-name" autocomplete="off" placeholder="custom/path">
-    </div>
-    <div class="result-name" id="merge-result-name"></div>
-    <label for="merge-confirm">Type <b>merge</b> to confirm</label>
-    <div class="confirm-row">
-      <span>merge</span>
-      <input type="text" id="merge-confirm" autocomplete="off">
-    </div>
-    <div class="hint">Entries already tagged with both categories keep only the target. Keyword counts are summed.</div>
-    <div class="btns">
-      <button type="button" class="cancel">Cancel</button>
-      <button type="button" class="warn primary" id="merge-submit" style="background:#e65100;border-color:#e65100" disabled>Merge</button>
-    </div>
-  </div>
-</div>
+  <!-- Merge -->
+  <div class="modal-backdrop" id="mergeModal">
+    <div class="modal">
+      <h2>Merge Categories</h2>
 
-<!-- Delete modal -->
-<div class="modal-backdrop" id="delete-modal">
-  <div class="modal">
-    <h2>Delete Category</h2>
-    <div class="info" id="delete-info"></div>
-    <label for="delete-confirm">Type <b>delete</b> to confirm</label>
-    <div class="confirm-row">
-      <span>delete</span>
-      <input type="text" id="delete-confirm" autocomplete="off">
-    </div>
-    <div class="btns">
-      <button type="button" class="cancel">Cancel</button>
-      <button type="button" class="danger" id="delete-submit" disabled>Delete</button>
+      <label for="mSrc">Source (will be deleted)</label>
+      <input type="text" id="mSrc" list="catNames" autocomplete="off" oninput="onMergeField()">
+      <div class="e-meta" id="srcMeta"></div>
+      <div class="e-box" id="srcBox" style="display:none"></div>
+
+      <label for="mTgt">Target (will be kept)</label>
+      <input type="text" id="mTgt" list="catNames" autocomplete="off" oninput="onMergeField()">
+      <div class="e-meta" id="tgtMeta"></div>
+      <div class="e-box" id="tgtBox" style="display:none"></div>
+
+      <div class="mini-sug" id="miniSug"></div>
+
+      <label>Resulting name</label>
+      <div class="radios">
+        <label><input type="radio" name="mn" value="target" checked onchange="validateMerge()">Target name</label>
+        <label><input type="radio" name="mn" value="source" onchange="validateMerge()">Source name</label>
+        <label><input type="radio" name="mn" value="custom" onchange="validateMerge()">Custom</label>
+      </div>
+      <input type="text" id="mCustom" placeholder="custom/path" style="display:none" oninput="validateMerge()">
+
+      <label for="mConfirm">Type <b>merge</b> to confirm</label>
+      <input type="text" id="mConfirm" autocomplete="off" oninput="validateMerge()">
+      <div class="hint">Entries tagged with both categories keep only the target. Keyword counts are summed.</div>
+
+      <div class="btns">
+        <button onclick="closeModals()">Cancel</button>
+        <button class="primary" id="mGo" onclick="doMerge()" disabled>Merge</button>
+      </div>
     </div>
   </div>
-</div>
 
-<div id="toasts" aria-live="assertive"></div>
+  <!-- Delete -->
+  <div class="modal-backdrop" id="deleteModal">
+    <div class="modal">
+      <h2>Delete Category</h2>
+      <div class="e-meta" id="deleteInfo"></div>
+      <label for="dConfirm">Type <b>delete</b> to confirm</label>
+      <input type="text" id="dConfirm" autocomplete="off" oninput="validateDelete()">
+      <div class="btns">
+        <button onclick="closeModals()">Cancel</button>
+        <button class="danger" id="dGo" onclick="doDelete()" disabled>Delete</button>
+      </div>
+    </div>
+  </div>
 
-<script>
-(function () {
-  "use strict";
+  <div class="toast" id="toast"></div>
+  <datalist id="catNames"></datalist>
 
-  const state = {
-    categories: [],
-    previewCache: {},     // category_id -> {entries, total, has_more}
-    openPreview: null,    // currently expanded category id
-    search: "",
-  };
+  <script>
+    let cats = [];
+    let sel = new Set();           // ids selected for merge
+    let previewOpen = new Set();   // card ids with preview expanded
+    let previewCache = {};         // id -> {entries,total,has_more}
+    let entryCache = {};           // id -> {entries,total,has_more} (merge modal)
+    let sugShown = false;
+    let sugPairs = [];          // current /suggest results (index referenced by onclick)
+    let miniPairs = [];         // current mini-suggestion rows
+    let toastTimer = null;
 
-  const $ = (sel) => document.querySelector(sel);
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, (c) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+      }[c]));
+    }
 
-  function esc(s) {
-    return String(s).replace(/[&<>"']/g, (c) => ({
-      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
-    }[c]));
-  }
+    async function api(path) {
+      const res = await fetch(path);
+      const data = await res.json().catch(() => ({ error: "Bad response from server." }));
+      if (!res.ok) throw new Error(data.error || ("Request failed (" + res.status + ")"));
+      return data;
+    }
 
-  function toast(message, kind) {
-    const el = document.createElement("div");
-    el.className = "toast " + (kind || "success");
-    el.textContent = message;
-    $("#toasts").appendChild(el);
-    setTimeout(() => el.remove(), 3000);
-  }
+    async function post(path, body) {
+      const res = await fetch(path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json().catch(() => ({ error: "Bad response from server." }));
+      if (!res.ok) throw new Error(data.error || ("Request failed (" + res.status + ")"));
+      return data;
+    }
 
-  async function api(path, opts) {
-    const res = await fetch(path, opts);
-    let data;
-    try { data = await res.json(); }
-    catch (e) { data = { error: "Invalid response from server." }; }
-    if (!res.ok) throw new Error(data.error || ("Request failed (" + res.status + ")"));
-    return data;
-  }
+    function toast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove("show"), 3000);
+    }
 
-  async function post(path, body) {
-    return api(path, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-  }
+    // ---------- list ----------
 
-  // ---------- categories table ----------
+    async function loadCats() {
+      cats = await api("/categories");
+      previewCache = {};
+      entryCache = {};
+      previewOpen.clear();
+      // drop selections that no longer exist
+      for (const id of [...sel]) if (!cats.find((c) => c.id === id)) sel.delete(id);
+      buildDatalist();
+      render();
+    }
 
-  async function loadCategories() {
-    state.categories = await api("/categories");
-    state.previewCache = {};
-    state.openPreview = null;
-    renderTable();
-  }
+    function buildDatalist() {
+      document.getElementById("catNames").innerHTML =
+        cats.map((c) => `<option value="${esc(c.path)}"></option>`).join("");
+    }
 
-  function visibleCategories() {
-    const q = state.search.toLowerCase();
-    return state.categories.filter((c) => !q || c.path.toLowerCase().includes(q));
-  }
+    function visibleCats() {
+      const q = document.getElementById("search").value.toLowerCase();
+      return cats.filter((c) => !q || c.path.toLowerCase().includes(q));
+    }
 
-  function renderTable() {
-    const tbody = $("#cat-tbody");
-    tbody.innerHTML = "";
-    const rows = visibleCategories();
-    $("#empty-note").style.display = rows.length ? "none" : "block";
-    $("#empty-note").textContent = state.categories.length
-      ? "No categories match your search."
-      : "No categories yet. Add some by logging entries.";
+    function byId(id) { return cats.find((c) => c.id === id); }
+    function byPath(p) {
+      const q = (p || "").trim().toLowerCase();
+      return q ? cats.find((c) => c.path.toLowerCase() === q) : null;
+    }
 
-    for (const c of rows) {
-      const tr = document.createElement("tr");
-      tr.className = "cat-row";
+    function render() {
+      const list = document.getElementById("catList");
+      list.innerHTML = "";
+      const rows = visibleCats();
+      const note = document.getElementById("emptyNote");
+      note.style.display = rows.length ? "none" : "block";
+      note.textContent = cats.length
+        ? "No categories match your search."
+        : "No categories yet. Add some by logging entries.";
 
-      const tdPath = document.createElement("td");
-      const pathEl = document.createElement("span");
-      pathEl.className = "path";
-      pathEl.textContent = c.path;
-      tdPath.appendChild(pathEl);
-
-      const tdEntries = document.createElement("td");
-      tdEntries.className = "entries-cell";
-      const countEl = document.createElement("span");
-      countEl.className = "count";
-      countEl.textContent = c.entry_count;
-      const toggle = document.createElement("button");
-      toggle.type = "button";
-      toggle.className = "toggle-btn";
-      toggle.textContent = "\u{1F4C4}";
-      toggle.title = "Preview entries";
-      toggle.disabled = c.entry_count === 0;
-      toggle.addEventListener("click", () => togglePreview(c.id));
-      tdEntries.append(countEl, toggle);
-
-      const tdActions = document.createElement("td");
-      tdActions.className = "actions";
-      const renameBtn = document.createElement("button");
-      renameBtn.textContent = "Rename";
-      renameBtn.addEventListener("click", () => openRename(c));
-      const mergeBtn = document.createElement("button");
-      mergeBtn.textContent = "Merge";
-      mergeBtn.className = "warn";
-      mergeBtn.addEventListener("click", () => openMerge(c.id, null));
-      const delBtn = document.createElement("button");
-      delBtn.textContent = "Delete";
-      delBtn.className = "danger";
-      delBtn.disabled = c.entry_count > 0;
-      delBtn.title = c.entry_count > 0
-        ? "Delete disabled: category has entries"
-        : "Delete this (empty) category";
-      delBtn.addEventListener("click", () => openDelete(c));
-      tdActions.append(renameBtn, mergeBtn, delBtn);
-
-      tr.append(tdPath, tdEntries, tdActions);
-      tbody.appendChild(tr);
-
-      if (state.openPreview === c.id) {
-        const prevTr = document.createElement("tr");
-        prevTr.className = "preview-row";
-        const td = document.createElement("td");
-        td.colSpan = 3;
-        td.appendChild(previewBox(c));
-        prevTr.appendChild(td);
-        tbody.appendChild(prevTr);
+      for (const c of rows) {
+        const n = c.entry_count;
+        const card = document.createElement("div");
+        card.className = "cat-card";
+        card.innerHTML = `
+          <div class="cat-top">
+            <div class="cat-info">
+              <div class="cat-path">${esc(c.path)}</div>
+              <div class="cat-meta">${n} ${n === 1 ? "entry" : "entries"}
+                <button class="mini" onclick="togglePreview(${c.id})" ${n ? "" : "disabled"}>📄</button>
+              </div>
+            </div>
+            <label class="sel-label" title="Select for merge">
+              <input type="checkbox" ${sel.has(c.id) ? "checked" : ""} onchange="toggleSel(${c.id}, this.checked)">
+              <span>Merge</span>
+            </label>
+          </div>
+          <div class="cat-actions">
+            <button onclick="openRename(${c.id})">Rename</button>
+            <button onclick="openMergeById(${c.id})">Merge</button>
+            <button class="danger" onclick="openDelete(${c.id})" ${n ? "disabled" : ""}>Delete</button>
+          </div>
+          <div class="preview-box" id="prev-${c.id}" style="display:none"></div>`;
+        list.appendChild(card);
+        if (previewOpen.has(c.id)) showPreview(c.id, true);
       }
+      updateSelUi();
     }
-  }
 
-  function previewBox(c) {
-    const box = document.createElement("div");
-    const cached = state.previewCache[c.id];
-    if (cached) {
-      fillPreview(box, cached);
-    } else {
-      box.innerHTML = '<div class="preview-loading">Loading&hellip;</div>';
-      api("/entries?category_id=" + c.id)
-        .then((data) => {
-          state.previewCache[c.id] = data;
-          fillPreview(box, data);
-        })
-        .catch((e) => {
-          box.innerHTML = '<div class="preview-loading">' + esc(e.message) + "</div>";
-        });
+    function toggleSel(id, on) {
+      if (on) sel.add(id); else sel.delete(id);
+      updateSelUi();
     }
-    box.className = "preview-box";
-    return box;
-  }
 
-  function fillPreview(box, data) {
-    box.innerHTML = "";
-    if (!data.entries.length) {
-      box.innerHTML = '<div class="preview-empty">No entries.</div>';
-      return;
+    function updateSelUi() {
+      document.getElementById("selCount").textContent = sel.size;
+      const btn = document.getElementById("mergeSelBtn");
+      btn.style.display = sel.size === 2 ? "block" : "none";
+      btn.textContent = "Merge (" + sel.size + ")";
     }
-    for (const e of data.entries) {
-      const row = document.createElement("div");
-      row.className = "preview-entry";
-      const txt = document.createElement("span");
-      txt.textContent = e.description || "(no description)";
-      row.appendChild(txt);
-      box.appendChild(row);
+
+    function mergeSelected() {
+      if (sel.size !== 2) return;
+      const [a, b] = [...sel].map(byId);
+      if (a && b) openMerge(a.path, b.path);
     }
-    if (data.has_more) {
-      const more = document.createElement("div");
-      more.className = "preview-more";
-      more.textContent = "\u2026 and " + (data.total - data.entries.length) + " more";
-      box.appendChild(more);
-    }
-  }
 
-  async function togglePreview(id) {
-    state.openPreview = state.openPreview === id ? null : id;
-    renderTable();
-  }
+    // ---------- entry preview ----------
 
-  // ---------- suggestions ----------
-
-  async function findSuggestions() {
-    const section = $("#suggestions");
-    section.style.display = "block";
-    section.innerHTML = '<div class="no-match">Checking for near-duplicates&hellip;</div>';
-    try {
-      const data = await api("/suggest");
-      section.innerHTML = "";
-      if (!data.length) {
-        section.innerHTML = '<div class="no-match">No near-duplicate categories found (similarity &ge; 0.80).</div>';
+    async function showPreview(id, fromRender) {
+      const box = document.getElementById("prev-" + id);
+      if (!box) return;
+      box.style.display = "block";
+      if (previewCache[id]) {
+        fillEntries(box, previewCache[id]);
         return;
       }
-      for (const s of data) {
-        const card = document.createElement("div");
-        card.className = "card";
-        const pair = document.createElement("div");
-        pair.className = "pair";
-        pair.innerHTML = "<b>" + esc(s.source_path) + "</b> &rarr; <b>" + esc(s.target_path) + "</b>";
-        const score = document.createElement("span");
-        score.className = "score";
-        score.textContent = "similarity " + s.similarity;
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.textContent = "Merge";
-        btn.style.cssText = "font-size:14px;padding:6px 12px;border-radius:6px;border:1px solid #f9a825;background:#fff3cd;cursor:pointer;";
-        btn.addEventListener("click", () => openMerge(s.source_id, s.target_id));
-        card.append(pair, score, btn);
-        section.appendChild(card);
+      box.innerHTML = '<div class="e-empty">Loading…</div>';
+      try {
+        const data = await api("/entries?category_id=" + id);
+        previewCache[id] = data;
+        fillEntries(box, data);
+      } catch (e) {
+        box.innerHTML = '<div class="e-empty">' + esc(e.message) + "</div>";
       }
-    } catch (e) {
-      section.innerHTML = '<div class="no-match">' + esc(e.message) + "</div>";
     }
-  }
 
-  // ---------- modals ----------
-
-  function openModal(id) {
-    $("#" + id).classList.add("open");
-  }
-  function closeModals() {
-    document.querySelectorAll(".modal-backdrop").forEach((m) => m.classList.remove("open"));
-  }
-  document.querySelectorAll(".modal-backdrop").forEach((m) => {
-    m.addEventListener("click", (e) => { if (e.target === m) closeModals(); });
-    m.querySelectorAll(".cancel").forEach((b) => b.addEventListener("click", closeModals));
-  });
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModals(); });
-
-  // ---- rename ----
-  let renameTarget = null;
-
-  function openRename(c) {
-    renameTarget = c;
-    $("#rename-info").textContent = "Current path: " + c.path;
-    const input = $("#rename-input");
-    input.value = c.path;
-    openModal("rename-modal");
-    input.focus();
-    input.select();
-  }
-
-  $("#rename-submit").addEventListener("click", async () => {
-    const new_path = $("#rename-input").value;
-    if (!new_path.trim()) { toast("Name cannot be empty.", "error"); return; }
-    try {
-      const res = await post("/rename", { id: renameTarget.id, new_path });
-      toast(res.message + " " + renameTarget.path + " \u2192 " + new_path, "success");
-      (res.warnings || []).forEach((w) => toast(w, "warning"));
-      closeModals();
-      await loadCategories();
-    } catch (e) { toast(e.message, "error"); }
-  });
-
-  // ---- merge ----
-  const mergeSource = $("#merge-source");
-  const mergeTarget = $("#merge-target");
-
-  function fillMergeSelects(preferSource, preferTarget) {
-    mergeSource.innerHTML = "";
-    mergeTarget.innerHTML = "";
-    for (const c of state.categories) {
-      const o1 = document.createElement("option");
-      o1.value = c.id;
-      o1.textContent = c.path;
-      const o2 = o1.cloneNode(true);
-      mergeSource.appendChild(o1);
-      mergeTarget.appendChild(o2);
+    function fillEntries(box, data) {
+      if (!data.entries.length) {
+        box.innerHTML = '<div class="e-empty">No entries.</div>';
+        return;
+      }
+      let html = data.entries.map((e) =>
+        '<div class="e-item">' + esc(e.description || "(no description)") + "</div>"
+      ).join("");
+      if (data.has_more) html += '<div class="e-more">… and ' + (data.total - data.entries.length) + " more</div>";
+      box.innerHTML = html;
     }
-    if (preferSource != null) mergeSource.value = String(preferSource);
-    if (preferTarget != null) mergeTarget.value = String(preferTarget);
-    if (mergeSource.value === "" && state.categories.length) mergeSource.value = String(state.categories[0].id);
-    if (mergeTarget.value === "" && state.categories.length) mergeTarget.value = String((state.categories[1] || state.categories[0]).id);
-    updateMergeResultName();
-    validateMergeConfirm();
-  }
 
-  function selectedMergeOption() {
-    const checked = document.querySelector('input[name="merge-name"]:checked');
-    return checked ? checked.value : "target";
-  }
+    function togglePreview(id) {
+      const box = document.getElementById("prev-" + id);
+      if (previewOpen.has(id)) {
+        previewOpen.delete(id);
+        if (box) box.style.display = "none";
+      } else {
+        previewOpen.add(id);
+        showPreview(id);
+      }
+    }
 
-  function currentResultName() {
-    const src = mergeSource.options[mergeSource.selectedIndex];
-    const tgt = mergeTarget.options[mergeTarget.selectedIndex];
-    const mode = selectedMergeOption();
-    if (mode === "source") return src ? src.textContent : "";
-    if (mode === "custom") return $("#custom-name").value.trim();
-    return tgt ? tgt.textContent : "";
-  }
+    // ---------- suggestions (global section) ----------
 
-  function updateMergeResultName() {
-    const name = currentResultName();
-    $("#merge-result-name").textContent = name ? "Result: " + name : "Result: (no name)";
-  }
+    function toggleSuggestions() {
+      if (sugShown) {
+        sugShown = false;
+        document.getElementById("sugSection").style.display = "none";
+      } else {
+        loadSuggestions();
+      }
+    }
 
-  function validateMergeConfirm() {
-    const ok = $("#merge-confirm").value.trim().toLowerCase() === "merge";
-    const src = mergeSource.value;
-    const tgt = mergeTarget.value;
-    const same = src && src === tgt;
-    $("#merge-submit").disabled = !(ok && !same);
-    if (same) $("#merge-result-name").textContent = "Source and target must be different.";
-    else updateMergeResultName();
-  }
+    async function loadSuggestions() {
+      const section = document.getElementById("sugSection");
+      section.style.display = "block";
+      section.innerHTML = '<div class="sug-empty">Checking for near-duplicates…</div>';
+      try {
+        const data = await api("/suggest");
+        sugShown = true;
+        if (!data.length) {
+          section.innerHTML = '<div class="sug-empty">No near-duplicate categories found (similarity ≥ 0.80).</div>';
+          return;
+        }
+        sugPairs = data;
+        let html = '<div class="sug-title">Near-duplicate suggestions (source → target)</div>';
+        html += data.map((s, i) => `
+          <div class="cat-card sug-card">
+            <div class="sug-pair">${esc(s.source_path)} → ${esc(s.target_path)}</div>
+            <span class="sug-score">${s.similarity}</span>
+            <button onclick="mergeSug(${i})">Merge</button>
+          </div>`).join("");
+        section.innerHTML = html;
+      } catch (e) {
+        section.innerHTML = '<div class="sug-empty">' + esc(e.message) + "</div>";
+      }
+    }
 
-  function openMerge(preferSource, preferTarget) {
-    fillMergeSelects(preferSource, preferTarget);
-    // Sensible defaults: keep target name; drop the "source" radio preselection.
-    document.querySelector('input[name="merge-name"][value="target"]').checked = true;
-    $("#custom-name").value = "";
-    $("#custom-name-wrap").style.display = "none";
-    $("#merge-confirm").value = "";
-    openModal("merge-modal");
-  }
+    // ---------- rename ----------
 
-  mergeSource.addEventListener("change", validateMergeConfirm);
-  mergeTarget.addEventListener("change", validateMergeConfirm);
-  document.querySelectorAll('input[name="merge-name"]').forEach((r) =>
-    r.addEventListener("change", () => {
-      $("#custom-name-wrap").style.display = selectedMergeOption() === "custom" ? "block" : "none";
-      updateMergeResultName();
-    })
-  );
-  $("#custom-name").addEventListener("input", updateMergeResultName);
-  $("#merge-confirm").addEventListener("input", validateMergeConfirm);
+    let renameId = null;
 
-  $("#merge-submit").addEventListener("click", async () => {
-    const source_id = Number(mergeSource.value);
-    const target_id = Number(mergeTarget.value);
-    const new_name = currentResultName();
-    try {
-      const res = await post("/merge", { source_id, target_id, new_name });
-      toast(res.message, "success");
-      closeModals();
-      await loadCategories();
-    } catch (e) { toast(e.message, "error"); }
-  });
+    function openRename(id) {
+      const c = byId(id);
+      if (!c) return;
+      renameId = id;
+      document.getElementById("renameInfo").textContent = "Current path: " + c.path;
+      const input = document.getElementById("renameInput");
+      input.value = c.path;
+      openModal("renameModal");
+      input.focus();
+      input.select();
+    }
 
-  // ---- delete ----
-  let deleteTarget = null;
+    async function doRename() {
+      try {
+        const res = await post("/rename", { id: renameId, new_path: document.getElementById("renameInput").value });
+        toast(res.message);
+        (res.warnings || []).forEach((w) => toast(w));
+        closeModals();
+        await afterMutation();
+      } catch (e) { toast(e.message); }
+    }
 
-  function openDelete(c) {
-    if (c.entry_count > 0) { toast("Cannot delete: category has " + c.entry_count + " entries.", "error"); return; }
-    deleteTarget = c;
-    $("#delete-info").innerHTML =
-      "Category <b>" + esc(c.path) + "</b><br>Entries: <b>0</b><br>" +
-      "Its keywords will be deleted too. This cannot be undone.";
-    $("#delete-confirm").value = "";
-    validateDeleteConfirm();
-    openModal("delete-modal");
-  }
+    // ---------- delete ----------
 
-  function validateDeleteConfirm() {
-    $("#delete-submit").disabled = $("#delete-confirm").value.trim().toLowerCase() !== "delete";
-  }
-  $("#delete-confirm").addEventListener("input", validateDeleteConfirm);
+    let deleteId = null;
 
-  $("#delete-submit").addEventListener("click", async () => {
-    try {
-      const res = await post("/delete", { id: deleteTarget.id });
-      toast(res.message, "success");
-      closeModals();
-      await loadCategories();
-    } catch (e) { toast(e.message, "error"); }
-  });
+    function openDelete(id) {
+      const c = byId(id);
+      if (!c || c.entry_count > 0) return;
+      deleteId = id;
+      document.getElementById("deleteInfo").innerHTML =
+        "Category <b>" + esc(c.path) + "</b><br>Entries: <b>0</b><br>Its keywords will be deleted too.";
+      document.getElementById("dConfirm").value = "";
+      validateDelete();
+      openModal("deleteModal");
+    }
 
-  // ---------- header controls ----------
-  $("#refresh-btn").addEventListener("click", async () => {
-    try {
-      await loadCategories();
-      toast("Categories refreshed.", "success");
-    } catch (e) { toast(e.message, "error"); }
-  });
-  $("#suggest-btn").addEventListener("click", findSuggestions);
-  $("#search").addEventListener("input", (e) => {
-    state.search = e.target.value;
-    renderTable();
-  });
+    function validateDelete() {
+      document.getElementById("dGo").disabled =
+        document.getElementById("dConfirm").value.trim().toLowerCase() !== "delete";
+    }
 
-  // ---------- init ----------
-  loadCategories().catch((e) => toast(e.message, "error"));
-})();
-</script>
+    async function doDelete() {
+      try {
+        const res = await post("/delete", { id: deleteId });
+        toast(res.message);
+        closeModals();
+        await afterMutation();
+      } catch (e) { toast(e.message); }
+    }
+
+    // ---------- merge ----------
+
+    function openMergeById(id) {
+      const c = byId(id);
+      if (c) openMerge(c.path, "");
+    }
+
+    function openMerge(srcPath = "", tgtPath = "") {
+      document.getElementById("mSrc").value = srcPath;
+      document.getElementById("mTgt").value = tgtPath;
+      document.querySelector('input[name="mn"][value="target"]').checked = true;
+      document.getElementById("mCustom").value = "";
+      document.getElementById("mCustom").style.display = "none";
+      document.getElementById("mConfirm").value = "";
+      onMergeField();
+      openModal("mergeModal");
+    }
+
+    function currentMode() {
+      const r = document.querySelector('input[name="mn"]:checked');
+      return r ? r.value : "target";
+    }
+
+    // Refresh entry info boxes + mini suggestions for the source field.
+    async function onMergeField() {
+      document.getElementById("mCustom").style.display = currentMode() === "custom" ? "block" : "none";
+      await showFieldEntries("mSrc", "srcMeta", "srcBox");
+      await showFieldEntries("mTgt", "tgtMeta", "tgtBox");
+      showMiniSuggestions();
+      validateMerge();
+    }
+
+    async function showFieldEntries(inputId, metaId, boxId) {
+      const meta = document.getElementById(metaId);
+      const box = document.getElementById(boxId);
+      const c = byPath(document.getElementById(inputId).value);
+      if (!c) {
+        meta.textContent = "";
+        box.style.display = "none";
+        box.innerHTML = "";
+        return;
+      }
+      const n = c.entry_count;
+      meta.textContent = n + (n === 1 ? " entry" : " entries");
+      box.style.display = "block";
+      if (entryCache[c.id]) {
+        fillEntries(box, entryCache[c.id]);
+        return;
+      }
+      box.innerHTML = '<div class="e-empty">Loading…</div>';
+      try {
+        entryCache[c.id] = await api("/entries?category_id=" + c.id);
+        fillEntries(box, entryCache[c.id]);
+      } catch (e) {
+        box.innerHTML = '<div class="e-empty">' + esc(e.message) + "</div>";
+      }
+    }
+
+    // Small suggestion list for the source field only.
+    async function showMiniSuggestions() {
+      const box = document.getElementById("miniSug");
+      const src = document.getElementById("mSrc").value.trim();
+      if (!byPath(src)) {
+        box.innerHTML = "";
+        return;
+      }
+      try {
+        const data = await api("/suggest?path=" + encodeURIComponent(src));
+        const tgt = byPath(document.getElementById("mTgt").value);
+        miniPairs = data.filter((s) => !tgt || s.target_path !== tgt.path);
+        if (!miniPairs.length) {
+          box.innerHTML = '<div class="title">No near-duplicates for “' + esc(src) + "”.</div>";
+          return;
+        }
+        box.innerHTML = '<div class="title">Similar to “' + esc(src) + '”:</div>' + miniPairs.map((s, i) => `
+          <div class="row" onclick="pickSuggestion(${i})">
+            <span class="p">${esc(s.target_path)}</span><span class="s">${s.similarity}</span>
+          </div>`).join("");
+      } catch (e) {
+        box.innerHTML = "";
+      }
+    }
+
+    function pickSuggestion(i) {
+      const s = miniPairs[i];
+      if (!s) return;
+      document.getElementById("mTgt").value = s.target_path;
+      onMergeField();
+    }
+
+    function mergeSug(i) {
+      const s = sugPairs[i];
+      if (s) openMerge(s.source_path, s.target_path);
+    }
+
+    function validateMerge() {
+      document.getElementById("mCustom").style.display = currentMode() === "custom" ? "block" : "none";
+      const src = byPath(document.getElementById("mSrc").value);
+      const tgt = byPath(document.getElementById("mTgt").value);
+      const ok = src && tgt && src.id !== tgt.id &&
+        document.getElementById("mConfirm").value.trim().toLowerCase() === "merge";
+      document.getElementById("mGo").disabled = !ok;
+    }
+
+    async function doMerge() {
+      const src = byPath(document.getElementById("mSrc").value);
+      const tgt = byPath(document.getElementById("mTgt").value);
+      if (!src || !tgt) return;
+      const mode = currentMode();
+      const new_name = mode === "source" ? src.path : mode === "custom"
+        ? document.getElementById("mCustom").value.trim()
+        : tgt.path;
+      try {
+        const res = await post("/merge", { source_id: src.id, target_id: tgt.id, new_name });
+        toast(res.message);
+        closeModals();
+        await afterMutation();
+      } catch (e) { toast(e.message); }
+    }
+
+    // ---------- shared ----------
+
+    function openModal(id) { document.getElementById(id).classList.add("open"); }
+    function closeModals() {
+      document.querySelectorAll(".modal-backdrop").forEach((m) => m.classList.remove("open"));
+    }
+    document.querySelectorAll(".modal-backdrop").forEach((m) => {
+      m.addEventListener("click", (e) => { if (e.target === m) closeModals(); });
+    });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModals(); });
+
+    async function refresh() {
+      try {
+        await loadCats();
+        if (sugShown) loadSuggestions();
+        toast("Categories refreshed.");
+      } catch (e) { toast(e.message); }
+    }
+
+    // After any successful change: reload list, refresh suggestions if shown.
+    async function afterMutation() {
+      await loadCats();
+      if (sugShown) loadSuggestions();
+    }
+
+    loadCats().catch((e) => toast(e.message));
+  </script>
 </body>
 </html>

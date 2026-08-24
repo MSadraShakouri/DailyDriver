@@ -91,15 +91,16 @@ def test_get_categories_counts_and_ordering(db_path):
     conn = _conn(db_path)
     _seed(
         conn,
-        categories=["alpha", "beta", "gamma"],
+        categories=["alpha", "beta", "gamma", "health", "Health"],
         entries=[("beta", "b1"), ("beta", "b2"), ("alpha", "a1")],
     )
     conn.commit()
     conn.close()
 
     cats = ce.get_categories()
-    assert [c["path"] for c in cats] == ["beta", "alpha", "gamma"]
-    assert [c["entry_count"] for c in cats] == [2, 1, 0]
+    # alphabetical, case-insensitive (case variant: "Health" before "health")
+    assert [c["path"] for c in cats] == ["alpha", "beta", "gamma", "Health", "health"]
+    assert [c["entry_count"] for c in cats] == [1, 2, 0, 0, 0]
 
 
 def test_get_entries_limit_most_recent_and_null_description(db_path):
@@ -149,6 +150,19 @@ def test_suggestions_threshold_direction_and_dedup(db_path):
     for s in suggestions:
         assert s["similarity"] >= 0.80
     assert not any("zzz" in (s["source_path"], s["target_path"]) for s in suggestions)
+
+
+def test_suggestions_only_path_filter(db_path):
+    conn = _conn(db_path)
+    _seed(conn, categories=["health", "Health", "dinner", "dinner2", "zzz"])
+    conn.commit()
+    conn.close()
+
+    # case-insensitive match, returns only pairs involving that path
+    subset = ce.get_suggestions(only_path="DINNER")
+    assert [(s["source_path"], s["target_path"]) for s in subset] == [("dinner", "dinner2")]
+    # a path with no near-duplicates returns nothing
+    assert ce.get_suggestions(only_path="zzz") == []
 
 
 # ---------------------------------------------------------------------------

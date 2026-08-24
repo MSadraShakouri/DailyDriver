@@ -26,6 +26,7 @@ import os
 import webbrowser
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from itertools import combinations
+from urllib.parse import parse_qs, urlparse
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PORT = 8768
@@ -78,7 +79,7 @@ def normalize_path(raw) -> str:
 # ---------------------------------------------------------------------------
 
 def get_categories():
-    """All categories with entry counts, most used first (path as tiebreak)."""
+    """All categories with entry counts, alphabetical by path."""
     conn = _connect()
     try:
         rows = conn.execute(
@@ -87,7 +88,7 @@ def get_categories():
             FROM categories c
             LEFT JOIN entry_categories ec ON ec.category_id = c.id
             GROUP BY c.id, c.path
-            ORDER BY entry_count DESC, c.path COLLATE NOCASE ASC
+            ORDER BY c.path COLLATE NOCASE, c.path
             """
         ).fetchall()
         return [dict(r) for r in rows]
@@ -160,13 +161,17 @@ def similarity(a: str, b: str) -> float:
     return 1 - (levenshtein(a, b) / longest)
 
 
-def get_suggestions(threshold=SIMILARITY_THRESHOLD):
+def get_suggestions(threshold=SIMILARITY_THRESHOLD, only_path=None):
     """Unordered pairs of categories whose paths look like near-duplicates.
 
     Direction is deterministic (alphabetical by path) so the UI can label
     one side "source" (to be removed) and the other "target" (to be kept).
     Similarity is computed case-sensitively, which deliberately flags
     case-only duplicates ("Health" vs "health") too.
+
+    If ``only_path`` is given, only pairs involving that path (matched
+    case-insensitively) are returned — used for the small suggestion list
+    shown inside the merge dialog for one selected category.
     """
     conn = _connect()
     try:
@@ -174,11 +179,16 @@ def get_suggestions(threshold=SIMILARITY_THRESHOLD):
     finally:
         conn.close()
 
+    only = only_path.strip().lower() if only_path else None
+
     suggestions = []
     for a, b in combinations(rows, 2):
         score = similarity(a["path"], b["path"])
         if score < threshold:
             continue
+        if only is not None:
+            if only not in (a["path"].lower(), b["path"].lower()):
+                continue
         first, second = sorted((a, b), key=lambda r: (r["path"].lower(), r["path"]))
         suggestions.append(
             {
@@ -441,34 +451,23 @@ class EditorHandler(SimpleHTTPRequestHandler):
 
     def do_GET(self):
         try:
-            if self.path in ("/", "/index.html"):
+            url = urlparse(self.path)
+            if url.path in ("/", "/index.html"):
                 self._send_html()
-            elif self.path == "/categories":
+            elif url.path == "/categories":
                 self._send_json(get_categories())
-            elif self.path.startswith("/entries?"):
-                query = self.path[len("/entries?"):]
-                params = dict(p.split("=", 1) for p in query.split("&") if "=" in p)
+            elif url.path == "/entries":
+                params = parse_qs(url.query)
+                raw = (params.get("category_id") or [""])[0]
                 try:
-                    category_id = int(params.get("category_id", ""))
+                    category_id = int(raw)
                 except ValueError:
                     raise ValueError("category_id must be an integer.")
-                result = get_entries_for_category(category_id)
-                if result["total"] == 0 and not result["entries"]:
-                    # Distinguish "unknown category" from "empty category"
-                    # cheaply: both are valid, but unknown ids get a 400 so
-                    # stale UI state is visible instead of a silent empty box.
-                    conn = _connect()
-                    try:
-                        exists = conn.execute(
-                            "SELECT id FROM categories WHERE id = ?", (category_id,)
-                        ).fetchone()
-                    finally:
-                        conn.close()
-                    if not exists:
-                        raise ValueError("Category not found.")
-                self._send_json(result)
-            elif self.path == "/suggest":
-                self._send_json(get_suggestions())
+                self._send_json(get_entries_for_category(category_id))
+            elif url.path == "/suggest":
+                params = parse_qs(url.query)
+                only_path = (params.get("path") or [None])[0]
+                self._send_json(get_suggestions(only_path=only_path))
             else:
                 self._send_json({"error": "Not found."}, status=404)
         except ValueError as exc:
