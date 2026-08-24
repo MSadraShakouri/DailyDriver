@@ -61,6 +61,15 @@ def build_header_data(day=None, is_today=True):
                 returned = build_sections(conn, today, target_date, is_today)
                 sections.extend(validate_header_sections(feature, returned))
 
+        # Great/running event status are core (not a feature package), but they
+        # join the same priority-ordered stream so they render in their historic
+        # slot: just under prayer (0) and above sleep (10). Priorities 5 and 6
+        # match the pre-refactor events feature.
+        if great_event := get_great_event_str(is_today):
+            sections.append((5, great_event))
+        if running_event := get_running_event_str(is_today):
+            sections.append((6, running_event))
+
         sections.sort(key=lambda item: item[0])
         feature_lines = [text for _, text in sections]
 
@@ -71,8 +80,6 @@ def build_header_data(day=None, is_today=True):
             "separator": separator,
             "greg_hijri_line": greg_hijri_line,
             "feature_lines": feature_lines,
-            "great_event_str": get_great_event_str(is_today),
-            "event_str": get_running_event_str(is_today),
             "is_today": is_today,
             "last_entry_time": last_entry_time,
         }
