@@ -29,6 +29,11 @@ Dependency direction:
 - Cross-feature calls go through a deliberately named module/export, never a
   generic private module.
 
+Events & chaining (`se`/`ee`/`ce`, `ln`, great events) are deliberately **not**
+a feature package: state lives in `core/state/events.py`, commands in
+`cli/commands/events.py`, and the header status lines are injected into the
+priority-ordered stream by `display/header/events.py`.
+
 ## The feature contract
 
 Each feature package's `__init__.py` is a thin adapter exposing metadata and

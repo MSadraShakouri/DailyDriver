@@ -17,8 +17,11 @@ Durations use the same suffixes as elsewhere: `d` (days), `w` (weeks),
 
 ## Formats
 
-- **Markdown (default)** — journal-style bullets, times, and quoted details.
+- **Markdown (default, or `--md`)** — journal-style bullets, times, and quoted details.
 - **Plain text (`--txt`)** — the same timeline without Markdown formatting.
+
+The result is written to `export_<duration>.md` (or `.txt`) in the current
+directory.
 
 Each feature contributes its own timeline items through the `export_items` hook
 (see [Architecture](../architecture.md)), so the export stays complete as

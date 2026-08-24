@@ -1,9 +1,12 @@
 # The Header
 
 Every screen opens with the daily header — a compact dashboard of the current
-(or viewed) day. It is assembled from each feature's `header_sections` hook, so
-the content grows with the app. Sections are ordered by numeric priority (lower
-renders first), not by feature order.
+(or viewed) day. Feature content is assembled from each feature's
+`header_sections` hook, so the content grows with the app. Sections are ordered
+by numeric priority (lower renders first), not by feature order. The great-event
+and running-event status lines are **not** feature output: they are built from
+core state and injected into the same priority-ordered stream (just under
+prayers, above sleep).
 
 ## What it shows
 
@@ -11,6 +14,8 @@ renders first), not by feature order.
   separator, and the Gregorian and Hijri dates.
 - **Prayers** — the five daily prayers with status, color-coded overdue and
   pre-alert nudges (red = overdue, yellow = pre-alert).
+- **Events** — when active (today only), a `⏱ Great Event` or `⏱ Event running`
+  line with the start time.
 - **Sleep & naps** — total sleep duration and ranges, plus total nap time.
 - **Weather** — Tehran conditions with an emoji (IRIMO, cached hourly);
   suppressed in travel mode.
