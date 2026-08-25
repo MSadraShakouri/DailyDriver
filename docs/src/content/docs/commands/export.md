@@ -1,5 +1,5 @@
 ---
-title: "Export — `export`"
+title: "Export"
 ---
 
 Export a single, chronological timeline where journal entries, sleep, naps,

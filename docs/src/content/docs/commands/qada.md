@@ -1,5 +1,5 @@
 ---
-title: "Qada & Fasting — `qada`"
+title: "Qada & Fasting"
 ---
 
 An interactive manager for a standing backlog of missed prayers and fasting
