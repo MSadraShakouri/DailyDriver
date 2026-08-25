@@ -13,8 +13,9 @@ export default defineConfig({
       description:
         'Personal, terminal-based life tracker documentation — prayers, sleep, journal, calendars, search.',
       editLink: {
-        baseUrl:
-          'https://github.com/MSadraShakouri/DailyDriver/edit/main/docs/src/content/docs/',
+        // Starlight appends the entry's path relative to the collection
+        // directory (src/content/docs/...), so the base stops at docs/.
+        baseUrl: 'https://github.com/MSadraShakouri/DailyDriver/edit/main/docs/',
       },
       sidebar: [
         { label: 'Overview', link: '/' },

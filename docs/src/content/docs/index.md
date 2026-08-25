@@ -10,7 +10,7 @@ This folder is the single source of truth for DailyDriver's documentation, publi
 
 ## Start here
 
-- **[Getting Started](getting-started.md)** — install, run, the `da` alias, and
+- **[Getting Started](getting-started/)** — install, run, the `da` alias, and
   the Termux quick-entry dialog.
 
 ## Commands
@@ -18,31 +18,31 @@ This folder is the single source of truth for DailyDriver's documentation, publi
 Every command, grouped by area. In the app, add `-h` or `--help` after any
 command (e.g. `p -h`) for the same details, or type `?` for a summary.
 
-- [Logging](commands/logging.md) — journal, sleep, naps, void
-- [Prayer](commands/prayer.md) — `p`, qada backlog
-- [Qada & Fasting](commands/qada.md)
-- [Events & Chaining](commands/events.md) — `se`/`ee`/`ce`, `ln`, great events, `u`
-- [Targets](commands/targets.md) — nazr and habits
-- [Viewing & Summaries](commands/viewing.md) — `day`, `view`, `search`, `recent`, `stats`
-- [Calendar](commands/calendar.md) — `cal`, `year`, `hijri`
-- [Tools & Setup](commands/tools.md) — birthdays, intentions, hygiene, travel, day start
-- [Export](commands/export.md)
+- [Logging](commands/logging/) — journal, sleep, naps, void
+- [Prayer](commands/prayer/) — `p`, qada backlog
+- [Qada & Fasting](commands/qada/)
+- [Events & Chaining](commands/events/) — `se`/`ee`/`ce`, `ln`, great events, `u`
+- [Targets](commands/targets/) — nazr and habits
+- [Viewing & Summaries](commands/viewing/) — `day`, `view`, `search`, `recent`, `stats`
+- [Calendar](commands/calendar/) — `cal`, `year`, `hijri`
+- [Tools & Setup](commands/tools/) — birthdays, intentions, hygiene, travel, day start
+- [Export](commands/export/)
 
 ## Concepts
 
 The cross-cutting systems that aren't a single command:
 
-- [Time Expressions](concepts/time-expressions.md) — the one syntax used everywhere
-- [Categories & Keyword Learning](concepts/categories.md) — how suggestions are ranked
-- [The Header](concepts/header.md) — what the daily dashboard shows
-- [Calendars](concepts/calendars.md) — the three-calendar model and Hijri offset
-- [Day Start Hour](concepts/day-start.md) — shifting the day boundary
+- [Time Expressions](concepts/time-expressions/) — the one syntax used everywhere
+- [Categories & Keyword Learning](concepts/categories/) — how suggestions are ranked
+- [The Header](concepts/header/) — what the daily dashboard shows
+- [Calendars](concepts/calendars/) — the three-calendar model and Hijri offset
+- [Day Start Hour](concepts/day-start/) — shifting the day boundary
 
 ## For contributors
 
-- [Architecture](architecture.md) — layout, the feature-package contract, data model, migrations
-- [Roadmap](roadmap.md) — shipped history and planned ideas
-- [Reference: Optimizations](reference/optimizations.md) — performance/cleanup ideas
+- [Architecture](architecture/) — layout, the feature-package contract, data model, migrations
+- [Roadmap](roadmap/) — shipped history and planned ideas
+- [Reference: Optimizations](reference/optimizations/) — performance/cleanup ideas
 
 Repository top level keeps a short [README](https://github.com/MSadraShakouri/DailyDriver/blob/main/README.md),
 [CONTRIBUTING](https://github.com/MSadraShakouri/DailyDriver/blob/main/CONTRIBUTING.md),

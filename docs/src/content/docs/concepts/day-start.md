@@ -30,4 +30,4 @@ date.
 | `daystart <0-23>` | Set the day-start hour |
 
 Set it to `0` for a plain midnight boundary, or later (e.g. `5`) if your day
-starts later. See [Tools & Setup](../commands/tools.md#day-start-hour--daystart).
+starts later. See [Tools & Setup](../../commands/tools/#day-start-hour--daystart).
