@@ -35,7 +35,7 @@ fact.
 ```
 
 The `last_action` timestamp is updated whenever you log something. You can also
-refresh it manually — see [`u` / `update`](#manual-chaining-update--u-update).
+refresh it manually — see [`u` / `update`](#manual-chaining-update--u-alias-update).
 
 ## Great events — `sge`, `ege`, `cge`
 

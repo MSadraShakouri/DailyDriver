@@ -29,4 +29,4 @@ Important items use a more frequent schedule. Reminder data is stored per event
 Lunar dates depend on moon sighting and can differ by a day or two between
 sources. The `hijri` command applies a global correction (-2 to +2 days), stored
 in the version-controlled `data/hijri_offset.txt` and applied to all Hijri
-events immediately. See [Calendar commands](../commands/calendar.md#hijri-offset--hijri).
+events immediately. See [Calendar commands](../../commands/calendar/#hijri-offset--hijri).

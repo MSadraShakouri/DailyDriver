@@ -32,6 +32,6 @@ interactive manager.
 
 ## Relationship to `p q`
 
-`p q` (see [Prayer](prayer.md#backlog--qada-marking--p-q)) is a one-off marker
+`p q` (see [Prayer](../prayer/#backlog--qada-marking--p-q)) is a one-off marker
 for a single missed prayer at a chosen time. The `qada` manager is for tracking
 the ongoing backlog and fasting over days and weeks.

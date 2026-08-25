@@ -28,10 +28,10 @@ The result is written to `export_<duration>.md` (or `.txt`) in the current
 directory.
 
 Each feature contributes its own timeline items through the `export_items` hook
-(see [Architecture](../architecture.md)), so the export stays complete as
+(see [Architecture](../../architecture/)), so the export stays complete as
 features are added.
 
 ## Void export
 
 The void scratchpad is exported separately with `vexport` — see
-[Logging](logging.md#void-scratchpad--v-alias-void-vexport).
+[Logging](../logging/#void-scratchpad--v-alias-void-vexport).

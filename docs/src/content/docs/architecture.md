@@ -58,7 +58,7 @@ registration (header order is controlled only by numeric priorities).
 
 The authoritative, detailed contract — including the exact shape of header
 lines, migration rules, and export items — lives in
-[`dailydriver/features/HOOKS.md`](../dailydriver/features/HOOKS.md).
+[`dailydriver/features/HOOKS.md`](https://github.com/MSadraShakouri/DailyDriver/blob/main/dailydriver/features/HOOKS.md).
 
 ## Input / UI backends
 
@@ -110,5 +110,5 @@ editors for events, keywords, reminders, and categories (the category editor
 on port 8768 supports rename, merge, and safe delete), plus analysis scripts
 like `sleep_avg.py`. They operate directly on the database or data files.
 
-See [CONTRIBUTING](../CONTRIBUTING.md) for workflow, style, and testing
+See [CONTRIBUTING](https://github.com/MSadraShakouri/DailyDriver/blob/main/CONTRIBUTING.md) for workflow, style, and testing
 conventions.

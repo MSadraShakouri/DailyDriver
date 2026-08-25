@@ -139,4 +139,4 @@ candidates, not commitments, roughly grouped by priority.
 
 ### Infrastructure
 Performance and cleanup ideas live in
-[reference/optimizations.md](reference/optimizations.md).
+[reference/optimizations.md](../reference/optimizations/).
