@@ -1,6 +1,4 @@
----
-title: "Prayer"
----
+# Prayer
 
 ## Log a prayer — `p` (alias `pray`)
 
@@ -17,7 +15,7 @@ Prayer times are interpolated for Tehran from monthly data.
 | `p s 3` | With a shak (doubt) count of 3 |
 
 Offsets and times use the shared
-[time-expression syntax](../../concepts/time-expressions/).
+[time-expression syntax](../concepts/time-expressions.md).
 
 ## Backlog / qada marking — `p q`
 
@@ -31,10 +29,10 @@ time, which is the natural choice for catching up.
 | `p q 03:11` | Mark at 03:11 on the past date |
 
 > `p q` is the quick per-prayer catch-up. For managing a standing backlog of
-> missed prayers and fasting over time, use the [`qada` manager](../qada/).
+> missed prayers and fasting over time, use the [`qada` manager](qada.md).
 
 ## Travel mode
 
-In [travel mode](../tools/#travel-mode--travel), `p` shows a smart slot selector
+In [travel mode](tools.md#travel-mode--travel), `p` shows a smart slot selector
 instead of assuming Tehran times, and location-dependent prayer nudges are
 suppressed.

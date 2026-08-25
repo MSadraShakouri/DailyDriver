@@ -1,6 +1,4 @@
----
-title: "Events & Chaining"
----
+# Events & Chaining
 
 DailyDriver has three complementary ways to capture time spent on activities.
 

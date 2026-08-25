@@ -1,17 +1,15 @@
----
-title: "Logging"
----
+# Logging
 
 The everyday, muscle-memory commands. These keep their fast inline syntax — you
 type the whole thing on one line. All times use the shared
-[time-expression syntax](../../concepts/time-expressions/).
+[time-expression syntax](../concepts/time-expressions.md).
 
 ## Journal entries (free text)
 
 Anything not recognized as a command is a journal entry. The flow is:
 
 1. Time expressions in the text are parsed and confirmed.
-2. Categories are suggested (see [Categories](../../concepts/categories/)); you
+2. Categories are suggested (see [Categories](../concepts/categories.md)); you
    pick one or more, or type a new path.
 3. The entry is saved.
 
@@ -32,7 +30,7 @@ type, with a live dropdown that drops categories you've already picked (by name
 or by number). Press Tab to complete, space-separate to choose several, or type
 a brand-new path. Press **Enter alone to accept suggestion #1**; type `0` for
 "Great Event only" when a great event is active. See
-[Categories & Keyword Learning](../../concepts/categories/) for how the ranking
+[Categories & Keyword Learning](../concepts/categories.md) for how the ranking
 and selection work.
 
 ## Sleep — `s` (alias `sleep`)

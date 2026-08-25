@@ -4,9 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
+    "sync": "node ./scripts/sync-docs.mjs",
+    "dev": "npm run sync && astro dev --host 0.0.0.0",
+    "build": "npm run sync && astro build",
     "preview": "astro preview",
+    "clean": "node ./scripts/clean.mjs",
     "astro": "astro"
   },
   "dependencies": {

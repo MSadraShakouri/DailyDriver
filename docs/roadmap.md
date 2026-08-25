@@ -1,6 +1,4 @@
----
-title: "Roadmap"
----
+# Roadmap
 
 This page tracks where DailyDriver has been and where it might go. The
 **Shipped** section is drawn from real release history (`CHANGELOG.md` and the
@@ -138,5 +136,6 @@ candidates, not commitments, roughly grouped by priority.
 - **Undo**, **CSV export**, and a **backup** command (from the review notes).
 
 ### Infrastructure
+
 Performance and cleanup ideas live in
-[reference/optimizations.md](../reference/optimizations/).
+[reference/optimizations.md](reference/optimizations.md).

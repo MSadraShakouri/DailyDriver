@@ -62,14 +62,15 @@ The live docs are built with **[Astro Starlight](https://starlight.astro.build/)
 and published to GitHub Pages:
 
 - **[DailyDriver Docs](https://msadrashakouri.ir/DailyDriver/)** — the site
-- Getting started — `docs/src/content/docs/getting-started.md`
-- Command reference — `docs/src/content/docs/commands/`
-- Concepts — `docs/src/content/docs/concepts/`
-- Architecture · Roadmap — `docs/src/content/docs/architecture.md`,
-  `docs/src/content/docs/roadmap.md`
+- Getting started — `docs/getting-started.md`
+- Command reference — `docs/commands/`
+- Concepts — `docs/concepts/`
+- Architecture · Roadmap — `docs/architecture.md`, `docs/roadmap.md`
 
-Docs source lives in **[`docs/`](docs/)**, and the site is published by the
-**[docs workflow](.github/workflows/docs.yml)**.
+Docs source lives in **[`docs/`](docs/)** (plain markdown, GitHub-readable).
+The site config lives in **[`docs-site/`](docs-site/)** and builds from `docs/`
+via a temp sync workflow — no duplicate markdown is committed.
+Published by **[docs workflow](.github/workflows/docs.yml)**.
 
 ---
 
@@ -84,7 +85,7 @@ different database with the `DAILYDRIVER_DB` environment variable.
 ## Contributing
 
 See **[CONTRIBUTING.md](CONTRIBUTING.md)** and the
-[architecture guide](docs/src/content/docs/architecture.md).
+[architecture guide](docs/architecture.md).
 
 ## License
 

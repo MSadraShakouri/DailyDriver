@@ -1,6 +1,4 @@
----
-title: "Tools & Setup"
----
+# Tools & Setup
 
 These are deliberate, less-frequent actions — creation, configuration, and
 management. As of v2.0, creation/editing flows are **fully interactive**
@@ -44,7 +42,7 @@ Lightweight to-dos with optional Jalali deadline and expected duration.
 Define recurring hygiene items with intervals and get header nudges when
 they're overdue. Log an entry under a matching category (e.g. `hygiene/shaving`)
 to record the last time. The manager respects the
-[day-start hour](../../concepts/day-start/).
+[day-start hour](../concepts/day-start.md).
 
 Opens an interactive manager with a dynamic table sorted by urgency
 (red = overdue, yellow = due today) and add/edit/delete flows.
@@ -66,7 +64,7 @@ Tehran. Prayer logging switches to a smart slot selector.
 Shift the day boundary used by hygiene and target calculations — and, when
 the day view is switched to day-start mode (`m` inside `day`), the boundary
 of the day timeline. Default is 4:00 AM, so before-dawn logs count toward the
-previous day. See [Day Start Hour](../../concepts/day-start/).
+previous day. See [Day Start Hour](../concepts/day-start.md).
 
 | Usage | Meaning |
 |-------|---------|

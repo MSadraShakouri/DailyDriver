@@ -2,9 +2,11 @@
 
 Thanks for your interest in DailyDriver.
 
-User-facing and design documentation lives in [`docs/`](docs/); the
-[architecture guide](docs/src/content/docs/architecture.md) expands on the
-summary below.
+User-facing and design documentation lives in [`docs/`](docs/) — plain markdown,
+GitHub-readable, single source of truth. The
+[architecture guide](docs/architecture.md) expands on the summary below.
+The documentation site config lives in [`docs-site/`](docs-site/) and builds
+from `docs/` via a temp sync workflow (no duplicate markdown committed).
 
 ## Package layout
 
@@ -59,6 +61,14 @@ Feature-owned commands belong in the feature package and are registered by its
 A genuinely application-wide command may live under `dailydriver/cli/commands/`
 and be added to `make_dispatch()`. If it needs the unparsed command line, make
 sure both the REPL and single-command path pass it through consistently.
+
+## Docs
+
+- Edit markdown in `docs/` (plain `.md` links for GitHub).
+- Titles are injected via `docs-site/scripts/titles.json` (fallback: first H1).
+- Links `.md` -> `/` are rewritten automatically by `docs-site/scripts/sync-docs.mjs` into temp files in `docs-site/src/content/docs/`.
+- Only `docs-site/src/content/docs/index.md` is committed; the rest is generated and gitignored.
+- Run `cd docs-site && npm run dev` to preview the site locally.
 
 ## Style
 

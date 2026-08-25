@@ -1,10 +1,8 @@
----
-title: "Calendar"
----
+# Calendar
 
 DailyDriver understands three calendars at once — Jalali (Persian), Gregorian,
 and Hijri — each with its own icon (🔆 Jalali, 🌐 Gregorian, 🌙 Hijri) and
-holiday confetti (🎊). See [Calendars](../../concepts/calendars/) for the model.
+holiday confetti (🎊). See [Calendars](../concepts/calendars.md) for the model.
 
 ## Month grid — `cal`
 
