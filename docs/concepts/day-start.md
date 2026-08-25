@@ -1,6 +1,4 @@
----
-title: "Day Start Hour"
----
+# Day Start Hour
 
 By default, DailyDriver treats the day as starting at **4:00 AM** rather than
 midnight. This matters because entries logged in the small hours (say, a 2 AM
@@ -30,4 +28,4 @@ date.
 | `daystart <0-23>` | Set the day-start hour |
 
 Set it to `0` for a plain midnight boundary, or later (e.g. `5`) if your day
-starts later. See [Tools & Setup](../../commands/tools/#day-start-hour--daystart).
+starts later. See [Tools & Setup](../commands/tools.md#day-start-hour--daystart).

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check all internal links in the built Starlight docs site (docs/dist).
+"""Check all internal links in the built Starlight docs site (docs-site/dist).
 
 Resolves every <a href> in the generated HTML against the site base
 (/DailyDriver/) and verifies:
@@ -14,7 +14,10 @@ import html
 from pathlib import Path
 from urllib.parse import urljoin, urlparse, unquote
 
-DIST = Path(__file__).resolve().parent.parent / "docs" / "dist"
+DIST = Path(__file__).resolve().parent.parent / "docs-site" / "dist"
+# fallback to old docs/dist for backwards compat
+if not DIST.exists():
+    DIST = Path(__file__).resolve().parent.parent / "docs" / "dist"
 SITE = "https://msadrashakouri.ir"
 BASE = "/DailyDriver"
 

@@ -1,6 +1,4 @@
----
-title: "Time Expressions"
----
+# Time Expressions
 
 DailyDriver uses one unified time-expression language everywhere time is
 entered — journal entries, sleep, naps, and prayer. Learn it once and it works

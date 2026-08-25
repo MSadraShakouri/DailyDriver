@@ -6,7 +6,7 @@ DailyDriver is a personal, terminal-based life tracker: prayers, sleep, hygiene,
 journal, targets, calendars, and search — all from a fast,
 keyboard-driven prompt, with Jalali (Persian) calendar support.
 
-This folder is the single source of truth for DailyDriver's documentation, published with Astro Starlight.
+The single source of truth for documentation is [`docs/` in the repository](https://github.com/MSadraShakouri/DailyDriver/tree/main/docs). This site is built from those files via a sync workflow in `docs-site/`.
 
 ## Start here
 

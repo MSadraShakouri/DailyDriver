@@ -1,0 +1,20 @@
+{
+  "getting-started.md": "Getting Started",
+  "architecture.md": "Architecture",
+  "roadmap.md": "Roadmap",
+  "commands/calendar.md": "Calendar",
+  "commands/events.md": "Events & Chaining",
+  "commands/export.md": "Export",
+  "commands/logging.md": "Logging",
+  "commands/prayer.md": "Prayer",
+  "commands/qada.md": "Qada & Fasting",
+  "commands/targets.md": "Targets",
+  "commands/tools.md": "Tools & Setup",
+  "commands/viewing.md": "Viewing & Summaries",
+  "concepts/calendars.md": "Calendars",
+  "concepts/categories.md": "Categories & Keyword Learning",
+  "concepts/day-start.md": "Day Start Hour",
+  "concepts/header.md": "The Header",
+  "concepts/time-expressions.md": "Time Expressions",
+  "reference/optimizations.md": "Optimizations"
+}

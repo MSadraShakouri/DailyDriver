@@ -1,0 +1,18 @@
+# build output
+dist/
+.astro/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+
+# generated docs - temp, source is ../docs/
+# keep only index.md (homepage) as committed file
+src/content/docs/architecture.md
+src/content/docs/getting-started.md
+src/content/docs/roadmap.md
+src/content/docs/commands/
+src/content/docs/concepts/
+src/content/docs/reference/

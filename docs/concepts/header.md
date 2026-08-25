@@ -1,6 +1,4 @@
----
-title: "The Header"
----
+# The Header
 
 Every screen opens with the daily header — a compact dashboard of the current
 (or viewed) day. Feature content is assembled from each feature's
@@ -36,4 +34,4 @@ prayers, above sleep).
 - Widths adapt to the terminal; resize to at least 80 columns for best results.
 
 For how features contribute header content, see the `header_sections` hook in
-[Architecture](../../architecture/) and `dailydriver/features/HOOKS.md`.
+[Architecture](../architecture.md) and `dailydriver/features/HOOKS.md`.
