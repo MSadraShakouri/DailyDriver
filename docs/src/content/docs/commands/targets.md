@@ -1,4 +1,6 @@
-# Targets — `nazr`, `habit`, `targets`
+---
+title: "Targets — `nazr`, `habit`, `targets`"
+---
 
 Track goals with intervals, progress, and counters. There are two kinds:
 

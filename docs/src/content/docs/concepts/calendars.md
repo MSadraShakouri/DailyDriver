@@ -1,4 +1,6 @@
-# Calendars
+---
+title: "Calendars"
+---
 
 DailyDriver is calendar-aware in three systems simultaneously:
 

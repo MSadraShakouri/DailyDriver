@@ -1,4 +1,6 @@
-# Export — `export`
+---
+title: "Export — `export`"
+---
 
 Export a single, chronological timeline where journal entries, sleep, naps,
 prayers, qada progress, and target logs are interleaved naturally by time and

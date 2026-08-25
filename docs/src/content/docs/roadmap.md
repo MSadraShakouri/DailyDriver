@@ -1,4 +1,6 @@
-# Roadmap
+---
+title: "Roadmap"
+---
 
 This page tracks where DailyDriver has been and where it might go. The
 **Shipped** section is drawn from real release history (`CHANGELOG.md` and the
@@ -136,8 +138,5 @@ candidates, not commitments, roughly grouped by priority.
 - **Undo**, **CSV export**, and a **backup** command (from the review notes).
 
 ### Infrastructure
-- **Wiki sync** — a GitHub Actions workflow to publish `docs/` to the GitHub
-  Wiki. See [WIKI-SYNC.md](WIKI-SYNC.md).
-
 Performance and cleanup ideas live in
 [reference/optimizations.md](reference/optimizations.md).

@@ -1,4 +1,6 @@
-# Reference: Optimizations & Improvements
+---
+title: "Reference: Optimizations & Improvements"
+---
 
 > Ideas for making DailyDriver faster, cleaner, and more maintainable. Moved
 > here from the former root `OPTIMIZATIONS.md`.

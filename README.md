@@ -51,27 +51,25 @@ da s 23:00 07:15     # log sleep
 da "worked on the report 9-11"
 ```
 
-See **[Getting Started](docs/getting-started.md)** for the `da` alias and the
-Termux quick-entry dialog.
+See **[Getting Started](https://msadrashakouri.ir/DailyDriver/getting-started/)**
+for the `da` alias and the Termux quick-entry dialog.
 
 ---
 
 ## Documentation
 
-Full documentation lives in **[`docs/`](docs/README.md)**:
+The live docs are built with **[Astro Starlight](https://starlight.astro.build/)**
+and published to GitHub Pages:
 
-- [Getting Started](docs/getting-started.md)
-- Command reference — [Logging](docs/commands/logging.md),
-  [Prayer](docs/commands/prayer.md), [Qada](docs/commands/qada.md),
-  [Events & Chaining](docs/commands/events.md),
-  [Targets](docs/commands/targets.md),
-  [Viewing & Summaries](docs/commands/viewing.md),
-  [Calendar](docs/commands/calendar.md), [Tools & Setup](docs/commands/tools.md),
-  [Export](docs/commands/export.md)
-- Concepts — [Time Expressions](docs/concepts/time-expressions.md),
-  [Categories](docs/concepts/categories.md), [The Header](docs/concepts/header.md),
-  [Calendars](docs/concepts/calendars.md), [Day Start](docs/concepts/day-start.md)
-- [Architecture](docs/architecture.md) · [Roadmap](docs/roadmap.md)
+- **[DailyDriver Docs](https://msadrashakouri.ir/DailyDriver/)** — the site
+- Getting started — `docs/src/content/docs/getting-started.md`
+- Command reference — `docs/src/content/docs/commands/`
+- Concepts — `docs/src/content/docs/concepts/`
+- Architecture · Roadmap — `docs/src/content/docs/architecture.md`,
+  `docs/src/content/docs/roadmap.md`
+
+Docs source lives in **[`docs/`](docs/)**, and the site is published by the
+**[docs workflow](.github/workflows/docs.yml)**.
 
 ---
 
@@ -86,7 +84,7 @@ different database with the `DAILYDRIVER_DB` environment variable.
 ## Contributing
 
 See **[CONTRIBUTING.md](CONTRIBUTING.md)** and the
-[architecture guide](docs/architecture.md).
+[architecture guide](docs/src/content/docs/architecture.md).
 
 ## License
 

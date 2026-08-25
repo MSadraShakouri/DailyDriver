@@ -1,4 +1,6 @@
-# Tools & Setup
+---
+title: "Tools & Setup"
+---
 
 These are deliberate, less-frequent actions — creation, configuration, and
 management. As of v2.0, creation/editing flows are **fully interactive**

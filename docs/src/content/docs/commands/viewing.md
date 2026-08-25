@@ -1,4 +1,6 @@
-# Viewing & Summaries
+---
+title: "Viewing & Summaries"
+---
 
 ## Day view — `day` (alias `today`)
 
