@@ -1,4 +1,6 @@
-# Architecture
+---
+title: "Architecture"
+---
 
 DailyDriver is a small, modular Python application built around a
 **feature-package** model: each domain (prayer, sleep, targets, …) is a

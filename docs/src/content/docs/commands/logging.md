@@ -1,4 +1,6 @@
-# Logging
+---
+title: "Logging"
+---
 
 The everyday, muscle-memory commands. These keep their fast inline syntax — you
 type the whole thing on one line. All times use the shared

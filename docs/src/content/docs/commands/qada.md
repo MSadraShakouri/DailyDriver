@@ -1,4 +1,6 @@
-# Qada & Fasting — `qada`
+---
+title: "Qada & Fasting — `qada`"
+---
 
 An interactive manager for a standing backlog of missed prayers and fasting
 obligations, with progress tracking, pause/resume, and interval scheduling.

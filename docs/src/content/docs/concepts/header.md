@@ -1,4 +1,6 @@
-# The Header
+---
+title: "The Header"
+---
 
 Every screen opens with the daily header — a compact dashboard of the current
 (or viewed) day. Feature content is assembled from each feature's

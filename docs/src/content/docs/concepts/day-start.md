@@ -1,4 +1,6 @@
-# Day Start Hour
+---
+title: "Day Start Hour"
+---
 
 By default, DailyDriver treats the day as starting at **4:00 AM** rather than
 midnight. This matters because entries logged in the small hours (say, a 2 AM

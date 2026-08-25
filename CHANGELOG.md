@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- **Documentation site migrated to Astro Starlight** – `docs/` is now a
+  self-contained Astro site (default Starlight theme, page search, dark mode,
+  prev/next links, and an auto sidebar) that builds to `docs/dist` and is
+  published to GitHub Pages at `https://msadrashakouri.ir/DailyDriver/` by
+  `.github/workflows/docs.yml`. The plain-Markdown pages moved to
+  `docs/src/content/docs/` and gained Starlight frontmatter (the old first
+  `# heading` becomes the `title`); content, headings, and relative links are
+  otherwise unchanged. The GitHub Wiki sync plan (`docs/WIKI-SYNC.md`) was
+  dropped in favour of publishing the docs site; root `README`/`CONTRIBUTING`
+  links now point to the new source layout and the live site.
+
 ## 2.1.0 (2026-08-24)
 
 ### Added

@@ -1,4 +1,6 @@
-# Categories & Keyword Learning
+---
+title: "Categories & Keyword Learning"
+---
 
 Journal entries are filed under category **paths** like `work/coding` or
 `hygiene/shaving`. DailyDriver learns which words go with which categories, so

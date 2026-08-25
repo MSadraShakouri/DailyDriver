@@ -1,4 +1,6 @@
-# Prayer
+---
+title: "Prayer"
+---
 
 ## Log a prayer — `p` (alias `pray`)
 
