@@ -320,6 +320,42 @@ def _migration_12(conn):
     conn.commit()
 
 
+def _migration_13(conn):
+    """Delete all keywords that match the current stopwords list.
+
+    The stopwords file now includes both raw words and their stems, so this
+    removes both variant forms from the keywords table in one pass.
+    """
+    import os
+
+    from dailydriver.core.database import PROJECT_ROOT
+
+    stopwords_path = os.path.join(PROJECT_ROOT, "data", "stopwords.txt")
+    stop_set = set()
+    try:
+        with open(stopwords_path, encoding="utf-8") as f:
+            for line in f:
+                word = line.strip().lower()
+                if word and not word.startswith("#"):
+                    stop_set.add(word)
+    except FileNotFoundError:
+        # If stopwords.txt is missing, skip silently (the table stays unchanged)
+        return
+
+    if not stop_set:
+        return
+
+    # Delete in chunks to avoid SQLite's limit on number of bound parameters
+    chunk_size = 500
+    stop_list = list(stop_set)
+    for i in range(0, len(stop_list), chunk_size):
+        chunk = stop_list[i:i + chunk_size]
+        placeholders = ",".join("?" for _ in chunk)
+        conn.execute(f"DELETE FROM keywords WHERE word IN ({placeholders})", chunk)
+
+    conn.commit()
+
+
 _MIGRATIONS = {
     1: _migration_1,
     2: _migration_2,
@@ -333,6 +369,7 @@ _MIGRATIONS = {
     10: _migration_10,
     11: _migration_11,
     12: _migration_12,
+    13: _migration_13,
 }
 
 
