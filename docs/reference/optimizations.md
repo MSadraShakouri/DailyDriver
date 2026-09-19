@@ -1,8 +1,6 @@
 # Reference: Optimizations & Improvements
 
-> Ideas for making DailyDriver faster, cleaner, and more maintainable. Moved
-> here from the former root `OPTIMIZATIONS.md`.
-
+> Ideas for making DailyDriver faster, cleaner, and more maintainable. Moved here from the former root `OPTIMIZATIONS.md`.
 
 ---
 
@@ -11,8 +9,7 @@
 ### Enable SQLite WAL mode
 - One‑line change: `PRAGMA journal_mode=WAL;` after opening the DB.
 - Write‑Ahead Logging makes writes faster and reduces locking, even for a single‑user app.
-- **Effort:** One line in `database.py`.  
-  **Benefit:** Slightly faster writes, safer file handling.
+- **Effort:** One line in `database.py`. **Benefit:** Slightly faster writes, safer file handling.
 
 ---
 
@@ -58,8 +55,7 @@
 ### Lazy‑load calendar event JSON files
 - Currently all three event files are loaded when the module is first imported.
 - Defer loading until `get_events()` is actually called.
-- **Effort:** Small refactor in `calendar_events.py`.  
-  **Benefit:** Faster startup for quick commands that don’t touch the calendar.
+- **Effort:** Small refactor in `calendar_events.py`. **Benefit:** Faster startup for quick commands that don’t touch the calendar.
 
 ### Threaded weather fetch
 - Fetch weather in background thread (with timeout) to avoid blocking startup.

@@ -2,21 +2,17 @@
 title: "DailyDriver Documentation"
 ---
 
-DailyDriver is a personal, terminal-based life tracker: prayers, sleep, hygiene,
-journal, targets, calendars, and search — all from a fast,
-keyboard-driven prompt, with Jalali (Persian) calendar support.
+DailyDriver is a personal, terminal-based life tracker: prayers, sleep, hygiene, journal, targets, calendars, and search — all from a fast, keyboard-driven prompt, with Jalali (Persian) calendar support.
 
 The single source of truth for documentation is [`docs/` in the repository](https://github.com/MSadraShakouri/DailyDriver/tree/main/docs). This site is built from those files via a sync workflow in `docs-site/`.
 
 ## Start here
 
-- **[Getting Started](getting-started/)** — install, run, the `da` alias, and
-  the Termux quick-entry dialog.
+- **[Getting Started](getting-started/)** — install, run, the `da` alias, and the Termux quick-entry dialog.
 
 ## Commands
 
-Every command, grouped by area. In the app, add `-h` or `--help` after any
-command (e.g. `p -h`) for the same details, or type `?` for a summary.
+Every command, grouped by area. In the app, add `-h` or `--help` after any command (e.g. `p -h`) for the same details, or type `?` for a summary.
 
 - [Logging](commands/logging/) — journal, sleep, naps, void
 - [Prayer](commands/prayer/) — `p`, qada backlog
@@ -44,6 +40,4 @@ The cross-cutting systems that aren't a single command:
 - [Roadmap](roadmap/) — shipped history and planned ideas
 - [Reference: Optimizations](reference/optimizations/) — performance/cleanup ideas
 
-Repository top level keeps a short [README](https://github.com/MSadraShakouri/DailyDriver/blob/main/README.md),
-[CONTRIBUTING](https://github.com/MSadraShakouri/DailyDriver/blob/main/CONTRIBUTING.md),
-[CHANGELOG](https://github.com/MSadraShakouri/DailyDriver/blob/main/CHANGELOG.md), and `LICENSE`.
+Repository top level keeps a short [README](https://github.com/MSadraShakouri/DailyDriver/blob/main/README.md), [CONTRIBUTING](https://github.com/MSadraShakouri/DailyDriver/blob/main/CONTRIBUTING.md), [CHANGELOG](https://github.com/MSadraShakouri/DailyDriver/blob/main/CHANGELOG.md), and `LICENSE`.

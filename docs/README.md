@@ -1,22 +1,16 @@
 # DailyDriver Documentation
 
-DailyDriver is a personal, terminal-based life tracker: prayers, sleep, hygiene,
-journal, targets, calendars, and search — all from a fast,
-keyboard-driven prompt, with Jalali (Persian) calendar support.
+DailyDriver is a personal, terminal-based life tracker: prayers, sleep, hygiene, journal, targets, calendars, and search — all from a fast, keyboard-driven prompt, with Jalali (Persian) calendar support.
 
-This folder is the single source of truth for DailyDriver's documentation. It is
-written to read well on GitHub and is used to generate the documentation site
-via the `docs-site/` sync workflow.
+This folder is the single source of truth for DailyDriver's documentation. It is written to read well on GitHub and is used to generate the documentation site via the `docs-site/` sync workflow.
 
 ## Start here
 
-- **[Getting Started](getting-started.md)** — install, run, the `da` alias, and
-  the Termux quick-entry dialog.
+- **[Getting Started](getting-started.md)** — install, run, the `da` alias, and the Termux quick-entry dialog.
 
 ## Commands
 
-Every command, grouped by area. In the app, add `-h` or `--help` after any
-command (e.g. `p -h`) for the same details, or type `?` for a summary.
+Every command, grouped by area. In the app, add `-h` or `--help` after any command (e.g. `p -h`) for the same details, or type `?` for a summary.
 
 - [Logging](commands/logging.md) — journal, sleep, naps, void
 - [Prayer](commands/prayer.md) — `p`, qada backlog
@@ -44,8 +38,6 @@ The cross-cutting systems that aren't a single command:
 - [Roadmap](roadmap.md) — shipped history and planned ideas
 - [Reference: Optimizations](reference/optimizations.md) — performance/cleanup ideas
 
-Repository top level keeps a short [README](../README.md),
-[CONTRIBUTING](../CONTRIBUTING.md), [CHANGELOG](../CHANGELOG.md), and `LICENSE`.
+Repository top level keeps a short [README](../README.md), [CONTRIBUTING](../CONTRIBUTING.md), [CHANGELOG](../CHANGELOG.md), and `LICENSE`.
 
-The documentation site lives in [`../docs-site/`](../docs-site/) and is built
-from these files — no duplicate markdown is committed.
+The documentation site lives in [`../docs-site/`](../docs-site/) and is built from these files — no duplicate markdown is committed.

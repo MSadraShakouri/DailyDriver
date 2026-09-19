@@ -2,8 +2,7 @@
 
 ## Log a prayer — `p` (alias `pray`)
 
-Logs a prayer for the current (or specified) slot. Pressing Enter confirms.
-Prayer times are calculated offline for Tehran from fixed coordinates and the University of Tehran solar-angle convention; the app makes no network request.
+Logs a prayer for the current (or specified) slot. Pressing Enter confirms. Prayer times are calculated offline for Tehran from fixed coordinates and the University of Tehran solar-angle convention; the app makes no network request.
 
 | Usage | Meaning |
 |-------|---------|
@@ -14,13 +13,11 @@ Prayer times are calculated offline for Tehran from fixed coordinates and the Un
 | `p j masjid` | With jamaat at a given location |
 | `p s 3` | With a shak (doubt) count of 3 |
 
-Offsets and times use the shared
-[time-expression syntax](../concepts/time-expressions.md).
+Offsets and times use the shared [time-expression syntax](../concepts/time-expressions.md).
 
 ## Backlog / qada marking — `p q`
 
-Mark a past, unlogged prayer as qada. By default it logs at the **current**
-time, which is the natural choice for catching up.
+Mark a past, unlogged prayer as qada. By default it logs at the **current** time, which is the natural choice for catching up.
 
 | Usage | Meaning |
 |-------|---------|
@@ -28,11 +25,8 @@ time, which is the natural choice for catching up.
 | `p q -15` | Mark with a time of 15 minutes ago |
 | `p q 03:11` | Mark at 03:11 on the past date |
 
-> `p q` is the quick per-prayer catch-up. For managing a standing backlog of
-> missed prayers and fasting over time, use the [`qada` manager](qada.md).
+> `p q` is the quick per-prayer catch-up. For managing a standing backlog of missed prayers and fasting over time, use the [`qada` manager](qada.md).
 
 ## Travel mode
 
-In [travel mode](tools.md#travel-mode--travel), `p` shows a smart slot selector
-instead of assuming Tehran times, and location-dependent prayer nudges are
-suppressed.
+In [travel mode](tools.md#travel-mode--travel), `p` shows a smart slot selector instead of assuming Tehran times, and location-dependent prayer nudges are suppressed.

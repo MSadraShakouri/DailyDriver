@@ -1,16 +1,13 @@
 # Logging
 
-The everyday, muscle-memory commands. These keep their fast inline syntax — you
-type the whole thing on one line. All times use the shared
-[time-expression syntax](../concepts/time-expressions.md).
+The everyday, muscle-memory commands. These keep their fast inline syntax — you type the whole thing on one line. All times use the shared [time-expression syntax](../concepts/time-expressions.md).
 
 ## Journal entries (free text)
 
 Anything not recognized as a command is a journal entry. The flow is:
 
 1. Time expressions in the text are parsed and confirmed.
-2. Categories are suggested (see [Categories](../concepts/categories.md)); you
-   pick one or more, or type a new path.
+2. Categories are suggested (see [Categories](../concepts/categories.md)); you pick one or more, or type a new path.
 3. The entry is saved.
 
 ```
@@ -19,19 +16,11 @@ Anything not recognized as a command is a journal entry. The flow is:
 > last Thursday visited grandmother
 ```
 
-If a great event is active and suggestions are shown, the picker also offers
-`0 = Great Event only`.
+If a great event is active and suggestions are shown, the picker also offers `0 = Great Event only`.
 
 ### Category selection
 
-When suggestions exist, a short numbered list is shown in ranked order (best
-match first). In an interactive terminal the picker also autocompletes as you
-type, with a live dropdown that drops categories you've already picked (by name
-or by number). Press Tab to complete, space-separate to choose several, or type
-a brand-new path. Press **Enter alone to accept suggestion #1**; type `0` for
-"Great Event only" when a great event is active. See
-[Categories & Keyword Learning](../concepts/categories.md) for how the ranking
-and selection work.
+When suggestions exist, a short numbered list is shown in ranked order (best match first). In an interactive terminal the picker also autocompletes as you type, with a live dropdown that drops categories you've already picked (by name or by number). Press Tab to complete, space-separate to choose several, or type a brand-new path. Press **Enter alone to accept suggestion #1**; type `0` for "Great Event only" when a great event is active. See [Categories & Keyword Learning](../concepts/categories.md) for how the ranking and selection work.
 
 ## Sleep — `s` (alias `sleep`)
 
@@ -48,8 +37,7 @@ Log a sleep session with bed and wake time.
 | `s ln` | From last action to now |
 | `s l--10` | From last action to 10 minutes ago |
 
-Multiple sleep sessions per day are allowed; the header shows the total duration
-and each individual range.
+Multiple sleep sessions per day are allowed; the header shows the total duration and each individual range.
 
 ## Naps — `nap`
 
@@ -62,14 +50,11 @@ Same input style as sleep, for short daytime sleeps.
 | `nap l-14:00` | From last action to 14:00 |
 | `nap l--5` | From last action to 5 minutes ago |
 
-Typing `nap` alone prints usage. Naps appear as total nap time in the header and
-in the day summary.
+Typing `nap` alone prints usage. Naps appear as total nap time in the header and in the day summary.
 
 ## Void scratchpad — `v` (alias `void`), `vexport`
 
-A private scratchpad completely separate from the journal: no time parsing, no
-categories, no keyword learning, and it does **not** update `last_action` (so it
-never interferes with chaining).
+A private scratchpad completely separate from the journal: no time parsing, no categories, no keyword learning, and it does **not** update `last_action` (so it never interferes with chaining).
 
 | Usage | Meaning |
 |-------|---------|
