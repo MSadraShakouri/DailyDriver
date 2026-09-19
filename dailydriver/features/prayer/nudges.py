@@ -8,6 +8,9 @@ import jdatetime
 from dailydriver.core.state import get_prayer_complete_until, is_travel_mode
 from dailydriver.utils.prayer_times import get_approximate_times
 
+from .schedule import PRAYER_SLOTS, SLOT_LABELS
+from .store import has_prayer_log
+
 
 def get_prayer_nudges(conn, target_date, today_str, is_today, now=None):
     """Return list of nudge strings (pre‑alert or overdue). Only active for today."""
@@ -40,11 +43,10 @@ def get_prayer_nudges(conn, target_date, today_str, is_today, now=None):
         "maghrib_isha": maghrib_dt,
     }
 
-    cur = conn.cursor()
     for slot, dt in slot_times.items():
         seconds_until = (dt - now).total_seconds()
         if 0 <= seconds_until <= 60 * 60:
-            label = slot.replace("_", " & ").title()
+            label = SLOT_LABELS[slot]
             if seconds_until < 60:
                 timing = "due now"
             else:
@@ -54,12 +56,8 @@ def get_prayer_nudges(conn, target_date, today_str, is_today, now=None):
                 timing = f"in ~{minutes_until} min"
             nudges.append(f"{YELLOW}🕌 {label} {timing}{RESET}")
         elif seconds_until < 0:
-            cur.execute(
-                "SELECT id FROM prayer_logs WHERE prayer_slot=? AND jalali_date=?",
-                (slot, today_str),
-            )
-            if not cur.fetchone():
-                label = slot.replace("_", " & ").title()
+            if not has_prayer_log(conn, slot, today_str):
+                label = SLOT_LABELS[slot]
                 nudges.append(f"{RED}⚠️ {label} not logged (today){RESET}")
 
     # Past overdue scan (up to 5)
@@ -110,12 +108,8 @@ def get_prayer_nudges(conn, target_date, today_str, is_today, now=None):
         }
         for slot, slot_dt in past_slots.items():
             if slot_dt <= now:
-                cur.execute(
-                    "SELECT id FROM prayer_logs WHERE prayer_slot=? AND jalali_date=?",
-                    (slot, date_str),
-                )
-                if not cur.fetchone():
-                    label = slot.replace("_", " & ").title()
+                if not has_prayer_log(conn, slot, date_str):
+                    label = SLOT_LABELS[slot]
                     day_label = d.strftime("%d %b")
                     nudges.append(f"{RED}⚠️ {label} not logged ({day_label}){RESET}")
                     past_count += 1
@@ -127,17 +121,12 @@ def get_prayer_nudges(conn, target_date, today_str, is_today, now=None):
 
 def _get_travel_next_nudge(conn, today_str):
     """Return a single overdue‑style nudge for the first unlogged prayer slot today (travel mode only)."""
-    slots = ["fajr", "dhuhr_asr", "maghrib_isha"]
+    slots = PRAYER_SLOTS
     RED = "\033[31m"
     RESET = "\033[0m"
 
     for slot in slots:
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT 1 FROM prayer_logs WHERE prayer_slot = ? AND jalali_date = ?",
-            (slot, today_str),
-        )
-        if cur.fetchone() is None:
-            display = slot.replace("_", " & ").title()
+        if not has_prayer_log(conn, slot, today_str):
+            display = SLOT_LABELS[slot]
             return [f"{RED}⚠️ {display} not logged (today){RESET}"]
     return []

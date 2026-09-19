@@ -47,15 +47,29 @@ def jalali_date_with_weekday(ts: int | float) -> str:
     return f"{weekday}, {jalali_date_time(ts)[0]}"
 
 
-def format_duration_minutes(minutes: int | None) -> str:
-    """Return a compact human-readable duration."""
+def format_duration_minutes(
+    minutes: int | None,
+    *,
+    include_zero_minutes: bool = False,
+    include_zero_hours: bool = False,
+) -> str:
+    """Return a human-readable duration while supporting legacy display styles.
+
+    Export formatting stays compact by default (``1h`` or ``25m``). The
+    interactive sleep/status screens can request the historic ``0h 25m`` and
+    ``1h 0m`` forms without duplicating the arithmetic.
+    """
     if minutes is None:
         return ""
     hours, mins = divmod(int(minutes), 60)
     if hours and mins:
         return f"{hours}h {mins}m"
     if hours:
-        return f"{hours}h"
+        return f"{hours}h 0m" if include_zero_minutes else f"{hours}h"
+    if include_zero_hours:
+        return f"0h {mins}m"
+    if include_zero_minutes and mins == 0:
+        return "0h 0m"
     return f"{mins}m"
 
 

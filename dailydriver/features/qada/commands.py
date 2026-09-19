@@ -3,7 +3,7 @@
 from dailydriver.core.database import get_connection_cm
 
 from .entries import resolve_entry_id
-from .logging import log_fasting, log_prayer_qada, pause_fasting_entry
+from .progress import log_fasting, log_prayer_qada, pause_fasting_entry
 
 
 def qada_command(line: str):

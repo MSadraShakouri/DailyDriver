@@ -2,6 +2,7 @@ import pytest
 
 from dailydriver.core.database import get_connection_cm
 from dailydriver.features.prayer import commands
+from dailydriver.utils.time_parser import PrayerArgs
 
 
 def _log_slot(connection, slot, date="1405-06-01"):
@@ -44,7 +45,7 @@ def test_log_prayer_uses_travel_selected_slot(db_path, ui, monkeypatch):
     monkeypatch.setattr(
         commands,
         "parse_prayer_args",
-        lambda args: {"offset_min": None, "explicit_time": 300, "jamaat_location": None, "shak_count": 0},
+        lambda args: PrayerArgs(explicit_time=300),
     )
     assert "Maghrib & Isha" in commands.log_prayer("p 05:00")
     with get_connection_cm(auto=False) as connection:
