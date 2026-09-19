@@ -1,6 +1,6 @@
 # Tools & Setup
 
-These are deliberate, less-frequent actions — creation, configuration, and management. As of v2.0, creation/editing flows are **fully interactive** (prompted and validated) rather than parsed from inline arguments.
+These are deliberate, less-frequent actions — creation, configuration, and management. Creation and editing flows are **fully interactive** (prompted and validated) rather than parsed from inline arguments.
 
 ## Birthdays — `bd`, `birthdays`
 

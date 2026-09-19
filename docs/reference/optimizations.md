@@ -36,8 +36,8 @@
 - **Effort:** Small. **Benefit:** Cleaner UI for long backlogs.
 
 ### Expand test coverage
-- Missing tests for: backlog logic, export formatting, `is_today` refactor, weather fallback.
-- Focus on `prayer_backlog.py` and `export_log.py` (most recent changes).
+- Continue adding focused coverage for prayer status/nudges and calendar boundary corrections; weather fallback remains intentionally deferred.
+- Keep the feature and integration suites aligned with behavior changes rather than duplicating command implementation details.
 - **Effort:** Medium. **Benefit:** Prevent regressions.
 
 ---

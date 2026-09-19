@@ -4,7 +4,13 @@ This page tracks where DailyDriver has been and where it might go. The **Shipped
 
 ## Shipped
 
-> Release tags are created manually; the package version is defined in `dailydriver.__version__` and exposed through `pyproject.toml` package metadata. The repository has a `v2.1.0` tag, and changes after that tag are listed under `Unreleased` in `CHANGELOG.md`.
+> Release tags are created manually; the package version is defined in `dailydriver.__version__` and exposed through `pyproject.toml` package metadata. Release notes are kept in `CHANGELOG.md` alongside the version history.
+
+### ✅ v2.2.0 — 2026-09-19
+- **Iranian-first offline Hijri calendar**: month-start data is bundled locally with calculated fallback coverage, month-specific manual corrections, and the existing global correction command retained for compatibility.
+- **Offline Tehran prayer calculation**: prayer times use a deterministic coordinate-based solar calculation without a runtime network request.
+- **Minute-resolution prayer nudges**: upcoming prayers count down by minute and show `due now` during the final minute.
+- **Documentation and maintenance cleanup**: built-in stemming, refreshed stopwords, the Astro Starlight docs site, shared prayer/duration helpers, typed prayer arguments, and qada import compatibility.
 
 ### ✅ v2.1.0 — 2026-08-24
 - **Unified day timeline**: `day` shows everything logged that day in chronological order — journal entries, prayers, sleep, naps, qada, and targets — sharing one timeline builder with `export`; items are placed by start time. Each item renders as time, then label/categories, then the description.

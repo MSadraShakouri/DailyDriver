@@ -2,20 +2,28 @@
 
 ## Unreleased
 
+_No changes yet._
+
+---
+
+## 2.2.0 (2026-09-19)
+
 ### Added
 
-- **Offline Tehran prayer calculation**: replaced the old four-anchor interpolation with a deterministic coordinate-based solar calculation using Tehran coordinates, the UTC+03:30 civil timezone, Fajr at 17.7°, and Shia Maghrib at 4.5°. It supports any Jalali year and makes no runtime network request.
-- **Built-in English stemming**: replaced the `porter2stemmer` dependency with a compact Porter2-compatible implementation used by keyword learning, search, migrations, and the stopword analysis tool.
+- **Iranian-first offline Hijri calendar**: bundled month-start data, calculated fallback coverage, month-specific manual corrections, and the existing global correction command retained for compatibility.
+- **Offline Tehran prayer calculation**: deterministic coordinate-based solar times using Tehran coordinates, the UTC+03:30 civil timezone, Fajr at 17.7°, and Shia Maghrib at 4.5°, with no runtime network request.
 
 ### Changed
 
 - **Prayer header nudges** now use minute-resolution countdowns instead of five-minute buckets and show `due now` during the final minute.
+- **Built-in English stemming** replaced the `porter2stemmer` dependency with a compact Porter2-compatible implementation used by keyword learning, search, migrations, and the stopword analysis tool.
 - **Stopword maintenance** expanded the stopword list and removed historical noise from the tracked data.
-- **Documentation site** migrated to Astro Starlight. The site is built from the plain Markdown in `docs/`, published to GitHub Pages, and no duplicate generated documentation is committed.
+- **Documentation site** migrated to Astro Starlight. The site is built from plain Markdown in `docs/`, published to GitHub Pages, and no duplicate generated documentation is committed.
+- **Internal cleanup** centralized prayer labels and lookups, typed prayer arguments, shared duration formatting, safe persisted-state parsing, and qada progress imports while preserving existing command output and compatibility shims.
 
 ### Tests
 
-- The current branch passes **517 tests** with `pytest -q`.
+- The `v2.2.0` release candidate passes **533 tests** with `pytest -q`.
 
 ---
 
