@@ -53,7 +53,7 @@ HELP: dict[str, HelpEntry] = {
             "p s <count>    with a shak (doubt) count",
             "p q [time]     mark a past unlogged prayer as qada",
         ],
-        notes="Prayer times are interpolated for Tehran. 'p q' logs at the current time by default.",
+        notes="Prayer times are calculated offline for Tehran. 'p q' logs at the current time by default.",
     ),
     "pray": HelpEntry(summary="Alias for p", group="Prayer", alias_of="p"),
     "s": HelpEntry(

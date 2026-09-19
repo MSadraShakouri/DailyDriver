@@ -113,7 +113,7 @@ def log_prayer(cmd: str):
             if slot is None:
                 return None
         else:
-            # Normal mode: guess slot from prayer time using Tehran interpolation
+            # Normal mode: guess slot from the offline Tehran solar calculation
             today_j = jdatetime.date.today()
             approx = get_approximate_times(today_j.month, today_j.day)
             dhuhr_dt = now.replace(hour=approx["dhuhr"][0], minute=approx["dhuhr"][1], second=0, microsecond=0)

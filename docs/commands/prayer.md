@@ -3,7 +3,7 @@
 ## Log a prayer — `p` (alias `pray`)
 
 Logs a prayer for the current (or specified) slot. Pressing Enter confirms.
-Prayer times are interpolated for Tehran from monthly data.
+Prayer times are calculated offline for Tehran from fixed coordinates and the University of Tehran solar-angle convention; the app makes no network request.
 
 | Usage | Meaning |
 |-------|---------|

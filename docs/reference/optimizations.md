@@ -83,8 +83,8 @@
 - **Effort:** Small. **Benefit:** Easier to maintain.
 
 ### Future city support for prayer times
-- `prayer_times.py` has hardcoded Tehran data.
-- When adding cities, swap `_DATA` dict for a JSON file keyed by city name.
+- `prayer_times.py` has a baked Tehran coordinate/calculation convention.
+- When adding cities, move the location and calculation parameters into a keyed configuration.
 - **Effort:** Deferred. **Benefit:** Clean multi‑city support.
 
 ### Review EXPLAIN QUERY PLAN on slow queries
