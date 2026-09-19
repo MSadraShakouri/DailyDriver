@@ -39,6 +39,7 @@ GREAT_EVENT_CATEGORIES_KEY = "great_event_categories"
 # database helpers
 # ---------------------------------------------------------------------------
 
+
 def get_db_path() -> str:
     """Resolve the database path (honours DAILYDRIVER_DB, like the app)."""
     override = os.environ.get("DAILYDRIVER_DB")
@@ -60,6 +61,7 @@ def _connect():
 # validation
 # ---------------------------------------------------------------------------
 
+
 def normalize_path(raw) -> str:
     """Validate and normalise a category path.  Raises ValueError."""
     if raw is None or not isinstance(raw, str):
@@ -78,19 +80,18 @@ def normalize_path(raw) -> str:
 # read operations
 # ---------------------------------------------------------------------------
 
+
 def get_categories():
     """All categories with entry counts, alphabetical by path."""
     conn = _connect()
     try:
-        rows = conn.execute(
-            """
+        rows = conn.execute("""
             SELECT c.id, c.path, COUNT(ec.entry_id) AS entry_count
             FROM categories c
             LEFT JOIN entry_categories ec ON ec.category_id = c.id
             GROUP BY c.id, c.path
             ORDER BY c.path COLLATE NOCASE, c.path
-            """
-        ).fetchall()
+            """).fetchall()
         return [dict(r) for r in rows]
     finally:
         conn.close()
@@ -116,10 +117,7 @@ def get_entries_for_category(category_id, limit=ENTRY_PREVIEW_LIMIT):
             (category_id, limit),
         ).fetchall()
         return {
-            "entries": [
-                {"id": r["id"], "description": r["description"] or ""}
-                for r in rows
-            ],
+            "entries": [{"id": r["id"], "description": r["description"] or ""} for r in rows],
             "total": total,
             "has_more": total > limit,
         }
@@ -130,6 +128,7 @@ def get_entries_for_category(category_id, limit=ENTRY_PREVIEW_LIMIT):
 # ---------------------------------------------------------------------------
 # Levenshtein similarity suggestions
 # ---------------------------------------------------------------------------
+
 
 def levenshtein(s1: str, s2: str) -> int:
     """Classic two-row dynamic-programming edit distance."""
@@ -206,15 +205,14 @@ def get_suggestions(only_path=None, limit=SUGGESTION_LIMIT):
 # write operations (each wrapped in a single transaction)
 # ---------------------------------------------------------------------------
 
+
 def _sync_great_event_meta(conn, old_path, new_path):
     """Keep meta.great_event_categories consistent with a rename/delete.
 
     The value is space-joined (see core/state/events.py), so paths cannot
     contain spaces and word-level replacement is exact.
     """
-    row = conn.execute(
-        "SELECT value FROM meta WHERE key = ?", (GREAT_EVENT_CATEGORIES_KEY,)
-    ).fetchone()
+    row = conn.execute("SELECT value FROM meta WHERE key = ?", (GREAT_EVENT_CATEGORIES_KEY,)).fetchone()
     if not row or not row["value"]:
         return
     parts = row["value"].split()
@@ -258,9 +256,7 @@ def rename_category(category_id, new_path):
     conn = _connect()
     try:
         with conn:  # commits on success, rolls back on exception
-            cat = conn.execute(
-                "SELECT id, path FROM categories WHERE id = ?", (category_id,)
-            ).fetchone()
+            cat = conn.execute("SELECT id, path FROM categories WHERE id = ?", (category_id,)).fetchone()
             if not cat:
                 raise ValueError("Category not found.")
             old_path = cat["path"]
@@ -280,9 +276,7 @@ def rename_category(category_id, new_path):
                 raise ValueError("Category already exists.")
 
             # path != old_path here (also covers case-only changes)
-            conn.execute(
-                "UPDATE categories SET path = ? WHERE id = ?", (path, category_id)
-            )
+            conn.execute("UPDATE categories SET path = ? WHERE id = ?", (path, category_id))
             _sync_great_event_meta(conn, old_path, path)
             warnings = _hygiene_warnings(conn, old_path, path)
         return {"message": "Renamed.", "warnings": warnings}
@@ -307,12 +301,8 @@ def merge_categories(source_id, target_id, new_name):
     conn = _connect()
     try:
         with conn:
-            src = conn.execute(
-                "SELECT id, path FROM categories WHERE id = ?", (source_id,)
-            ).fetchone()
-            tgt = conn.execute(
-                "SELECT id, path FROM categories WHERE id = ?", (target_id,)
-            ).fetchone()
+            src = conn.execute("SELECT id, path FROM categories WHERE id = ?", (source_id,)).fetchone()
+            tgt = conn.execute("SELECT id, path FROM categories WHERE id = ?", (target_id,)).fetchone()
             if not src:
                 raise ValueError("Source category not found.")
             if not tgt:
@@ -323,8 +313,7 @@ def merge_categories(source_id, target_id, new_name):
             # Uniqueness: exclude source (about to be deleted) and target
             # (the surviving row, which may simply keep its own name).
             dup = conn.execute(
-                "SELECT id FROM categories WHERE LOWER(path) = LOWER(?)"
-                " AND id != ? AND id != ?",
+                "SELECT id FROM categories WHERE LOWER(path) = LOWER(?)" " AND id != ? AND id != ?",
                 (result_path, source_id, target_id),
             ).fetchone()
             if dup:
@@ -348,13 +337,11 @@ def merge_categories(source_id, target_id, new_name):
             )
             # 3. merge keywords
             for kw in conn.execute(
-                "SELECT word, COALESCE(count, 1) AS count"
-                " FROM keywords WHERE category_id = ?",
+                "SELECT word, COALESCE(count, 1) AS count" " FROM keywords WHERE category_id = ?",
                 (source_id,),
             ).fetchall():
                 existing = conn.execute(
-                    "SELECT id FROM keywords WHERE word = ? AND category_id = ?"
-                    " ORDER BY id LIMIT 1",
+                    "SELECT id FROM keywords WHERE word = ? AND category_id = ?" " ORDER BY id LIMIT 1",
                     (kw["word"], target_id),
                 ).fetchone()
                 if existing:
@@ -394,9 +381,7 @@ def delete_category(category_id):
     conn = _connect()
     try:
         with conn:
-            cat = conn.execute(
-                "SELECT id, path FROM categories WHERE id = ?", (category_id,)
-            ).fetchone()
+            cat = conn.execute("SELECT id, path FROM categories WHERE id = ?", (category_id,)).fetchone()
             if not cat:
                 raise ValueError("Category not found.")
             count = conn.execute(
@@ -420,6 +405,7 @@ def delete_category(category_id):
 # ---------------------------------------------------------------------------
 # HTTP layer
 # ---------------------------------------------------------------------------
+
 
 class EditorHandler(SimpleHTTPRequestHandler):
     def _send_json(self, payload, status=200):

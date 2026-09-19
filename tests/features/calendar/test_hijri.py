@@ -25,9 +25,7 @@ def test_offset_round_trip_records_date_and_invalidates_cache(tmp_path, monkeypa
     assert catalog._cache_year is None
 
 
-def test_month_override_takes_precedence_and_can_explicitly_select_zero(
-    tmp_path, monkeypatch
-):
+def test_month_override_takes_precedence_and_can_explicitly_select_zero(tmp_path, monkeypatch):
     offset_path = tmp_path / "offset.txt"
     offset_path.write_text("1\n2026-01-01\n")
     overrides_path = tmp_path / "overrides.json"
@@ -60,8 +58,7 @@ def test_zero_removes_an_unneeded_existing_month_override(tmp_path, monkeypatch)
     offset_path.write_text("0\n2026-01-01\n")
     overrides_path = tmp_path / "overrides.json"
     overrides_path.write_text(
-        '{"schema_version": 1, "overrides": '
-        '{"1448-04": {"offset": -1, "set_date": "2026-01-01"}}}'
+        '{"schema_version": 1, "overrides": ' '{"1448-04": {"offset": -1, "set_date": "2026-01-01"}}}'
     )
     monkeypatch.setattr(hijri, "OFFSET_FILE", offset_path)
     monkeypatch.setattr(hijri, "OVERRIDES_FILE", overrides_path)

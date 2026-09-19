@@ -29,8 +29,8 @@ to Hamid Zarrabi-Zadeh, Copyright (C) 2007-2010, under the GNU LGPL v3.0.
 
 from __future__ import annotations
 
-from datetime import date
 import math
+from datetime import date
 
 import jdatetime
 
@@ -67,13 +67,7 @@ def _julian_date(gregorian_date: date) -> float:
         month += 12
     century = math.floor(year / 100.0)
     correction = 2 - century + math.floor(century / 4.0)
-    return (
-        math.floor(365.25 * (year + 4716))
-        + math.floor(30.6001 * (month + 1))
-        + day
-        + correction
-        - 1524.5
-    )
+    return math.floor(365.25 * (year + 4716)) + math.floor(30.6001 * (month + 1)) + day + correction - 1524.5
 
 
 def _sun_position(julian_day: float) -> tuple[float, float]:
@@ -88,9 +82,9 @@ def _sun_position(julian_day: float) -> tuple[float, float]:
     )
     obliquity = 23.439 - 0.00000036 * days
 
-    declination = math.asin(
-        math.sin(_DEG_TO_RAD * obliquity) * math.sin(_DEG_TO_RAD * ecliptic_longitude)
-    ) / _DEG_TO_RAD
+    declination = (
+        math.asin(math.sin(_DEG_TO_RAD * obliquity) * math.sin(_DEG_TO_RAD * ecliptic_longitude)) / _DEG_TO_RAD
+    )
     right_ascension = (
         math.atan2(
             math.cos(_DEG_TO_RAD * obliquity) * math.sin(_DEG_TO_RAD * ecliptic_longitude),
@@ -119,9 +113,8 @@ def _sun_angle_time(
     """Return local *solar* hours for a given twilight angle."""
     declination = _sun_position(julian_day + day_fraction)[0]
     noon = _midday(julian_day, day_fraction)
-    numerator = (
-        -math.sin(_DEG_TO_RAD * angle_below_horizon)
-        - math.sin(_DEG_TO_RAD * declination) * math.sin(_DEG_TO_RAD * latitude)
+    numerator = -math.sin(_DEG_TO_RAD * angle_below_horizon) - math.sin(_DEG_TO_RAD * declination) * math.sin(
+        _DEG_TO_RAD * latitude
     )
     denominator = math.cos(_DEG_TO_RAD * declination) * math.cos(_DEG_TO_RAD * latitude)
     cosine_hour_angle = numerator / denominator

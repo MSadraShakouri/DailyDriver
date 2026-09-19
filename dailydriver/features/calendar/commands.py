@@ -6,11 +6,11 @@ from dailydriver.features.calendar.converter import (
     gregorian_to_hijri,
     gregorian_to_hijri_with_month_offsets,
 )
+from dailydriver.features.calendar.hijri import get_hijri_offset  # noqa: F401 (legacy re-export)
+from dailydriver.features.calendar.hijri import set_hijri_offset  # noqa: F401 (legacy re-export)
 from dailydriver.features.calendar.hijri import (
     get_hijri_month_offset,
-    get_hijri_offset,  # noqa: F401 (legacy re-export)
     set_hijri_month_offset,
-    set_hijri_offset,  # noqa: F401 (legacy re-export)
 )
 from dailydriver.ui.terminal_ui import current_ui  # noqa: F401 (re‑exported)
 
@@ -68,9 +68,7 @@ def _show_menu():
             offset = int(choice)
         if offset in offsets:
             set_hijri_month_offset(current_hijri.year, current_hijri.month, offset)
-            current_ui.print_line(
-                f"Offset for {current_hijri.year}/{current_hijri.month} set to {offset:+d}."
-            )
+            current_ui.print_line(f"Offset for {current_hijri.year}/{current_hijri.month} set to {offset:+d}.")
         else:
             current_ui.print_line("Offset must be between -2 and +2.")
     except ValueError:

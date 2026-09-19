@@ -24,9 +24,7 @@ def _seed(conn, categories=(), entries=(), keywords=(), meta=()):
     in list order; keywords: [(path, word, count)]; meta: [(key, value)]."""
     for path in categories:
         conn.execute("INSERT INTO categories (path) VALUES (?)", (path,))
-    ids = {
-        path: cid for cid, path in conn.execute("SELECT id, path FROM categories").fetchall()
-    }
+    ids = {path: cid for cid, path in conn.execute("SELECT id, path FROM categories").fetchall()}
     for path, description in entries:
         cur = conn.execute(
             "INSERT INTO entries (created_at, description) VALUES (?, ?)",
@@ -42,9 +40,7 @@ def _seed(conn, categories=(), entries=(), keywords=(), meta=()):
             (word, ids[path], count),
         )
     for key, value in meta:
-        conn.execute(
-            "INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)", (key, value)
-        )
+        conn.execute("INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)", (key, value))
 
 
 def _cat_id(conn, path):
@@ -64,6 +60,7 @@ def _row(conn, sql, *args):
 # ---------------------------------------------------------------------------
 # path validation
 # ---------------------------------------------------------------------------
+
 
 def test_normalize_path_trims_and_validates():
     assert ce.normalize_path("  work/fitness ") == "work/fitness"
@@ -86,6 +83,7 @@ def test_levenshtein_and_similarity():
 # ---------------------------------------------------------------------------
 # listing
 # ---------------------------------------------------------------------------
+
 
 def test_get_categories_counts_and_ordering(db_path):
     conn = _conn(db_path)
@@ -132,6 +130,7 @@ def test_get_entries_limit_most_recent_and_null_description(db_path):
 # suggestions
 # ---------------------------------------------------------------------------
 
+
 def test_suggestions_top10_no_floor(db_path):
     conn = _conn(db_path)
     _seed(conn, categories=["health", "Health", "dinner", "dinner2", "zzz", "apple"])
@@ -176,6 +175,7 @@ def test_suggestions_only_path_filter(db_path):
 # ---------------------------------------------------------------------------
 # rename
 # ---------------------------------------------------------------------------
+
 
 def test_rename_noop_and_uniqueness(db_path):
     conn = _conn(db_path)
@@ -238,6 +238,7 @@ def test_rename_rejects_unknown_category(db_path):
 # merge
 # ---------------------------------------------------------------------------
 
+
 def test_merge_moves_entries_and_dedupes(db_path):
     db = str(db_path)
     conn = _conn(db)
@@ -258,7 +259,9 @@ def test_merge_moves_entries_and_dedupes(db_path):
 
     conn = _conn(db)
     assert _row(conn, "SELECT COUNT(*) AS n FROM categories WHERE path = 'src'")["n"] == 0
-    assert _row(conn, "SELECT COUNT(*) AS n FROM entry_categories WHERE category_id = ?", _cat_id(conn, "tgt"))["n"] == 3
+    assert (
+        _row(conn, "SELECT COUNT(*) AS n FROM entry_categories WHERE category_id = ?", _cat_id(conn, "tgt"))["n"] == 3
+    )
     assert _row(conn, "SELECT COUNT(*) AS n FROM entry_categories WHERE entry_id = ?", both)["n"] == 1
     conn.close()
 
@@ -280,8 +283,7 @@ def test_merge_sums_keywords_including_duplicate_target_rows(db_path):
     counts = {
         r["word"]: r["total"]
         for r in conn.execute(
-            "SELECT word, SUM(count) AS total FROM keywords WHERE category_id = ?"
-            " GROUP BY word",
+            "SELECT word, SUM(count) AS total FROM keywords WHERE category_id = ?" " GROUP BY word",
             (_cat_id(conn, "tgt"),),
         )
     }
@@ -334,6 +336,7 @@ def test_merge_rejections_and_rollback(db_path):
 # ---------------------------------------------------------------------------
 # delete
 # ---------------------------------------------------------------------------
+
 
 def test_delete_rejects_categories_with_entries(db_path):
     db = str(db_path)

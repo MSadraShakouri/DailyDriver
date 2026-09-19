@@ -8,11 +8,12 @@ Resolves every <a href> in the generated HTML against the site base
 
 External (http/https) links are reported but not fetched.
 """
+
+import html
 import re
 import sys
-import html
 from pathlib import Path
-from urllib.parse import urljoin, urlparse, unquote
+from urllib.parse import unquote, urljoin, urlparse
 
 DIST = Path(__file__).resolve().parent.parent / "docs-site" / "dist"
 # fallback to old docs/dist for backwards compat
@@ -23,6 +24,7 @@ BASE = "/DailyDriver"
 
 A_RE = re.compile(r"<a\s+[^>]*href=\"([^\"]*)\"[^>]*>", re.I)
 ID_RE = re.compile(r"\bid=\"([^\"]+)\"", re.I)
+
 
 def main() -> int:
     pages = [p for p in DIST.rglob("*.html") if "pagefind" not in p.parts]
@@ -55,7 +57,7 @@ def main() -> int:
                     # root-relative link that ignored the base path
                     broken.append(f"{page.name}: base-relative {href}")
                     continue
-                rel = path[len(BASE):].lstrip("/")
+                rel = path[len(BASE) :].lstrip("/")
                 if not rel or rel.endswith("/"):
                     target_file = DIST / rel / "index.html"
                 else:
@@ -75,6 +77,7 @@ def main() -> int:
     for b in broken:
         print(f"  BROKEN: {b}")
     return 1 if broken else 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

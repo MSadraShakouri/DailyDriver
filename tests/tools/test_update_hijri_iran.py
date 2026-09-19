@@ -4,7 +4,6 @@ import pytest
 
 from tools.update_hijri_iran import build_payload, refresh
 
-
 SOURCE = """
 /*1264*/ 0b101010101010
 /*1265*/ 0b010101010101

@@ -174,9 +174,7 @@ def _raw_month_length(value: HijriDate) -> int:
     return calendar._by_hijri[(value.year, value.month)].days
 
 
-def gregorian_to_hijri_with_month_offsets(
-    value: date, offset_for_month: Callable[[int, int], int]
-) -> HijriDate:
+def gregorian_to_hijri_with_month_offsets(value: date, offset_for_month: Callable[[int, int], int]) -> HijriDate:
     """Convert using a potentially different correction for each Hijri month.
 
     A month correction moves that month's Gregorian start by the same amount
@@ -189,9 +187,7 @@ def gregorian_to_hijri_with_month_offsets(
     for delta in range(-2, 3):
         candidate = _previous_or_next(raw, delta)
         try:
-            start = _to_gregorian_raw(candidate) - timedelta(
-                days=offset_for_month(candidate.year, candidate.month)
-            )
+            start = _to_gregorian_raw(candidate) - timedelta(days=offset_for_month(candidate.year, candidate.month))
         except ValueError:
             continue
         if start <= value:

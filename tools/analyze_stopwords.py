@@ -38,17 +38,13 @@ def main() -> None:
     with get_connection_cm(auto=False) as conn:
         # 1. Total occurrences across all journal entries (raw text)
         entry_counter: Counter[str] = Counter()
-        cur = conn.execute(
-            "SELECT description FROM entries WHERE description IS NOT NULL AND TRIM(description) != ''"
-        )
+        cur = conn.execute("SELECT description FROM entries WHERE description IS NOT NULL AND TRIM(description) != ''")
         for row in cur.fetchall():
             for stem in stem_entry_text(row["description"]):
                 entry_counter[stem] += 1
 
         # 2. Distinct category count per stem from the keywords table
-        cur = conn.execute(
-            "SELECT word, COUNT(DISTINCT category_id) as cat_count FROM keywords GROUP BY word"
-        )
+        cur = conn.execute("SELECT word, COUNT(DISTINCT category_id) as cat_count FROM keywords GROUP BY word")
         cat_counts: dict[str, int] = {}
         for row in cur.fetchall():
             cat_counts[row["word"]] = row["cat_count"]

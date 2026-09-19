@@ -22,7 +22,9 @@ def get_sleep_str(conn, today):
         ranges.append(f"{start}-{end}")
     time_str = ", ".join(ranges)
 
-    return f"💤 {format_duration_minutes(total_duration, include_zero_minutes=True, include_zero_hours=True)}  {time_str}"
+    return (
+        f"💤 {format_duration_minutes(total_duration, include_zero_minutes=True, include_zero_hours=True)}  {time_str}"
+    )
 
 
 def get_nap_str(conn, today):

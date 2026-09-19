@@ -112,8 +112,7 @@ def search(cmd):
 
     with get_connection_cm() as conn:
         cur = conn.cursor()
-        cur.execute(
-            """
+        cur.execute("""
             SELECT e.id, e.description, e.created_at, e.started_at, e.duration_minutes,
                    COALESCE(GROUP_CONCAT(c.path, ', '), '') AS categories
             FROM entries e
@@ -121,8 +120,7 @@ def search(cmd):
             LEFT JOIN categories c ON ec.category_id = c.id
             GROUP BY e.id
             ORDER BY COALESCE(e.started_at, e.created_at) DESC
-            """
-        )
+            """)
         rows = cur.fetchall()
 
     # Filter + annotate with matched terms. Rows stay newest-first.

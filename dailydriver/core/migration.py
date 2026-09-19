@@ -348,7 +348,7 @@ def _migration_13(conn):
     chunk_size = 500
     stop_list = list(stop_set)
     for i in range(0, len(stop_list), chunk_size):
-        chunk = stop_list[i:i + chunk_size]
+        chunk = stop_list[i : i + chunk_size]
         placeholders = ",".join("?" for _ in chunk)
         conn.execute(f"DELETE FROM keywords WHERE word IN ({placeholders})", chunk)
 

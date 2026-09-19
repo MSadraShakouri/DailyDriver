@@ -89,11 +89,7 @@ def _short_word(word: str, r1: int) -> bool:
     if r1 < len(word):
         return False
     if len(word) > 2:
-        return (
-            word[-3] not in _VOWELS
-            and word[-2] in _VOWELS
-            and word[-1] not in frozenset("aeiouwxY")
-        )
+        return word[-3] not in _VOWELS and word[-2] in _VOWELS and word[-1] not in frozenset("aeiouwxY")
     return len(word) == 2 and word[0] in _VOWELS and word[1] not in _VOWELS
 
 
