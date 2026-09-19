@@ -81,13 +81,22 @@ def get_hijri_month_offset(year: int, month: int) -> int:
 def set_hijri_month_offset(year: int, month: int, offset: int) -> None:
     """Persist *offset* for only the selected Hijri month.
 
-    Zero is stored explicitly so choosing zero can clear a legacy non-zero
-    global correction for this month without changing older configuration.
+    A zero correction normally needs no entry: an absent override already
+    means zero when the legacy global correction is zero.  It is stored
+    explicitly only when it must mask a nonzero legacy global correction.
     """
     if offset not in range(-2, 3):
         raise ValueError("Hijri offset must be between -2 and +2")
+    key = _month_key(year, month)
     overrides = _load_overrides()
-    overrides[_month_key(year, month)] = {
+    if offset == 0 and get_hijri_offset() == 0:
+        if key in overrides:
+            del overrides[key]
+            _save_overrides(overrides)
+        _invalidate_catalog()
+        return
+
+    overrides[key] = {
         "offset": offset,
         "set_date": jdatetime.date.today().strftime("%Y-%m-%d"),
     }
