@@ -29,7 +29,7 @@ The cross-cutting systems that aren't a single command:
 - [Time Expressions](concepts/time-expressions.md) — the one syntax used everywhere
 - [Categories & Keyword Learning](concepts/categories.md) — how suggestions are ranked
 - [The Header](concepts/header.md) — what the daily dashboard shows
-- [Calendars](concepts/calendars.md) — the three-calendar model and Hijri offset
+- [Calendars](concepts/calendars.md) — the three-calendar model and Iranian-first Hijri corrections
 - [Day Start Hour](concepts/day-start.md) — shifting the day boundary
 
 ## For contributors

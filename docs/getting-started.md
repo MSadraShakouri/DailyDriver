@@ -4,7 +4,7 @@
 
 - Python 3.10+
 - SQLite (bundled with Python)
-- Dependencies (installed automatically): `jdatetime`, `hijridate`, `prompt_toolkit`
+- Dependencies (installed automatically): `jdatetime`, `prompt_toolkit`
 
 ## Install
 

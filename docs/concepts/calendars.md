@@ -14,6 +14,8 @@ Events live in three JSON files under `data/` (`events_jalali.json`, `events_gre
 
 Calendar events and birthdays support reminder levels (0/1/2) with configurable lead-time schedules, so upcoming items appear in the header ahead of time. Important items use a more frequent schedule. Reminder data is stored per event (`event_reminders`) and per birthday (`birthdays.remind_level`).
 
-## Hijri offset
+## Hijri model and manual corrections
 
-Lunar dates depend on moon sighting and can differ by a day or two between sources. The `hijri` command applies a global correction (-2 to +2 days), stored in the version-controlled `data/hijri_offset.txt` and applied to all Hijri events immediately. See [Calendar commands](../commands/calendar.md#hijri-offset--hijri).
+DailyDriver uses an offline Iranian-first month-start table. Confirmed or curated Iranian month starts are stored in `data/hijri_iran.json`; its `future_policy` metadata marks rows after the maintained horizon as provisional until an official announcement is available. Dates outside that table use a bundled calculated fallback, so the app does not need a Hijri conversion package at runtime. A scheduled workflow refreshes the table into a reviewable pull request.
+
+The `hijri` command remains available for a newly announced discrepancy. Its `-2` to `+2` correction is stored for the current Hijri month in `data/hijri_overrides.json`, so correcting one month does not permanently shift every later month. Older global settings in `data/hijri_offset.txt` remain supported as a compatibility fallback. See [Calendar commands](../commands/calendar.md#hijri-offset--hijri).

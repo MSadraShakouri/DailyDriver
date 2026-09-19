@@ -18,7 +18,7 @@ Displays the full Jalali year as a responsive multi-column grid (1, 2, or 3 mont
 
 ## Hijri offset — `hijri`
 
-Always interactive. Opens a selector to apply a correction (-2 to +2 days) to Hijri date conversion, for moon-sighting differences. The chosen offset is stored in the version-controlled `data/hijri_offset.txt` and applied to all Hijri events immediately.
+Always interactive. Opens a selector to apply a correction (-2 to +2 days) for the current Hijri month when an Iranian announcement differs from the packaged table. The chosen offset is stored in `data/hijri_overrides.json` for that Hijri month only and is applied consistently to the header and Hijri events. The existing `data/hijri_offset.txt` remains a legacy fallback for older configurations.
 
 | Usage | Meaning |
 |-------|---------|

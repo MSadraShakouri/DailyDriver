@@ -9,7 +9,7 @@ Your personal, terminal-based life tracker. Log prayers, sleep, hygiene routines
 - **Prayer & qada** — daily prayers with jamaat/shak options and dynamic Tehran times; a backlog manager for missed prayers and fasting.
 - **Sleep, naps, journal** — smart, unified time parsing everywhere you type a time.
 - **Targets** — finite goals (nazr) and repeating habits with intervals and counters.
-- **Calendars** — Jalali, Gregorian, and Hijri at once, with events, reminders, and an adjustable Hijri offset.
+- **Calendars** — Jalali, Gregorian, and Iranian-first Hijri at once, with events, reminders, and month-specific manual corrections.
 - **Unified day timeline** — `day` interleaves journal, prayers, sleep, naps, qada, and targets chronologically, with a midnight / day-start boundary toggle.
 - **Search** over journal text and categories, grouped by how many words match.
 - **Smart categories** — TF-IDF keyword learning with an autocompleting, ranked picker.

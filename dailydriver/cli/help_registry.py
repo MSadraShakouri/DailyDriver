@@ -201,9 +201,9 @@ HELP: dict[str, HelpEntry] = {
     ),
     "year": HelpEntry(summary="Full-year grid (adaptive columns)", group="Calendar", usage=["year"]),
     "hijri": HelpEntry(
-        summary="Show/adjust the Hijri date offset",
+        summary="Show/adjust this month's Hijri date offset",
         group="Calendar",
-        usage=["hijri              interactive offset selector (-2..+2)"],
+        usage=["hijri              interactive month-specific offset selector (-2..+2)"],
     ),
     # ── Tools & setup ──
     "bd": HelpEntry(

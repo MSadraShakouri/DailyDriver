@@ -12,7 +12,7 @@ dailydriver/
 ├── cli/        # REPL, dispatcher, help, and non-feature commands
 ├── ui/         # terminal abstraction (current_ui) and input backends
 └── utils/      # domain-neutral parsing, dates, times, and intervals
-data/           # database, stopwords, event JSON, hijri offset, history
+data/           # database, stopwords, event JSON, Iranian Hijri tables, overrides, history
 tools/          # standalone HTML/Python editors and analysis scripts
 tests/          # test tree mirroring dailydriver/
 ```

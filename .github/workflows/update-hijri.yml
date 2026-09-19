@@ -1,0 +1,43 @@
+name: Refresh Iranian Hijri table
+
+on:
+  schedule:
+    # The upstream table is maintained separately from the application.  A
+    # weekly check is enough; the runtime remains completely offline.
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Refresh bundled Iranian month starts
+        run: python tools/update_hijri_iran.py
+
+      - name: Open update pull request when data changed
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: automation/update-iranian-hijri
+          delete-branch: true
+          add-paths: data/hijri_iran.json
+          commit-message: "data: refresh Iranian Hijri month starts"
+          title: "data: refresh Iranian Hijri month starts"
+          body: |
+            Automated refresh of the offline Iranian Hijri month-start table
+            from the upstream Persian Calendar source.
+
+            Please review any changed month boundaries before merging. Future
+            rows are provisional until the relevant official determination is
+            available.
