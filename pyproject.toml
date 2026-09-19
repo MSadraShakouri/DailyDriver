@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dailydriver"
-version = "2.1.0"
+dynamic = ["version"]
 description = "Personal terminal‑based life tracker (prayer, sleep, journal, calendar, search)"
 readme = "README.md"
 license = { text = "MIT" }
@@ -25,6 +25,9 @@ daily = "dailydriver.cli.commander:repl"
 
 [tool.setuptools.packages.find]
 include = ["dailydriver*"]
+
+[tool.setuptools.dynamic]
+version = { attr = "dailydriver.__version__" }
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -1,4 +1,4 @@
-# DailyDriver v2.1.0
+# DailyDriver
 
 Your personal, terminal-based life tracker. Log prayers, sleep, hygiene routines, birthdays, intentions, targets, and free-form journal entries — all from a fast, keyboard-driven prompt. Built with Python, SQLite, and Jalali (Persian) calendar support.
 

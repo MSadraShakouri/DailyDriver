@@ -52,6 +52,26 @@ A genuinely application-wide command may live under `dailydriver/cli/commands/` 
 - Only `docs-site/src/content/docs/index.md` is committed; the rest is generated and gitignored.
 - Run `cd docs-site && npm run dev` to preview the site locally.
 
+## Manual validation workflow
+
+This repository is maintained by one contributor, so validation is intentionally
+manual rather than CI-driven. Before opening a pull request or tagging a
+release:
+
+1. Check the working tree with `git status --short` and inspect the complete
+   diff with `git diff --check` and `git diff`.
+2. Run the focused tests for the changed area, then run the complete suite:
+   `python -m pytest -q`.
+3. If documentation changed, build the site and check its generated links:
+   `cd docs-site && npm run build`, followed by
+   `python tools/check_docs_links.py` from the repository root.
+4. Confirm that generated docs output and local runtime files are not staged.
+5. Release tags are created manually after the final version and changelog
+   review; the canonical application version is `dailydriver.__version__`.
+
+Do not add CI workflows for routine checks. Keep the commands above as the
+repeatable local workflow.
+
 ## Style
 
 - Follow the existing module docstrings and function naming.

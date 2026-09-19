@@ -4,7 +4,7 @@ This page tracks where DailyDriver has been and where it might go. The **Shipped
 
 ## Shipped
 
-> Release tags are created manually; the `version` in `pyproject.toml` is package metadata and does not create a Git tag. The repository has a `v2.1.0` tag, and changes after that tag are listed under `Unreleased` in `CHANGELOG.md`.
+> Release tags are created manually; the package version is defined in `dailydriver.__version__` and exposed through `pyproject.toml` package metadata. The repository has a `v2.1.0` tag, and changes after that tag are listed under `Unreleased` in `CHANGELOG.md`.
 
 ### ✅ v2.1.0 — 2026-08-24
 - **Unified day timeline**: `day` shows everything logged that day in chronological order — journal entries, prayers, sleep, naps, qada, and targets — sharing one timeline builder with `export`; items are placed by start time. Each item renders as time, then label/categories, then the description.
