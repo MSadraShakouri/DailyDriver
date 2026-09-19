@@ -1,5 +1,6 @@
 """Prayer pre-alert and overdue header nudges."""
 
+import math
 from datetime import datetime
 
 import jdatetime
@@ -41,12 +42,18 @@ def get_prayer_nudges(conn, target_date, today_str, is_today, now=None):
 
     cur = conn.cursor()
     for slot, dt in slot_times.items():
-        minutes_until = (dt - now).total_seconds() // 60
-        if 0 <= minutes_until <= 60:
-            rounded = max(5, int(round(minutes_until / 5) * 5))
+        seconds_until = (dt - now).total_seconds()
+        if 0 <= seconds_until <= 60 * 60:
             label = slot.replace("_", " & ").title()
-            nudges.append(f"{YELLOW}🕌 {label} in ~{rounded} min{RESET}")
-        elif minutes_until < 0:
+            if seconds_until < 60:
+                timing = "due now"
+            else:
+                # Round upward so the nudge never claims the prayer is sooner
+                # than the minute-level schedule says it is.
+                minutes_until = math.ceil(seconds_until / 60)
+                timing = f"in ~{minutes_until} min"
+            nudges.append(f"{YELLOW}🕌 {label} {timing}{RESET}")
+        elif seconds_until < 0:
             cur.execute(
                 "SELECT id FROM prayer_logs WHERE prayer_slot=? AND jalali_date=?",
                 (slot, today_str),

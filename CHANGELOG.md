@@ -3,6 +3,8 @@
 ## Unreleased
 
 ### Changed
+- **Prayer header nudges** now use minute-resolution countdowns instead of
+  five-minute buckets, with a `due now` state for the final minute.
 - **Dependency reduction**: replaced the `porter2stemmer` runtime dependency with a
   small built-in Porter2-compatible stemmer used by keyword learning, search,
   migration, and the stopword analysis tool.
