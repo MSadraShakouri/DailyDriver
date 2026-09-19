@@ -13,14 +13,12 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from porter2stemmer import Porter2Stemmer
-
 # Add project root to path so we can import dailydriver
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from dailydriver.core.database import get_connection_cm  # noqa: E402
+from dailydriver.utils.stemming import stem  # noqa: E402
 
-STEMMER = Porter2Stemmer()
 MIN_STEM_LENGTH = 3
 _WORD_RE = re.compile(r"[a-zA-Z]+")
 
@@ -32,7 +30,7 @@ def stem_entry_text(text: str) -> list[str]:
     stems: list[str] = []
     for token in _WORD_RE.findall(text.lower()):
         if len(token) >= MIN_STEM_LENGTH:
-            stems.append(STEMMER.stem(token))
+            stems.append(stem(token))
     return stems
 
 

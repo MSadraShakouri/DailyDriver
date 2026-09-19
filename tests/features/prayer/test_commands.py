@@ -3,15 +3,16 @@ from unittest.mock import patch
 
 from dailydriver.core.database import get_connection_cm
 from dailydriver.features.prayer import commands
+from dailydriver.utils.time_parser import PrayerArgs
 
 
 def parsed(*, explicit=300, offset=None, jamaat=None, shak=0):
-    return {
-        "explicit_time": explicit,
-        "offset_min": offset,
-        "jamaat_location": jamaat,
-        "shak_count": shak,
-    }
+    return PrayerArgs(
+        explicit_time=explicit,
+        offset_min=offset,
+        jamaat_location=jamaat,
+        shak_count=shak,
+    )
 
 
 def test_log_prayer_persists_slot_time_and_flags(db_path, ui, monkeypatch):

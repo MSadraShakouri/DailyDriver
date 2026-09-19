@@ -27,6 +27,25 @@ def test_prealert_and_overdue_today(db_connection, monkeypatch):
     assert any("Maghrib" in line and "not logged" in line for line in lines)
 
 
+def test_prealert_uses_minute_resolution(db_connection, monkeypatch):
+    date = jdatetime.date.today()
+    monkeypatch.setattr(nudges, "is_travel_mode", lambda: False)
+    monkeypatch.setattr(nudges, "get_approximate_times", _times)
+    now = datetime.now().replace(hour=11, minute=53, second=30, microsecond=0)
+    lines = nudges.get_prayer_nudges(db_connection, date, date.strftime("%Y-%m-%d"), True, now=now)
+    assert any("Dhuhr & Asr in ~7 min" in line for line in lines)
+    assert not any("Dhuhr & Asr in ~5 min" in line for line in lines)
+
+
+def test_prealert_reports_due_now_under_one_minute(db_connection, monkeypatch):
+    date = jdatetime.date.today()
+    monkeypatch.setattr(nudges, "is_travel_mode", lambda: False)
+    monkeypatch.setattr(nudges, "get_approximate_times", _times)
+    now = datetime.now().replace(hour=4, minute=59, second=30, microsecond=0)
+    lines = nudges.get_prayer_nudges(db_connection, date, date.strftime("%Y-%m-%d"), True, now=now)
+    assert any("Fajr due now" in line for line in lines)
+
+
 def test_logged_slot_is_not_marked_overdue(db_connection, monkeypatch):
     date = jdatetime.date.today()
     date_str = date.strftime("%Y-%m-%d")

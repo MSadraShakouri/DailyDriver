@@ -20,9 +20,7 @@ Fine-grained timing of a single activity you're doing right now.
 
 ## Chaining — `ln`
 
-Log an entry spanning from your **last action** until now, without having
-started a timer. Useful when you finish something and want to log it after the
-fact.
+Log an entry spanning from your **last action** until now, without having started a timer. Useful when you finish something and want to log it after the fact.
 
 | Command | Meaning |
 |---------|---------|
@@ -32,13 +30,11 @@ fact.
 > ln replied to emails
 ```
 
-The `last_action` timestamp is updated whenever you log something. You can also
-refresh it manually — see [`u` / `update`](#manual-chaining-update--u-alias-update).
+The `last_action` timestamp is updated whenever you log something. You can also refresh it manually — see [`u` / `update`](#manual-chaining-update--u-alias-update).
 
 ## Great events — `sge`, `ege`, `cge`
 
-A great event is a long-running activity (e.g. a trip, a workday) that can absorb
-later entries into its category. Active great events appear in the header.
+A great event is a long-running activity (e.g. a trip, a workday) that can absorb later entries into its category. Active great events appear in the header.
 
 | Command | Meaning |
 |---------|---------|
@@ -46,18 +42,13 @@ later entries into its category. Active great events appear in the header.
 | `ege [text]` | End the great event, logging an entry |
 | `cge` | Cancel the great event without logging |
 
-While a great event is active, the journal category picker offers a
-`0 = Great Event only` option so an entry can be attributed solely to the event.
+While a great event is active, the journal category picker offers a `0 = Great Event only` option so an entry can be attributed solely to the event.
 
-If you cancel the time confirmation when ending with `ege` (or `ee` for a running
-event), the entry is not logged and the event is **kept active** so nothing is
-lost — the app tells you it's still running and how to end (`ege`/`ee`) or cancel
-(`cge`/`ce`) it.
+If you cancel the time confirmation when ending with `ege` (or `ee` for a running event), the entry is not logged and the event is **kept active** so nothing is lost — the app tells you it's still running and how to end (`ege`/`ee`) or cancel (`cge`/`ce`) it.
 
 ## Manual chaining update — `u` (alias `update`)
 
-Refresh the `last_action` timestamp to now. Handy when you did something but
-didn't log it, so a following `ln` measures from the right point.
+Refresh the `last_action` timestamp to now. Handy when you did something but didn't log it, so a following `ln` measures from the right point.
 
 | Command | Meaning |
 |---------|---------|

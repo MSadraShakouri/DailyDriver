@@ -7,8 +7,8 @@ from dailydriver.ui.terminal_ui import current_ui
 def add_birthday(cmd: str = ""):
     """Add a birthday through interactive prompts.
 
-    Creation is deliberately fully interactive as of v2.0: any inline arguments
-    are ignored so there is a single, validated path for entering a name, date,
+    Creation is deliberately fully interactive: any inline arguments are
+    ignored so there is a single, validated path for entering a name, date,
     and reminder level. Routine logging stays inline elsewhere; deliberate
     creation like this benefits from prompts and validation.
     """

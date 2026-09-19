@@ -1,10 +1,7 @@
 # dailydriver/display/header/__init__.py
 """Daily header data builder – delegated to sub‑modules."""
 
-from datetime import timedelta
-
 import jdatetime
-from hijridate import Gregorian as HijriGregorian
 
 import dailydriver.features as features_pkg
 from dailydriver.core.database import get_connection_cm
@@ -14,7 +11,8 @@ from dailydriver.display.header.events import (
     get_last_entry_time,
     get_running_event_str,
 )
-from dailydriver.features.calendar.hijri import get_hijri_offset
+from dailydriver.features.calendar.converter import gregorian_to_hijri_with_month_offsets
+from dailydriver.features.calendar.hijri import get_hijri_month_offset
 from dailydriver.features.registry import header_hook, validate_header_sections
 from dailydriver.utils.time_utils import format_jalali, today_jalali
 
@@ -42,9 +40,7 @@ def build_header_data(day=None, is_today=True):
 
         # Gregorian and Hijri with margins
         greg_str = gdate.strftime("%d %B %Y")
-        offset = get_hijri_offset()
-        corrected_greg = gdate + timedelta(days=offset)
-        hijri_obj = HijriGregorian.fromdate(corrected_greg).to_hijri()
+        hijri_obj = gregorian_to_hijri_with_month_offsets(gdate, get_hijri_month_offset)
         hijri_str = f"{hijri_obj.day} {hijri_obj.month_name()} {hijri_obj.year}"
         greg_hijri_line = spread_line([greg_str, hijri_str], margins=1 / 8)
 

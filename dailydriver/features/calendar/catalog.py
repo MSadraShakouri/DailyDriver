@@ -1,16 +1,22 @@
 """
 Dynamic calendar events from three calendar systems (Jalali, Gregorian, Hijri).
 Stores events in separate JSON files under data/.
-Converts all events to the current Jalali date using jdatetime and hijridate.
+Converts all events to the current Jalali date using the offline Iranian-first
+Hijri converter.
 """
 
 import json
 import os
-from datetime import date, timedelta
+from datetime import date
 
 import jdatetime
-from hijridate import Gregorian as HijriGregorian  # avoid name clash
-from hijridate import Hijri
+
+from .converter import (
+    gregorian_to_hijri_with_month_offsets,
+    hijri_to_gregorian,
+    make_hijri_date,
+)
+from .hijri import get_hijri_month_offset
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
@@ -42,14 +48,15 @@ def _jalali_to_gregorian(jdate):
 
 
 def _hijri_to_gregorian(hijri_year, hijri_month, hijri_day):
-    """Convert Hijri date to Gregorian using hijridate (Umm al-Qura)."""
-    h = Hijri(hijri_year, hijri_month, hijri_day)
-    return h.to_gregorian()  # returns datetime.date
+    """Convert an Iranian-first Hijri date to Gregorian."""
+    value = make_hijri_date(hijri_year, hijri_month, hijri_day)
+    offset = get_hijri_month_offset(hijri_year, hijri_month)
+    return hijri_to_gregorian(value, offset=offset)
 
 
 def _gregorian_to_hijri(gdate):
-    """Convert Gregorian date to Hijri (returns Hijri object)."""
-    return HijriGregorian.fromdate(gdate).to_hijri()
+    """Convert Gregorian date to the Iranian-first Hijri date."""
+    return gregorian_to_hijri_with_month_offsets(gdate, get_hijri_month_offset)
 
 
 def _get_hijri_year_for_jalali_year(jalali_year):
@@ -63,9 +70,6 @@ def _get_hijri_year_for_jalali_year(jalali_year):
     cur_hijri_year = hijri_start.year
     # Also next Hijri year may cover later part of Jalali year
     return [cur_hijri_year, cur_hijri_year + 1]
-
-
-from .hijri import get_hijri_offset
 
 
 def _convert_all_events(target_jalali_year):
@@ -111,9 +115,6 @@ def _convert_all_events(target_jalali_year):
         for hy in hijri_years:
             try:
                 gdate = _hijri_to_gregorian(hy, m, d)
-                offset = get_hijri_offset()
-                if offset:
-                    gdate = gdate - timedelta(days=offset)
                 jdate = _gregorian_to_jalali(gdate)
                 if jdate.year == target_jalali_year or jdate.year == target_jalali_year + 1:
                     possible.append(jdate)

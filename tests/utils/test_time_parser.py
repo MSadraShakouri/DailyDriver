@@ -1,7 +1,7 @@
 import unittest
 from datetime import datetime, timedelta
 
-from dailydriver.utils.time_parser import parse_time_expressions
+from dailydriver.utils.time_parser import PrayerArgs, parse_prayer_args, parse_time_expressions
 
 
 class TestTimeParser(unittest.TestCase):
@@ -124,6 +124,15 @@ class TestTimeParser(unittest.TestCase):
         self.assertEqual(len(r), 1)
         self.assertEqual(r[0].start, self.last)
         self.assertEqual(r[0].end, self.now)
+
+    # ---- Prayer arguments ----
+    def test_prayer_args_are_typed(self):
+        result = parse_prayer_args(["05:00", "j", "mosque", "s", "2", "-15"])
+        self.assertIsInstance(result, PrayerArgs)
+        self.assertEqual(result.explicit_time, 300)
+        self.assertEqual(result.offset_min, 15)
+        self.assertEqual(result.jamaat_location, "mosque")
+        self.assertEqual(result.shak_count, 2)
 
     # ---- No result ----
     def test_invalid(self):

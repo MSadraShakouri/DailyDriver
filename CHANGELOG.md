@@ -2,432 +2,332 @@
 
 ## Unreleased
 
+_No changes yet._
+
+---
+
+## 2.2.0 (2026-09-19)
+
+### Added
+
+- **Iranian-first offline Hijri calendar**: bundled month-start data, calculated fallback coverage, month-specific manual corrections, and the existing global correction command retained for compatibility.
+- **Offline Tehran prayer calculation**: deterministic coordinate-based solar times using Tehran coordinates, the UTC+03:30 civil timezone, Fajr at 17.7°, and Shia Maghrib at 4.5°, with no runtime network request.
+
 ### Changed
-- **Documentation site migrated to Astro Starlight** – `docs/` is now a
-  self-contained Astro site (default Starlight theme, page search, dark mode,
-  prev/next links, and an auto sidebar) that builds to `docs/dist` and is
-  published to GitHub Pages at `https://msadrashakouri.ir/DailyDriver/` by
-  `.github/workflows/docs.yml`. The plain-Markdown pages moved to
-  `docs/src/content/docs/` and gained Starlight frontmatter (the old first
-  `# heading` becomes the `title`); content, headings, and relative links are
-  otherwise unchanged. The GitHub Wiki sync plan (`docs/WIKI-SYNC.md`) was
-  dropped in favour of publishing the docs site; root `README`/`CONTRIBUTING`
-  links now point to the new source layout and the live site.
+
+- **Prayer header nudges** now use minute-resolution countdowns instead of five-minute buckets and show `due now` during the final minute.
+- **Built-in English stemming** replaced the `porter2stemmer` dependency with a compact Porter2-compatible implementation used by keyword learning, search, migrations, and the stopword analysis tool.
+- **Stopword maintenance** expanded the stopword list and removed historical noise from the tracked data.
+- **Documentation site** migrated to Astro Starlight. The site is built from plain Markdown in `docs/`, published to GitHub Pages, and no duplicate generated documentation is committed.
+- **Internal cleanup** centralized prayer labels and lookups, typed prayer arguments, shared duration formatting, safe persisted-state parsing, and qada progress imports while preserving existing command output and compatibility shims.
 
 ### Tests
-- Verified passing counts from `v1.6.0` onward: 163 → 293 → 395 → 456 → 500 (`pytest -q` / `tests/run_all.py`).
+
+- The `v2.2.0` release candidate passes **533 tests** with `pytest -q`.
 
 ---
 
 ## 2.1.0 (2026-08-24)
 
 ### Added
-- **Unified day timeline** (`day` view): everything logged that day in
-  chronological order — journal entries, prayers 🕌, sleep 💤, naps 😴, qada 📿,
-  targets 🎯 — via the same `export_items` builder. Items placed by start time.
-- **Day-boundary modes** (`m` toggle): midnight (00:00 → 24:00, default) vs.
-  configurable `day_start` hour; mode persisted in meta table.
-- **Weekday in export headers**: `Mon, 02 Shahrivar 1405` (Markdown) and
-  `── Mon, 02 Shahrivar 1405 ──` (text), derived from Gregorian equivalent.
-- **Time ranges in `view` / `search`**: `HH:MM → HH:MM (dur)` format; newest-first
-  by start time; `d <id>` jumps to the entry’s start-time day.
-- **Category editor** (`tools/category_editor.py` + `category_editor.html`,
-  port 8768): alphabetical list (with counts, live search), two-select merge,
-  per-category previews, rename (case-insensitive uniqueness + path-shape
-  validation), safe delete (empty only), Suggestions tab (top 10 similar pairs,
-  normalised Levenshtein, no score floor), typeahead merge dialog. All mutations
-  transactional (rollback on failure); typed confirmation required for destructive
-  actions.
-- First test suites for search, day view, and entry browser.
+
+- **Unified day timeline**: the `day` view shows journal entries, prayers, sleep, naps, qada, and targets in chronological order through the shared `export_items` timeline builder. Items are placed by start time, falling back to log time.
+- **Day-boundary modes**: `m` toggles between a midnight day and the configured day-start boundary, with the last-used mode persisted in the `meta` table.
+- **Weekday export headers**: Markdown and text exports include abbreviated weekdays derived from the Gregorian equivalent of the Jalali date.
+- **Time ranges in `view` and `search`**: entries with durations display `HH:MM → HH:MM (dur)`, sort by start time, and support `d <id>` to jump to the entry's day.
+- **Category editor**: `tools/category_editor.py` and its HTML UI provide live search, entry previews, rename, transactional merge, safe delete, similar-category suggestions, and a typeahead merge dialog on port 8768.
+- **Search, day-view, and entry-browser test suites**.
 
 ### Changed
-- **Search rewritten as token filter** (no relevance scoring): query words
-  tokenized/stemmed; whole-word matches only (`"art"` no longer hits `"start"`);
-  results grouped by match count (`all terms` first), newest within group,
-  bold cyan headers, `cont.` markers. Matches highlighted in descriptions and
-  categories. FTS/fuzzy scoring modules removed; `search yesterday` date boosts
-  removed.
-- **`export_items` hook**: `export_items(conn, start, end=None)` with optional
-  inclusive upper bound; shared by `export` and day timeline. Range-based
-  `export YYYY-MM-DD YYYY-MM-DD` CLI remains a roadmap to-do.
-- Empty categories now `(no category)` everywhere (export previously `(none)`).
-- **Day-view item layout**: three lines — time (range), label/categories (indented),
-  description (pulled left) — instead of single prefixed line.
-- **Search group headers**: bold cyan, blank-line separated for unmistakable
-  transition between match-count groups.
+
+- **Search** was rewritten as a token filter rather than a relevance scorer. Queries and entries use stemming, matching is whole-word based, results are grouped by the number of matching terms, and matches are highlighted in descriptions and category paths. The former FTS/fuzzy scoring modules and date boosts were removed.
+- **`export_items`** now accepts `start` and an optional inclusive `end` bound, allowing the same feature hook to serve exports and the unified day timeline.
+- Empty categories consistently render as `(no category)` instead of `(none)`.
+- Day-view items render as separate time, label/category, and description lines.
+- Search group headers are visually separated with bold cyan styling and continuation markers.
 
 ### Fixed
-- `pline_wrap` no longer slices ANSI escape codes, which could leak
-  reverse-video highlighting into subsequent lines on narrow terminals.
+
+- `pline_wrap` no longer slices ANSI escape sequences while truncating highlighted text.
 
 ### Tests
-- **500 passing** (`pytest -q`) at `v2.1.0`. Previous changelog claim of 456
-  likely reflects an intermediate build; 500 is the verified count on the
-  tag with full dependency install (`jdatetime`, `hijridate`, `porter2stemmer`,
-  `prompt_toolkit>=3`).
 
+- The `v2.1.0` tag passed **500 tests** with `pytest -q`.
 
 ---
 
-## 2.0.0 (2026‑08‑24)
+## 2.0.0 (2026-08-24)
 
-### BREAKING
-- **`bd` fully interactive** – creation no longer accepts inline `name date`
-  (e.g. `bd Ali 1386/05/12`). Logging commands keep inline syntax; only
-  creation moved interactive.
+### Breaking changes
+
+- **`bd` is fully interactive**: birthday creation no longer accepts inline `name date` arguments such as `bd Ali 1386/05/12`. Logging commands retain their inline syntax.
 
 ### Added
-- **`prompt_toolkit` backend** (`>=3`): REPL autocompletion + persistent history;
-  category picker is ranked (20 ranked + rest alphabetically), deduped by name/
-  number, reserves height, empty-Enter accepts `#1` (`0` opt-in for "Great Event
-  only"). Silent fallback to plain prompts when not a TTY or unavailable.
-- **`-h` / `--help`** on every command (single registry `cli/help_registry.py`).
-  `?` / `h` summary generated from same source; flags matched as exact tokens
-  so `p -15` is never mistaken for help.
-- **Documentation tree** (`docs/`): getting started, per-feature command pages,
-  concept guides (time expressions, categories, header, calendars, day start),
-  architecture guide, roadmap from real release history.
+
+- **`prompt_toolkit` input backend**: the REPL has command completion and persistent history, and the category picker has ranked completion, duplicate removal, reserved display space, and Enter-to-accept behavior. It falls back to plain input when the dependency is unavailable or the process is not attached to a TTY.
+- **Unified help**: every command supports `-h` and `--help`, while `?` and `h` use the same registry to build the summary. Help flags are exact tokens, so arguments such as `p -15` are not misinterpreted.
+- **Documentation tree**: command pages, concept guides, an architecture guide, and a roadmap moved into `docs/`.
 
 ### Changed
-- **Unified export timeline**: chronological timeline interleaving journal,
-  sleep, naps, prayers, qada, targets, grouped by day. Feature contract hook
-  `export_items(conn, cutoff)` documented in `features/HOOKS.md`. Void
-  scratchpad stays separate (`vexport`). Markdown default (`--md`/`--txt`).
-- **Category ranking**: exact matches on whole path segments (`/` + non-alpha
-  split, stemmed) eliminates substring false positives (`art` → `start`).
-  Gentle coverage-proportional exact-match boost + full-coverage extra bonus.
-  IDF clamped at 0. Numbered picker shows 5 suggestions; rich dropdown ranks 20.
-- **Command dispatch unified**: REPL and single-command share `_dispatch_line`.
-- **Header event lines restored**: great/running event status rebuilt into
-  priority-ordered stream under prayers, above sleep (regression from v1.8.0
-  package refactor fixed without reintroducing a feature package).
-- **Documentation restructure**: `COMMANDS.md`, `OPTIMIZATIONS.md`, `TODO.md`,
-  `REVIEW_ACTIONS.md` removed; rewritten into `docs/` (command pages,
-  `docs/reference/optimizations.md`, `docs/roadmap.md`). Root keeps slimmed
-  `README.md`, `CONTRIBUTING.md`, `CHANGELOG.md`, `LICENSE`.
+
+- **Unified export timeline**: `export` interleaves journal entries, sleep, naps, prayers, qada progress, and targets by day through the new `export_items` feature hook. The void scratchpad remains separate through `vexport`, and Markdown remains the default output.
+- **Category ranking** now matches complete path segments instead of substrings, eliminating false positives such as `art` matching `start`. The exact-match boost is coverage-aware, full path matches receive an extra bonus, IDF is clamped at zero, and the numbered picker shows five suggestions while the rich picker ranks twenty.
+- **Command dispatch** now shares one raw-line dispatch path between the REPL and single-command mode.
+- **Header event lines** were restored to their historic position beneath prayers and above sleep.
+- **Documentation layout** was consolidated into `docs/`; the old root command, optimization, roadmap, and review documents were removed or replaced by the new structure.
 
 ### Fixed
-- **Target progress updates `last_action`** (part of unified export timeline).
-- **Great/running event never shown** (header builder regression from v1.8.0).
-- **`ege`/`ee` silently kept event when logging cancelled** – event kept
-  intentionally (nothing lost) but now confirms explicitly and tells user how
-  to end/cancel.
 
-
+- Target progress logs now update `last_action` because they are real logged activity and appear in exports.
+- Great-event and running-event status lines are visible again after the feature-package refactor and disappear correctly when their events end.
+- Cancelling an `ege` or `ee` time confirmation now explains that the event was intentionally kept and how to end or cancel it.
 
 ### Tests
-- **456 passing** (`v2.0.0`, verified).
+
+- The `v2.0.0` tag passed **456 tests** with `pytest -q`.
 
 ---
 
-## 1.8.0 (2026‑08‑23)
+## 1.8.0 (2026-08-23)
 
 ### Added
-- **Multiple sleep sessions per day**: restriction removed on `sleep_logs`
-  (migration v1). Header shows total duration + individual ranges.
-- **Sleep analysis tool** (`tools/sleep_avg.py`): true daily sleep/nap averages
-  across any date range (unlogged days = 0).
-- **New Jalali event**: Martyrdom of Mohsen Hojaji (2017).
+
+- **Multiple sleep sessions per day**: the single-entry restriction was removed, and the header shows total sleep duration plus each individual range.
+- **Sleep analysis tool**: `tools/sleep_avg.py` calculates daily sleep and nap averages across a date range, counting unlogged days as zero.
+- **Jalali calendar event**: added the Martyrdom of Mohsen Hojaji (2017).
 
 ### Changed
-- **Feature package architecture overhaul**: contracts (`NAME`, `VERSION`,
-  `register_commands`, `header_sections`, `migrations`). Monolithic
-  `_logic.py`/`_header.py`/`_manager.py` removed; domain modules
-  (`commands`, `manager`, `editor`, `schedule`, `table`, etc.). Aliases
-  registered directly.
-- **Presentation & registry helpers** (`features/presentation.py`,
-  `features/registry.py`). Contract documented in `features/HOOKS.md`.
-- **Nap header**: interval time ranges consistent with sleep.
+
+- **Feature package architecture** was formalized around capability-based contracts: `NAME`, `VERSION`, `register_commands`, `header_sections`, and `migrations`. Monolithic `_logic.py`, `_header.py`, and `_manager.py` modules were replaced with responsibility-focused domain modules.
+- **Feature helpers** were centralized in presentation and registry modules, and the contract was documented in `features/HOOKS.md`.
+- Nap header output now uses interval ranges consistent with sleep output.
+- The test suite was rebuilt around package boundaries with isolated SQLite fixtures, deterministic UI recording, and feature/integration coverage.
 
 ### Fixed
-- **Qada nudges**: overdue persistently shown; today’s scheduled instances only
-  in final hour before prayer. Sorted chronologically.
-- **Hijri offset**: corrected `data/hijri_offset.txt` for Rabi al-Awwal.
-- **Code style**: `isort` + `black` applied across codebase.
+
+- Qada overdue nudges persist, while today's scheduled qada instances appear only during the final hour before the prayer and are sorted chronologically.
+- The Hijri offset data for Rabi al-Awwal was corrected.
+- Ruff, isort, and Black cleanup was applied across the codebase.
 
 ### Tests
-- **395 passing** (`v1.8.0`, verified with `tests/run_all.py`).
 
+- The `v1.8.0` tag passed **395 tests** with `pytest -q`.
 
 ---
 
-## 1.7.0 (2026‑08‑04)
+## 1.7.0 (2026-08-04)
 
-### BREAKING
-- **`qada` command overhaul**: previously alias for `p q`; now full feature
-  (`qada`, `qada log`, `qada fasting`) with manager and sub-commands. Old
-  `p q` unchanged.
+### Breaking changes
+
+- **`qada` became a full feature** with `qada`, `qada log`, and `qada fasting` commands instead of being only an alias for `p q`. The original `p q` flow remains available.
 
 ### Added
-- **qada feature**: interactive backlog manager; 4 fixed entries (Fajr,
-  Dhuhr/Asr, Maghrib/Isha, Fasting); progress tracking, pause/unpause,
-  interval scheduling.
-- **targets feature** (`nazr`, `habit`, `targets`): finite + indefinite goals;
-  `log`, `daily_total`, `counter_total`, `counter_reset`.
-- **travel mode** (`travel` / `travel on/off/status`): disables weather and
-  prayer nudges; smart prayer slot selector.
-- **`day_start_hour`** (`daystart` / `daystart <0-23>`): shifts boundary (default 4:00 AM).
-- **void feature** (`v`, `void`, `vexport`): scratchpad; separate from main
-  journal; does not update `last_action`.
-- **`u` / `update`**: manually refresh `last_action` timestamp.
-- **`-md` / `--termux-dialog`**: Android text dialog for quick journal entries.
-- **hygiene manager overhaul**: dynamic table with urgency sorting,
-  color-coded rows (red overdue, yellow today), smart intervals.
+
+- **Qada manager**: tracks Fajr, Dhuhr/Asr, Maghrib/Isha, and fasting progress with pause/unpause and interval scheduling.
+- **Targets**: `nazr`, `habit`, and `targets` support finite and indefinite goals, quick logging, daily totals, counter totals, and counter resets.
+- **Travel mode**: `travel` and `travel on/off/status` disable weather and prayer nudges and provide a smart prayer-slot selector.
+- **Configurable day start**: `daystart` and `daystart <0-23>` shift the boundary used by the application, defaulting to 4:00 AM.
+- **Void scratchpad**: `v`, `void`, and `vexport` store private entries separately from the journal without updating `last_action`.
+- **`u` / `update`**: manually refreshes the chaining timestamp.
+- **Termux dialog input**: `-md` and `--termux-dialog` provide Android text-dialog entry.
+- **Hygiene manager overhaul**: dynamic tables, urgency sorting, color-coded rows, and smarter intervals.
 
 ### Changed
-- **`p q`**: logs at current time (not fixed prayer time).
-- **`hijri`**: always interactive (no arguments).
-- **`export`**: Markdown default (`--txt` for plain text).
-- **`recent`**: layout matches `view` / `search` (renamed from `last`).
-- **Hijri offset**: correctly applied in header (previously subtracted instead
-  of added).
+
+- `p q` now logs at the current time rather than at a fixed prayer time.
+- `hijri` is always interactive.
+- `export` defaults to Markdown, with `--txt` for plain text.
+- `recent` replaced `last` and now uses the `view`/`search` layout.
+- Hijri offsets are added in the header rather than subtracted.
 
 ### Fixed
-- **Hygiene**: respects `day_start_hour` (before 4 AM counts to previous day).
-- **Qada scheduler**: `compute_pending_instance` uses last log’s
-  `instance_date` correctly.
-- **Qada migration**: preserved existing logs when dropping `qada_declines`
-  and `paused_from`.
+
+- Hygiene calculations respect the configured day-start hour.
+- The qada scheduler uses the last log's `instance_date` correctly.
+- Qada migrations preserve existing logs when obsolete decline and pause fields are removed.
 
 ### Tests
-- **293 passing** (`v1.7.0`, verified with `tests/run_all.py`).
----
 
-## 1.6.0 (2026‑06‑19)
-
-### Changed
-- **Feature-package architecture**: 8 domains extracted to
-  `dailydriver/features/` (weather, hygiene, birthdays, sleep/nap, intentions,
-  calendar, events, prayer). Standard hook interface for commands, header
-  sections, aliases, migrations.
-- **Dispatcher unified**: all handlers accept raw `line`; loader loops call
-  `register_commands` / `register_aliases`.
-- **Test suite overhaul**: smoke tests (dispatch arity + full-stack command
-  exercise). Runner unified on `pytest`. 163 passing (verified with `tests/run_all.py`).
-
-### Fixed
-- Broken `se`/`ce`/`year` after dispatcher refactor (lambda wrappers).
-- Missing `sleep` alias (aliases loader wired).
-- Stale imports / dead code (ruff cleanup).
+- The `v1.7.0` tag passed **293 tests** with `pytest -q`.
 
 ---
 
- (2026‑05‑29)
+## 1.6.0 (2026-06-19)
 
 ### Added
-- **Reminder overhaul**: `event_reminders` table; `birthdays.remind_level` column.
-  Configurable lead-time schedules (multiples of 7). Per-event holiday alignment.
-  Reminder editor (`tools/reminder_editor.py` + HTML). Tomorrow preview in header.
-- **Birthday manager**: interactive `birthdays`; toggle reminder levels; add/delete.
-  `bd` accepts optional `remind_level` argument.
-- **New Hijri event**: Martyrdom of Muslim ibn Aqil (AS).
-- **Weather translation**: thunderstorm condition.
-- **Test isolation**: `DAILYDRIVER_DB` env var; `conftest.py`; `run_all.py` uses
-  temporary DB. Clean-clone runs green. 161 total (historical).
+
+- **Feature package system**: weather, hygiene, birthdays, sleep/nap, intentions, calendar, events, and prayer were extracted into `dailydriver/features/` packages with registry-based discovery and feature-owned migrations.
+- **Feature hook contract**: feature packages can register commands, contribute header sections, and expose migrations through a common interface.
+- **Weather support** for dust-storm conditions and corresponding ignore rules for generated artifacts.
 
 ### Changed
-- **Dispatcher unified**: all command handlers accept raw `line`.
-- **Post-handler logic**: `_show_result()` deduplicates header redisplay.
-- **Birthday display**: unified schedule-based function; each birthday its own
-  header line.
-- **Calendar event display**: duplicate suppression for today/tomorrow reminders;
-  holiday alignment only when visible holiday present.
-- **Birthday manager layout**: dynamic column widths, word-wrapped names.
-- **Weekday abbreviation restored** in header date line.
-- **Eid al-Adha title** updated to `"Eid‑e Qorban / Eid al-Adha"`.
-- **Modern cultural figures removed** from Jalali events.
-- **Bumped `requires-python`** to `>=3.10`.
+
+- **Dispatcher unification**: handlers receive the raw command line, and the loader registers commands and aliases through feature hooks.
+- Feature packages gained clearer internal boundaries and compatibility re-exports while old core wiring was removed.
+- Smoke tests now cover command dispatch arity and full-stack command execution; the test runner was standardized on pytest.
 
 ### Fixed
-- `exit()` → `sys.exit(0)` in quit handler.
-- Clean-clone test failures eliminated.
+
+- Broken command wrappers, missing aliases, stale imports, dead code, and feature-loader wiring issues were cleaned up during the package extraction.
+
+### Tests
+
+- The `v1.6.0` tag passed **163 tests** with `pytest -q`.
 
 ---
 
-## 1.4.0 (2026‑05‑21)
+## 1.5.0 (2026-05-29)
 
 ### Added
-- **Unified time-expression parser** (`parse_time_expressions`): single parser
-  for all time input. Supports times (`09:18`), ranges (`09:18‑09:24`, `‑15‑n`),
-  `l`/`last` + `n`/`now`, durations (`5m`, `1h30m`), offsets (`‑15`, `‑‑15m`,
-  `l+5m`). AM/PM disambiguation with 24h auto-detection. Used by journal,
-  sleep, nap, prayer.
-- **Header redesign**: modern centered date block (Jalali weekday, separator,
-  Gregorian/Hijri), 5-char prayer placeholders, combined sleep/nap spread line,
-  birthdays `🎈 Name 2d · 48`, minimal right-aligned bottom bar, breather lines.
-- **`recent`**: renamed from `last`; layout matches `view` / `search`.
-- **120+ new tests**: time parser, sleep/nap parser, logger conversion, date
-  parser, hijri offset, hygiene nudges, prayer backlog, terminal confirmations,
-  multiline routing. Total: **148 tests** (historical).
-- **Linting & formatting**: ruff + black + isort (120-char line length).
+
+- **Reminder overhaul**: reminders gained permanent event IDs, configurable lead-time schedules, holiday alignment, a reminder editor, and a tomorrow preview in the header.
+- **Birthday manager**: birthdays can be listed, added, deleted, and assigned reminder levels; `bd` accepts an optional reminder level.
+- **Hijri event**: added the Martyrdom of Muslim ibn Aqil (AS).
+- **Weather translation** for thunderstorms.
+- **Test isolation**: `DAILYDRIVER_DB` makes the database path configurable, and the test runner uses a temporary database.
 
 ### Changed
-- **Event-command display order** (`se`, `ce`, `ee`, `ln`) matches
-  `sge`/`ege`/`cge`: operation → clear → updated header → confirmation.
-- **Sleep / nap**: unified parser; `l`/`n`/`ln` ranges (`s l‑9`, `nap l‑‑5`).
-  Interactive prompts removed.
-- **`p` offset**: unified parser (`p ‑15` = prayer time − 15 min).
-- **`ege` in multiline mode** (`:m`): properly routed to `end_great_event_cmd`.
-- **Time confirmation**: no longer repeats when time explicitly picked.
-- **`date_str` removed** from header data dict; old top-border code deleted.
+
+- Command handlers were unified around the raw command line, and shared post-handler logic now prevents duplicate header redisplays.
+- Birthday and calendar displays gained schedule-aware rendering, separate birthday lines, dynamic columns, wrapped names, duplicate suppression, and improved holiday alignment.
+- Modern cultural figures were removed from the Jalali events, the Eid al-Adha title was updated, and Python 3.10 became the minimum supported version.
 
 ### Fixed
-- `_save_entry` receives Unix timestamps correctly (no `TypeError` on `l6m`).
-- SQLite FTS index kept in sync (migration v8 final rebuild, v9 meta consolidation).
-- Import / variable / dead-code cleanup.
+
+- Clean-clone test failures, the quit path, and related database/path issues were fixed.
+
+### Tests
+
+- The `v1.5.0` tag passed **161 tests** with `pytest -q`.
 
 ---
 
-## 1.3.0 (2026‑05‑13)
+## 1.4.0 (2026-05-21)
 
 ### Added
-- **State files moved to DB**: `.daily_last_action`, `.daily_pending`,
-  `.daily_great_event` → `meta` table. Migration v10 imports state + deletes
-  dot-files.
-- **Commander split**: `cli/commands/` (one file per feature group) + clean
-  `dispatcher.py`.
-- **Built-in aliases**: `pray` → `p`, `sleep` → `s`, `h` → `?`, `qada` → `p q`.
-- **Global Hijri offset** (`data/hijri_offset.txt`, version-controlled):
-  interactive `hijri` shows offset; correction applied to all Hijri events;
-  cache invalidated immediately.
-- **Terminal UI polish**: color-coded nudges (red overdue, yellow pre-alert),
-  reverse-video calendar today highlight (`cal`/`year`), dimmed past-day header,
-  bold navigation prompts, search result highlighting, soft-wrapped event lines.
-- **Nap command simplified**: only start/end times (like `s`).
-- **Calendar events**: Dahw al-Ard (Hijri); dusty / blowing dust translations.
-- **Test coverage**: modularized header (10 files), DB-backed logger state,
-  dispatcher, event commands. In-memory DB for all.
+
+- **Unified time-expression parser**: all journal, sleep, nap, and prayer input supports clock times, ranges, `l`/`last`, `n`/`now`, durations, offsets, and AM/PM disambiguation.
+- **Header redesign**: modern centered date block, Jalali/Gregorian/Hijri dates, fixed-width prayer placeholders, combined sleep/nap line, birthday countdowns, a compact bottom bar, and section separators.
+- **`recent` command**: renamed from `last` and aligned with `view` and `search`.
+- **Test and tooling expansion**: parser, logger, calendar, Hijri, hygiene, prayer backlog, terminal, and multiline tests, plus Ruff, Black, and isort configuration.
 
 ### Changed
-- **Header modularized**: `build_header_data` split (`display/header/`).
-- **`is_past → is_today` refactor**: cleaner past/present/future logic; nudges
-  constrained to today.
-- **Export defaults to Markdown**: `.md` with formatted tables, emojis,
-  day separators. Plain text (`--txt`).
-- **Prayer backlog overhaul** (`rq`/`mp` → `p q`): flexible times (`-15`, `03:11`),
-  smart overdue detection, auto-advancing `prayer_complete_until`. Pre-alert
-  and overdue nudges in header.
-- **ANSI-aware display width**: `pline`, `spread_line`, header centering
-  strip escape codes before measuring.
-- **Pyright fixes**: optional member access, missing imports, parameter names.
+
+- Event commands now use a consistent operation, header refresh, and confirmation order.
+- Sleep and nap commands share the unified parser and support chained ranges such as `s l-9`, `s 23-n`, `s ln`, and `nap l--5` without interactive time prompts.
+- `p -15` uses the shared parser to log a prayer fifteen minutes before the relevant time.
+- `ege` works correctly in multiline mode, and explicit time choices no longer receive redundant confirmation.
+- The obsolete `date_str` header field and top-border code were removed.
 
 ### Fixed
-- Auto-commit in `get_connection_cm` ensures DB-backed state helpers persist.
-- FTS index sync (v8 final rebuild).
-- Search scoring (FTS rank, exact-word bonus, category boost split).
-- Calendar event import uses Gregorian dates for slot-time comparisons.
+
+- Journal timestamp conversion, FTS synchronization, import errors, unused code, and parser edge cases were corrected.
+
+### Tests
+
+- The release documentation recorded **148 tests** for `v1.4.0`; later tags are the first historical versions revalidated successfully in the current clean test environment.
 
 ---
 
-## 1.2.0 (2026‑05‑08)
+## 1.3.0 (2026-05-13)
 
 ### Added
-- **Weather integration**: Tehran weather scraped from IRIMO, hourly cache,
-  offline fallback. Temperature, condition emoji, timestamp in daily header.
-  Past-day views show cached weather for that date.
-- **`day` / `today` command**: view any past day (`p`/`n` navigation,
-  direct `YYYY-MM-DD` input). Header adapts to target date. `d <id>` shortcut
-  in `view` / `search`.
-- **Per-calendar icons**: Jalali 🔆, Gregorian 🌐, Hijri 🌙; holiday confetti 🎊.
-- **Multi-page navigation** (`view` / `search`): `n`/`p` + optional count
-  (e.g. `5n`); prompts show `n/p = next/prev page, 5n = 5 pages`.
+
+- **Database-backed state**: last-action, pending, and great-event state moved from dot-files into the `meta` table through migration v10.
+- **Command modules**: `cli/commands/` and a clean dispatcher replaced the monolithic commander module.
+- **Built-in aliases**: `pray`, `sleep`, `h`, and `qada` map to their primary commands.
+- **Global Hijri offset**: `data/hijri_offset.txt` and the interactive `hijri` command apply a configurable correction to Hijri events and invalidate the cache immediately.
+- **Terminal UI polish**: colored prayer nudges, calendar today highlighting, dimmed past-day headers, bold navigation prompts, search highlighting, and soft-wrapped event lines.
+- **Calendar and weather additions**: Dahw al-Ard and dusty/blowing-dust translations.
+- **Expanded tests** for the modular header, DB-backed state, dispatcher, and event commands.
 
 ### Changed
-- **Search scoring overhaul**: FTS formula (`10/abs(rank)`), exact-word
-  bonus `+2.0`, category boost split (exact `+5.0`, substring `+1.0`), LIKE
-  fallback uses `OR`.
-- **Keyword system**: stemmed via Porter2 (migration v5), removed
-  `pending_keywords` table, added `count` column for TF-IDF.
-- **Sleep display**: duration shown before time range in header.
-- **Header bottom bar**: shown for past days too.
-- **English weekday abbreviation** prepended to date (`Sat, 18 Ordibehesht 1405`).
+
+- Header assembly was split into domain-specific modules, and `is_past` became the clearer `is_today` state.
+- Markdown became the default export format, with formatted tables, emojis, and day separators; `--txt` remains available.
+- Prayer backlog commands `rq` and `mp` were replaced by `p q`, with flexible times, smart overdue detection, and an auto-advancing completion marker.
+- ANSI-aware width calculation was added to wrapping, spreading, and header centering.
 
 ### Fixed
-- `cge` accepts optional argument (dispatch compatibility).
-- Editor save persists deletes immediately.
-- `ege` no longer clears great event when logging cancelled.
-- Export shows naps + correctly formatted prayer times.
-- Import / pagination glitches in `search` / `view`.
+
+- Database-backed state helpers now commit reliably, FTS indexes stay synchronized, search scoring was corrected, and calendar event slot comparisons use Gregorian dates.
 
 ---
 
-## 1.1.0 (2026‑05‑05)
+## 1.2.0 (2026-05-08)
 
 ### Added
-- **Full-text search** (`search`): SQLite FTS5 + LIKE fallback + fuzzy scoring.
-- **Fuzzy boosts**: time-of-day (morning/afternoon/night), relative dates
-  (yesterday, last week, weekdays, months), categories.
-- **Nap logging** (`nap`): start time, duration, optional description.
-- **Keyword editor** (`tools/keyword_editor.py` + `keyword_editor.html`).
-- **Event editor save fix**: deletes persist immediately.
-- **Stemming**: `porter2stemmer` for keywords and search (plurals, possessives,
-  contractions).
-- **Morphological tokenizer**: splits hyphenated words, removes possessives,
-  stems tokens.
+
+- **Weather integration**: Tehran weather is scraped from IRIMO, cached hourly, and displayed with an offline fallback, temperature, condition emoji, and timestamp. Past-day views use cached weather.
+- **`day` / `today`**: browse past days with navigation or direct Jalali dates; headers adapt to the selected day, and `d <id>` jumps from `view` or `search` to an entry's day.
+- **Per-calendar icons**: Jalali, Gregorian, and Hijri icons plus holiday confetti now appear consistently across the header and calendar views.
+- **Multi-page navigation**: `view` and `search` accept `n`/`p` with optional counts such as `5n`.
 
 ### Changed
-- **Keyword system overhaul**: TF-IDF + exact-path boost (up to 10 suggestions).
-- **Search `OR` logic** for forgiving multi-word queries.
-- **Calendar events**: switched to English titles (`title_en`); Persian preserved
-  as `title_fa`.
-- **`nap` export**: start-end times (like sleep).
-- **Naps**: appear in daily header and `today` summary.
+
+- Search ranking uses stronger FTS scoring, exact-word and category boosts, and an OR-based LIKE fallback.
+- Existing keywords were stemmed through migration v5, `pending_keywords` was removed, and keyword counts were added for TF-IDF.
+- Sleep durations and weekday labels were repositioned in the header, and the bottom bar is also shown for past days.
 
 ### Fixed
-- `ege` no longer clears great event when logging cancelled.
-- `cge` accepts optional argument (dispatch compatibility).
-- Entry viewer shows Jalali dates in `YYYY-MM-DD` format.
-- `last X mins` time parsing works correctly.
-- Import / pagination fixes in `search` and `view`.
+
+- Compatibility for optional `cge` arguments, event-editor deletion persistence, cancelled-event handling, nap exports, prayer exports, and search/view pagination.
+
+---
+
+## 1.1.0 (2026-05-05)
+
+### Added
+
+- **Full-text search** using SQLite FTS5 with LIKE fallback, relevance ranking, and fuzzy boosts for time of day, relative dates, and categories.
+- **Nap logging** with start time, duration, and optional description, including header, summary, and export support.
+- **Keyword editor** for reviewing keywords and managing stopwords.
+- **Porter2 stemming** and a morphological tokenizer for plurals, possessives, contractions, hyphenated words, and cleaned query tokens.
+- **Database migrations** for the initial schema, naps, FTS, and keyword changes.
+
+### Changed
+
+- Keyword learning moved to TF-IDF with an exact-path boost and search uses OR matching for forgiving multi-word queries.
+- Calendar event display uses English titles while retaining Persian titles in the data.
+- The event editor saves deletions immediately, and the entry viewer displays Jalali dates.
+
+### Fixed
+
+- Cancelled great-event logging, optional `cge` arguments, `last X mins` parsing, and search/view import and pagination issues.
 
 ### Dependencies
-- Added `porter2stemmer` to `pyproject.toml`.
-```bash
-pip install .
-```
+
+- Added `porter2stemmer` to the runtime dependencies.
 
 ---
 
-## 1.0.0 (2026‑05‑02)
+## 1.0.0 (2026-05-02)
+
+This first public release consolidated the foundational development from April 24 through May 2.
 
 ### Added
-- Full modular restructure (`dailydriver/` package): clear separation of concerns.
-- Prayer logging: dynamic Tehran times (monthly interpolation from University
-  of Tehran data).
-- Sleep logging with auto-calculated duration.
-- Hygiene tracking: configurable intervals + header nudges.
-- Birthday list (Jalali dates, upcoming alerts).
-- Intentions (to-dos with deadlines).
-- Free-text journal entries: smart time parsing + category suggestions.
-- Keyword learning: automatic category suggestions from entries.
-- Great-event commands (`sge`, `ege`, `cge`).
-- Running-event commands (`se`, `ee`, `ce`).
-- Chaining (`ln`).
-- Statistics (`stats`): prayer adherence, sleep averages, hygiene, top categories.
-- Today’s summary (`today`).
-- Month calendar (`cal`): Unix-style grid, Saturday-first.
-- Year calendar (`year`): responsive multi-column.
-- Export (`export`): human-readable text files (sleep, prayers, entries).
-- Three-calendar events (Jalali, Gregorian, Hijri): dynamic date conversion.
-- Reminder feature (`remind`): upcoming events in header.
-- Mobile event editor (`tools/edit_events.py` + `editor.html`).
-- `pyproject.toml`: packaging + dependency management (`pip install .`).
-- Documentation: `README.md`, `COMMANDS.md`, `CONTRIBUTING.md`.
-- MIT license.
+
+- **Core application**: modular `dailydriver/` package, SQLite persistence, terminal REPL, single-command execution, keyboard help, and local runtime paths.
+- **Prayer and sleep logging**: prayer slot selection, exact time confirmation, jamaat and shak flags, dynamic Tehran prayer times, sleep duration calculation, compact ranges, and overdue-prayer commands.
+- **Journal workflow**: free-text entries with relative time parsing, multiline mode, categories, flags, automatic keyword learning, filtered views, chaining, and event timestamps.
+- **Events and reminders**: great events, running events, chained entries, intentions, hygiene intervals and header nudges, birthdays, and upcoming reminders.
+- **Calendars**: Jalali, Gregorian, and Hijri event data with month and responsive year views.
+- **Statistics and summaries**: prayer adherence, sleep averages, hygiene, category statistics, and the `today` view.
+- **Export and editing tools**: human-readable exports for prayers, sleep, and entries plus the mobile event editor.
+- **Packaging and documentation**: `pyproject.toml`, MIT license, README, command reference, contributing guide, and dependency installation instructions.
 
 ### Changed
-- Prayer times: monthly interpolation (not fixed constants).
-- State + DB moved to `data/`.
-- Events in three JSON files (`events_jalali.json`, `events_gregorian.json`,
-  `events_hijri.json`).
-- Command reference split: `README.md` → `COMMANDS.md`.
+
+- Prayer times use monthly interpolation instead of the original fixed constants.
+- State files, the database, and event data were moved under `data/`, with separate Jalali, Gregorian, and Hijri event files.
+- The command reference was split out of `README.md`.
 
 ### Fixed
-- `ege` preserves great event when logging cancelled.
-- Import / path fixes after modularisation.
-- Calendar event display: one event per line in header.
+
+- Cancelled great-event logging preserves the event, imports and paths work from clean installations, and calendar events render one per header line.
 
 ### Dependencies
+
 ```bash
 pip install jdatetime hijridate
 ```

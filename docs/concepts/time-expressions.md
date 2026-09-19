@@ -1,8 +1,6 @@
 # Time Expressions
 
-DailyDriver uses one unified time-expression language everywhere time is
-entered — journal entries, sleep, naps, and prayer. Learn it once and it works
-across the app. A time expression is either a single point in time or a range.
+DailyDriver uses one unified time-expression language everywhere time is entered — journal entries, sleep, naps, and prayer. Learn it once and it works across the app. A time expression is either a single point in time or a range.
 
 ## Single times
 
@@ -39,6 +37,4 @@ Durations may be written as `30m`, `1h`, `1h15m`, or a bare number for minutes.
 - **Sleep / nap:** e.g. `s 23-7:15`, `s ln`, `nap l--5`.
 - **Prayer:** offsets and explicit times, e.g. `p -15`, `p 05:30`, `p q 03:11`.
 
-When several interpretations are possible, the app lists them and lets you pick
-(or type a new expression). When a time is chosen explicitly from that list, it
-is not asked to be confirmed again.
+When several interpretations are possible, the app lists them and lets you pick (or type a new expression). When a time is chosen explicitly from that list, it is not asked to be confirmed again.

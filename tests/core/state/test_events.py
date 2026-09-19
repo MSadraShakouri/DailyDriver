@@ -12,6 +12,24 @@ def test_last_action_defaults_to_none_and_reads_value(db_connection):
     assert activity.get_last_action_time() == 123
 
 
+def test_invalid_state_timestamps_are_ignored(db_connection):
+    from dailydriver.core.state import activity
+
+    db_connection.executemany(
+        "INSERT INTO meta (key, value) VALUES (?, ?)",
+        [
+            ("last_action", "not-a-timestamp"),
+            ("pending_start", "also-invalid"),
+            ("great_event_start", "bad"),
+        ],
+    )
+    db_connection.commit()
+
+    assert activity.get_last_action_time() is None
+    assert events.get_pending_start() is None
+    assert events.get_active_great_event() is None
+
+
 def test_pending_start_save_discard_and_clear(db_path):
     assert events.get_pending_start() is None
     assert events.save_pending_start().startswith("Start saved:")

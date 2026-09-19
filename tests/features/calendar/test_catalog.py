@@ -1,8 +1,10 @@
 import json
+from datetime import date
 
 import jdatetime
 
 from dailydriver.features.calendar import catalog
+from dailydriver.features.calendar.converter import HijriDate
 
 
 def test_load_json_handles_missing_and_existing_files(tmp_path):
@@ -25,6 +27,28 @@ def test_convert_events_combines_calendars_and_deduplicates(tmp_path, monkeypatc
     converted = catalog._convert_all_events(1405)
     assert {event["title_en"] for _, event in converted} == {"Nowruz", "March"}
     assert all(isinstance(day, jdatetime.date) for day, _ in converted)
+
+
+def test_hijri_event_conversion_applies_the_selected_month_override(monkeypatch):
+    monkeypatch.setattr(
+        catalog,
+        "get_hijri_month_offset",
+        lambda year, month: -1 if (year, month) == (1448, 4) else 0,
+    )
+
+    assert catalog._hijri_to_gregorian(1448, 4, 1) == date(2026, 9, 14)
+    assert catalog._gregorian_to_hijri(date(2026, 9, 14)) == HijriDate(1448, 4, 1)
+
+
+def test_hijri_event_conversion_handles_a_boundary_moved_earlier(monkeypatch):
+    monkeypatch.setattr(
+        catalog,
+        "get_hijri_month_offset",
+        lambda year, month: 1 if (year, month) == (1448, 4) else 0,
+    )
+
+    assert catalog._hijri_to_gregorian(1448, 4, 1) == date(2026, 9, 12)
+    assert catalog._gregorian_to_hijri(date(2026, 9, 12)) == HijriDate(1448, 4, 1)
 
 
 def test_event_queries_filter_and_sort_supplied_events():

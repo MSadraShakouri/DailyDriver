@@ -5,6 +5,7 @@ from __future__ import annotations
 import time
 from datetime import datetime
 
+from dailydriver.core.export_utils import format_duration_minutes
 from dailydriver.core.state import get_active_great_event
 
 from .keywords import learn_keywords
@@ -39,8 +40,7 @@ def save_entry(conn, cmd: str, started_at: int | None, duration: int | None, sel
     if started_at is not None:
         result += f"Time:   {datetime.fromtimestamp(started_at).strftime('%H:%M')}\n"
     if duration is not None and duration > 0:
-        hours, minutes = divmod(duration, 60)
-        result += f"Duration: {hours}h {minutes}m\n" if hours else f"Duration: {minutes}m\n"
+        result += f"Duration: {format_duration_minutes(duration, include_zero_minutes=True)}\n"
     return result.strip()
 
 

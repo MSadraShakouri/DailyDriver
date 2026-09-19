@@ -5,6 +5,11 @@ import jdatetime
 from dailydriver.utils.prayer_times import get_approximate_times
 
 PRAYER_SLOTS = ["fajr", "dhuhr_asr", "maghrib_isha"]
+SLOT_LABELS = {
+    "fajr": "Fajr",
+    "dhuhr_asr": "Dhuhr & Asr",
+    "maghrib_isha": "Maghrib & Isha",
+}
 
 
 def _today_times():

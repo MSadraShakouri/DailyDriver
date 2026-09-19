@@ -2,6 +2,8 @@
 
 from datetime import datetime
 
+from dailydriver.core.export_utils import format_duration_minutes
+
 
 def get_sleep_str(conn, today):
     cur = conn.cursor()
@@ -20,7 +22,7 @@ def get_sleep_str(conn, today):
         ranges.append(f"{start}-{end}")
     time_str = ", ".join(ranges)
 
-    return f"💤 {total_duration//60}h {total_duration%60}m  {time_str}"
+    return f"💤 {format_duration_minutes(total_duration, include_zero_minutes=True, include_zero_hours=True)}  {time_str}"
 
 
 def get_nap_str(conn, today):
@@ -40,4 +42,4 @@ def get_nap_str(conn, today):
         ranges.append(f"{start}-{end}")
     time_str = ", ".join(ranges)
 
-    return f"😴 {total//60}h {total%60}m  {time_str}"
+    return f"😴 {format_duration_minutes(total, include_zero_minutes=True, include_zero_hours=True)}  {time_str}"

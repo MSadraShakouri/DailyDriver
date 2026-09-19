@@ -11,6 +11,8 @@ from dailydriver.utils.time_parser import parse_prayer_args, parse_time_expressi
 from dailydriver.utils.time_utils import today_jalali
 
 from .backlog import _update_complete_until
+from .schedule import PRAYER_SLOTS, SLOT_LABELS
+from .store import get_prayer_log
 
 
 def _travel_mode_select_slot(conn, today):
@@ -18,12 +20,7 @@ def _travel_mode_select_slot(conn, today):
     Travel mode: suggest the next unlogged prayer slot in chronological order.
     Returns slot string or None if cancelled.
     """
-    order = ["fajr", "dhuhr_asr", "maghrib_isha"]
-    slot_display = {
-        "fajr": "Fajr",
-        "dhuhr_asr": "Dhuhr & Asr",
-        "maghrib_isha": "Maghrib & Isha",
-    }
+    order = PRAYER_SLOTS
 
     # Check what's already logged today
     cur = conn.cursor()
@@ -40,11 +37,11 @@ def _travel_mode_select_slot(conn, today):
     # Show menu
     current_ui.print_line("\nTravel mode: select prayer slot")
     for i, slot in enumerate(order, 1):
-        label = slot_display[slot]
+        label = SLOT_LABELS[slot]
         indicator = " (suggested)" if slot == suggested else ""
         current_ui.print_line(f"  [{i}] {label}{indicator}")
     current_ui.print_line("  [n] Cancel")
-    current_ui.print_line(f"\nEnter = {slot_display[suggested]} (smart guess)")
+    current_ui.print_line(f"\nEnter = {SLOT_LABELS[suggested]} (smart guess)")
 
     choice = current_ui.prompt("> ").strip().lower()
 
@@ -75,18 +72,18 @@ def log_prayer(cmd: str):
         if "q" in args:
             args.remove("q")
             parsed = parse_prayer_args(args)
-            time_min = parsed["explicit_time"]
-            offset_min = parsed["offset_min"]
+            time_min = parsed.explicit_time
+            offset_min = parsed.offset_min
             from .backlog import log_qada
 
             log_qada(time_min, offset_min)
             return
 
         parsed = parse_prayer_args(args)
-        offset_min = parsed["offset_min"]
-        explicit_time = parsed["explicit_time"]
-        jamaat_location = parsed["jamaat_location"]
-        shak_count = parsed["shak_count"]
+        offset_min = parsed.offset_min
+        explicit_time = parsed.explicit_time
+        jamaat_location = parsed.jamaat_location
+        shak_count = parsed.shak_count
         now = datetime.now()
 
         # ----- Step 1: Calculate prayer time (common to both modes) -----
@@ -113,7 +110,7 @@ def log_prayer(cmd: str):
             if slot is None:
                 return None
         else:
-            # Normal mode: guess slot from prayer time using Tehran interpolation
+            # Normal mode: guess slot from the offline Tehran solar calculation
             today_j = jdatetime.date.today()
             approx = get_approximate_times(today_j.month, today_j.day)
             dhuhr_dt = now.replace(hour=approx["dhuhr"][0], minute=approx["dhuhr"][1], second=0, microsecond=0)
@@ -133,7 +130,7 @@ def log_prayer(cmd: str):
                 slot = "maghrib_isha"
 
         time_str = prayer_dt.strftime("%H:%M")
-        slot_display = slot.replace("_", " & ").title()
+        slot_display = SLOT_LABELS[slot]
 
         flag_parts = []
         if jamaat_location is not None:
@@ -151,11 +148,7 @@ def log_prayer(cmd: str):
         if not current_ui.confirm(message):
             return None
 
-        cur.execute(
-            "SELECT id, prayer_time FROM prayer_logs WHERE prayer_slot=? AND jalali_date=?",
-            (slot, today),
-        )
-        existing = cur.fetchone()
+        existing = get_prayer_log(conn, slot, today)
         if existing:
             old_time = datetime.fromtimestamp(existing["prayer_time"]).strftime("%H:%M")
             confirm_replace = current_ui.confirm(

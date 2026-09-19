@@ -18,6 +18,17 @@ def get_meta_value(key: str, default: str | None = None, conn=None) -> str | Non
         return _read(connection)
 
 
+def get_meta_int(key: str, default: int | None = None, conn=None) -> int | None:
+    """Return a stored meta value as an integer, or *default* if invalid."""
+    value = get_meta_value(key, conn=conn)
+    if value is None:
+        return default
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
 def set_meta_value(key: str, value: str | None, conn=None) -> None:
     """Persist *value* for *key* inside the meta table."""
 

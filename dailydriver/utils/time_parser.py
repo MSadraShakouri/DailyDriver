@@ -2,6 +2,7 @@
 """Unified time expression parser – single authority for all time input."""
 
 import re
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import NamedTuple
 
@@ -12,6 +13,16 @@ class TimeInterpretation(NamedTuple):
     duration_minutes: int | None
     label: str
     priority: int  # lower = better
+
+
+@dataclass(frozen=True, slots=True)
+class PrayerArgs:
+    """Parsed options for the prayer command."""
+
+    offset_min: int | None = None
+    explicit_time: int | None = None
+    jamaat_location: str | None = None
+    shak_count: int = 0
 
 
 # ---------------------------------------------------------------------------
@@ -390,40 +401,41 @@ def parse_time_expressions(
     return []
 
 
-def parse_prayer_args(args: list[str]) -> dict:
-    """Parse prayer command arguments – kept for compatibility.
-    Returns dict with keys: offset_min, explicit_time, jamaat_location, shak_count.
-    """
-    result = {
-        "offset_min": None,
-        "explicit_time": None,
-        "jamaat_location": None,
-        "shak_count": 0,
-    }
+def parse_prayer_args(args: list[str]) -> PrayerArgs:
+    """Parse prayer command arguments into a typed result."""
+    offset_min = None
+    explicit_time = None
+    jamaat_location = None
+    shak_count = 0
     i = 0
     while i < len(args):
         a = args[i]
         if a.startswith("-") and a[1:].isdigit():
-            result["offset_min"] = int(a[1:])
+            offset_min = int(a[1:])
             i += 1
         elif a.lower() == "j":
             if i + 1 < len(args) and not args[i + 1].startswith("-") and args[i + 1].lower() not in ("j", "s"):
-                result["jamaat_location"] = args[i + 1]
+                jamaat_location = args[i + 1]
                 i += 2
             else:
-                result["jamaat_location"] = ""
+                jamaat_location = ""
                 i += 1
         elif a.lower() == "s":
             if i + 1 < len(args) and args[i + 1].isdigit():
-                result["shak_count"] = int(args[i + 1])
+                shak_count = int(args[i + 1])
                 i += 2
             else:
                 i += 1
         else:
             try:
                 t = datetime.strptime(a, "%H:%M")
-                result["explicit_time"] = t.hour * 60 + t.minute
+                explicit_time = t.hour * 60 + t.minute
             except ValueError:
                 pass
             i += 1
-    return result
+    return PrayerArgs(
+        offset_min=offset_min,
+        explicit_time=explicit_time,
+        jamaat_location=jamaat_location,
+        shak_count=shak_count,
+    )

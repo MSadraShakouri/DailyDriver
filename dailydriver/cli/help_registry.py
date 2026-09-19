@@ -53,7 +53,7 @@ HELP: dict[str, HelpEntry] = {
             "p s <count>    with a shak (doubt) count",
             "p q [time]     mark a past unlogged prayer as qada",
         ],
-        notes="Prayer times are interpolated for Tehran. 'p q' logs at the current time by default.",
+        notes="Prayer times are calculated offline for Tehran. 'p q' logs at the current time by default.",
     ),
     "pray": HelpEntry(summary="Alias for p", group="Prayer", alias_of="p"),
     "s": HelpEntry(
@@ -201,9 +201,9 @@ HELP: dict[str, HelpEntry] = {
     ),
     "year": HelpEntry(summary="Full-year grid (adaptive columns)", group="Calendar", usage=["year"]),
     "hijri": HelpEntry(
-        summary="Show/adjust the Hijri date offset",
+        summary="Show/adjust this month's Hijri date offset",
         group="Calendar",
-        usage=["hijri              interactive offset selector (-2..+2)"],
+        usage=["hijri              interactive month-specific offset selector (-2..+2)"],
     ),
     # ── Tools & setup ──
     "bd": HelpEntry(

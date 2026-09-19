@@ -2,6 +2,7 @@
 __pycache__/
 .venv/
 data/.history/
+data/.events_last_fetch
 .daily_edit.txt
 export_*.txt
 data/events_*_titles.txt

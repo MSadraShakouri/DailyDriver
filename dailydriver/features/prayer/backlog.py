@@ -10,6 +10,7 @@ from dailydriver.utils.prayer_times import get_approximate_times
 from dailydriver.utils.time_utils import today_jalali
 
 from .schedule import PRAYER_SLOTS
+from .store import has_prayer_log
 
 
 def _get_complete_until(conn):
@@ -39,8 +40,7 @@ def _update_complete_until(conn):
         date_str = d_date.strftime("%Y-%m-%d")
         complete = True
         for slot in PRAYER_SLOTS:
-            cur.execute("SELECT id FROM prayer_logs WHERE prayer_slot=? AND jalali_date=?", (slot, date_str))
-            if not cur.fetchone():
+            if not has_prayer_log(conn, slot, date_str):
                 complete = False
                 break
         if not complete:
@@ -84,9 +84,7 @@ def _get_unlogged_past_slots(conn, now=None):
             continue
         slot_times = {"fajr": fajr_dt, "dhuhr_asr": dhuhr_dt, "maghrib_isha": maghrib_dt}
         for slot in PRAYER_SLOTS:
-            cur = conn.cursor()
-            cur.execute("SELECT id FROM prayer_logs WHERE prayer_slot=? AND jalali_date=?", (slot, date_str))
-            if not cur.fetchone() and slot_times[slot] <= now:
+            if not has_prayer_log(conn, slot, date_str) and slot_times[slot] <= now:
                 missing.append((date_str, slot))
         d += jdatetime.timedelta(days=1)
     missing.sort(key=lambda item: item[0], reverse=True)

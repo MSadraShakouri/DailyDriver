@@ -5,15 +5,14 @@ from __future__ import annotations
 import time
 from datetime import datetime
 
-from .meta import get_meta_value, set_meta_value
+from .meta import get_meta_int, set_meta_value
 
 _LAST_ACTION_KEY = "last_action"
 
 
 def get_last_action_time() -> int | None:
     """Return the Unix timestamp of the last successful write, or ``None``."""
-    value = get_meta_value(_LAST_ACTION_KEY)
-    return int(value) if value else None
+    return get_meta_int(_LAST_ACTION_KEY)
 
 
 def touch_last_action(ts: int | None = None, conn=None) -> int:

@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from dailydriver.core.database import get_connection_cm
+from dailydriver.core.export_utils import format_duration_minutes
 from dailydriver.core.state import get_last_action_time
 from dailydriver.ui.terminal_ui import current_ui
 from dailydriver.utils.time_parser import parse_time_expressions
@@ -42,7 +43,7 @@ def log_sleep(cmd: str):
     if not current_ui.confirm(
         f"Sleep:  {sleep_dt.strftime('%H:%M')}\n"
         f"Wake:   {wake_dt.strftime('%H:%M')}\n"
-        f"Duration: {duration//60}h {duration%60}m"
+        f"Duration: {format_duration_minutes(duration, include_zero_minutes=True, include_zero_hours=True)}"
     ):
         return None
 
@@ -57,7 +58,7 @@ def log_sleep(cmd: str):
 
     result = "Sleep logged:\n"
     result += f"  {sleep_dt.strftime('%H:%M')} → {wake_dt.strftime('%H:%M')}\n"
-    result += f"  {duration//60}h {duration%60}m"
+    result += f"  {format_duration_minutes(duration, include_zero_minutes=True, include_zero_hours=True)}"
     return result
 
 
@@ -94,7 +95,7 @@ def log_nap(cmd: str):
 
     if not current_ui.confirm(
         f"Nap:   {start_dt.strftime('%H:%M')} → {end_dt.strftime('%H:%M')}\n"
-        f"Duration: {duration//60}h {duration%60}m"
+        f"Duration: {format_duration_minutes(duration, include_zero_minutes=True, include_zero_hours=True)}"
     ):
         return None
 
@@ -107,4 +108,4 @@ def log_nap(cmd: str):
         )
         conn.commit()
 
-    return f"Nap logged: {start_dt.strftime('%H:%M')} → {end_dt.strftime('%H:%M')} ({duration//60}h {duration%60}m)"
+    return f"Nap logged: {start_dt.strftime('%H:%M')} → {end_dt.strftime('%H:%M')} ({format_duration_minutes(duration, include_zero_minutes=True, include_zero_hours=True)})"
