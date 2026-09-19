@@ -7,7 +7,7 @@ over time it suggests the right ones automatically.
 ## How suggestions are ranked
 
 When you write an entry, the text is tokenized (lowercased, stripped of
-punctuation, short and stop words removed, and stemmed with a Porter2 stemmer).
+punctuation, short and stop words removed, and stemmed with the built-in Porter2-compatible stemmer).
 Each remaining token contributes to a category's score in two stages:
 
 ### 1. TF-IDF over learned keywords

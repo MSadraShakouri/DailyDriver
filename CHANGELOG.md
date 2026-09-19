@@ -3,6 +3,9 @@
 ## Unreleased
 
 ### Changed
+- **Dependency reduction**: replaced the `porter2stemmer` runtime dependency with a
+  small built-in Porter2-compatible stemmer used by keyword learning, search,
+  migration, and the stopword analysis tool.
 - **Documentation site migrated to Astro Starlight** – `docs/` is now a
   self-contained Astro site (default Starlight theme, page search, dark mode,
   prev/next links, and an auto sidebar) that builds to `docs/dist` and is

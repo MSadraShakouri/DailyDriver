@@ -5,7 +5,7 @@
 - Python 3.10+
 - SQLite (bundled with Python)
 - Dependencies (installed automatically): `jdatetime`, `hijridate`,
-  `porter2stemmer`, `prompt_toolkit`
+  `prompt_toolkit`
 
 ## Install
 

@@ -169,9 +169,8 @@ def _migration_4(conn):
 
 def _migration_5(conn):
     """Stem all existing keywords and merge duplicates."""
-    from porter2stemmer import Porter2Stemmer
+    from dailydriver.utils.stemming import stem
 
-    stemmer = Porter2Stemmer()
     cur = conn.cursor()
 
     # Step 1 – stem every word in the keywords table
@@ -179,7 +178,7 @@ def _migration_5(conn):
     for r in rows:
         cur.execute(
             "UPDATE keywords SET word = ? WHERE id = ?",
-            (stemmer.stem(r["word"]), r["id"]),
+            (stem(r["word"]), r["id"]),
         )
 
     # Step 2 – merge duplicates: same (word, category_id) -> keep smallest id, sum counts

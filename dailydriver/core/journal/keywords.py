@@ -6,11 +6,9 @@ import math
 import os
 import re
 
-from porter2stemmer import Porter2Stemmer
-
 from dailydriver.core.database import get_connection, get_connection_cm
+from dailydriver.utils.stemming import stem
 
-_stemmer = Porter2Stemmer()
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
 STOPWORDS_PATH = os.path.join(PROJECT_ROOT, "data", "stopwords.txt")
 
@@ -62,7 +60,7 @@ def tokenize(text: str, stem_words: bool = True) -> list[str]:
             continue
         if stem_words:
             try:
-                token = _stemmer.stem(token)
+                token = stem(token)
             except Exception:
                 pass
         if token not in seen:
@@ -87,7 +85,7 @@ def path_segments(path: str) -> set[str]:
         if len(raw) < 3:
             continue
         try:
-            segments.add(_stemmer.stem(raw))
+            segments.add(stem(raw))
         except Exception:
             segments.add(raw)
     return segments
