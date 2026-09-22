@@ -38,7 +38,7 @@ def save_entry(conn, cmd: str, started_at: int | None, duration: int | None, sel
         for path in selected_paths:
             result += f"  {path}\n"
     if started_at is not None:
-        result += f"\nTime:   {format_time_range(started_at, duration)}\n"
+        result += f"Time:   {format_time_range(started_at, duration)}\n"
     return result.strip()
 
 
