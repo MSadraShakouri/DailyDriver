@@ -6,7 +6,7 @@ import time
 from datetime import datetime
 
 from dailydriver.core.database import get_connection_cm
-from dailydriver.core.export_utils import format_duration_minutes
+from dailydriver.core.export_utils import format_time_range
 from dailydriver.core.state import get_active_great_event, get_last_action_time
 from dailydriver.ui.terminal_ui import current_ui
 from dailydriver.utils.time_parser import parse_time_expressions
@@ -88,9 +88,7 @@ def log_free_text(cmd: str, started_at: int | None = None):
 
         if started_at is not None:
             duration = int(time.time() - started_at) // 60
-            start_str = datetime.fromtimestamp(started_at).strftime("%H:%M")
-            dur_str = format_duration_minutes(duration, include_zero_minutes=duration > 0)
-            if not current_ui.confirm_time(start_str, dur_str):
+            if not current_ui.confirm_time(format_time_range(started_at, duration), ""):
                 return None
         else:
             now = datetime.now()
