@@ -13,17 +13,18 @@ These are routine logging actions and keep their inline syntax. `<kind>` is `naz
 
 | Usage | Meaning |
 |-------|---------|
-| `<kind> log <name> <amount>` | Log progress by `amount` |
-| `<kind> daily_total <name> <total>` | Set today's total; logs the difference already done today |
-| `<kind> counter_total <name> <value>` | Log the difference from the stored counter, then store `value` |
+| `<kind> log <name> <amount> [-n]` | Log progress by `amount` (`-n` / `--no-last` skips updating `last_action`) |
+| `<kind> daily_total <name> <total> [-n]` | Set today's total; logs the difference already done today |
+| `<kind> counter_total <name> <value> [-n]` | Log the difference from the stored counter, then store `value` |
 | `<kind> counter_reset <name>` | Reset the stored counter to 0 (logs nothing) |
 
 Examples:
 
 ```
 nazr log tasbih 33
+habit log reading 10 -n
 habit daily_total pushups 50
-habit counter_total steps 8200
+habit counter_total steps 8200 --no-last
 ```
 
 `daily_total` and `counter_total` refuse to log a negative difference and warn you to adjust manually instead.

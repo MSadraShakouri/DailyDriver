@@ -5,12 +5,15 @@
 ### Added
 
 - **Prayer windows**: header nudges became a three-band state machine — green (فضیلت), yellow, red — with fiqh deadlines: Fajr → sunrise, Dhuhr & Asr → sunset, Maghrib & Isha → shar'i midnight. All boundaries are computed offline per city from Khamenei's criteria and validated against Iranian tables.
-
+- **Prayer window persistence & export**: `prayer_logs` records `window_band` (`fadilat`, `normal`, `late`, `qada`) via an automatic schema migration with historical backfill. Timeline exports and the `day` view display the specific band (`✅ Fadilat`, `🟡 Normal`, `🔴 Late`, `🕯️ Qada`) rather than a vague "on-time".
 - **Multi-city**: version-controlled registry (Tehran, Karaj, Qom, Mashhad), weekly schedule and override with travel > override > schedule > default precedence, the interactive `city` command, and per-city prayer times and IRIMO weather (`☀️ 32°C clear (Karaj)`).
+- **Target chaining flags**: `nazr` and `habit` logging subcommands support `-n` and `--no-last` to record progress without updating the `last_action` chaining timestamp.
 
 ### Changed
 
-- **Prayer header block** moved directly under the weather line; nudge lines carry two times each — the current band's end and the deadline (`🕌 Dhuhr & Asr — till 15:24 · sunset 18:00`, collapsing to `till sunset (18:00)` in red; the color names the band) — plus a next-prayer line (`🕌 Next: Maghrib 18:18 (in 2h 30m)`, yellow inside the hour) when nothing is pending.
+- **Prayer header block**: moved directly under the weather line. Open window nudges render across two rows with explicit band names (`fadilat`, `normal`, `late`) and deadlines (`fadilat till 15:24 · sunset 18:00`), comfortably fitting narrow 48-column mobile screens without clipping.
+- **Activity timestamps**: running event timers (`se`) and great events (`sge`) update the `last_action` chaining timestamp when started. Management definitions in qada, hygiene, and birthdays no longer touch `last_action`.
+- **QoL improvements**: weather condition translations and emojis updated, logged-entry time display unified with browse screens, terminal screen spacing adjusted, and national flag day added to Jalali events.
 
 ### Fixed
 
@@ -23,7 +26,7 @@
 
 ### Tests
 
-- This branch passes **643 tests** with `pytest -q`, including a seasonal band-invariant sweep for all four cities.
+- This branch passes **651 tests** with `pytest -q`, including migrations, target flags, prayer window persistence, and two-row nudge assertions.
 
 ---
 
@@ -91,7 +94,7 @@
 
 ### Changed
 
-- **Unified export timeline**: `export` interleaves journal entries, sleep, naps, prayers, qada progress, and targets by day through the new `export_items` feature hook. The void scratchpad remains separate through `vexport`, and Markdown remains the default output.
+- **Unified export timeline overhaul**: completely replaced the old multi-table layout (separate sleep, nap, and prayer tables) with a single unified chronological timeline grouped by day. Features contribute timeline items through the new `export_items(conn, cutoff)` contract hook, integrating `qada` and `targets` progress logs into exports for the first time. Added `export all` for full history exports and explicit `--md` format flag alongside `--txt`. The void scratchpad remains separate through `vexport`.
 - **Category ranking** now matches complete path segments instead of substrings, eliminating false positives such as `art` matching `start`. The exact-match boost is coverage-aware, full path matches receive an extra bonus, IDF is clamped at zero, and the numbered picker shows five suggestions while the rich picker ranks twenty.
 - **Command dispatch** now shares one raw-line dispatch path between the REPL and single-command mode.
 - **Header event lines** were restored to their historic position beneath prayers and above sleep.
@@ -157,8 +160,6 @@
 
 - `p q` now logs at the current time rather than at a fixed prayer time.
 - `hijri` is always interactive.
-- `export` defaults to Markdown, with `--txt` for plain text.
-- `recent` replaced `last` and now uses the `view`/`search` layout.
 - Hijri offsets are added in the header rather than subtracted.
 
 ### Fixed
