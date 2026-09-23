@@ -63,17 +63,17 @@ def test_travel_mode_shows_first_unlogged_slot(db_connection, monkeypatch):
 
 def test_prealert_under_one_hour_shows_exact_time(db_connection, monkeypatch):
     lines = _nudges(db_connection, monkeypatch, _at(4, 0))
-    assert lines == [f"{Y}🕌 Fajr — in 31m (04:31){RESET}"]
+    assert lines == [f"{Y}🕌 Next: Fajr 04:31 (in 31m){RESET}"]
 
 
 def test_prealert_reports_due_now_under_one_minute(db_connection, monkeypatch):
     lines = _nudges(db_connection, monkeypatch, _at(4, 30, 30))
-    assert lines == [f"{Y}🕌 Fajr — due now (04:31){RESET}"]
+    assert lines == [f"{Y}🕌 Next: Fajr 04:31 (due now){RESET}"]
 
 
 def test_no_prealert_more_than_an_hour_out_shows_plain_next_line(db_connection, monkeypatch):
     lines = _nudges(db_connection, monkeypatch, _at(3, 0))
-    assert lines == ["🕌 Fajr at 04:31 (1h 31m left)"]
+    assert lines == ["🕌 Next: Fajr 04:31 (in 1h 31m)"]
 
 
 def test_green_line_shows_band_end_and_deadline(db_connection, monkeypatch):
@@ -118,7 +118,7 @@ def test_state_boundaries_are_exact(db_connection, monkeypatch):
     # The minute-level deadline itself opens the overdue state, and the
     # next-prayer line renders above it.
     assert _nudges(db_connection, monkeypatch, _at(5, 55)) == [
-        "🕌 Dhuhr & Asr at 11:58 (6h 3m left)",
+        "🕌 Next: Dhuhr & Asr 11:58 (in 6h 3m)",
         f"{R}⚠️ Fajr not logged (today){RESET}",
     ]
 
@@ -162,7 +162,7 @@ def test_next_prayer_line_when_nothing_pending(db_connection, monkeypatch):
     lines = _nudges(db_connection, monkeypatch, _at(9))
     # Fajr is overdue; the live next-prayer line renders above the overdue one.
     assert lines == [
-        "🕌 Dhuhr & Asr at 11:58 (2h 58m left)",
+        "🕌 Next: Dhuhr & Asr 11:58 (in 2h 58m)",
         f"{R}⚠️ Fajr not logged (today){RESET}",
     ]
 
@@ -193,7 +193,7 @@ def test_tomorrow_fajr_when_all_logged(db_connection, monkeypatch):
 
     monkeypatch.setattr(nudges, "get_slot_windows", windows_for)
     lines = nudges.get_prayer_nudges(db_connection, TARGET_DATE, TODAY_STR, True, now=_at(22, 0))
-    assert lines == ["🕌 Fajr at 04:31 (6h 31m left)"]
+    assert lines == ["🕌 Next: Fajr 04:31 (in 6h 31m)"]
 
 
 def test_prealert_wins_over_the_plain_next_line(db_connection, monkeypatch):
@@ -203,7 +203,7 @@ def test_prealert_wins_over_the_plain_next_line(db_connection, monkeypatch):
     )
     db_connection.commit()
     lines = _nudges(db_connection, monkeypatch, _at(11, 20))
-    assert lines == [f"{Y}🕌 Dhuhr & Asr — in 38m (11:58){RESET}"]
+    assert lines == [f"{Y}🕌 Next: Dhuhr & Asr 11:58 (in 38m){RESET}"]
 
 
 def test_nudge_windows_receive_the_resolved_city_coords(db_connection, monkeypatch):

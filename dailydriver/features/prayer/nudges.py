@@ -56,14 +56,18 @@ def _band_text(slot: str, window, now: datetime) -> tuple[str, str]:
 
 
 def _next_line(slot: str, window, now: datetime) -> str:
-    """Pre-alert inside the hour, plain 'at time (duration left)' outside it."""
+    """Next-prayer line; yellow inside the pre-alert hour.
+
+    One grammar for both states: '🕌 Next: Maghrib 18:18 (in 2h 30m)',
+    with the remaining time always in parentheses ('(due now)' under a
+    minute) and the color carrying the urgency.
+    """
     seconds = (window.opens - now).total_seconds()
     minutes = max(1, math.ceil(seconds / 60))
     at = window.opens.strftime("%H:%M")
-    if seconds <= _PRE_ALERT_MINUTES * 60:
-        timing = "due now" if seconds < 60 else f"in {_compact(minutes)}"
-        return f"{YELLOW}🕌 {SLOT_LABELS[slot]} — {timing} ({at}){RESET}"
-    return f"🕌 {SLOT_LABELS[slot]} at {at} ({_compact(minutes)} left)"
+    timing = "due now" if seconds < 60 else f"in {_compact(minutes)}"
+    line = f"🕌 Next: {SLOT_LABELS[slot]} {at} ({timing})"
+    return f"{YELLOW}{line}{RESET}" if seconds <= _PRE_ALERT_MINUTES * 60 else line
 
 
 def get_prayer_nudges(conn, target_date, today_str, is_today, now=None):

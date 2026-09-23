@@ -10,7 +10,7 @@
 
 ### Changed
 
-- **Prayer header block** moved directly under the weather line; nudge lines carry two times each — the current band's end and the deadline (`🕌 Dhuhr & Asr — green till 15:24 · sunset 18:00`, collapsing to `red till sunset (18:00)` in red) — plus a next-prayer line (`🕌 Maghrib at 18:18 (2h 30m left)`) when nothing is pending.
+- **Prayer header block** moved directly under the weather line; nudge lines carry two times each — the current band's end and the deadline (`🕌 Dhuhr & Asr — green till 15:24 · sunset 18:00`, collapsing to `red till sunset (18:00)` in red) — plus a next-prayer line (`🕌 Next: Maghrib 18:18 (in 2h 30m)`, yellow inside the hour) when nothing is pending.
 
 ### Fixed
 
