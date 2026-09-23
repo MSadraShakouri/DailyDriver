@@ -6,6 +6,15 @@ This page tracks where DailyDriver has been and where it might go. The **Shipped
 
 > Release tags are created manually; the package version is defined in `dailydriver.__version__` and exposed through `pyproject.toml` package metadata. Release notes are kept in `CHANGELOG.md` alongside the version history.
 
+### ✅ v2.3.0 — 2026-09-23
+- **Prayer windows & fiqh deadlines**: three-band state machine (fadilat, normal, late) with city-specific offline solar calculations and fiqh deadlines (sunrise, sunset, midnight).
+- **Two-row prayer nudges**: open window nudges render across two rows with explicit band names (`fadilat`, `normal`, `late`), fitting narrow 48-column mobile screens without clipping.
+- **Prayer window persistence & export**: `prayer_logs` records `window_band` via an automatic schema migration with historical backfill; timeline exports and `day` view display specific bands (`✅ Fadilat`, `🟡 Normal`, `🔴 Late`, `🕯️ Qada`).
+- **Multi-city support**: registry (Tehran, Karaj, Qom, Mashhad), schedule editor, override mode, and per-city weather and prayer times.
+- **Target chaining control**: `-n` and `--no-last` flags to log target progress without touching the `last_action` chaining timestamp.
+- **Activity timestamp fixes**: starting running events (`se`) and great events (`sge`) updates `last_action`; manager definition writes in qada, hygiene, and birthdays no longer touch `last_action`.
+- **Quality-of-life additions**: weather condition translations, flag day Jalali event, and browse-screen time display unification.
+
 ### ✅ v2.2.0 — 2026-09-19
 - **Iranian-first offline Hijri calendar**: month-start data is bundled locally with calculated fallback coverage, month-specific manual corrections, and the existing global correction command retained for compatibility.
 - **Offline Tehran prayer calculation**: prayer times use a deterministic coordinate-based solar calculation without a runtime network request.
