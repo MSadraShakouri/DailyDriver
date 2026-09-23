@@ -2,7 +2,15 @@
 
 ## Unreleased
 
-_No changes yet._
+### Added
+
+- **Prayer windows, deadlines, and colors**: each merged slot now opens at its adhan and runs to a fiqh deadline — Fajr to sunrise, Dhuhr & Asr to sunset, Maghrib & Isha to shar'i midnight (the midpoint of sunset to the next Fajr adhan, per Khamenei's risala). The offline solar solver gained sunrise/sunset (0.833°), the fadilat boundaries (اسفار −14°, post-zuwal shadow = gnomon, زوال شفق −14°), and shar'i midnight, all parameterized by (lat, lon, tz) and validated against Iranian published tables for Tehran, Karaj, Qom, and Mashhad. Header nudges became a three-band state machine: yellow pre-alert in the final hour, then one colored `slot — until HH:MM` line (green inside the فضیلت window, yellow for the gap, red for the last 30 min / 2 h), then a red overdue line; logged slots drop their line and past-day overdue nudges are unchanged.
+
+- **Multi-city support**: a version-controlled city registry (`data/cities.json`, shipping Tehran, Karaj, Qom, and Mashhad with coordinates and IRIMO weather URLs), two append-only core migrations for `city_rules` (weekly weekday windows, Saturday-first, overlaps rejected at save) and `city_state` (default city + override), and a pure `resolve_city()` in the new `core/location/` package with precedence travel > override > schedule > default. The new interactive `city` command edits the default, the weekly schedule, and the override (next schedule change / specific datetime / indefinite). Prayer times follow the resolved city's coordinates; weather is fetched and cached per city and displays the city — `☀️ 32°C clear (Karaj) 14:30`, extending to `(Karaj, until 18:00)` when a schedule rule ends within two hours. Cities without an IRIMO page keep prayer times but no weather line.
+
+### Tests
+
+- This branch passes **612 tests** with `pytest -q`.
 
 ---
 
