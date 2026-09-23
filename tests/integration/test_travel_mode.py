@@ -14,6 +14,17 @@ class TestTravelModeDisabled(unittest.TestCase):
         self.conn = sqlite3.connect(":memory:")
         self.conn.row_factory = sqlite3.Row
         self.conn.execute("CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT)")
+        self.conn.execute("CREATE TABLE city_rules (id INTEGER PRIMARY KEY, city TEXT, days TEXT, from_min INTEGER, to_min INTEGER)")
+        self.conn.execute("""
+            CREATE TABLE city_state (
+                id INTEGER PRIMARY KEY CHECK (id = 1),
+                default_city TEXT NOT NULL DEFAULT 'Tehran',
+                override_city TEXT,
+                override_until INTEGER,
+                override_mode TEXT
+            )
+        """)
+        self.conn.execute("INSERT INTO city_state (id, default_city) VALUES (1, 'Tehran')")
         self.conn.execute("""
             CREATE TABLE prayer_logs (
                 id INTEGER PRIMARY KEY,
