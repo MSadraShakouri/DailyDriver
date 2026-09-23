@@ -7,6 +7,7 @@ from datetime import datetime
 
 import jdatetime
 
+from dailydriver.core.location.resolver import resolve_city
 from dailydriver.core.state import get_prayer_complete_until, is_travel_mode
 
 from .schedule import PRAYER_SLOTS, SLOT_LABELS
@@ -37,7 +38,8 @@ def get_prayer_nudges(conn, target_date, today_str, is_today, now=None):
         now = datetime.now()
 
     nudges = []
-    windows = get_slot_windows(now.date())
+    info = resolve_city(conn, now)
+    windows = get_slot_windows(now.date(), info.lat, info.lon, info.tz)
 
     for slot in PRAYER_SLOTS:
         if has_prayer_log(conn, slot, today_str):

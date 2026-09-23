@@ -151,3 +151,22 @@ def test_past_scan_caps_at_five_lines(db_connection, monkeypatch):
     # but the overall nudge list is capped at five.
     lines = _nudges(db_connection, monkeypatch, _at(4, 40), complete_until="")
     assert len(lines) == 5
+
+
+def test_nudge_windows_receive_the_resolved_city_coords(db_connection, monkeypatch):
+    import pytest
+
+    captured = {}
+
+    def capture(date, lat=None, lon=None, tz=None):
+        captured.update(lat=lat, lon=lon, tz=tz)
+        return _fixed_windows()
+
+    lines = _nudges(db_connection, monkeypatch, _at(9))
+    # Re-run with the capture in place (helper already seeds state/patches).
+    monkeypatch.setattr(nudges, "get_slot_windows", capture)
+    nudges.get_prayer_nudges(db_connection, TARGET_DATE, TODAY_STR, True, now=_at(9))
+    assert captured["lat"] == pytest.approx(35.689198)
+    assert captured["lon"] == pytest.approx(51.388974)
+    assert captured["tz"] == pytest.approx(3.5)
+    assert lines  # sanity: the first run produced lines

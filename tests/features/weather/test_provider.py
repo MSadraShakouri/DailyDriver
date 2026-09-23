@@ -29,3 +29,15 @@ def test_fetch_returns_none_for_network_and_parse_failures(monkeypatch):
     assert provider.fetch_weather() is None
     monkeypatch.setattr(provider.urllib.request, "urlopen", lambda *args, **kwargs: Response("no weather"))
     assert provider.fetch_weather() is None
+
+
+def test_fetch_uses_the_requested_city_url(monkeypatch):
+    captured = {}
+
+    def fake_urlopen(request, *args, **kwargs):
+        captured["url"] = request.full_url
+        return Response('هوای حاضر<div style="font-size:48px">۲۸° c </div><div style="font-size:18px">صاف</div>')
+
+    monkeypatch.setattr(provider.urllib.request, "urlopen", fake_urlopen)
+    provider.fetch_weather("https://weather.example/karaj")
+    assert captured["url"] == "https://weather.example/karaj"
