@@ -2,7 +2,28 @@
 
 ## Unreleased
 
-_No changes yet._
+### Added
+
+- **Prayer windows**: header nudges became a three-band state machine — green (فضیلت), yellow, red — with fiqh deadlines: Fajr → sunrise, Dhuhr & Asr → sunset, Maghrib & Isha → shar'i midnight. All boundaries are computed offline per city from Khamenei's criteria and validated against Iranian tables.
+
+- **Multi-city**: version-controlled registry (Tehran, Karaj, Qom, Mashhad), weekly schedule and override with travel > override > schedule > default precedence, the interactive `city` command, and per-city prayer times and IRIMO weather (`☀️ 32°C clear (Karaj)`).
+
+### Changed
+
+- **Prayer header block** moved directly under the weather line; nudge lines carry two times each — the current band's end and the deadline (`🕌 Dhuhr & Asr — till 15:24 · sunset 18:00`, collapsing to `till sunset (18:00)` in red; the color names the band) — plus a next-prayer line (`🕌 Next: Maghrib 18:18 (in 2h 30m)`, yellow inside the hour) when nothing is pending.
+
+### Fixed
+
+- City schedule editor: `'0 2'` was misparsed as Monday-only. Day input now accepts spaces, commas, names, ranges, and Persian digits, with per-field retry.
+- City manager layout: numbered rows instead of internal ids, labeled prompts, and narrow-terminal fit.
+
+### Documentation
+
+- `docs/commands/city.md`, `docs/concepts/cities.md`, and `docs/reference/fadilat-criteria.md` (fiqh criteria, formulas, sources).
+
+### Tests
+
+- This branch passes **643 tests** with `pytest -q`, including a seasonal band-invariant sweep for all four cities.
 
 ---
 

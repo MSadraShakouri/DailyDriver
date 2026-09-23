@@ -1,0 +1,26 @@
+{
+  "Tehran": {
+    "lat": 35.689198,
+    "lon": 51.388974,
+    "tz": 3.5,
+    "weather_url": "https://www.irimo.ir/far/index.php?module=web_directory&wd_id=701&id=17561&ctitle=%D9%BE%D9%8A%D8%B4%20%D8%A8%D9%8A%D9%86%D9%8A%20%D9%88%D8%B6%D8%B9%20%D9%87%D9%88%D8%A7%D9%8A%20%D8%AA%D9%87%D8%B1%D8%A7%D9%86"
+  },
+  "Karaj": {
+    "lat": 35.8327,
+    "lon": 50.9916,
+    "tz": 3.5,
+    "weather_url": "https://www.irimo.ir/far/wd/701-%D9%BE%DB%8C%D8%B4-%D8%A8%DB%8C%D9%86%DB%8C-%D9%88%D8%B6%D8%B9-%D9%87%D9%88%D8%A7%DB%8C-%DA%A9%D8%B1%D8%AC.html?id=17524"
+  },
+  "Qom": {
+    "lat": 34.64,
+    "lon": 50.8764,
+    "tz": 3.5,
+    "weather_url": "http://www.irimo.ir/far/wd/701-%D9%BE%DB%8C%D8%B4-%D8%A8%DB%8C%D9%86%DB%8C-%D9%88%D8%B6%D8%B9-%D9%87%D9%88%D8%A7%DB%8C.html?id=17541"
+  },
+  "Mashhad": {
+    "lat": 36.2981,
+    "lon": 59.6057,
+    "tz": 3.5,
+    "weather_url": "https://www.irimo.ir/far/wd/701-%D9%BE%DB%8C%D8%B4-%D8%A8%DB%8C%D9%86%DB%8C-%D9%88%D8%B6%D8%B9-%D9%87%D9%88%D8%A7%DB%8C-%D9%85%D8%B4%D9%87%D8%AF.html?id=17555"
+  }
+}

@@ -11,13 +11,17 @@ IRIMO_URL = (
 )
 
 
-def fetch_weather() -> tuple[int, str] | None:
-    """Fetch ``(temperature_celsius, Persian condition)`` from IRIMO."""
+def fetch_weather(url: str = IRIMO_URL) -> tuple[int, str] | None:
+    """Fetch ``(temperature_celsius, Persian condition)`` from IRIMO.
+
+    ``url`` lets callers fetch a different city's page; all IRIMO city pages
+    share the template parsed below.
+    """
     context = ssl.create_default_context()
     context.set_ciphers("DEFAULT:@SECLEVEL=1")
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
     try:
-        request = urllib.request.Request(IRIMO_URL, headers=headers)
+        request = urllib.request.Request(url, headers=headers)
         with urllib.request.urlopen(request, context=context, timeout=15) as response:
             html = response.read().decode("utf-8")
     except Exception:

@@ -1,19 +1,81 @@
-"""Prayer pre-alert and overdue header nudges."""
+"""Prayer window nudges: next-prayer, pre-alert, green/yellow/red progress, overdue.
+
+Line grammar (locked with the user):
+
+* open window, green:  ``🕌 Fajr — till 04:48 · sunrise 05:53``
+* open window, yellow: ``🕌 Fajr — till 05:23 · sunrise 05:53``
+* open window, red:    ``🕌 Fajr — till sunrise (05:53)``  (band end == deadline)
+
+The band word is omitted: the whole line is painted green/yellow/red, so
+the color itself names the band.
+* nothing pending:     ``🕌 Maghrib at 18:18 (2h 30m left)``   (tomorrow's Fajr when all logged)
+* pre-alert (≤60 min): ``🕌 Maghrib — in 12m (18:18)`` / ``— due now (18:18)``
+* overdue:             ``⚠️ Fajr not logged (today)``
+
+Durations are compact (``45m``, ``2h 30m``) and always rounded upward so the
+line never claims the prayer is sooner than the schedule says.
+"""
+
+from __future__ import annotations
 
 import math
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import jdatetime
 
+from dailydriver.core.location.resolver import resolve_city
 from dailydriver.core.state import get_prayer_complete_until, is_travel_mode
-from dailydriver.utils.prayer_times import get_approximate_times
 
 from .schedule import PRAYER_SLOTS, SLOT_LABELS
 from .store import has_prayer_log
+from .windows import get_slot_windows
+
+GREEN = "\033[32m"
+YELLOW = "\033[33m"
+RED = "\033[31m"
+RESET = "\033[0m"
+
+_PRE_ALERT_MINUTES = 60
+_DEADLINE_NAMES = {"fajr": "sunrise", "dhuhr_asr": "sunset", "maghrib_isha": "midnight"}
+
+
+def _compact(minutes: int) -> str:
+    """Compact duration: ``45m``, ``2h``, ``2h 30m``."""
+    if minutes < 60:
+        return f"{minutes}m"
+    hours, mins = divmod(minutes, 60)
+    return f"{hours}h {mins}m" if mins else f"{hours}h"
+
+
+def _band_text(slot: str, window, now: datetime) -> tuple[str, str]:
+    """Return (color, band description) for an open window."""
+    deadline_name = _DEADLINE_NAMES[slot]
+    if now >= window.red_from:
+        # In red the band end IS the deadline; collapse to one number.
+        return RED, f"till {deadline_name} ({window.deadline:%H:%M})"
+    if now >= window.green_until:
+        return YELLOW, f"till {window.red_from:%H:%M} · {deadline_name} {window.deadline:%H:%M}"
+    return GREEN, f"till {window.green_until:%H:%M} · {deadline_name} {window.deadline:%H:%M}"
+
+
+def _next_line(slot: str, window, now: datetime) -> str:
+    """Next-prayer line; yellow inside the pre-alert hour.
+
+    One grammar for both states: '🕌 Next: Maghrib 18:18 (in 2h 30m)',
+    with the remaining time always in parentheses ('(due now)' under a
+    minute) and the color carrying the urgency.
+    """
+    seconds = (window.opens - now).total_seconds()
+    minutes = max(1, math.ceil(seconds / 60))
+    at = window.opens.strftime("%H:%M")
+    timing = "due now" if seconds < 60 else f"in {_compact(minutes)}"
+    line = f"🕌 Next: {SLOT_LABELS[slot]} {at} ({timing})"
+    return f"{YELLOW}{line}{RESET}" if seconds <= _PRE_ALERT_MINUTES * 60 else line
 
 
 def get_prayer_nudges(conn, target_date, today_str, is_today, now=None):
-    """Return list of nudge strings (pre‑alert or overdue). Only active for today."""
+    """Return today's prayer lines (plus past-day overdue), in order: the open
+    window's band line or the next prayer, then today's overdue, then past."""
     if not is_today:
         return []
 
@@ -23,109 +85,69 @@ def get_prayer_nudges(conn, target_date, today_str, is_today, now=None):
     if now is None:
         now = datetime.now()
 
-    RED = "\033[31m"
-    YELLOW = "\033[33m"
-    RESET = "\033[0m"
+    info = resolve_city(conn, now)
+    windows = get_slot_windows(now.date(), info.lat, info.lon, info.tz)
+
+    pending = None  # (slot, window) with opens <= now < deadline, unlogged
+    upcoming = None  # nearest unlogged slot opening after now
+    overdue = []
+    for slot in PRAYER_SLOTS:
+        if has_prayer_log(conn, slot, today_str):
+            continue
+        window = windows[slot]
+        if window.opens <= now < window.deadline:
+            pending = (slot, window)
+        elif window.opens > now:
+            if upcoming is None or window.opens < upcoming[1].opens:
+                upcoming = (slot, window)
+        else:
+            overdue.append(f"{RED}⚠️ {SLOT_LABELS[slot]} not logged (today){RESET}")
 
     nudges = []
+    if pending is not None:
+        slot, window = pending
+        color, band = _band_text(slot, window, now)
+        nudges.append(f"{color}🕌 {SLOT_LABELS[slot]} — {band}{RESET}")
+    elif upcoming is not None:
+        nudges.append(_next_line(upcoming[0], upcoming[1], now))
+    else:
+        # Everything today is logged or gone: point at tomorrow's Fajr.
+        tomorrow = get_slot_windows(now.date() + timedelta(days=1), info.lat, info.lon, info.tz)
+        nudges.append(_next_line("fajr", tomorrow["fajr"], now))
 
-    # Today's prayer times
-    today_j = jdatetime.date.today()
-    approx = get_approximate_times(today_j.month, today_j.day)
-    g = today_j.togregorian()
-    fajr_dt = datetime(g.year, g.month, g.day, approx["fajr"][0], approx["fajr"][1], 0)
-    dhuhr_dt = datetime(g.year, g.month, g.day, approx["dhuhr"][0], approx["dhuhr"][1], 0)
-    maghrib_dt = datetime(g.year, g.month, g.day, approx["maghrib"][0], approx["maghrib"][1], 0)
+    nudges.extend(overdue)
+    nudges.extend(_get_past_overdue_nudges(conn, target_date))
+    return nudges[:5]
 
-    slot_times = {
-        "fajr": fajr_dt,
-        "dhuhr_asr": dhuhr_dt,
-        "maghrib_isha": maghrib_dt,
-    }
 
-    for slot, dt in slot_times.items():
-        seconds_until = (dt - now).total_seconds()
-        if 0 <= seconds_until <= 60 * 60:
-            label = SLOT_LABELS[slot]
-            if seconds_until < 60:
-                timing = "due now"
-            else:
-                # Round upward so the nudge never claims the prayer is sooner
-                # than the minute-level schedule says it is.
-                minutes_until = math.ceil(seconds_until / 60)
-                timing = f"in ~{minutes_until} min"
-            nudges.append(f"{YELLOW}🕌 {label} {timing}{RESET}")
-        elif seconds_until < 0:
-            if not has_prayer_log(conn, slot, today_str):
-                label = SLOT_LABELS[slot]
-                nudges.append(f"{RED}⚠️ {label} not logged (today){RESET}")
-
-    # Past overdue scan (up to 5)
+def _get_past_overdue_nudges(conn, target_date):
+    """Past-day overdue scan (up to five lines total including today's)."""
     complete_until = get_prayer_complete_until(conn=conn)
     if complete_until:
         cu_y, cu_m, cu_d = map(int, complete_until.split("-"))
         complete_j = jdatetime.date(cu_y, cu_m, cu_d)
     else:
         complete_j = target_date - jdatetime.timedelta(days=6)
+
+    nudges = []
+    count = 0
     d = target_date - jdatetime.timedelta(days=1)
-    past_count = 0
-    while d > complete_j and past_count < 5:
+    while d > complete_j and count < 5:
         date_str = d.strftime("%Y-%m-%d")
-        approx_past = get_approximate_times(d.month, d.day)
-        gd = d.togregorian()
-        try:
-            fajr_dt_p = datetime(
-                gd.year,
-                gd.month,
-                gd.day,
-                approx_past["fajr"][0],
-                approx_past["fajr"][1],
-                0,
-            )
-            dhuhr_dt_p = datetime(
-                gd.year,
-                gd.month,
-                gd.day,
-                approx_past["dhuhr"][0],
-                approx_past["dhuhr"][1],
-                0,
-            )
-            maghrib_dt_p = datetime(
-                gd.year,
-                gd.month,
-                gd.day,
-                approx_past["maghrib"][0],
-                approx_past["maghrib"][1],
-                0,
-            )
-        except ValueError:
-            d -= jdatetime.timedelta(days=1)
-            continue
-        past_slots = {
-            "fajr": fajr_dt_p,
-            "dhuhr_asr": dhuhr_dt_p,
-            "maghrib_isha": maghrib_dt_p,
-        }
-        for slot, slot_dt in past_slots.items():
-            if slot_dt <= now:
-                if not has_prayer_log(conn, slot, date_str):
-                    label = SLOT_LABELS[slot]
-                    day_label = d.strftime("%d %b")
-                    nudges.append(f"{RED}⚠️ {label} not logged ({day_label}){RESET}")
-                    past_count += 1
-                    if past_count >= 5:
-                        break
+        day_label = d.strftime("%d %b")
+        for slot in PRAYER_SLOTS:
+            if count >= 5:
+                break
+            if not has_prayer_log(conn, slot, date_str):
+                nudges.append(f"{RED}⚠️ {SLOT_LABELS[slot]} not logged ({day_label}){RESET}")
+                count += 1
         d -= jdatetime.timedelta(days=1)
-    return nudges[:5]
+    return nudges
 
 
 def _get_travel_next_nudge(conn, today_str):
-    """Return a single overdue‑style nudge for the first unlogged prayer slot today (travel mode only)."""
-    slots = PRAYER_SLOTS
-    RED = "\033[31m"
-    RESET = "\033[0m"
-
-    for slot in slots:
+    """Return a single overdue-style nudge for the first unlogged prayer slot today (travel mode only)."""
+    for slot in PRAYER_SLOTS:
         if not has_prayer_log(conn, slot, today_str):
             display = SLOT_LABELS[slot]
             return [f"{RED}⚠️ {display} not logged (today){RESET}"]

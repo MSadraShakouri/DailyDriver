@@ -1,18 +1,17 @@
 import time
 from datetime import datetime, timedelta
 
-import jdatetime
-
 from dailydriver.core.database import get_connection_cm
+from dailydriver.core.location.resolver import resolve_city
 from dailydriver.core.state import is_travel_mode
 from dailydriver.ui.terminal_ui import current_ui
-from dailydriver.utils.prayer_times import get_approximate_times
 from dailydriver.utils.time_parser import parse_prayer_args, parse_time_expressions
 from dailydriver.utils.time_utils import today_jalali
 
 from .backlog import _update_complete_until
 from .schedule import PRAYER_SLOTS, SLOT_LABELS
 from .store import get_prayer_log
+from .windows import get_slot_windows
 
 
 def _travel_mode_select_slot(conn, today):
@@ -110,16 +109,12 @@ def log_prayer(cmd: str):
             if slot is None:
                 return None
         else:
-            # Normal mode: guess slot from the offline Tehran solar calculation
-            today_j = jdatetime.date.today()
-            approx = get_approximate_times(today_j.month, today_j.day)
-            dhuhr_dt = now.replace(hour=approx["dhuhr"][0], minute=approx["dhuhr"][1], second=0, microsecond=0)
-            maghrib_dt = now.replace(
-                hour=approx["maghrib"][0],
-                minute=approx["maghrib"][1],
-                second=0,
-                microsecond=0,
-            )
+            # Normal mode: guess slot from the offline solar calculation for
+            # the resolved city.
+            info = resolve_city(conn, now)
+            windows = get_slot_windows(now.date(), info.lat, info.lon, info.tz)
+            dhuhr_dt = windows["dhuhr_asr"].opens
+            maghrib_dt = windows["maghrib_isha"].opens
 
             # Use prayer_dt for slot guessing (not now)
             if prayer_dt < dhuhr_dt:

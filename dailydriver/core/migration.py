@@ -355,6 +355,56 @@ def _migration_13(conn):
     conn.commit()
 
 
+def _migration_14(conn):
+    """Create city_rules: weekly schedule mapping weekday time ranges to cities.
+
+    ``days`` is a JSON list of weekday numbers with Saturday = 0 (Iranian
+    week) through Friday = 6.  ``from_min``/``to_min`` are minutes since
+    midnight; ranges are inclusive at from_min and exclusive at to_min, and
+    overnight windows are not allowed (from_min < to_min is enforced).
+    """
+    cur = conn.cursor()
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS city_rules (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            city TEXT NOT NULL,
+            days TEXT NOT NULL,
+            from_min INTEGER NOT NULL,
+            to_min INTEGER NOT NULL,
+            CHECK (from_min >= 0 AND from_min < to_min AND to_min <= 1440)
+        )
+    """)
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_city_rules_from ON city_rules(from_min)")
+    conn.commit()
+
+
+def _migration_15(conn):
+    """Create the single city_state row (default city + override).
+
+    ``override_mode`` NULL means no override is active.  ``override_city``
+    NULL together with an active mode means "suspend the schedule and use
+    the default city".  The row is seeded with Tehran as the default city
+    and no rules, no override.
+    """
+    cur = conn.cursor()
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS city_state (
+            id INTEGER PRIMARY KEY CHECK (id = 1),
+            default_city TEXT NOT NULL DEFAULT 'Tehran',
+            override_city TEXT,
+            override_until INTEGER,
+            override_mode TEXT
+                CHECK (override_mode IS NULL
+                       OR override_mode IN ('next_change', 'specific', 'indefinite'))
+        )
+    """)
+    cur.execute(
+        "INSERT OR IGNORE INTO city_state (id, default_city, override_city, override_until, override_mode)"
+        " VALUES (1, 'Tehran', NULL, NULL, NULL)"
+    )
+    conn.commit()
+
+
 _MIGRATIONS = {
     1: _migration_1,
     2: _migration_2,
@@ -369,6 +419,8 @@ _MIGRATIONS = {
     11: _migration_11,
     12: _migration_12,
     13: _migration_13,
+    14: _migration_14,
+    15: _migration_15,
 }
 
 

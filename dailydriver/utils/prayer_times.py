@@ -7,14 +7,34 @@ around the summer and winter turning points, and it was also tied to the
 
 This module deliberately makes no network requests.  It keeps the location
 and the Iranian calculation convention in the source and calculates the
-three times needed by the application from the Sun's position.  The
-calculation is the compact astronomical approximation used by PrayTimes.org,
-with the University of Tehran parameters:
+prayer-window boundaries from the Sun's position.  The calculation is the
+compact astronomical approximation used by PrayTimes.org, with the
+University of Tehran parameters:
 
 * Tehran: 35.689198 N, 51.388974 E
 * civil time: UTC+03:30 (Iran currently has no DST)
 * Fajr: Sun centre 17.7 degrees below the horizon
-* Maghrib: Sun centre 4.5 degrees below the horizon
+* Maghrib adhan: Sun centre 4.5 degrees below the horizon
+
+Window boundaries calculated on top of the three adhan times (all verified
+against Iranian city tables and Khamenei's risala; see tests):
+
+* Sunrise / sunset: Sun centre 0.833 degrees below the horizon (apparent
+  horizon: atmospheric refraction plus the solar disc).
+* Fajr fadilat end (``isfar_end``): the eastern redness becomes apparent
+  while stars are still visible -- modelled at 14 degrees below the horizon,
+  symmetric with the evening red twilight.
+* Maghrib fadilat end (``shafaq_end``): the red twilight (hamrah-e
+  maghribiyeh / shafaq) disappears -- 14 degrees below the horizon.
+* Dhuhr fadilat end (``dhuhr_fadilat_end``): the shadow that appears after
+  zuwal (fadl al-zill) equals the gnomon itself.  With altitude h:
+  cot(h) = tan(|lat - decl|) + 1.
+* Shar'i midnight (``midnight``): the midpoint between geometric sunset and
+  the next day's Fajr adhan -- the Shia Isha deadline per Khamenei's risala
+  ("shab ra az avval-e ghurub ta azan-e sobh hesab konand").
+
+Every calculation accepts explicit (lat, lon, tz) parameters so a caller can
+plug in a different city; the module constants remain the Tehran defaults.
 
 The formula is deterministic, fast, and works for any Gregorian/Jalali year;
 there is no runtime fetch or generated-data file to become stale.  The
@@ -30,7 +50,7 @@ to Hamid Zarrabi-Zadeh, Copyright (C) 2007-2010, under the GNU LGPL v3.0.
 from __future__ import annotations
 
 import math
-from datetime import date
+from datetime import date, timedelta
 
 import jdatetime
 
@@ -44,6 +64,19 @@ TEHRAN_TIMEZONE = 3.5
 # corresponding negative solar altitude internally.
 FAJR_ANGLE = 17.7
 MAGHRIB_ANGLE = 4.5
+
+# Apparent horizon for sunrise/sunset: refraction (0.583 deg) plus the solar
+# semidiameter (0.25 deg), rounded to the conventional 0.833 deg.
+SUNRISE_SUNSET_ANGLE = 0.833
+
+# Fadilat (preferred-time) boundaries.  Both model a red belt of sky: the
+# eastern one appearing near dawn (isfar), the western one disappearing
+# after dusk (shafaq / hamrah-e maghribiyeh).  The Jafari computational
+# convention (PrayTimes isha angle, Liva institute) places both at 14
+# degrees, which reproduces the published ~21-minute Fajr and ~45-50 minute
+# Maghrib fadilat windows at Tehran's latitude.
+ISFAR_ANGLE = 14.0
+SHAFAQ_ANGLE = 14.0
 
 _DEG_TO_RAD = math.pi / 180.0
 
@@ -127,33 +160,70 @@ def _sun_angle_time(
     return noon + (hour_angle if evening else -hour_angle)
 
 
-def _calculate_tehran_times(gregorian_date: date) -> dict[str, float]:
-    """Return fractional local-clock hours for the supported prayer times."""
+def _calculate_times(
+    gregorian_date: date,
+    latitude: float,
+    longitude: float,
+    timezone: float,
+) -> dict[str, float]:
+    """Return fractional local-clock hours for every supported boundary."""
     # Longitude is folded into the Julian date in the same way as the
     # PrayTimes algorithm.  The final correction converts solar hours to
-    # Tehran civil time.
-    julian_day = _julian_date(gregorian_date) - TEHRAN_LONGITUDE / (15.0 * 24.0)
-    longitude_correction = TEHRAN_TIMEZONE - TEHRAN_LONGITUDE / 15.0
+    # local civil time.
+    julian_day = _julian_date(gregorian_date) - longitude / (15.0 * 24.0)
+    longitude_correction = timezone - longitude / 15.0
 
-    def local_time(angle: float, initial_hour: float, evening: bool) -> float:
-        solar_hour = _sun_angle_time(
-            julian_day,
-            TEHRAN_LATITUDE,
-            angle,
-            initial_hour / 24.0,
-            evening,
-        )
+    def local_time(altitude: float, initial_hour: float, evening: bool) -> float:
+        # _sun_angle_time takes the negated altitude as its angle argument
+        # (-sin(angle) == sin(altitude)), so both conventions agree.
+        solar_hour = _sun_angle_time(julian_day, latitude, -altitude, initial_hour / 24.0, evening)
         return _fix_hour(solar_hour + longitude_correction)
 
     # Dhuhr is apparent solar noon.  The initial values are only used to
     # evaluate the date's solar position; one iteration is enough for the
     # minute-level output used by DailyDriver.
-    dhuhr = _fix_hour(_midday(julian_day, 12.0 / 24.0) + longitude_correction)
+    dhuhr = _fix_hour(_midday(julian_day, 0.5) + longitude_correction)
+
+    # Dhuhr fadilat end: the incremental shadow appearing after zuwal equals
+    # the gnomon ("nisf nahiyat zillih misl shakhisih").  cot(h) = tan|phi-d| + 1.
+    # Khamenei's office confirms the noon-mark (incremental) convention:
+    # "the shadow considered is the one that starts growing after its
+    # shortest point" (farsi.khamenei.ir/treatise-content?id=24); Iranian
+    # almanacs publish this instant as azan-e asr.  See
+    # docs/reference/fadilat-criteria.md.
+    declination = _sun_position(julian_day + 0.5)[0]
+    cot_altitude = math.tan(_DEG_TO_RAD * abs(latitude - declination)) + 1.0
+    shadow_altitude = math.degrees(math.atan(1.0 / cot_altitude))
+    dhuhr_fadilat_end = local_time(shadow_altitude, 13.0, evening=True)
+
+    sunset = local_time(-SUNRISE_SUNSET_ANGLE, 18.0, evening=True)
+
+    # Shar'i midnight: midpoint of geometric sunset -> the *next* day's Fajr
+    # adhan (Khamenei: "shab ra az avval-e ghurub ta azan-e sobh hesab konand").
+    next_julian_day = _julian_date(gregorian_date + timedelta(days=1)) - longitude / (15.0 * 24.0)
+    fajr_next_day = _fix_hour(
+        _sun_angle_time(next_julian_day, latitude, FAJR_ANGLE, 5.0 / 24.0, evening=False)
+        + (timezone - longitude / 15.0)
+    )
+    midnight = _fix_hour(sunset + ((fajr_next_day - sunset) % 24.0) / 2.0)
+
     return {
-        "fajr": local_time(180.0 - FAJR_ANGLE, 5.0, evening=False),
+        "fajr": local_time(-FAJR_ANGLE, 5.0, evening=False),
+        "isfar_end": local_time(-ISFAR_ANGLE, 5.0, evening=False),
+        "sunrise": local_time(-SUNRISE_SUNSET_ANGLE, 6.0, evening=False),
         "dhuhr": dhuhr,
-        "maghrib": local_time(MAGHRIB_ANGLE, 18.0, evening=True),
+        "dhuhr_fadilat_end": dhuhr_fadilat_end,
+        "sunset": sunset,
+        "maghrib": local_time(-MAGHRIB_ANGLE, 18.0, evening=True),
+        "shafaq_end": local_time(-SHAFAQ_ANGLE, 18.0, evening=True),
+        "midnight": midnight,
     }
+
+
+def _calculate_tehran_times(gregorian_date: date) -> dict[str, float]:
+    """Return fractional local-clock hours for the supported prayer times."""
+    calculated = _calculate_times(gregorian_date, TEHRAN_LATITUDE, TEHRAN_LONGITUDE, TEHRAN_TIMEZONE)
+    return {name: calculated[name] for name in ("fajr", "dhuhr", "maghrib")}
 
 
 def _round_clock_hour(hours: float) -> tuple[int, int]:
@@ -184,3 +254,36 @@ def get_approximate_times(jalali_month: int, day: int, jalali_year: int | None =
 def get_times_for_jalali_date(jalali_date: jdatetime.date) -> dict[str, tuple[int, int]]:
     """Convenience wrapper for callers that already have a Jalali date."""
     return get_approximate_times(jalali_date.month, jalali_date.day, jalali_date.year)
+
+
+def get_window_times(
+    gregorian_date: date,
+    latitude: float | None = None,
+    longitude: float | None = None,
+    timezone: float | None = None,
+) -> dict[str, tuple[int, int]]:
+    """Return every prayer-window boundary for a date and location.
+
+    Location defaults to the Tehran constants; pass explicit values to
+    compute another city.  Keys, all ``(hour, minute)`` tuples:
+
+    ``fajr``              Fajr adhan (17.7 deg) -- Dhuhr-less morning window opens
+    ``isfar_end``         Fajr fadilat end (eastern redness apparent, 14 deg)
+    ``sunrise``           geometric sunrise (0.833 deg) -- Fajr window deadline
+    ``dhuhr``             solar noon -- Dhuhr/Asr window opens
+    ``dhuhr_fadilat_end`` post-zuwal shadow equals the gnomon
+    ``sunset``            geometric sunset -- Dhuhr/Asr window deadline
+    ``maghrib``           Maghrib adhan (4.5 deg) -- Maghrib/Isha window opens
+    ``shafaq_end``        red twilight gone (14 deg) -- Maghrib fadilat end
+    ``midnight``          shar'i midnight (sunset -> next Fajr midpoint),
+                          the Maghrib/Isha window deadline
+
+    Raises ``ValueError`` when the Sun never reaches a requested angle
+    (polar day/night at extreme latitudes).
+    """
+    latitude = TEHRAN_LATITUDE if latitude is None else latitude
+    longitude = TEHRAN_LONGITUDE if longitude is None else longitude
+    timezone = TEHRAN_TIMEZONE if timezone is None else timezone
+
+    calculated = _calculate_times(gregorian_date, latitude, longitude, timezone)
+    return {name: _round_clock_hour(hours) for name, hours in calculated.items()}

@@ -239,6 +239,18 @@ HELP: dict[str, HelpEntry] = {
             "travel status      show current state",
         ],
     ),
+    "city": HelpEntry(
+        summary="Manage cities: default, weekly schedule, override",
+        group="Tools & Setup",
+        usage=[
+            "city               interactive manager",
+        ],
+        notes=(
+            "Prayer times and weather follow the resolved city "
+            "(travel > override > schedule > default). Travel mode overrides everything; "
+            "the registry lives in data/cities.json."
+        ),
+    ),
     "daystart": HelpEntry(
         summary="Shift the day boundary hour",
         group="Tools & Setup",

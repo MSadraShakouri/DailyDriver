@@ -1,9 +1,25 @@
-from datetime import datetime
+from datetime import datetime, time
+
 from unittest.mock import patch
 
 from dailydriver.core.database import get_connection_cm
 from dailydriver.features.prayer import commands
+from dailydriver.features.prayer.windows import SlotWindow
 from dailydriver.utils.time_parser import PrayerArgs
+
+
+def _fixed_windows():
+    """Fajr 05:00 / Dhuhr 12:00 / Maghrib 18:00 on today's date."""
+    def at(hour, minute):
+        return SlotWindow(
+            opens=datetime.combine(datetime.now().date(), time(hour, minute)),
+            green_until=datetime.combine(datetime.now().date(), time(hour, minute)),
+            red_from=datetime.combine(datetime.now().date(), time(hour, minute)),
+            deadline=datetime.combine(datetime.now().date(), time(hour, minute)),
+        )
+
+    return {"fajr": at(5, 0), "dhuhr_asr": at(12, 0), "maghrib_isha": at(18, 0)}
+
 
 
 def parsed(*, explicit=300, offset=None, jamaat=None, shak=0):
@@ -18,11 +34,7 @@ def parsed(*, explicit=300, offset=None, jamaat=None, shak=0):
 def test_log_prayer_persists_slot_time_and_flags(db_path, ui, monkeypatch):
     monkeypatch.setattr(commands, "parse_prayer_args", lambda args: parsed(jamaat="mosque", shak=2))
     monkeypatch.setattr(commands, "is_travel_mode", lambda: False)
-    monkeypatch.setattr(
-        commands,
-        "get_approximate_times",
-        lambda month, day: {"fajr": (5, 0), "dhuhr": (12, 0), "maghrib": (18, 0)},
-    )
+    monkeypatch.setattr(commands, "get_slot_windows", lambda *args, **kwargs: _fixed_windows())
     monkeypatch.setattr(commands, "today_jalali", lambda: "1405-06-01")
     result = commands.log_prayer("p 05:00 j mosque shak 2")
     assert "Logged: Fajr" in result
@@ -36,11 +48,7 @@ def test_log_prayer_persists_slot_time_and_flags(db_path, ui, monkeypatch):
 def test_log_prayer_can_overwrite_same_slot(db_path, ui, monkeypatch):
     monkeypatch.setattr(commands, "parse_prayer_args", lambda args: parsed())
     monkeypatch.setattr(commands, "is_travel_mode", lambda: False)
-    monkeypatch.setattr(
-        commands,
-        "get_approximate_times",
-        lambda month, day: {"fajr": (5, 0), "dhuhr": (12, 0), "maghrib": (18, 0)},
-    )
+    monkeypatch.setattr(commands, "get_slot_windows", lambda *args, **kwargs: _fixed_windows())
     monkeypatch.setattr(commands, "today_jalali", lambda: "1405-06-01")
     commands.log_prayer("p")
     commands.log_prayer("p")

@@ -6,7 +6,7 @@ Your personal, terminal-based life tracker. Log prayers, sleep, hygiene routines
 
 ## Highlights
 
-- **Prayer & qada** — daily prayers with jamaat/shak options and dynamic Tehran times; a backlog manager for missed prayers and fasting.
+- **Prayer & qada** — daily prayers with jamaat/shak options, dynamic city-aware prayer windows with green/yellow/red nudges, and a backlog manager for missed prayers and fasting.
 - **Sleep, naps, journal** — smart, unified time parsing everywhere you type a time.
 - **Targets** — finite goals (nazr) and repeating habits with intervals and counters.
 - **Calendars** — Jalali, Gregorian, and Iranian-first Hijri at once, with events, reminders, and month-specific manual corrections.
@@ -58,7 +58,7 @@ Docs source lives in **[`docs/`](docs/)** (plain markdown, GitHub-readable). The
 
 ## Data & privacy
 
-All data is stored locally in `data/daily.db` (SQLite). No analytics; the only network calls are optional Tehran weather lookups. Point the app or tests at a different database with the `DAILYDRIVER_DB` environment variable.
+All data is stored locally in `data/daily.db` (SQLite). No analytics; the only network calls are optional per-city IRIMO weather lookups. Point the app or tests at a different database with the `DAILYDRIVER_DB` environment variable.
 
 ---
 

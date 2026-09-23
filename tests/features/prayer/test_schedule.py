@@ -1,31 +1,33 @@
 from datetime import datetime
 
-import pytest
-
 from dailydriver.features.prayer import schedule
+from dailydriver.features.prayer.windows import SlotWindow
 
 
-class FrozenDateTime(datetime):
-    current = datetime(2026, 8, 23, 0, 0)
-
-    @classmethod
-    def now(cls, tz=None):
-        return cls.current
+def _window(opens):
+    base = datetime(2026, 8, 23)
+    at = lambda hm: base.replace(hour=hm[0], minute=hm[1])
+    return SlotWindow(opens=at(opens), green_until=at(opens), red_from=at(opens), deadline=at(opens))
 
 
-@pytest.mark.parametrize(
-    ("hour", "expected"),
-    [(4, "fajr"), (5, "fajr"), (12, "dhuhr_asr"), (19, "maghrib_isha")],
-)
-def test_current_slot_uses_prayer_boundaries(monkeypatch, hour, expected):
-    FrozenDateTime.current = datetime(2026, 8, 23, hour)
-    monkeypatch.setattr(schedule, "datetime", FrozenDateTime)
-    monkeypatch.setattr(
-        schedule,
-        "get_approximate_times",
-        lambda month, day: {"fajr": (5, 0), "dhuhr": (12, 0), "maghrib": (18, 0)},
-    )
-    assert schedule.current_slot() == expected
+def _fixed_windows():
+    return {
+        "fajr": _window((5, 0)),
+        "dhuhr_asr": _window((12, 0)),
+        "maghrib_isha": _window((18, 30)),
+    }
+
+
+def test_current_slot_uses_prayer_boundaries(monkeypatch):
+    monkeypatch.setattr(schedule, "get_slot_windows", lambda *args, **kwargs: _fixed_windows())
+    cases = [
+        (datetime(2026, 8, 23, 4), "fajr"),
+        (datetime(2026, 8, 23, 5), "fajr"),
+        (datetime(2026, 8, 23, 12), "dhuhr_asr"),
+        (datetime(2026, 8, 23, 19), "maghrib_isha"),
+    ]
+    for now, expected in cases:
+        assert schedule.current_slot(now) == expected
 
 
 def test_prayer_slots_have_stable_database_names():

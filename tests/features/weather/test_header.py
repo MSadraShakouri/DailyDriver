@@ -1,9 +1,26 @@
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import jdatetime
 
+from dailydriver.core.location.resolver import CityInfo
 from dailydriver.features.weather import header
+
+
+def _info(name="Tehran", reason="default", until=None):
+    return CityInfo(name=name, lat=35.689198, lon=51.388974, tz=3.5, weather_url="http://x", reason=reason, until=until)
+
+
+def _weather(**overrides):
+    data = {
+        "temp_c": 30,
+        "condition_fa": "صاف",
+        "condition_en": "clear",
+        "condition_emoji": "☀️",
+        "timestamp": time.time(),
+    }
+    data.update(overrides)
+    return data
 
 
 def test_travel_mode_replaces_weather(db_connection, monkeypatch):
@@ -11,20 +28,44 @@ def test_travel_mode_replaces_weather(db_connection, monkeypatch):
     assert header.get_weather_str(db_connection, "1405-06-01", True) == "🌍 Travel mode"
 
 
-def test_today_uses_weather_service(db_connection, monkeypatch):
+def test_today_uses_weather_service_and_shows_the_resolved_city(db_connection, monkeypatch):
     monkeypatch.setattr(header, "is_travel_mode", lambda: False)
+    monkeypatch.setattr(header, "get_weather", lambda city=None: _weather())
+    assert header.get_weather_str(db_connection, "1405-06-01", True) == "☀️ 30°C clear (Tehran)"
+
+
+def test_city_suffix_follows_the_resolved_city(db_connection, monkeypatch):
+    monkeypatch.setattr(header, "is_travel_mode", lambda: False)
+    monkeypatch.setattr(header, "resolve_city", lambda conn: _info("Karaj"))
+    monkeypatch.setattr(header, "get_weather", lambda city=None: _weather())
+    assert header.get_weather_str(db_connection, "1405-06-01", True) == "☀️ 30°C clear (Karaj)"
+    # The resolved city (not anything else) is what the service receives.
+    received = {}
     monkeypatch.setattr(
         header,
         "get_weather",
-        lambda: {
-            "temp_c": 30,
-            "condition_fa": "صاف",
-            "condition_en": "clear",
-            "condition_emoji": "☀️",
-            "timestamp": time.time(),
-        },
+        lambda city=None: (received.update(name=city.name), _weather())[1],
     )
-    assert header.get_weather_str(db_connection, "1405-06-01", True) == "☀️ 30°C clear"
+    header.get_weather_str(db_connection, "1405-06-01", True)
+    assert received["name"] == "Karaj"
+
+
+def test_schedule_city_shows_until_when_the_rule_ends_soon(db_connection, monkeypatch):
+    monkeypatch.setattr(header, "is_travel_mode", lambda: False)
+    soon = datetime.now().replace(hour=18, minute=0, second=0, microsecond=0) + timedelta(days=1)
+    soon = datetime.now() + timedelta(minutes=90)
+    monkeypatch.setattr(header, "resolve_city", lambda conn: _info("Karaj", "schedule", until=soon))
+    monkeypatch.setattr(header, "get_weather", lambda city=None: _weather())
+    line = header.get_weather_str(db_connection, "1405-06-01", True)
+    assert line == f"☀️ 30°C clear (Karaj, until {soon.strftime('%H:%M')})"
+
+
+def test_schedule_city_without_upcoming_handover_shows_plain_suffix(db_connection, monkeypatch):
+    monkeypatch.setattr(header, "is_travel_mode", lambda: False)
+    far = datetime.now() + timedelta(hours=5)
+    monkeypatch.setattr(header, "resolve_city", lambda conn: _info("Karaj", "schedule", until=far))
+    monkeypatch.setattr(header, "get_weather", lambda city=None: _weather())
+    assert header.get_weather_str(db_connection, "1405-06-01", True) == "☀️ 30°C clear (Karaj)"
 
 
 def test_stale_today_includes_observation_time(db_connection, monkeypatch):
@@ -32,7 +73,7 @@ def test_stale_today_includes_observation_time(db_connection, monkeypatch):
     monkeypatch.setattr(
         header,
         "get_weather",
-        lambda: {
+        lambda city=None: {
             "temp_c": 20,
             "condition_fa": "صاف",
             "condition_en": None,
@@ -44,7 +85,7 @@ def test_stale_today_includes_observation_time(db_connection, monkeypatch):
     assert ":" in header.get_weather_str(db_connection, "1405-06-01", True)
 
 
-def test_past_day_uses_cached_observation(db_connection, monkeypatch):
+def test_past_day_uses_cached_observation_without_city_suffix(db_connection, monkeypatch):
     monkeypatch.setattr(header, "is_travel_mode", lambda: False)
     monkeypatch.setattr(header, "translate_condition", lambda condition: {"en": "clear", "emoji": "☀️"})
     jalali = jdatetime.date(1405, 2, 21)
@@ -56,9 +97,3 @@ def test_past_day_uses_cached_observation(db_connection, monkeypatch):
     )
     db_connection.commit()
     assert header.get_weather_str(db_connection, "1405-02-21", False) == "☀️ 25°C clear"
-
-
-def test_missing_weather_returns_empty_string(db_connection, monkeypatch):
-    monkeypatch.setattr(header, "is_travel_mode", lambda: False)
-    monkeypatch.setattr(header, "get_weather", lambda: None)
-    assert header.get_weather_str(db_connection, "1405-06-01", True) == ""

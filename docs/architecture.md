@@ -27,6 +27,8 @@ Dependency direction:
 
 Events & chaining (`se`/`ee`/`ce`, `ln`, great events) are deliberately **not** a feature package: state lives in `core/state/events.py`, commands in `cli/commands/events.py`, and the header status lines are injected into the priority-ordered stream by `display/header/events.py`.
 
+Location (cities) follows the same precedent: `core/location/` holds the registry, weekly rules, override state, and the pure `resolve_city()`; the interactive manager lives in `cli/commands/city.py`; and the prayer and weather features consume `CityInfo` without any feature-to-feature hop.
+
 ## The feature contract
 
 Each feature package's `__init__.py` is a thin adapter exposing metadata and whichever hooks it needs:
