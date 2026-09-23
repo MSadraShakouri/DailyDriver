@@ -22,6 +22,7 @@
 - This branch passes **643 tests** with `pytest -q`, including a seasonal band-invariant sweep for all four cities.
 
 ---
+
 ## 2.2.0 (2026-09-19)
 
 ### Added
