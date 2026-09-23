@@ -17,6 +17,9 @@ _GREAT_EVENT_CATEGORIES_KEY = "great_event_categories"
 def save_pending_start() -> str:
     ts = int(time.time())
     set_meta_value(_PENDING_START_KEY, str(ts))
+    from .activity import touch_last_action
+
+    touch_last_action(ts)
     return f"Start saved: {datetime.fromtimestamp(ts).strftime('%H:%M')}"
 
 
@@ -50,6 +53,9 @@ def start_great_event(categories: list[str]) -> int:
             (_GREAT_EVENT_CATEGORIES_KEY, " ".join(categories)),
         )
         conn.commit()
+        from .activity import touch_last_action
+
+        touch_last_action(ts)
         return ts
 
 
