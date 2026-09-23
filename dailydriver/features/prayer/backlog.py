@@ -131,8 +131,8 @@ def log_qada(time_of_day_minutes=None, offset_minutes=None):
             prayer_dt = datetime.now()
         cur = conn.cursor()
         cur.execute(
-            "INSERT INTO prayer_logs (prayer_slot, jalali_date, status, logged_at, prayer_time) VALUES (?,?,?,?,?)",
-            (slot, date_str, "qada", int(time.time()), int(prayer_dt.timestamp())),
+            "INSERT INTO prayer_logs (prayer_slot, jalali_date, status, logged_at, prayer_time, window_band) VALUES (?,?,?,?,?,?)",
+            (slot, date_str, "qada", int(time.time()), int(prayer_dt.timestamp()), "qada"),
         )
         conn.commit()
         time_str = prayer_dt.strftime("%H:%M")
