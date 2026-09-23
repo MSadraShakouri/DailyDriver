@@ -4,28 +4,24 @@
 
 ### Added
 
-- **Prayer windows, deadlines, and colors**: each merged slot now opens at its adhan and runs to a fiqh deadline — Fajr to sunrise, Dhuhr & Asr to sunset, Maghrib & Isha to shar'i midnight (the midpoint of sunset to the next Fajr adhan, per Khamenei's risala). The offline solar solver gained sunrise/sunset (0.833°), the fadilat boundaries (اسفار −14°, post-zuwal shadow = gnomon, زوال شفق −14°), and shar'i midnight, all parameterized by (lat, lon, tz) and validated against Iranian published tables for Tehran, Karaj, Qom, and Mashhad. Header nudges became a three-band state machine: yellow pre-alert in the final hour, then one colored `slot — until HH:MM` line (green inside the فضیلت window, yellow for the gap, red for the last 30 min / 2 h), then a red overdue line; logged slots drop their line and past-day overdue nudges are unchanged.
+- **Prayer windows**: header nudges became a three-band state machine — green (فضیلت), yellow, red — with fiqh deadlines: Fajr → sunrise, Dhuhr & Asr → sunset, Maghrib & Isha → shar'i midnight. All boundaries are computed offline per city from Khamenei's criteria and validated against Iranian tables.
 
-- **Multi-city support**: a version-controlled city registry (`data/cities.json`, shipping Tehran, Karaj, Qom, and Mashhad with coordinates and IRIMO weather URLs), two append-only core migrations for `city_rules` (weekly weekday windows, Saturday-first, overlaps rejected at save) and `city_state` (default city + override), and a pure `resolve_city()` in the new `core/location/` package with precedence travel > override > schedule > default. The new interactive `city` command edits the default, the weekly schedule, and the override (next schedule change / specific datetime / indefinite). Prayer times follow the resolved city's coordinates; weather is fetched and cached per city and displays the city — `☀️ 32°C clear (Karaj) 14:30`, extending to `(Karaj, until 18:00)` when a schedule rule ends within two hours. Cities without an IRIMO page keep prayer times but no weather line.
-
-### Fixed
-
-- **City schedule editor corrupted multi-day input**: `'0 2'` had its spaces stripped and was parsed as the single number 02 — i.e. Monday only — while `'3 4'` (34) was rejected. Day input now treats spaces and commas as separators and also accepts day names (`sat mon`), ascending ranges (`0-4`, `mon-fri`), and Persian digits. Invalid input re-prompts only the failed field instead of discarding the city and days already entered; saved rules echo exactly what was stored; and the upcoming-transitions preview now includes dates (`Sat 26 Sep 07:00 -> Karaj`) so successive weeks are no longer rendered as identical lines.
+- **Multi-city**: version-controlled registry (Tehran, Karaj, Qom, Mashhad), weekly schedule and override with travel > override > schedule > default precedence, the interactive `city` command, and per-city prayer times and IRIMO weather (`☀️ 32°C clear (Karaj)`).
 
 ### Fixed
 
-- **City manager polish (round 2)**: dropped the internal id column — rules are selected by list row number, qada-style (`e 2`, `d 1`); prompts are short labeled fields with hint lines above (`Days (Enter=cancel)` under `e.g. '0 2' 'sat mon' '0-4' 'all'`); blocks gained breathing room; help renders as a box on wide terminals and plain stacked lines on narrow ones; and everything below 64 columns switches to one-command-per-line so a 50-column display never wraps. The upcoming-transitions list stacks one per line with dates at every width.
+- City schedule editor: `'0 2'` was misparsed as Monday-only. Day input now accepts spaces, commas, names, ranges, and Persian digits, with per-field retry.
+- City manager layout: numbered rows instead of internal ids, labeled prompts, and narrow-terminal fit.
 
 ### Documentation
 
-- `docs/reference/fadilat-criteria.md`: the research dossier behind the green bands — Khamenei's risala criterion for each boundary, his office's istifta fixing the incremental (noon-mark) shadow convention, why the winter degenerate case cannot occur under it, and how hawzah's popularized practical constants (+21/+51 min) are annual averages of the computed twilight gaps while the circulated "+1h40" dhuhr figure is the 2/7 shadow mark, not the fadilat boundary.
+- `docs/commands/city.md`, `docs/concepts/cities.md`, and `docs/reference/fadilat-criteria.md` (fiqh criteria, formulas, sources).
 
 ### Tests
 
-- This branch passes **641 tests** with `pytest -q`, including a seasonal invariant sweep asserting every computed prayer band is positive and correctly ordered (opens < green < yellow-start < red-start < deadline) for all four registry cities across solstices and equinoxes.
+- This branch passes **643 tests** with `pytest -q`, including a seasonal band-invariant sweep for all four cities.
 
 ---
-
 ## 2.2.0 (2026-09-19)
 
 ### Added
@@ -40,10 +36,6 @@
 - **Stopword maintenance** expanded the stopword list and removed historical noise from the tracked data.
 - **Documentation site** migrated to Astro Starlight. The site is built from plain Markdown in `docs/`, published to GitHub Pages, and no duplicate generated documentation is committed.
 - **Internal cleanup** centralized prayer labels and lookups, typed prayer arguments, shared duration formatting, safe persisted-state parsing, and qada progress imports while preserving existing command output and compatibility shims.
-
-### Documentation
-
-- `docs/reference/fadilat-criteria.md`: the research dossier behind the green bands — Khamenei's risala criterion for each boundary, his office's istifta fixing the incremental (noon-mark) shadow convention, why the winter degenerate case cannot occur under it, and how hawzah's popularized practical constants (+21/+51 min) are annual averages of the computed twilight gaps while the circulated "+1h40" dhuhr figure is the 2/7 shadow mark, not the fadilat boundary.
 
 ### Tests
 
@@ -73,10 +65,6 @@
 ### Fixed
 
 - `pline_wrap` no longer slices ANSI escape sequences while truncating highlighted text.
-
-### Documentation
-
-- `docs/reference/fadilat-criteria.md`: the research dossier behind the green bands — Khamenei's risala criterion for each boundary, his office's istifta fixing the incremental (noon-mark) shadow convention, why the winter degenerate case cannot occur under it, and how hawzah's popularized practical constants (+21/+51 min) are annual averages of the computed twilight gaps while the circulated "+1h40" dhuhr figure is the 2/7 shadow mark, not the fadilat boundary.
 
 ### Tests
 
@@ -110,10 +98,6 @@
 - Great-event and running-event status lines are visible again after the feature-package refactor and disappear correctly when their events end.
 - Cancelling an `ege` or `ee` time confirmation now explains that the event was intentionally kept and how to end or cancel it.
 
-### Documentation
-
-- `docs/reference/fadilat-criteria.md`: the research dossier behind the green bands — Khamenei's risala criterion for each boundary, his office's istifta fixing the incremental (noon-mark) shadow convention, why the winter degenerate case cannot occur under it, and how hawzah's popularized practical constants (+21/+51 min) are annual averages of the computed twilight gaps while the circulated "+1h40" dhuhr figure is the 2/7 shadow mark, not the fadilat boundary.
-
 ### Tests
 
 - The `v2.0.0` tag passed **456 tests** with `pytest -q`.
@@ -140,10 +124,6 @@
 - Qada overdue nudges persist, while today's scheduled qada instances appear only during the final hour before the prayer and are sorted chronologically.
 - The Hijri offset data for Rabi al-Awwal was corrected.
 - Ruff, isort, and Black cleanup was applied across the codebase.
-
-### Documentation
-
-- `docs/reference/fadilat-criteria.md`: the research dossier behind the green bands — Khamenei's risala criterion for each boundary, his office's istifta fixing the incremental (noon-mark) shadow convention, why the winter degenerate case cannot occur under it, and how hawzah's popularized practical constants (+21/+51 min) are annual averages of the computed twilight gaps while the circulated "+1h40" dhuhr figure is the 2/7 shadow mark, not the fadilat boundary.
 
 ### Tests
 
@@ -182,10 +162,6 @@
 - The qada scheduler uses the last log's `instance_date` correctly.
 - Qada migrations preserve existing logs when obsolete decline and pause fields are removed.
 
-### Documentation
-
-- `docs/reference/fadilat-criteria.md`: the research dossier behind the green bands — Khamenei's risala criterion for each boundary, his office's istifta fixing the incremental (noon-mark) shadow convention, why the winter degenerate case cannot occur under it, and how hawzah's popularized practical constants (+21/+51 min) are annual averages of the computed twilight gaps while the circulated "+1h40" dhuhr figure is the 2/7 shadow mark, not the fadilat boundary.
-
 ### Tests
 
 - The `v1.7.0` tag passed **293 tests** with `pytest -q`.
@@ -209,10 +185,6 @@
 ### Fixed
 
 - Broken command wrappers, missing aliases, stale imports, dead code, and feature-loader wiring issues were cleaned up during the package extraction.
-
-### Documentation
-
-- `docs/reference/fadilat-criteria.md`: the research dossier behind the green bands — Khamenei's risala criterion for each boundary, his office's istifta fixing the incremental (noon-mark) shadow convention, why the winter degenerate case cannot occur under it, and how hawzah's popularized practical constants (+21/+51 min) are annual averages of the computed twilight gaps while the circulated "+1h40" dhuhr figure is the 2/7 shadow mark, not the fadilat boundary.
 
 ### Tests
 
@@ -240,10 +212,6 @@
 
 - Clean-clone test failures, the quit path, and related database/path issues were fixed.
 
-### Documentation
-
-- `docs/reference/fadilat-criteria.md`: the research dossier behind the green bands — Khamenei's risala criterion for each boundary, his office's istifta fixing the incremental (noon-mark) shadow convention, why the winter degenerate case cannot occur under it, and how hawzah's popularized practical constants (+21/+51 min) are annual averages of the computed twilight gaps while the circulated "+1h40" dhuhr figure is the 2/7 shadow mark, not the fadilat boundary.
-
 ### Tests
 
 - The `v1.5.0` tag passed **161 tests** with `pytest -q`.
@@ -270,10 +238,6 @@
 ### Fixed
 
 - Journal timestamp conversion, FTS synchronization, import errors, unused code, and parser edge cases were corrected.
-
-### Documentation
-
-- `docs/reference/fadilat-criteria.md`: the research dossier behind the green bands — Khamenei's risala criterion for each boundary, his office's istifta fixing the incremental (noon-mark) shadow convention, why the winter degenerate case cannot occur under it, and how hawzah's popularized practical constants (+21/+51 min) are annual averages of the computed twilight gaps while the circulated "+1h40" dhuhr figure is the 2/7 shadow mark, not the fadilat boundary.
 
 ### Tests
 
