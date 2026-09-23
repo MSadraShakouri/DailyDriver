@@ -12,9 +12,13 @@
 
 - **City schedule editor corrupted multi-day input**: `'0 2'` had its spaces stripped and was parsed as the single number 02 — i.e. Monday only — while `'3 4'` (34) was rejected. Day input now treats spaces and commas as separators and also accepts day names (`sat mon`), ascending ranges (`0-4`, `mon-fri`), and Persian digits. Invalid input re-prompts only the failed field instead of discarding the city and days already entered; saved rules echo exactly what was stored; and the upcoming-transitions preview now includes dates (`Sat 26 Sep 07:00 -> Karaj`) so successive weeks are no longer rendered as identical lines.
 
+### Fixed
+
+- **City manager polish (round 2)**: dropped the internal id column — rules are selected by list row number, qada-style (`e 2`, `d 1`); prompts are short labeled fields with hint lines above (`Days (Enter=cancel)` under `e.g. '0 2' 'sat mon' '0-4' 'all'`); blocks gained breathing room; help renders as a box on wide terminals and plain stacked lines on narrow ones; and everything below 64 columns switches to one-command-per-line so a 50-column display never wraps. The upcoming-transitions list stacks one per line with dates at every width.
+
 ### Tests
 
-- This branch passes **623 tests** with `pytest -q`.
+- This branch passes **640 tests** with `pytest -q`, including a seasonal invariant sweep asserting every computed prayer band is positive and correctly ordered (opens < green < yellow-start < red-start < deadline) for all four registry cities across solstices and equinoxes.
 
 ---
 

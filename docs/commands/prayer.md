@@ -23,7 +23,7 @@ Each merged slot opens at its adhan and runs to a fiqh deadline (Khamenei's risa
 |------|--------------|--------------------|----------|
 | Fajr | Fajr adhan (17.7°) | Eastern redness apparent (اسفار, −14°) | Sunrise |
 | Dhuhr & Asr | Dhuhr adhan | Post-zuwal shadow equals the gnomon | Sunset |
-| Maghrib & Isha | Maghrib adhan (4.5°) | Red twilight gone (زوال شفق, −14°) | Shar'i midnight (sunset → next Fajr midpoint) |
+| Maghrib & Isha | Maghrib adhan (4.5°, red twilight حمره gone) | White twilight (شفق ابیض) gone (−14°; ≈45–55 min after the adhan) | Shar'i midnight (sunset → next Fajr midpoint) |
 
 The header nudges follow the window: a yellow pre-alert during the last hour before it opens (`🕌 Fajr — in ~30 min`), then one single-colored `🕌 Fajr — until 06:10` line while it is open — **green** inside the فضیلت window, **yellow** for the gap, **red** for the final stretch (the last 30 minutes before sunrise; the last 2 hours before sunset or shar'i midnight) — and finally a red `⚠️ not logged` line after the deadline. Logged slots drop their line; past-day overdue nudges are unchanged.
 

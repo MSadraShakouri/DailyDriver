@@ -34,7 +34,44 @@ def test_help_screen(db_connection, ui):
     with manager_view():
         city_command("city")
     assert any("City Manager Help" in line for line in ui.lines)
-    assert any("c      - Change city now" in line for line in ui.lines)
+    assert any("c   Change city now" in line for line in ui.lines)
+
+
+def test_narrow_terminal_stacks_commands_and_transitions(db_connection, ui):
+    add_rule(db_connection, "Karaj", "0", 8 * 60, 12 * 60)
+    ui.queue("q")
+    with (
+        patch("dailydriver.cli.commands.city.build_header_data", return_value={}),
+        patch("dailydriver.cli.commands.city.print_header"),
+        patch("dailydriver.cli.commands.city.get_width", lambda: 50),
+    ):
+        city_command("city")
+    assert "  (c)hange now" in ui.lines  # one command per line, no spread
+    assert any(line.startswith("  Sat ") and "-> Karaj" in line for line in ui.lines)
+
+
+def test_narrow_terminal_help_drops_the_box(db_connection, ui):
+    ui.queue("?", "", "q")
+    with (
+        patch("dailydriver.cli.commands.city.build_header_data", return_value={}),
+        patch("dailydriver.cli.commands.city.print_header"),
+        patch("dailydriver.cli.commands.city.get_width", lambda: 50),
+    ):
+        city_command("city")
+    assert any("City Manager Help" in line for line in ui.lines)
+    assert not any("┌" in line for line in ui.lines)
+
+
+def test_rules_table_numbers_rows_in_list_order(db_connection, ui):
+    add_rule(db_connection, "Karaj", "0", 8 * 60, 12 * 60)
+    add_rule(db_connection, "Qom", "3", 13 * 60, 14 * 60)
+    ui.queue("q")
+    with manager_view():
+        city_command("city")
+    rows = [line for line in ui.lines if line.lstrip().startswith(("1 ", "2 ")) and ("Karaj" in line or "Qom" in line)]
+    assert len(rows) == 2
+    assert rows[0].lstrip().startswith("1 ") and "Karaj" in rows[0]
+    assert rows[1].lstrip().startswith("2 ") and "Qom" in rows[1]
 
 
 def test_unknown_command_is_reported(db_connection, ui):
@@ -94,7 +131,7 @@ def test_add_rule_and_preview_transitions(db_connection, ui):
     rules = list_rules(db_connection)
     assert len(rules) == 1
     assert (rules[0].city, rules[0].days, rules[0].from_min, rules[0].to_min) == ("Karaj", (0,), 480, 720)
-    assert any("Rule added: Karaj — Sat 08:00-12:00 (id 1)" in line for line in ui.lines)
+    assert any("Rule added: Karaj — Sat 08:00-12:00" in line for line in ui.lines)
     assert any("-> Karaj" in line for line in ui.lines)
     assert any("Current city:" in line for line in ui.lines)
 
@@ -128,7 +165,7 @@ def test_add_rule_with_space_separated_days(db_connection, ui):
         city_command("city")
     (rule,) = list_rules(db_connection)
     assert (rule.city, rule.days, rule.from_min, rule.to_min) == ("Karaj", (0, 2, 3, 4), 420, 1020)
-    assert any("Rule added: Karaj — Sat, Mon, Tue, Wed 07:00-17:00 (id 1)" in line for line in ui.lines)
+    assert any("Rule added: Karaj — Sat, Mon, Tue, Wed 07:00-17:00" in line for line in ui.lines)
     assert any("Sat, Mon, Tue, Wed" in line and "07:00-17:00" in line for line in ui.lines)
 
 
@@ -159,7 +196,7 @@ def test_time_range_accepts_flexible_separators(db_connection, ui):
         city_command("city")
     (rule,) = list_rules(db_connection)
     assert (rule.days, rule.from_min, rule.to_min) == (tuple(range(7)), 480, 720)
-    assert any("Rule added: Karaj — every day 08:00-12:00 (id 1)" in line for line in ui.lines)
+    assert any("Rule added: Karaj — every day 08:00-12:00" in line for line in ui.lines)
 
 
 def test_day_names_and_persian_digits_are_accepted(db_connection, ui):
@@ -177,7 +214,7 @@ def test_day_names_accepted_in_english(db_connection, ui):
         city_command("city")
     (rule,) = list_rules(db_connection)
     assert (rule.days, rule.from_min, rule.to_min) == ((2, 3, 4, 5, 6), 540, 840)
-    assert any("Rule added: Karaj — Mon, Tue, Wed, Thu, Fri 09:00-14:00 (id 1)" in line for line in ui.lines)
+    assert any("Rule added: Karaj — Mon, Tue, Wed, Thu, Fri 09:00-14:00" in line for line in ui.lines)
 
 
 def test_overlapping_rule_is_rejected_at_save(db_connection, ui):
@@ -208,7 +245,7 @@ def test_edit_rule_inline(db_connection, ui):
         city_command("city")
     (rule,) = list_rules(db_connection)
     assert (rule.days, rule.from_min, rule.to_min) == ((0, 2), 480, 720)
-    assert any("Rule updated: Karaj — Sat, Mon 08:00-12:00 (id 1)" in line for line in ui.lines)
+    assert any("Rule updated: Karaj — Sat, Mon 08:00-12:00" in line for line in ui.lines)
 
 
 def test_edit_without_number_shows_usage(db_connection, ui):
