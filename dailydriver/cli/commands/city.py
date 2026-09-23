@@ -42,12 +42,20 @@ def _narrow() -> bool:
 
 
 def _guide(commands: list[str]) -> None:
-    """Command help: spread lines on wide terminals, one per line when narrow."""
+    """Command help: justified spread on wide terminals, greedily packed
+    lines on narrow ones (merge short entries instead of stacking)."""
     tw = get_width()
     current_ui.print_line()
     if _narrow():
+        line = "  "
         for command in commands:
-            current_ui.print_line(f"  {command}")
+            candidate = f"{line}  {command}" if line.strip() else f"  {command}"
+            if len(candidate) <= tw:
+                line = candidate
+            else:
+                current_ui.print_line(line)
+                line = f"  {command}"
+        current_ui.print_line(line)
     elif len(commands) > 4:
         current_ui.print_line(spread_line(commands[:3], width=tw, margins=1 / 8))
         current_ui.print_line(spread_line(commands[3:], width=tw, margins=1 / 8))
@@ -96,7 +104,14 @@ def _manager(conn):
 def _print_status(conn):
     now = datetime.now()
     info = resolve_city(conn, now)
-    current_ui.print_line(f"  Current city: {info.name} ({_reason_text(conn, info)})")
+    reason = _reason_text(conn, info)
+    text = f"  Current city: {info.name} ({reason})"
+    if len(text) <= get_width():
+        current_ui.print_line(text)
+    else:
+        # Keep every line inside the terminal: reason moves to its own line.
+        current_ui.print_line(f"  Current city: {info.name}")
+        current_ui.print_line(f"  ({reason})")
 
 
 def _print_transitions(conn):

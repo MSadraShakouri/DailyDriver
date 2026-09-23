@@ -37,7 +37,7 @@ def test_help_screen(db_connection, ui):
     assert any("c   Change city now" in line for line in ui.lines)
 
 
-def test_narrow_terminal_stacks_commands_and_transitions(db_connection, ui):
+def test_narrow_terminal_stacks_transitions_and_merges_commands(db_connection, ui):
     add_rule(db_connection, "Karaj", "0", 8 * 60, 12 * 60)
     ui.queue("q")
     with (
@@ -46,8 +46,33 @@ def test_narrow_terminal_stacks_commands_and_transitions(db_connection, ui):
         patch("dailydriver.cli.commands.city.get_width", lambda: 50),
     ):
         city_command("city")
-    assert "  (c)hange now" in ui.lines  # one command per line, no spread
+    # Transitions: one per line, dated.
     assert any(line.startswith("  Sat ") and "-> Karaj" in line for line in ui.lines)
+    # Commands: merged into as few lines as fit, never wider than 50.
+    guide = [line for line in ui.lines if "(c)hange now" in line or "(s)chedule" in line or "(q)uit" in line]
+    assert len(guide) <= 3
+    assert all(len(line) <= 50 for line in guide)
+    assert any(line.startswith("  (c)hange now  (s)chedule") for line in guide)
+
+
+def test_status_reason_wraps_when_it_would_overflow(db_connection, ui):
+    city_state.set_override(db_connection, "Karaj", None, "indefinite")
+    ui.queue("q")
+    with (
+        patch("dailydriver.cli.commands.city.build_header_data", return_value={}),
+        patch("dailydriver.cli.commands.city.print_header"),
+        patch("dailydriver.cli.commands.city.get_width", lambda: 50),
+    ):
+        city_command("city")
+    assert "  Current city: Karaj" in ui.lines
+    assert "  (override until cleared: Karaj)" in ui.lines
+
+
+def test_status_stays_on_one_line_when_it_fits(db_connection, ui):
+    ui.queue("q")
+    with manager_view():
+        city_command("city")
+    assert "  Current city: Tehran (default)" in ui.lines
 
 
 def test_narrow_terminal_help_drops_the_box(db_connection, ui):
