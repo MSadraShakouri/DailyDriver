@@ -186,6 +186,11 @@ def _calculate_times(
 
     # Dhuhr fadilat end: the incremental shadow appearing after zuwal equals
     # the gnomon ("nisf nahiyat zillih misl shakhisih").  cot(h) = tan|phi-d| + 1.
+    # Khamenei's office confirms the noon-mark (incremental) convention:
+    # "the shadow considered is the one that starts growing after its
+    # shortest point" (farsi.khamenei.ir/treatise-content?id=24); Iranian
+    # almanacs publish this instant as azan-e asr.  See
+    # docs/reference/fadilat-criteria.md.
     declination = _sun_position(julian_day + 0.5)[0]
     cot_altitude = math.tan(_DEG_TO_RAD * abs(latitude - declination)) + 1.0
     shadow_altitude = math.degrees(math.atan(1.0 / cot_altitude))

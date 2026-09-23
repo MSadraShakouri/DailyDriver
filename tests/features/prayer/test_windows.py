@@ -56,3 +56,22 @@ def test_midnight_uses_the_next_fajr_convention():
     assert window.opens.date() == window.deadline.date()  # same-day deadline sanity
     hours = (window.deadline - window.opens).total_seconds() / 3600
     assert hours == pytest.approx(4.95, abs=0.2)
+
+
+def test_green_gaps_reproduce_the_published_khamenei_constants():
+    """hawzah 99881 (Khamenei's office) popularises the windows as practical
+    constants — fajr فضیلت ≈ +21 min, maghrib ≈ +51 min.  Those constants are
+    rounded Tehran annual averages of the twilight-angle gaps; the model must
+    keep reproducing them across a full year of dates."""
+    months = [(2026, m) for m in range(3, 13)] + [(2027, m) for m in range(1, 3)]
+    city = load_registry()["Tehran"]
+    fajr_gaps, maghrib_gaps = [], []
+    for year, month in months:
+        ws = get_slot_windows(date(year, month, 15), city.lat, city.lon, city.tz)
+        fajr_gaps.append((ws["fajr"].green_until - ws["fajr"].opens).total_seconds() / 60)
+        maghrib_gaps.append((ws["maghrib_isha"].green_until - ws["maghrib_isha"].opens).total_seconds() / 60)
+
+    assert 18 <= min(fajr_gaps) and max(fajr_gaps) <= 27
+    assert abs(sum(fajr_gaps) / len(fajr_gaps) - 21) <= 1.5
+    assert 44 <= min(maghrib_gaps) and max(maghrib_gaps) <= 61
+    assert abs(sum(maghrib_gaps) / len(maghrib_gaps) - 51) <= 2
