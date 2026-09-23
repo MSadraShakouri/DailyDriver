@@ -8,6 +8,10 @@
 
 - **Multi-city**: version-controlled registry (Tehran, Karaj, Qom, Mashhad), weekly schedule and override with travel > override > schedule > default precedence, the interactive `city` command, and per-city prayer times and IRIMO weather (`☀️ 32°C clear (Karaj)`).
 
+### Changed
+
+- **Prayer header block** moved directly under the weather line; nudge lines carry two times each — the current band's end and the deadline (`🕌 Dhuhr & Asr — green till 15:24 · sunset 18:00`, collapsing to `red till sunset (18:00)` in red) — plus a next-prayer line (`🕌 Maghrib at 18:18 (2h 30m left)`) when nothing is pending.
+
 ### Fixed
 
 - City schedule editor: `'0 2'` was misparsed as Monday-only. Day input now accepts spaces, commas, names, ranges, and Persian digits, with per-field retry.

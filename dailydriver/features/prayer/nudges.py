@@ -1,9 +1,22 @@
-"""Prayer window nudges: pre-alert, green/yellow/red progress, and overdue."""
+"""Prayer window nudges: next-prayer, pre-alert, green/yellow/red progress, overdue.
+
+Line grammar (locked with the user):
+
+* open window, green:  ``🕌 Fajr — green till 04:48 · sunrise 05:53``
+* open window, yellow: ``🕌 Fajr — yellow till 05:23 · sunrise 05:53``
+* open window, red:    ``🕌 Fajr — red till sunrise (05:53)``  (band end == deadline)
+* nothing pending:     ``🕌 Maghrib at 18:18 (2h 30m left)``   (tomorrow's Fajr when all logged)
+* pre-alert (≤60 min): ``🕌 Maghrib — in 12m (18:18)`` / ``— due now (18:18)``
+* overdue:             ``⚠️ Fajr not logged (today)``
+
+Durations are compact (``45m``, ``2h 30m``) and always rounded upward so the
+line never claims the prayer is sooner than the schedule says.
+"""
 
 from __future__ import annotations
 
 import math
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import jdatetime
 
@@ -19,15 +32,43 @@ YELLOW = "\033[33m"
 RED = "\033[31m"
 RESET = "\033[0m"
 
+_PRE_ALERT_MINUTES = 60
+_DEADLINE_NAMES = {"fajr": "sunrise", "dhuhr_asr": "sunset", "maghrib_isha": "midnight"}
+
+
+def _compact(minutes: int) -> str:
+    """Compact duration: ``45m``, ``2h``, ``2h 30m``."""
+    if minutes < 60:
+        return f"{minutes}m"
+    hours, mins = divmod(minutes, 60)
+    return f"{hours}h {mins}m" if mins else f"{hours}h"
+
+
+def _band_text(slot: str, window, now: datetime) -> tuple[str, str]:
+    """Return (color, band description) for an open window."""
+    deadline_name = _DEADLINE_NAMES[slot]
+    if now >= window.red_from:
+        # In red the band end IS the deadline; collapse to one number.
+        return RED, f"red till {deadline_name} ({window.deadline:%H:%M})"
+    if now >= window.green_until:
+        return YELLOW, f"yellow till {window.red_from:%H:%M} · {deadline_name} {window.deadline:%H:%M}"
+    return GREEN, f"green till {window.green_until:%H:%M} · {deadline_name} {window.deadline:%H:%M}"
+
+
+def _next_line(slot: str, window, now: datetime) -> str:
+    """Pre-alert inside the hour, plain 'at time (duration left)' outside it."""
+    seconds = (window.opens - now).total_seconds()
+    minutes = max(1, math.ceil(seconds / 60))
+    at = window.opens.strftime("%H:%M")
+    if seconds <= _PRE_ALERT_MINUTES * 60:
+        timing = "due now" if seconds < 60 else f"in {_compact(minutes)}"
+        return f"{YELLOW}🕌 {SLOT_LABELS[slot]} — {timing} ({at}){RESET}"
+    return f"🕌 {SLOT_LABELS[slot]} at {at} ({_compact(minutes)} left)"
+
 
 def get_prayer_nudges(conn, target_date, today_str, is_today, now=None):
-    """Return colored nudge lines for today's prayer windows (plus past overdue).
-
-    Per slot, in order: yellow pre-alert shortly before the window opens, a
-    single-colored countdown line while the window is open (green inside the
-    fadilat window, yellow for the gap, red for the final stretch), a red
-    overdue line after the deadline, and nothing once logged.
-    """
+    """Return today's prayer lines (plus past-day overdue), in order: the open
+    window's band line or the next prayer, then today's overdue, then past."""
     if not is_today:
         return []
 
@@ -37,35 +78,37 @@ def get_prayer_nudges(conn, target_date, today_str, is_today, now=None):
     if now is None:
         now = datetime.now()
 
-    nudges = []
     info = resolve_city(conn, now)
     windows = get_slot_windows(now.date(), info.lat, info.lon, info.tz)
 
+    pending = None  # (slot, window) with opens <= now < deadline, unlogged
+    upcoming = None  # nearest unlogged slot opening after now
+    overdue = []
     for slot in PRAYER_SLOTS:
         if has_prayer_log(conn, slot, today_str):
             continue
-        label = SLOT_LABELS[slot]
         window = windows[slot]
-
-        if now < window.opens:
-            seconds_until = (window.opens - now).total_seconds()
-            if 0 <= seconds_until <= 60 * 60:
-                if seconds_until < 60:
-                    timing = "due now"
-                else:
-                    # Round upward so the nudge never claims the prayer is
-                    # sooner than the minute-level schedule says it is.
-                    minutes_until = math.ceil(seconds_until / 60)
-                    timing = f"in ~{minutes_until} min"
-                nudges.append(f"{YELLOW}🕌 {label} — {timing}{RESET}")
-        elif now < window.deadline:
-            # The whole line shares one color; urgency is carried by the
-            # color, the shown time is always the window deadline.
-            color = RED if now >= window.red_from else (YELLOW if now >= window.green_until else GREEN)
-            nudges.append(f"{color}🕌 {label} — until {window.deadline.strftime('%H:%M')}{RESET}")
+        if window.opens <= now < window.deadline:
+            pending = (slot, window)
+        elif window.opens > now:
+            if upcoming is None or window.opens < upcoming[1].opens:
+                upcoming = (slot, window)
         else:
-            nudges.append(f"{RED}⚠️ {label} not logged (today){RESET}")
+            overdue.append(f"{RED}⚠️ {SLOT_LABELS[slot]} not logged (today){RESET}")
 
+    nudges = []
+    if pending is not None:
+        slot, window = pending
+        color, band = _band_text(slot, window, now)
+        nudges.append(f"{color}🕌 {SLOT_LABELS[slot]} — {band}{RESET}")
+    elif upcoming is not None:
+        nudges.append(_next_line(upcoming[0], upcoming[1], now))
+    else:
+        # Everything today is logged or gone: point at tomorrow's Fajr.
+        tomorrow = get_slot_windows(now.date() + timedelta(days=1), info.lat, info.lon, info.tz)
+        nudges.append(_next_line("fajr", tomorrow["fajr"], now))
+
+    nudges.extend(overdue)
     nudges.extend(_get_past_overdue_nudges(conn, target_date))
     return nudges[:5]
 
@@ -97,9 +140,7 @@ def _get_past_overdue_nudges(conn, target_date):
 
 def _get_travel_next_nudge(conn, today_str):
     """Return a single overdue-style nudge for the first unlogged prayer slot today (travel mode only)."""
-    slots = PRAYER_SLOTS
-
-    for slot in slots:
+    for slot in PRAYER_SLOTS:
         if not has_prayer_log(conn, slot, today_str):
             display = SLOT_LABELS[slot]
             return [f"{RED}⚠️ {display} not logged (today){RESET}"]
