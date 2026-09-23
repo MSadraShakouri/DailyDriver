@@ -17,8 +17,13 @@ from datetime import date, datetime, time, timedelta
 
 MINUTES_PER_DAY = 24 * 60
 WEEKDAY_NAMES = ["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"]
+_FULL_DAY_NAMES = ("saturday", "sunday", "monday", "tuesday", "wednesday", "thursday", "friday")
 
-_ALL_DAYS_TOKENS = ("all", "daily", "*")
+_ALL_DAYS_TOKENS = ("all", "daily", "everyday", "*")
+_PERSIAN_DIGITS = str.maketrans("۰۱۲۳۴۵۶۷۸۹", "0123456789")
+_DAYS_HINT = (
+    "use 0-6 (Sat=0 .. Fri=6), day names like 'sat mon', ranges like '0-4' or 'mon-fri', or 'all'"
+)
 
 
 class RuleError(ValueError):
@@ -47,16 +52,49 @@ def iranian_weekday(day: date) -> int:
     return (day.weekday() + 2) % 7
 
 
+def _parse_day_token(token: str) -> int:
+    try:
+        value = int(token)
+    except ValueError:
+        if len(token) < 2:
+            raise RuleError(f"Invalid day {token!r} — {_DAYS_HINT}") from None
+        matches = {
+            index
+            for index in range(7)
+            if _FULL_DAY_NAMES[index].startswith(token) or WEEKDAY_NAMES[index].lower().startswith(token)
+        }
+        if len(matches) != 1:
+            raise RuleError(f"Invalid day {token!r} — {_DAYS_HINT}") from None
+        return matches.pop()
+    if not 0 <= value <= 6:
+        raise RuleError(f"Invalid day {token!r} — {_DAYS_HINT}")
+    return value
+
+
 def normalize_days(days) -> tuple[int, ...]:
-    """Accept 'all', one int, or an iterable/'0,3,4' string of weekday ints."""
+    """Accept 'all', one int, or an iterable / '0,3 4' / 'sat mon' / '0-4' string.
+
+    Whitespace and commas are both separators (never glued together: '0 2'
+    is Saturday and Monday, not the number 02).  Persian digits are accepted.
+    """
     if isinstance(days, str):
-        text = days.strip().lower()
+        text = days.strip().lower().translate(_PERSIAN_DIGITS)
         if text in _ALL_DAYS_TOKENS:
             return tuple(range(7))
-        try:
-            days = [int(part) for part in text.replace(" ", "").split(",") if part]
-        except ValueError as exc:
-            raise RuleError(f"Invalid days: {days!r}") from exc
+        tokens = text.replace(",", " ").split()
+        if not tokens:
+            raise RuleError(f"No days given — {_DAYS_HINT}")
+        collected: set[int] = set()
+        for token in tokens:
+            pieces = token.split("-")
+            if len(pieces) == 2 and pieces[0]:
+                lo, hi = _parse_day_token(pieces[0]), _parse_day_token(pieces[1])
+                if lo > hi:
+                    raise RuleError(f"Day range {token!r} must be ascending (Sat=0 .. Fri=6)")
+                collected.update(range(lo, hi + 1))
+            else:
+                collected.add(_parse_day_token(token))
+        return tuple(sorted(collected))
     if isinstance(days, int):
         days = [days]
     try:
@@ -66,6 +104,14 @@ def normalize_days(days) -> tuple[int, ...]:
     if not cleaned or any(d < 0 or d > 6 for d in cleaned):
         raise RuleError("Days must be weekday numbers 0 (Sat) through 6 (Fri)")
     return tuple(cleaned)
+
+
+def format_days(days) -> str:
+    """Human-readable day list: 'Sat, Mon', '0-4' expanded, or 'every day'."""
+    ordered = tuple(sorted(days))
+    if ordered == tuple(range(7)):
+        return "every day"
+    return ", ".join(WEEKDAY_NAMES[d] for d in ordered)
 
 
 def parse_clock_minutes(text: str) -> int:

@@ -11,6 +11,7 @@ from dailydriver.core.location.rules import (
     add_rule,
     delete_rule,
     format_clock_minutes,
+    format_days,
     iranian_weekday,
     list_rules,
     next_rule_start,
@@ -32,9 +33,37 @@ def test_days_normalization():
     assert normalize_days("0, 3 ,3") == (0, 3)
     assert normalize_days(2) == (2,)
     assert normalize_days([6, 0]) == (0, 6)
-    for bad in ("", "7", "-1", "0,9", [8], [], "monday"):
+    for bad in ("", "7", "-1", "0,9", [8], [], "x"):
         with pytest.raises(RuleError):
             normalize_days(bad)
+
+
+def test_days_space_separated_tokens_are_not_glued():
+    # Regression: '0 2' once became int('02') == 2 (Monday only).
+    assert normalize_days("0 2") == (0, 2)
+    assert normalize_days("0 2 3 4") == (0, 2, 3, 4)
+    assert normalize_days("3 4") == (3, 4)
+    assert normalize_days("  1   5  ") == (1, 5)
+
+
+def test_days_names_ranges_and_persian_digits():
+    assert normalize_days("monday") == (2,)
+    assert normalize_days("sat mon") == (0, 2)
+    assert normalize_days("Tue,Wed") == (3, 4)
+    assert normalize_days("th") == (5,)
+    assert normalize_days("0-4") == (0, 1, 2, 3, 4)
+    assert normalize_days("mon-fri") == (2, 3, 4, 5, 6)
+    assert normalize_days("۵ ۶") == (5, 6)
+    assert normalize_days("sat-thu") == tuple(range(6))
+    for bad in ("fri-mon", "s", "mon-tue-wed", "9-10"):
+        with pytest.raises(RuleError):
+            normalize_days(bad)
+
+
+def test_format_days():
+    assert format_days((0,)) == "Sat"
+    assert format_days((2, 0)) == "Sat, Mon"
+    assert format_days(tuple(range(7))) == "every day"
 
 
 def test_clock_parsing_and_formatting():

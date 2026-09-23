@@ -8,9 +8,13 @@
 
 - **Multi-city support**: a version-controlled city registry (`data/cities.json`, shipping Tehran, Karaj, Qom, and Mashhad with coordinates and IRIMO weather URLs), two append-only core migrations for `city_rules` (weekly weekday windows, Saturday-first, overlaps rejected at save) and `city_state` (default city + override), and a pure `resolve_city()` in the new `core/location/` package with precedence travel > override > schedule > default. The new interactive `city` command edits the default, the weekly schedule, and the override (next schedule change / specific datetime / indefinite). Prayer times follow the resolved city's coordinates; weather is fetched and cached per city and displays the city — `☀️ 32°C clear (Karaj) 14:30`, extending to `(Karaj, until 18:00)` when a schedule rule ends within two hours. Cities without an IRIMO page keep prayer times but no weather line.
 
+### Fixed
+
+- **City schedule editor corrupted multi-day input**: `'0 2'` had its spaces stripped and was parsed as the single number 02 — i.e. Monday only — while `'3 4'` (34) was rejected. Day input now treats spaces and commas as separators and also accepts day names (`sat mon`), ascending ranges (`0-4`, `mon-fri`), and Persian digits. Invalid input re-prompts only the failed field instead of discarding the city and days already entered; saved rules echo exactly what was stored; and the upcoming-transitions preview now includes dates (`Sat 26 Sep 07:00 -> Karaj`) so successive weeks are no longer rendered as identical lines.
+
 ### Tests
 
-- This branch passes **612 tests** with `pytest -q`.
+- This branch passes **623 tests** with `pytest -q`.
 
 ---
 

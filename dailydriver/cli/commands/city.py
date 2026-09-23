@@ -10,19 +10,21 @@ from dailydriver.core.location.registry import load_registry
 from dailydriver.core.location.resolver import resolve_city
 from dailydriver.core.location.rules import (
     RuleError,
-    WEEKDAY_NAMES,
     add_rule,
     delete_rule,
     format_clock_minutes,
-    iranian_weekday,
+    format_days,
     list_rules,
     next_rule_start,
+    normalize_days,
     parse_clock_minutes,
     update_rule,
+    validate_window,
 )
 from dailydriver.ui.terminal_ui import current_ui
 
 _UPCOMING_PREVIEW = 5
+_CANCEL_TOKENS = ("", "n", "q", "cancel")
 
 
 def city_command(_cmd: str):
@@ -69,8 +71,7 @@ def _print_status(conn):
         if nxt is None:
             break
         start, rule = nxt
-        weekday = WEEKDAY_NAMES[iranian_weekday(start.date())]
-        upcoming.append(f"{weekday} {start.strftime('%H:%M')} -> {rule.city}")
+        upcoming.append(f"{start.strftime('%a %d %b %H:%M')} -> {rule.city}")
         cursor = start + timedelta(minutes=1)
     if upcoming:
         current_ui.print_line("Upcoming transitions:")
@@ -126,13 +127,16 @@ def _pick_duration(conn):
     if choice == "1":
         return ("next_change", int(nxt[0].timestamp()) if nxt else None)
     if choice == "2":
-        raw = current_ui.prompt("Date & time (YYYY-MM-DD HH:MM): ").strip()
-        try:
-            moment = datetime.strptime(raw, "%Y-%m-%d %H:%M")
-        except ValueError:
-            current_ui.print_line("Invalid date & time.")
-            return None
-        return ("specific", int(moment.timestamp()))
+        while True:
+            raw = current_ui.prompt("Date & time (YYYY-MM-DD HH:MM, Enter=cancel): ").strip()
+            if raw.lower() in _CANCEL_TOKENS:
+                return None
+            try:
+                moment = datetime.strptime(raw, "%Y-%m-%d %H:%M")
+            except ValueError:
+                current_ui.print_line("✗ Use YYYY-MM-DD HH:MM (for example 2026-10-01 08:00)")
+                continue
+            return ("specific", int(moment.timestamp()))
     if choice == "3":
         return ("indefinite", None)
     current_ui.print_line("Invalid choice.")
@@ -171,11 +175,11 @@ def _edit_schedule(conn):
     while True:
         rules = list_rules(conn)
         if rules:
+            width = max(len(rule.city) for rule in rules)
             current_ui.print_line("Current rules:")
             for rule in rules:
-                days = ", ".join(WEEKDAY_NAMES[d] for d in rule.days)
                 current_ui.print_line(
-                    f"  [{rule.id}] {rule.city}  {days}  "
+                    f"  [{rule.id}] {rule.city.ljust(width)}  {format_days(rule.days)}  "
                     f"{format_clock_minutes(rule.from_min)}-{format_clock_minutes(rule.to_min)}"
                 )
         else:
@@ -195,27 +199,71 @@ def _edit_schedule(conn):
 
 
 def _parse_range(raw: str) -> tuple[int, int]:
-    if "-" not in raw:
-        raise RuleError("Use HH:MM-HH:MM")
-    from_raw, to_raw = raw.split("-", 1)
-    return parse_clock_minutes(from_raw), parse_clock_minutes(to_raw)
+    normalized = raw.lower().replace("–", "-").replace("—", "-").replace(" to ", "-")
+    parts = [part for part in normalized.split("-") if part.strip()]
+    if len(parts) != 2:
+        raise RuleError("Use HH:MM-HH:MM (for example 07:00-17:00)")
+    from_min, to_min = parse_clock_minutes(parts[0]), parse_clock_minutes(parts[1])
+    validate_window(from_min, to_min)
+    return from_min, to_min
+
+
+def _prompt_days() -> tuple[int, ...] | None:
+    """Prompt until the days parse; None means cancelled."""
+    while True:
+        raw = current_ui.prompt("Days (e.g. 0 2 / sat mon / 0-4 / all): ").strip()
+        if raw.lower() in _CANCEL_TOKENS:
+            return None
+        try:
+            days = normalize_days(raw)
+        except RuleError as exc:
+            current_ui.print_line(f"✗ {exc}")
+            current_ui.print_line("  0=Sat  1=Sun  2=Mon  3=Tue  4=Wed  5=Thu  6=Fri")
+            continue
+        current_ui.print_line(f"  -> {format_days(days)}")
+        return days
+
+
+def _prompt_time_range() -> tuple[int, int] | None:
+    """Prompt until the time range parses; None means cancelled."""
+    while True:
+        raw = current_ui.prompt("Time range (e.g. 07:00-17:00): ").strip()
+        if raw.lower() in _CANCEL_TOKENS:
+            return None
+        try:
+            return _parse_range(raw)
+        except RuleError as exc:
+            current_ui.print_line(f"✗ {exc}")
+
+
+def _describe_rule(rule_id: int, city: str, days, from_min: int, to_min: int) -> str:
+    return (
+        f"{city} — {format_days(days)} "
+        f"{format_clock_minutes(from_min)}-{format_clock_minutes(to_min)} (id {rule_id})"
+    )
 
 
 def _add_rule_flow(conn):
     city = _pick_city()
     if city is None:
         return
-    days_raw = current_ui.prompt(
-        f"Days ({', '.join(f'{i}={n}' for i, n in enumerate(WEEKDAY_NAMES))}, or 'all'): "
-    ).strip()
-    range_raw = current_ui.prompt("Time range (HH:MM-HH:MM): ").strip()
-    try:
-        from_min, to_min = _parse_range(range_raw)
-        rule_id = add_rule(conn, city, days_raw, from_min, to_min)
-    except RuleError as exc:
-        current_ui.print_line(f"Invalid rule: {exc}")
+    days = _prompt_days()
+    if days is None:
         return
-    current_ui.print_line(f"Rule added (id {rule_id}).")
+    while True:
+        window = _prompt_time_range()
+        if window is None:
+            return
+        from_min, to_min = window
+        try:
+            rule_id = add_rule(conn, city, days, from_min, to_min)
+        except RuleError as exc:
+            # Conflicts and shape errors re-prompt only the time range; the
+            # city and days already entered are kept.
+            current_ui.print_line(f"✗ {exc}")
+            continue
+        break
+    current_ui.print_line(f"Rule added: {_describe_rule(rule_id, city, days, from_min, to_min)}")
 
 
 def _edit_rule_flow(conn, rules):
@@ -229,15 +277,21 @@ def _edit_rule_flow(conn, rules):
     city = _pick_city()
     if city is None:
         return
-    days_raw = current_ui.prompt("Days (e.g. 0,3,4 or 'all'): ").strip()
-    range_raw = current_ui.prompt("Time range (HH:MM-HH:MM): ").strip()
-    try:
-        from_min, to_min = _parse_range(range_raw)
-        update_rule(conn, int(raw), city, days_raw, from_min, to_min)
-    except RuleError as exc:
-        current_ui.print_line(f"Invalid rule: {exc}")
+    days = _prompt_days()
+    if days is None:
         return
-    current_ui.print_line("Rule updated.")
+    while True:
+        window = _prompt_time_range()
+        if window is None:
+            return
+        from_min, to_min = window
+        try:
+            update_rule(conn, int(raw), city, days, from_min, to_min)
+        except RuleError as exc:
+            current_ui.print_line(f"✗ {exc}")
+            continue
+        break
+    current_ui.print_line(f"Rule updated: {_describe_rule(int(raw), city, days, from_min, to_min)}")
 
 
 def _delete_rule_flow(conn, rules):

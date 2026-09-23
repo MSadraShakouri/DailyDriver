@@ -33,7 +33,7 @@ Rules map weekday **time windows to cities**. Validation happens on save:
 - No overnight windows (`from` must be earlier than `to` within one day).
 - Edits take effect immediately; the next header render uses them.
 
-Days use the Iranian week: `0 = Sat … 6 = Fri`, and `all` covers the week.
+Days accept weekday numbers on the Iranian week (`0 = Sat … 6 = Fri`), English day names, ascending ranges, Persian digits, or `all` — separated by spaces or commas: `0 2 3`, `sat mon`, `mon-fri`, `۵ ۶`, `all`. Invalid input re-prompts **only the field that failed** — the city and days you already entered are kept — and the parsed meaning is echoed back (`-> Sat, Mon`) before the time range is asked. Time ranges accept `-` or ` to ` (`07:00-17:00`, `7:00 to 12:00`).
 
 ## Edit default
 
