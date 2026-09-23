@@ -62,3 +62,20 @@ def test_delete_removes_entry(qada_entry):
     entry = qada_entry()
     entries.delete_entry(entry["id"])
     assert entries.get_entry(entry["id"]) is None
+
+
+def test_qada_definition_operations_do_not_update_last_action(db_path):
+    from dailydriver.core.state import get_last_action_time
+
+    assert get_last_action_time() is None
+    entry_id = entries.add_entry("test_slot", "prayer", slot="fajr", target_total=10)
+    assert get_last_action_time() is None
+
+    entries.edit_entry(entry_id, target_total=20)
+    assert get_last_action_time() is None
+
+    entries.toggle_pause(entry_id, days=2)
+    assert get_last_action_time() is None
+
+    entries.delete_entry(entry_id)
+    assert get_last_action_time() is None

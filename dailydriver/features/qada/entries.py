@@ -13,7 +13,7 @@ def add_entry(name, kind, interval_type=None, interval_value=None, slot=None, ta
     if kind == "prayer":
         if slot not in VALID_PRAYER_SLOTS:
             raise ValueError(f"slot must be one of {VALID_PRAYER_SLOTS} for prayer entries")
-    with get_connection_cm() as conn:
+    with get_connection_cm(auto=False) as conn:
         cur = conn.cursor()
         cur.execute(
             """INSERT INTO qada_entries
@@ -91,7 +91,7 @@ def toggle_pause(entry_id, days: int = 1) -> str:
     today = jdatetime.date.today()
     currently_paused = is_paused(entry, today)
 
-    with get_connection_cm() as conn:
+    with get_connection_cm(auto=False) as conn:
         cur = conn.cursor()
         if currently_paused:
             # Unpause: clear paused_until
@@ -111,7 +111,7 @@ def toggle_pause(entry_id, days: int = 1) -> str:
 
 def delete_entry(entry_id):
     """Delete a qada entry (logs and declines cascade)."""
-    with get_connection_cm() as conn:
+    with get_connection_cm(auto=False) as conn:
         cur = conn.cursor()
         cur.execute("DELETE FROM qada_entries WHERE id=?", (entry_id,))
         conn.commit()
@@ -149,7 +149,7 @@ def edit_entry(entry_id, **kwargs):
 
     set_clause = ", ".join(f"{k}=?" for k in updates)
     values = list(updates.values()) + [entry_id]
-    with get_connection_cm() as conn:
+    with get_connection_cm(auto=False) as conn:
         cur = conn.cursor()
         cur.execute(f"UPDATE qada_entries SET {set_clause} WHERE id=?", values)
         conn.commit()

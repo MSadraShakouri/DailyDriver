@@ -4,6 +4,7 @@ from dailydriver.display.display_utils import spread_line
 
 from .commands import log_prayer
 from .export import export_items
+from .migrations import migrations
 from .nudges import get_prayer_nudges
 from .status import get_prayer_parts
 

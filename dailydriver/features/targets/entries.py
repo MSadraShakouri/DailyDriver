@@ -79,9 +79,16 @@ def get_all_entries(kind: str | None = None) -> list[dict]:
         return [dict(row) for row in cur.fetchall()]
 
 
-def record_progress(entry_id: int, amount: int, new_total: int, instance_date: str, logged_at: int) -> None:
+def record_progress(
+    entry_id: int,
+    amount: int,
+    new_total: int,
+    instance_date: str,
+    logged_at: int,
+    touch_last: bool = True,
+) -> None:
     """Atomically append a progress log and update the entry's cached total."""
-    with get_connection_cm() as conn:
+    with get_connection_cm(auto=touch_last) as conn:
         conn.execute(
             "INSERT INTO target_logs (entry_id, amount, instance_date, logged_at) VALUES (?, ?, ?, ?)",
             (entry_id, amount, instance_date, logged_at),

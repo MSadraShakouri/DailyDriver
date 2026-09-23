@@ -12,7 +12,7 @@ from .editor import add_hygiene_item, delete_hygiene_item, edit_hygiene_item
 
 def manage_hygiene():
     """Interactive manager for hygiene intervals – table layout with dynamic columns."""
-    with get_connection_cm() as conn:
+    with get_connection_cm(auto=False) as conn:
         cur = conn.cursor()
 
         while True:

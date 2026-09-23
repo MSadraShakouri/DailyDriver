@@ -15,7 +15,7 @@ def _word_wrap(text: str, width: int) -> list[str]:
 
 
 def manage_birthdays():
-    with get_connection_cm() as conn:
+    with get_connection_cm(auto=False) as conn:
         cur = conn.cursor()
         while True:
             cur.execute("SELECT id, name, month, day, year, remind_level FROM birthdays ORDER BY month, day")

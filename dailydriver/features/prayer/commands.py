@@ -102,17 +102,10 @@ def log_prayer(cmd: str):
         else:
             prayer_dt = now
 
-        # ----- Step 2: Determine slot -----
-        if is_travel_mode():
-            # Travel mode: order-based selector (always shows menu)
-            slot = _travel_mode_select_slot(conn, today)
-            if slot is None:
-                return None
-        else:
-            # Normal mode: guess slot from the offline solar calculation for
-            # the resolved city.
+        # ----- Step 2: Determine slot and window band -----
+        if not is_travel_mode():
             info = resolve_city(conn, now)
-            windows = get_slot_windows(now.date(), info.lat, info.lon, info.tz)
+            windows = get_slot_windows(prayer_dt.date(), info.lat, info.lon, info.tz)
             dhuhr_dt = windows["dhuhr_asr"].opens
             maghrib_dt = windows["maghrib_isha"].opens
 
@@ -123,6 +116,30 @@ def log_prayer(cmd: str):
                 slot = "dhuhr_asr"
             else:
                 slot = "maghrib_isha"
+        else:
+            # Travel mode: order-based selector (always shows menu)
+            slot = _travel_mode_select_slot(conn, today)
+            if slot is None:
+                return None
+            windows = get_slot_windows(prayer_dt.date())
+
+        window = windows.get(slot)
+        if window:
+            if prayer_dt < window.green_until:
+                window_band = "fadilat"
+                status = "on_time"
+            elif prayer_dt < window.red_from:
+                window_band = "normal"
+                status = "on_time"
+            elif prayer_dt < window.deadline:
+                window_band = "late"
+                status = "on_time"
+            else:
+                window_band = "qada"
+                status = "qada"
+        else:
+            window_band = "fadilat"
+            status = "on_time"
 
         time_str = prayer_dt.strftime("%H:%M")
         slot_display = SLOT_LABELS[slot]
@@ -157,16 +174,17 @@ def log_prayer(cmd: str):
         cur.execute(
             """INSERT INTO prayer_logs
                (prayer_slot, jalali_date, status, logged_at, prayer_time,
-                jamaat_location, shak_count)
-               VALUES (?,?,?,?,?,?,?)""",
+                jamaat_location, shak_count, window_band)
+               VALUES (?,?,?,?,?,?,?,?)""",
             (
                 slot,
                 today,
-                "on_time",
+                status,
                 int(time.time()),
                 int(prayer_dt.timestamp()),
                 jamaat_location,
                 shak_count,
+                window_band,
             ),
         )
         _update_complete_until(conn)
