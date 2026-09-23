@@ -1,13 +1,19 @@
 """Prayer window nudges: next-prayer, pre-alert, green/yellow/red progress, overdue.
 
-Line grammar (locked with the user):
+Line grammar (two rows for open windows):
 
-* open window, green:  ``🕌 Fajr — till 04:48 · sunrise 05:53``
-* open window, yellow: ``🕌 Fajr — till 05:23 · sunrise 05:53``
-* open window, red:    ``🕌 Fajr — till sunrise (05:53)``  (band end == deadline)
+* open window, green:
+  ``🕌 Fajr``
+  ``   fadilat till 04:48 · sunrise 05:53``
+* open window, yellow:
+  ``🕌 Fajr``
+  ``   normal till 05:23 · sunrise 05:53``
+* open window, red (late):
+  ``🕌 Fajr``
+  ``   late till sunrise (05:53)``  (band end == deadline)
 
-The band word is omitted: the whole line is painted green/yellow/red, so
-the color itself names the band.
+The band name (fadilat, normal, late) is explicitly stated on the second line,
+and both lines are painted in the band's color (green, yellow, red).
 * nothing pending:     ``🕌 Maghrib at 18:18 (2h 30m left)``   (tomorrow's Fajr when all logged)
 * pre-alert (≤60 min): ``🕌 Maghrib — in 12m (18:18)`` / ``— due now (18:18)``
 * overdue:             ``⚠️ Fajr not logged (today)``
@@ -51,11 +57,10 @@ def _band_text(slot: str, window, now: datetime) -> tuple[str, str]:
     """Return (color, band description) for an open window."""
     deadline_name = _DEADLINE_NAMES[slot]
     if now >= window.red_from:
-        # In red the band end IS the deadline; collapse to one number.
-        return RED, f"till {deadline_name} ({window.deadline:%H:%M})"
+        return RED, f"late till {deadline_name} ({window.deadline:%H:%M})"
     if now >= window.green_until:
-        return YELLOW, f"till {window.red_from:%H:%M} · {deadline_name} {window.deadline:%H:%M}"
-    return GREEN, f"till {window.green_until:%H:%M} · {deadline_name} {window.deadline:%H:%M}"
+        return YELLOW, f"normal till {window.red_from:%H:%M} · {deadline_name} {window.deadline:%H:%M}"
+    return GREEN, f"fadilat till {window.green_until:%H:%M} · {deadline_name} {window.deadline:%H:%M}"
 
 
 def _next_line(slot: str, window, now: datetime) -> str:
@@ -107,7 +112,8 @@ def get_prayer_nudges(conn, target_date, today_str, is_today, now=None):
     if pending is not None:
         slot, window = pending
         color, band = _band_text(slot, window, now)
-        nudges.append(f"{color}🕌 {SLOT_LABELS[slot]} — {band}{RESET}")
+        nudges.append(f"{color}🕌 {SLOT_LABELS[slot]}{RESET}")
+        nudges.append(f"{color}   {band}{RESET}")
     elif upcoming is not None:
         nudges.append(_next_line(upcoming[0], upcoming[1], now))
     else:

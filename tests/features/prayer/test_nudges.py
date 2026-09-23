@@ -78,18 +78,23 @@ def test_no_prealert_more_than_an_hour_out_shows_plain_next_line(db_connection, 
 
 def test_green_line_shows_band_end_and_deadline(db_connection, monkeypatch):
     lines = _nudges(db_connection, monkeypatch, _at(4, 40))
-    assert lines == [f"{G}🕌 Fajr — till 04:50 · sunrise 05:55{RESET}"]
+    assert lines == [
+        f"{G}🕌 Fajr{RESET}",
+        f"{G}   fadilat till 04:50 · sunrise 05:55{RESET}",
+    ]
 
 
 def test_yellow_line_names_when_red_starts(db_connection, monkeypatch):
     lines = _nudges(db_connection, monkeypatch, _at(15, 30))
-    assert f"{Y}🕌 Dhuhr & Asr — till 16:02 · sunset 18:02{RESET}" in lines
+    assert f"{Y}🕌 Dhuhr & Asr{RESET}" in lines
+    assert f"{Y}   normal till 16:02 · sunset 18:02{RESET}" in lines
     assert f"{R}⚠️ Fajr not logged (today){RESET}" in lines
 
 
 def test_red_line_collapses_to_the_named_deadline(db_connection, monkeypatch):
     lines = _nudges(db_connection, monkeypatch, _at(22, 0))
-    assert f"{R}🕌 Maghrib & Isha — till midnight (23:17){RESET}" in lines
+    assert f"{R}🕌 Maghrib & Isha{RESET}" in lines
+    assert f"{R}   late till midnight (23:17){RESET}" in lines
 
 
 def test_overdue_line_after_deadline(db_connection, monkeypatch):
@@ -111,10 +116,14 @@ def test_logged_slot_line_disappears(db_connection, monkeypatch):
 def test_state_boundaries_are_exact(db_connection, monkeypatch):
     # Exactly at green_until the line turns yellow.
     assert _nudges(db_connection, monkeypatch, _at(4, 50)) == [
-        f"{Y}🕌 Fajr — till 05:25 · sunrise 05:55{RESET}"
+        f"{Y}🕌 Fajr{RESET}",
+        f"{Y}   normal till 05:25 · sunrise 05:55{RESET}",
     ]
     # Exactly at red_from the line turns red and collapses to one number.
-    assert _nudges(db_connection, monkeypatch, _at(5, 25)) == [f"{R}🕌 Fajr — till sunrise (05:55){RESET}"]
+    assert _nudges(db_connection, monkeypatch, _at(5, 25)) == [
+        f"{R}🕌 Fajr{RESET}",
+        f"{R}   late till sunrise (05:55){RESET}",
+    ]
     # The minute-level deadline itself opens the overdue state, and the
     # next-prayer line renders above it.
     assert _nudges(db_connection, monkeypatch, _at(5, 55)) == [
@@ -148,7 +157,10 @@ def test_past_day_overdue_unchanged(db_connection, monkeypatch):
 
 def test_past_scan_respects_complete_until(db_connection, monkeypatch):
     lines = _nudges(db_connection, monkeypatch, _at(4, 40), complete_until="1405-06-31")
-    assert lines == [f"{G}🕌 Fajr — till 04:50 · sunrise 05:55{RESET}"]
+    assert lines == [
+        f"{G}🕌 Fajr{RESET}",
+        f"{G}   fadilat till 04:50 · sunrise 05:55{RESET}",
+    ]
 
 
 def test_past_scan_caps_at_five_lines(db_connection, monkeypatch):
