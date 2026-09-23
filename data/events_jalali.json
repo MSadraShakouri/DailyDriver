@@ -1695,6 +1695,15 @@
     "month": 7,
     "day": 1,
     "holiday": false,
+    "title_fa": "روز پرچم",
+    "title_en": "National Flag Day",
+    "calendar": "jalali",
+    "id": 562
+  },
+  {
+    "month": 7,
+    "day": 1,
+    "holiday": false,
     "title_fa": "آغاز حمله مغول به ایران در پاییز 598 خورشیدی",
     "title_en": "Beginning of the Mongol Invasion of Iran in Fall 598 Solar Hijri",
     "calendar": "jalali",
