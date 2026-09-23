@@ -1,4 +1,10 @@
-"""The ``city`` command: interactive manager for default city, schedule, override."""
+"""The ``city`` command: interactive manager for default city, schedule, override.
+
+Follows the house manager style (qada/hygiene): clear + app header each loop,
+table body via ``spread_line``, one-line command guides, a bare ``>`` prompt,
+a boxed ``?`` help screen, and a ``Press Enter to continue.`` pause after
+every message so nothing is wiped by the next redraw.
+"""
 
 from __future__ import annotations
 
@@ -21,9 +27,12 @@ from dailydriver.core.location.rules import (
     update_rule,
     validate_window,
 )
+from dailydriver.display.display_utils import get_width, spread_line
+from dailydriver.display.header import build_header_data
+from dailydriver.display.header_renderer import print_header
 from dailydriver.ui.terminal_ui import current_ui
 
-_UPCOMING_PREVIEW = 5
+_UPCOMING_PREVIEW = 3
 _CANCEL_TOKENS = ("", "n", "q", "cancel")
 
 
@@ -35,33 +44,43 @@ def city_command(_cmd: str):
 
 def _manager(conn):
     while True:
-        current_ui.print_line("")
+        current_ui.clear()
+        print_header(build_header_data())
+
         _print_status(conn)
-        current_ui.print_line("")
-        current_ui.print_line("  [1] Change city now")
-        current_ui.print_line("  [2] Edit schedule")
-        current_ui.print_line("  [3] Edit default city")
-        current_ui.print_line("  [4] View/clear override")
-        current_ui.print_line("  [q] Quit")
-        choice = current_ui.prompt("city> ").strip().lower()
+        _print_rules_table(conn)
+
+        tw = get_width()
+        current_ui.print_line()
+        current_ui.print_line(
+            spread_line(["(c)hange now", "(s)chedule", "(d)efault city", "(o)verride"], width=tw, margins=1 / 8)
+        )
+        current_ui.print_line(spread_line(["(?)help", "(q)uit"], width=tw, margins=1 / 8))
+        current_ui.print_line()
+        choice = current_ui.prompt("> ").strip().lower()
+
         if choice in ("q", "quit", ""):
             return
-        if choice == "1":
+        if choice == "?":
+            _show_help()
+            current_ui.prompt("Press Enter to continue.")
+        elif choice == "c":
             _change_city_now(conn)
-        elif choice == "2":
+        elif choice == "s":
             _edit_schedule(conn)
-        elif choice == "3":
+        elif choice == "d":
             _edit_default(conn)
-        elif choice == "4":
+        elif choice == "o":
             _view_override(conn)
         else:
-            current_ui.print_line("Invalid choice.")
+            current_ui.print_line("Unknown command. Type ? for help.")
+            current_ui.prompt("Press Enter to continue.")
 
 
 def _print_status(conn):
     now = datetime.now()
     info = resolve_city(conn, now)
-    current_ui.print_line(f"Current city: {info.name} ({_reason_text(conn, info)})")
+    current_ui.print_line(f"  Current city: {info.name} ({_reason_text(conn, info)})")
 
     rules = list_rules(conn)
     upcoming = []
@@ -73,12 +92,50 @@ def _print_status(conn):
         start, rule = nxt
         upcoming.append(f"{start.strftime('%a %d %b %H:%M')} -> {rule.city}")
         cursor = start + timedelta(minutes=1)
+
+    current_ui.print_line()
     if upcoming:
-        current_ui.print_line("Upcoming transitions:")
-        for line in upcoming:
-            current_ui.print_line(f"  {line}")
+        current_ui.print_line(spread_line(upcoming, width=get_width(), margins=1 / 8))
     else:
-        current_ui.print_line("No schedule rules (the default city applies).")
+        current_ui.print_line("  No schedule rules (the default city applies).")
+
+
+def _print_rules_table(conn):
+    """Render the rules table in the hygiene-manager column style."""
+    rules = list_rules(conn)
+    if not rules:
+        return
+
+    rows = [
+        {
+            "id": str(rule.id),
+            "city": rule.city,
+            "days": format_days(rule.days),
+            "time": f"{format_clock_minutes(rule.from_min)}-{format_clock_minutes(rule.to_min)}",
+        }
+        for rule in rules
+    ]
+    max_id = max(len("#"), max(len(r["id"]) for r in rows))
+    max_city = max(len("City"), max(len(r["city"]) for r in rows))
+    max_days = max(len("Days"), max(len(r["days"]) for r in rows))
+
+    tw = get_width()
+    header = spread_line(
+        [" " + "#".ljust(max_id), "City".ljust(max_city), "Days".ljust(max_days), "Time "],
+        width=tw,
+        margins=0,
+    )
+    current_ui.print_line()
+    current_ui.print_line(header)
+    current_ui.print_line("─" * tw)
+    for r in rows:
+        current_ui.print_line(
+            spread_line(
+                [" " + r["id"].ljust(max_id), r["city"].ljust(max_city), r["days"].ljust(max_days), r["time"] + " "],
+                width=tw,
+                margins=0,
+            )
+        )
 
 
 def _reason_text(conn, info) -> str:
@@ -97,6 +154,17 @@ def _reason_text(conn, info) -> str:
     return "default"
 
 
+def _show_help():
+    current_ui.print_line("\n┌─ City Manager Help ────────────────────────────┐")
+    current_ui.print_line("│ c      - Change city now (sets the override)   │")
+    current_ui.print_line("│ s      - Edit the weekly schedule              │")
+    current_ui.print_line("│ d      - Set the default city                  │")
+    current_ui.print_line("│ o      - View/clear the override               │")
+    current_ui.print_line("│ ?      - Show this help                        │")
+    current_ui.print_line("│ q      - Quit manager                          │")
+    current_ui.print_line("└────────────────────────────────────────────────┘")
+
+
 def _pick_city() -> str | None:
     names = sorted(load_registry())
     current_ui.print_line("Pick city:")
@@ -104,11 +172,12 @@ def _pick_city() -> str | None:
         current_ui.print_line(f"  [{i}] {name}")
     current_ui.print_line("  [n] Cancel")
     choice = current_ui.prompt("> ").strip().lower()
-    if choice in ("n", "cancel", ""):
+    if choice in _CANCEL_TOKENS:
         return None
     if choice.isdigit() and 1 <= int(choice) <= len(names):
         return names[int(choice) - 1]
     current_ui.print_line("Invalid choice.")
+    current_ui.prompt("Press Enter to continue.")
     return None
 
 
@@ -122,7 +191,7 @@ def _pick_duration(conn):
     current_ui.print_line("  [3] Indefinitely (until I clear it)")
     current_ui.print_line("  [n] Cancel")
     choice = current_ui.prompt("> ").strip().lower()
-    if choice in ("n", "cancel", ""):
+    if choice in _CANCEL_TOKENS:
         return None
     if choice == "1":
         return ("next_change", int(nxt[0].timestamp()) if nxt else None)
@@ -140,20 +209,21 @@ def _pick_duration(conn):
     if choice == "3":
         return ("indefinite", None)
     current_ui.print_line("Invalid choice.")
+    current_ui.prompt("Press Enter to continue.")
     return None
 
 
 def _change_city_now(conn):
+    current_ui.print_line("\n─── Change City Now ───")
     names = sorted(load_registry())
     default_name = city_state.get_default_city(conn)
-    current_ui.print_line("Use which city?")
     for i, name in enumerate(names, 1):
         marker = " (default)" if name == default_name else ""
         current_ui.print_line(f"  [{i}] {name}{marker}")
     current_ui.print_line("  [d] Use the default city")
     current_ui.print_line("  [n] Cancel")
     choice = current_ui.prompt("> ").strip().lower()
-    if choice in ("n", "cancel", ""):
+    if choice in _CANCEL_TOKENS:
         return
     if choice == "d":
         city = None
@@ -161,6 +231,7 @@ def _change_city_now(conn):
         city = names[int(choice) - 1]
     else:
         current_ui.print_line("Invalid choice.")
+        current_ui.prompt("Press Enter to continue.")
         return
 
     duration = _pick_duration(conn)
@@ -169,33 +240,45 @@ def _change_city_now(conn):
     mode, until_ts = duration
     city_state.set_override(conn, city, until_ts, mode)
     current_ui.print_line(f"Override set: {city or default_name} ({mode}).")
+    current_ui.prompt("Press Enter to continue.")
 
 
 def _edit_schedule(conn):
     while True:
+        current_ui.clear()
+        print_header(build_header_data())
+
+        current_ui.print_line("  Weekly schedule")
         rules = list_rules(conn)
         if rules:
-            width = max(len(rule.city) for rule in rules)
-            current_ui.print_line("Current rules:")
-            for rule in rules:
-                current_ui.print_line(
-                    f"  [{rule.id}] {rule.city.ljust(width)}  {format_days(rule.days)}  "
-                    f"{format_clock_minutes(rule.from_min)}-{format_clock_minutes(rule.to_min)}"
-                )
+            _print_rules_table(conn)
         else:
-            current_ui.print_line("No rules configured.")
-        current_ui.print_line("  [a] Add rule   [e] Edit rule   [d] Delete rule   [q] Back")
-        choice = current_ui.prompt("schedule> ").strip().lower()
-        if choice in ("q", "quit", ""):
+            current_ui.print_line("\n  No rules configured.")
+        current_ui.print_line("  (the default city applies outside rule windows)")
+
+        tw = get_width()
+        current_ui.print_line()
+        current_ui.print_line(
+            spread_line(["a add rule", "e <#> edit rule", "d <#> delete rule", "b back"], width=tw, margins=1 / 8)
+        )
+        current_ui.print_line()
+        choice = current_ui.prompt("> ").strip().lower()
+
+        if choice in ("b", "back", "q", ""):
             return
         if choice == "a":
             _add_rule_flow(conn)
         elif choice == "e":
-            _edit_rule_flow(conn, rules)
+            _edit_rule_flow(conn, rules, None)
+        elif choice.startswith("e "):
+            _edit_rule_flow(conn, rules, choice[2:].strip())
         elif choice == "d":
-            _delete_rule_flow(conn, rules)
+            _delete_rule_flow(conn, rules, None)
+        elif choice.startswith("d "):
+            _delete_rule_flow(conn, rules, choice[2:].strip())
         else:
-            current_ui.print_line("Invalid choice.")
+            current_ui.print_line("Unknown command. Type ? for help.")
+            current_ui.prompt("Press Enter to continue.")
 
 
 def _parse_range(raw: str) -> tuple[int, int]:
@@ -244,6 +327,7 @@ def _describe_rule(rule_id: int, city: str, days, from_min: int, to_min: int) ->
 
 
 def _add_rule_flow(conn):
+    current_ui.print_line("\n─── Add Rule ───")
     city = _pick_city()
     if city is None:
         return
@@ -264,16 +348,20 @@ def _add_rule_flow(conn):
             continue
         break
     current_ui.print_line(f"Rule added: {_describe_rule(rule_id, city, days, from_min, to_min)}")
+    current_ui.prompt("Press Enter to continue.")
 
 
-def _edit_rule_flow(conn, rules):
+def _edit_rule_flow(conn, rules, arg: str | None):
     if not rules:
         current_ui.print_line("No rules to edit.")
+        current_ui.prompt("Press Enter to continue.")
         return
-    raw = current_ui.prompt("Rule id to edit: ").strip()
+    raw = arg if arg is not None else current_ui.prompt("Rule # to edit: ").strip()
     if not raw.isdigit() or not any(rule.id == int(raw) for rule in rules):
-        current_ui.print_line("Invalid rule id.")
+        current_ui.print_line("Usage: e <#> — no rule with that number.")
+        current_ui.prompt("Press Enter to continue.")
         return
+    current_ui.print_line("\n─── Edit Rule ───")
     city = _pick_city()
     if city is None:
         return
@@ -292,36 +380,44 @@ def _edit_rule_flow(conn, rules):
             continue
         break
     current_ui.print_line(f"Rule updated: {_describe_rule(int(raw), city, days, from_min, to_min)}")
+    current_ui.prompt("Press Enter to continue.")
 
 
-def _delete_rule_flow(conn, rules):
+def _delete_rule_flow(conn, rules, arg: str | None):
     if not rules:
         current_ui.print_line("No rules to delete.")
+        current_ui.prompt("Press Enter to continue.")
         return
-    raw = current_ui.prompt("Rule id to delete: ").strip()
+    raw = arg if arg is not None else current_ui.prompt("Rule # to delete: ").strip()
     if not raw.isdigit():
-        current_ui.print_line("Invalid rule id.")
+        current_ui.print_line("Usage: d <#>.")
+        current_ui.prompt("Press Enter to continue.")
         return
     try:
         delete_rule(conn, int(raw))
     except RuleError as exc:
         current_ui.print_line(f"Cannot delete: {exc}")
+        current_ui.prompt("Press Enter to continue.")
         return
     current_ui.print_line("Rule deleted.")
+    current_ui.prompt("Press Enter to continue.")
 
 
 def _edit_default(conn):
+    current_ui.print_line("\n─── Default City ───")
     city = _pick_city()
     if city is None:
         return
     city_state.set_default_city(conn, city)
     current_ui.print_line(f"Default city set to {city}.")
+    current_ui.prompt("Press Enter to continue.")
 
 
 def _view_override(conn):
     state = city_state.get_state(conn)
     if state["override_mode"] is None:
         current_ui.print_line("No override active.")
+        current_ui.prompt("Press Enter to continue.")
         return
     city_desc = state["override_city"] or f"{state['default_city']} (default city)"
     if state["override_until"] is not None:
@@ -332,3 +428,4 @@ def _view_override(conn):
     if current_ui.confirm("Clear the override?", default_yes=False):
         city_state.clear_override(conn)
         current_ui.print_line("Override cleared.")
+    current_ui.prompt("Press Enter to continue.")
