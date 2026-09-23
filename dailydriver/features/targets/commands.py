@@ -8,12 +8,25 @@ from .history import get_counter_value, get_daily_total, set_counter_value
 from .progress import log_progress
 
 
+def _extract_no_last(parts: list[str]) -> tuple[list[str], bool]:
+    """Extract -n or --no-last flag from token list. Returns (remaining_tokens, touch_last)."""
+    touch_last = True
+    remaining = []
+    for p in parts:
+        if p in ("-n", "--no-last"):
+            touch_last = False
+        else:
+            remaining.append(p)
+    return remaining, touch_last
+
+
 def handle_log_command(args: str, kind: str | None = None) -> str:
     """Handle 'nazr log' or 'habit log' commands.
     kind: 'nazr' or 'habit' to validate the entry kind.
     Returns a confirmation string or an error message.
     """
     parts = args.strip().split()
+    parts, touch_last = _extract_no_last(parts)
     if len(parts) < 2:
         return "Usage: log <name> <amount>"
     name, amount_str = parts[0], parts[1]
@@ -23,7 +36,7 @@ def handle_log_command(args: str, kind: str | None = None) -> str:
         return "Amount must be a number."
     if amount <= 0:
         return "Amount must be positive."
-    return log_progress(name, amount, expected_kind=kind)
+    return log_progress(name, amount, expected_kind=kind, touch_last=touch_last)
 
 
 def handle_daily_total(args: str, kind: str | None = None) -> str:
@@ -33,6 +46,7 @@ def handle_daily_total(args: str, kind: str | None = None) -> str:
     Logs the difference between total and what's already logged today.
     """
     parts = args.strip().split()
+    parts, touch_last = _extract_no_last(parts)
     if len(parts) != 2:
         return "Usage: daily_total <name> <total>"
     name, total_str = parts[0], parts[1]
@@ -55,7 +69,7 @@ def handle_daily_total(args: str, kind: str | None = None) -> str:
     if diff < 0:
         current_ui.print_line(f"Warning: Total {total} is less than today's logged total ({today_total}).")
         return "Negative amount not logged. Please adjust manually."
-    return log_progress(name, diff, kind)
+    return log_progress(name, diff, kind, touch_last=touch_last)
 
 
 def handle_counter_total(args: str, kind: str | None = None) -> str:
@@ -66,6 +80,7 @@ def handle_counter_total(args: str, kind: str | None = None) -> str:
     Updates the stored counter value after logging.
     """
     parts = args.strip().split()
+    parts, touch_last = _extract_no_last(parts)
     if len(parts) != 2:
         return "Usage: counter_total <name> <value>"
     name, value_str = parts[0], parts[1]
@@ -89,7 +104,7 @@ def handle_counter_total(args: str, kind: str | None = None) -> str:
         return "Negative amount not logged. Please adjust manually."
 
     set_counter_value(entry["id"], value)
-    return log_progress(name, diff, kind)
+    return log_progress(name, diff, kind, touch_last=touch_last)
 
 
 def handle_counter_reset(args: str, kind: str | None = None) -> str:

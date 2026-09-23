@@ -94,3 +94,40 @@ def test_bare_router_command_opens_filtered_manager():
     with patch("dailydriver.features.targets.manager.show_manager") as show:
         assert router.dispatch("habit", kind="habit") is None
     show.assert_called_once_with(kind="habit")
+
+
+def test_target_commands_honor_no_last_flag(target, today):
+    from dailydriver.core.state import get_last_action_time
+
+    entry = target()
+    # By default, target logging updates last_action
+    assert get_last_action_time() is None
+    commands.handle_log_command("Salavat 5")
+    first_ts = get_last_action_time()
+    assert first_ts is not None
+
+    # With -n, last_action remains unchanged
+    commands.handle_log_command("Salavat 5 -n")
+    assert get_last_action_time() == first_ts
+    assert entries.get_entry_by_id(entry["id"])["logged_total"] == 10
+
+    # With --no-last, last_action remains unchanged
+    commands.handle_log_command("Salavat 5 --no-last")
+    assert get_last_action_time() == first_ts
+    assert entries.get_entry_by_id(entry["id"])["logged_total"] == 15
+
+    # -n placed before amount
+    commands.handle_log_command("Salavat -n 5")
+    assert get_last_action_time() == first_ts
+    assert entries.get_entry_by_id(entry["id"])["logged_total"] == 20
+
+    # daily_total with -n
+    commands.handle_daily_total("Salavat 25 -n")
+    assert get_last_action_time() == first_ts
+    assert entries.get_entry_by_id(entry["id"])["logged_total"] == 25
+
+    # counter_total with --no-last (diff from 0 to 30 adds 30)
+    commands.handle_counter_total("Salavat 30 --no-last")
+    assert get_last_action_time() == first_ts
+    assert entries.get_entry_by_id(entry["id"])["logged_total"] == 55
+    assert history.get_counter_value(entry["id"]) == 30

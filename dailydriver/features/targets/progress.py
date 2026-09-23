@@ -6,7 +6,12 @@ from . import clock
 from .entries import get_entry_by_name, record_progress
 
 
-def log_progress(name: str, amount: int, expected_kind: str | None = None) -> str:
+def log_progress(
+    name: str,
+    amount: int,
+    expected_kind: str | None = None,
+    touch_last: bool = True,
+) -> str:
     """Log progress for an entry by name.
     If expected_kind is set, it validates the entry kind matches.
     Returns a confirmation string.
@@ -35,7 +40,14 @@ def log_progress(name: str, amount: int, expected_kind: str | None = None) -> st
     if actual_amount <= 0:
         return "Already at target. Nothing to log."
 
-    record_progress(entry_id, actual_amount, new_total, today.strftime("%Y-%m-%d"), int(time.time()))
+    record_progress(
+        entry_id,
+        actual_amount,
+        new_total,
+        today.strftime("%Y-%m-%d"),
+        int(time.time()),
+        touch_last=touch_last,
+    )
 
     # Build confirmation
     total_display = f"{new_total}/{target}" if target is not None else f"{new_total}/∞"
