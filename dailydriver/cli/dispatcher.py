@@ -20,6 +20,7 @@ from dailydriver.core.state import discard_pending_start
 from dailydriver.features.registry import command_hook
 
 from .commands.daystart import daystart_command
+from .commands.city import city_command
 from .commands.travel import travel_command
 
 
@@ -47,6 +48,7 @@ def make_dispatch():
         "h": lambda _: None,  # replaced below once all commands are registered
         "travel": travel_command,
         "daystart": daystart_command,
+        "city": city_command,
     }
 
     for feature in features_pkg.ENABLED:
