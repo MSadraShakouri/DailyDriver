@@ -273,17 +273,13 @@ def _edit_schedule(conn):
     while True:
         current_ui.clear()
         print_header(build_header_data())
-
-        current_ui.print_line()
         current_ui.print_line("  Weekly schedule")
         current_ui.print_line()
         rules = list_rules(conn)
         if rules:
             _print_rules_table(conn)
-            current_ui.print_line()
         else:
             current_ui.print_line("  No rules configured.")
-            current_ui.print_line()
         current_ui.print_line("  (the default city applies outside rule windows)")
         _guide(["a add rule", "e <#> edit rule", "d <#> delete rule", "b back"])
         choice = current_ui.prompt("> ").strip().lower()
