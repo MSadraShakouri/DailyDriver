@@ -88,7 +88,9 @@ def test_injected_only_option_clears_regular_selection(db_path, ui, monkeypatch)
     logger.log_free_text("09:00-09:30 work")
     assert save.call_args.args[4] == []
     assert any("Already injected only" in line for line in ui.lines)
-    assert any("Already injected: deep/work" in line for line in ui.lines)
+    status_line = "\033[32mAlready injected: deep/work\033[0m"
+    status_index = ui.lines.index(status_line)
+    assert status_index > 0 and ui.lines[status_index - 1] == ""
 
 
 def test_auto_selected_time_can_be_rejected(db_path, ui, monkeypatch):

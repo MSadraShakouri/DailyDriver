@@ -34,7 +34,8 @@ def _choose_categories(conn, cmd: str) -> list[str] | None:
     injected_paths = get_active_injected_categories()
     injected_set = set(injected_paths)
     if injected_paths:
-        current_ui.print_line("Already injected: " + ", ".join(injected_paths))
+        current_ui.print_line()
+        current_ui.print_line(f"\033[32mAlready injected: {', '.join(injected_paths)}\033[0m")
 
     # Ask for a few extra ranked results so filtering injected paths still
     # leaves a full numbered list and a useful rich dropdown when possible.
