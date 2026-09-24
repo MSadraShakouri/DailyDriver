@@ -29,3 +29,9 @@ def test_missing_state_returns_empty_strings(monkeypatch):
     assert events.get_great_event_str(True) == ""
     assert events.get_running_event_str(True) == ""
     assert events.get_last_entry_time(True) == ""
+
+
+def test_numbered_states_status_is_today_only(monkeypatch):
+    monkeypatch.setattr(events, "format_numbered_states", lambda: "⏱ States: 1 [work] since 09:00")
+    assert events.get_numbered_states_str(True) == "⏱ States: 1 [work] since 09:00"
+    assert events.get_numbered_states_str(False) == ""

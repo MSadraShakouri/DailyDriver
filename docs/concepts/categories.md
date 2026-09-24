@@ -28,10 +28,11 @@ Results are returned already ordered. The short numbered list shows the top `MAX
 
 A short numbered list of the top suggestions is shown in ranked order. On an interactive terminal the picker also autocompletes as you type, with a live dropdown ordered by relevance (the ranked list first, then the rest of your catalog alphabetically):
 
-- **Enter** alone always accepts suggestion **#1**, regardless of whether a great event is active.
+- **Enter** alone always accepts suggestion **#1**, regardless of whether automatic event/state categories are active.
 - Type **numbers** (space-separated) to pick several from the visible numbered list.
 - Type a **new path** to create it on the spot; multiple space-separated paths are all applied.
-- **`0`** is the explicit opt-in for "Great Event only" when a great event is active (a convenient fallback when you don't want #1 and don't want to type the full event category).
+- Categories already injected by an active great event or numbered state are shown as already applied and omitted from suggestions and completions.
+- **`0`** selects "already injected only" when automatic categories are active and additional suggestions are shown, skipping all additional category choices.
 
 The live dropdown drops entries you've already committed on the line — by path, or by number (typing `3` removes the third suggestion) — and selecting the same category twice (e.g. by number and by name) is collapsed to one.
 

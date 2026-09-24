@@ -143,17 +143,17 @@ class PromptToolkitUI(TerminalUI):
         matches: list[tuple[str, float]],
         ranked_paths: list[str],
         all_paths: list[str],
-        show_great_only: bool = False,
+        show_injected_only: bool = False,
     ) -> list[str] | None:
         """Autocompleting, ranked, space-separated multi-select category picker.
 
-        - Enter on an empty line always accepts suggestion #1 (never "Great
-          Event only"), regardless of whether a great event is active.
+        - Enter on an empty line always accepts suggestion #1 (never "already
+          injected only"), regardless of whether injected categories are active.
         - Otherwise the user types space-separated numbers (from the visible
           list) and/or paths; the live dropdown is ordered by *ranked_paths* and
           drops entries already committed on the line. Brand-new paths may be
           typed freely.
-        - "0" is the explicit opt-in for "Great Event only" when offered.
+        - "0" skips additional selection when injected categories are offered.
 
         Returns the selected paths, or ``None`` to let the caller fall back.
         """
@@ -162,13 +162,13 @@ class PromptToolkitUI(TerminalUI):
         if numbered:
             self.print_line()
             self.print_line("Suggested categories (Tab to autocomplete, space-separate to pick several):")
-            if show_great_only:
-                self.print_line("  [0] Great Event only")
+            if show_injected_only:
+                self.print_line("  [0] Already injected only")
             for index, path in enumerate(numbered, 1):
                 self.print_line(f"  [{index}] {path}")
             hint = "Enter=1, numbers or names to select, or type new paths"
-            if show_great_only:
-                hint = "Enter=1, 0=Great Event only, numbers/names to select, or type new paths"
+            if show_injected_only:
+                hint = "Enter=1, 0=Already injected only, numbers/names to select, or type new paths"
         else:
             self.print_line()
             self.print_line("No suggestions. Type a category path (Tab to autocomplete) or Enter to skip.")
@@ -194,14 +194,14 @@ class PromptToolkitUI(TerminalUI):
         except Exception:
             return None
 
-        return self._resolve_selection(raw, numbered, show_great_only)
+        return self._resolve_selection(raw, numbered, show_injected_only)
 
     @staticmethod
-    def _resolve_selection(raw: str, numbered: list[str], show_great_only: bool) -> list[str]:
+    def _resolve_selection(raw: str, numbered: list[str], show_injected_only: bool) -> list[str]:
         """Resolve typed input to paths.
 
-        Empty input always accepts suggestion #1 (never "Great Event only").
-        "0" is the explicit opt-in for great-event-only. Numbers map to the
+        Empty input always accepts suggestion #1 (never "Already injected only").
+        "0" is the explicit opt-in for already-injected-only. Numbers map to the
         visible numbered list; anything else is treated as a path. Duplicates
         (e.g. typing both ``3`` and its path) are collapsed while preserving
         order.
@@ -210,7 +210,7 @@ class PromptToolkitUI(TerminalUI):
         if choice == "":
             return [numbered[0]] if numbered else []
 
-        if choice.lower() == "0" and show_great_only:
+        if choice.lower() == "0" and show_injected_only:
             return []
 
         selected: list[str] = []
@@ -222,7 +222,7 @@ class PromptToolkitUI(TerminalUI):
                 selected.append(path)
 
         for token in choice.split():
-            if token == "0" and show_great_only:
+            if token == "0" and show_injected_only:
                 return []
             if token.isdigit():
                 idx = int(token) - 1

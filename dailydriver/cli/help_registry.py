@@ -111,6 +111,30 @@ HELP: dict[str, HelpEntry] = {
         usage=["ege [text]     end the great event, log entry"],
     ),
     "cge": HelpEntry(summary="Cancel the great event without logging", group="Events & Chaining", usage=["cge"]),
+    "st": HelpEntry(
+        summary="Start a numbered category-injecting state",
+        group="Events & Chaining",
+        usage=[
+            "st1 <category...> [-u]  start state 1 (slots 1-9; multiple categories allowed)",
+            "st3 transport/metro friends/b  start state 3 with two injected categories",
+        ],
+        notes=(
+            "Categories are created if needed and injected into journal entries while the state is active. "
+            "Starting a state does not update last_action unless -u / --update-last is supplied."
+        ),
+    ),
+    "et": HelpEntry(
+        summary="End one or more numbered states",
+        group="Events & Chaining",
+        usage=[
+            "et1 [text]    end state 1; with text, log from its start",
+            "et31 [text]   end states 3 and 1; the first number anchors the log time",
+        ],
+        notes=(
+            "Without text, states stop without a journal entry or last_action update. "
+            "A cancelled time confirmation leaves all selected states active."
+        ),
+    ),
     "u": HelpEntry(
         summary="Refresh last_action to now (for chaining)",
         group="Events & Chaining",

@@ -9,6 +9,7 @@ from dailydriver.display.display_utils import get_width, spread_line
 from dailydriver.display.header.events import (
     get_great_event_str,
     get_last_entry_time,
+    get_numbered_states_str,
     get_running_event_str,
 )
 from dailydriver.features.calendar.converter import gregorian_to_hijri_with_month_offsets
@@ -57,10 +58,11 @@ def build_header_data(day=None, is_today=True):
                 returned = build_sections(conn, today, target_date, is_today)
                 sections.extend(validate_header_sections(feature, returned))
 
-        # Great/running event status are core (not a feature package), but they
-        # join the same priority-ordered stream so they render in their historic
-        # slot: just under prayer (0) and above sleep (10). Priorities 5 and 6
-        # match the pre-refactor events feature.
+        # Numbered states and the legacy great/running event status are core
+        # (not a feature package), but join the same priority-ordered stream
+        # just under prayer (0) and above sleep (10).
+        if numbered_states := get_numbered_states_str(is_today):
+            sections.append((4, numbered_states))
         if great_event := get_great_event_str(is_today):
             sections.append((5, great_event))
         if running_event := get_running_event_str(is_today):

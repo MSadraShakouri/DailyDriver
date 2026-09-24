@@ -43,6 +43,14 @@ def start_great_event(categories: list[str]) -> int:
     with get_connection_cm(auto=False) as conn:
         if get_meta_value(_GREAT_EVENT_START_KEY, conn=conn) is not None:
             raise RuntimeError("A great event is already active.")
+        # Great-event categories are injected later by the journal writer, so
+        # materialise new paths now. Check first: INSERT OR IGNORE on the
+        # AUTOINCREMENT categories table consumes IDs on duplicate paths.
+        for category in categories:
+            exists = conn.execute("SELECT 1 FROM categories WHERE path = ?", (category,)).fetchone()
+            if not exists:
+                conn.execute("INSERT INTO categories (path) VALUES (?)", (category,))
+
         ts = int(time.time())
         conn.execute(
             "INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)",

@@ -4,7 +4,12 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from dailydriver.core.state import get_active_great_event, get_last_action_time, get_pending_start
+from dailydriver.core.state import (
+    format_numbered_states,
+    get_active_great_event,
+    get_last_action_time,
+    get_pending_start,
+)
 
 
 def get_great_event_str(is_today: bool) -> str:
@@ -15,6 +20,12 @@ def get_great_event_str(is_today: bool) -> str:
         start_ts, categories = active
         return f"⏱ Great Event [{', '.join(categories)}] since {datetime.fromtimestamp(start_ts).strftime('%H:%M')}"
     return ""
+
+
+def get_numbered_states_str(is_today: bool) -> str:
+    if not is_today:
+        return ""
+    return format_numbered_states()
 
 
 def get_running_event_str(is_today: bool) -> str:

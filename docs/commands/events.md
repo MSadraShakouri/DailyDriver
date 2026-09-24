@@ -1,10 +1,37 @@
 # Events & Chaining
 
-DailyDriver has three complementary ways to capture time spent on activities.
+DailyDriver supports numbered category states, single running timers, and chaining from the last action.
+
+## Numbered category states — `st1`–`st9`, `et...`
+
+A numbered state is a timed, category-injecting context. Slots 1–9 can run independently; each can hold several categories. Every journal entry logged while states are active receives the union of their categories. Active states appear in the header.
+
+| Command | Meaning |
+|---------|---------|
+| `st1 <category...>` | Start state 1 with one or more categories |
+| `st1 <category...> -u` | Also set `last_action` to the state start time |
+| `et1 [text]` | End state 1; with text, log its timed entry |
+| `et31 [text]` | End states 3 and 1 together |
+
+Examples:
+
+```text
+> st1 transport/car
+> st2 friends/a
+> et1 reached the metro
+> st3 transport/metro friends/b
+> et31 arrived together
+```
+
+State categories are created when the state starts. State starts do not update `last_action` by default; `-u` (or `--update-last`, anywhere after the command) opts in. The state’s own start time is always recorded.
+
+For an `et` command with text, **the first state number is the time anchor** for its single journal entry. For example, `et21 arrived` uses state 2’s start time, logs one entry with categories that are active at that moment, and then ends states 2 and 1. If the time confirmation is cancelled, all selected states remain active. Without text, `et` only stops the selected states: it creates no entry and does not update `last_action`.
+
+When injected categories are active, the category picker lists them as **Already injected** and omits them from both the numbered suggestions and the Prompt Toolkit dropdown. When additional suggestions are available, `0` means “already injected only” (no additional categories).
 
 ## Running event — `se`, `ee`, `ce`
 
-Fine-grained timing of a single activity you're doing right now.
+Legacy single running timer, retained with its existing behavior.
 
 | Command | Meaning |
 |---------|---------|
@@ -34,15 +61,15 @@ The `last_action` timestamp is updated whenever you log something. You can also 
 
 ## Great events — `sge`, `ege`, `cge`
 
-A great event is a long-running activity (e.g. a trip, a workday) that can absorb later entries into its category. Active great events appear in the header.
+Legacy single great event, retained with its existing behavior. A great event is a long-running activity whose categories are injected into later entries.
 
 | Command | Meaning |
 |---------|---------|
-| `sge <category>` | Start a great event under the given category |
+| `sge <category...>` | Start a great event with one or more categories |
 | `ege [text]` | End the great event, logging an entry |
 | `cge` | Cancel the great event without logging |
 
-While a great event is active, the journal category picker offers a `0 = Great Event only` option so an entry can be attributed solely to the event.
+Great-event categories are created when `sge` starts. While active, the picker identifies them as already injected.
 
 If you cancel the time confirmation when ending with `ege` (or `ee` for a running event), the entry is not logged and the event is **kept active** so nothing is lost — the app tells you it's still running and how to end (`ege`/`ee`) or cancel (`cge`/`ce`) it.
 
@@ -57,7 +84,7 @@ Refresh the `last_action` timestamp to now. Handy when you did something but did
 
 ## Multi-line input
 
-For entries that span several lines, and for `ln`/`ee`/`ege`:
+For entries that span several lines, and for `ln`/`ee`/`ege`/`et...`:
 
 1. Type `:m` and press Enter.
 2. Enter each line; they are collected.

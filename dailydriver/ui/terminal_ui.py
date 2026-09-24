@@ -40,7 +40,7 @@ class UI(ABC):
         matches: list[tuple[str, float]],
         ranked_paths: list[str],
         all_paths: list[str],
-        show_great_only: bool = False,
+        show_injected_only: bool = False,
     ) -> list[str] | None:
         """Interactively select one or more category paths.
 
@@ -51,7 +51,7 @@ class UI(ABC):
         - *all_paths* is the full catalog; entries not in *ranked_paths* follow
           alphabetically in the dropdown.
 
-        Returns the chosen paths (possibly empty for "Great Event only"), or
+        Returns the chosen paths (possibly empty for "already injected only"), or
         ``None`` to signal that the caller should fall back to its own text
         flow. The default returns ``None`` so plain backends keep their existing
         numbered-list behavior; rich backends override this with an

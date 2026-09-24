@@ -16,7 +16,7 @@ def prepare(monkeypatch, interpretations):
     monkeypatch.setattr(logger, "find_matching_categories", lambda command, limit=None: [])
     monkeypatch.setattr(logger, "inject_great_categories", Mock())
     monkeypatch.setattr(logger, "save_entry", save)
-    monkeypatch.setattr(logger, "get_active_great_event", lambda: None)
+    monkeypatch.setattr(logger, "get_active_injected_categories", list)
     return save
 
 
@@ -77,17 +77,20 @@ def test_suggested_categories_support_numbers_and_new_paths(db_path, ui, monkeyp
     assert save.call_args.args[4] == ["work/review", "custom/path"]
 
 
-def test_great_event_only_option_clears_regular_selection(db_path, ui, monkeypatch):
+def test_injected_only_option_clears_regular_selection(db_path, ui, monkeypatch):
     selected = interpretation()
     save = prepare(monkeypatch, [selected])
     monkeypatch.setattr(
         logger, "find_matching_categories", lambda command, limit=None: [("work/code", 1), ("work/review", 0.5)]
     )
-    monkeypatch.setattr(logger, "get_active_great_event", lambda: (1, ["deep/work"]))
+    monkeypatch.setattr(logger, "get_active_injected_categories", lambda: ["deep/work"])
     ui.queue("0")
     logger.log_free_text("09:00-09:30 work")
     assert save.call_args.args[4] == []
-    assert any("Great Event only" in line for line in ui.lines)
+    assert any("Already injected only" in line for line in ui.lines)
+    status_line = "\033[32mAlready injected: deep/work\033[0m"
+    status_index = ui.lines.index(status_line)
+    assert status_index > 0 and ui.lines[status_index - 1] == ""
 
 
 def test_auto_selected_time_can_be_rejected(db_path, ui, monkeypatch):
@@ -124,3 +127,42 @@ def test_plain_flow_used_when_picker_returns_none(db_path, ui, monkeypatch):
     ui.queue("2")
     logger.log_free_text("09:00-09:30 work")
     assert save.call_args.args[4] == ["work/review"]
+
+
+def test_injected_categories_are_excluded_from_numbered_and_dropdown_suggestions(db_path, ui, monkeypatch):
+    from dailydriver.core.database import get_connection_cm
+
+    with get_connection_cm(auto=False) as conn:
+        conn.executemany(
+            "INSERT INTO categories (path) VALUES (?)",
+            [(path,) for path in ("transport/car", "work/code", "work/review", "friend/a")],
+        )
+        conn.commit()
+
+    monkeypatch.setattr(
+        logger,
+        "find_matching_categories",
+        lambda command, limit=None: [
+            ("transport/car", 10),
+            ("work/code", 9),
+            ("friend/a", 8),
+            ("work/review", 7),
+        ],
+    )
+    monkeypatch.setattr(logger, "get_active_injected_categories", lambda: ["transport/car", "friend/a"])
+    received = {}
+
+    def select(matches, ranked_paths, all_paths, **kwargs):
+        received.update(matches=matches, ranked=ranked_paths, all=all_paths, options=kwargs)
+        return []
+
+    monkeypatch.setattr(logger.current_ui, "select_categories", select)
+    with get_connection_cm() as conn:
+        assert logger._choose_categories(conn, "commute") == []
+
+    assert [path for path, _ in received["matches"]] == ["work/code", "work/review"]
+    assert received["ranked"] == ["work/code", "work/review"]
+    assert "transport/car" not in received["all"]
+    assert "friend/a" not in received["all"]
+    assert received["options"] == {"show_injected_only": True}
+    assert any("Already injected: transport/car, friend/a" in line for line in ui.lines)

@@ -1,4 +1,5 @@
 # dailydriver/cli/commander.py
+import re
 import sys
 
 from dailydriver.cli.dispatcher import make_dispatch
@@ -9,6 +10,17 @@ from dailydriver.display.header_renderer import print_header
 from dailydriver.ui.terminal_ui import current_ui
 
 HELP_FLAGS = ("-h", "--help")
+_NUMBERED_START_COMMAND = re.compile(r"^st\d+$")
+_NUMBERED_END_COMMAND = re.compile(r"^et\d+$")
+
+
+def _dispatch_key(first: str) -> str:
+    """Resolve compact numbered commands to their registered handlers."""
+    if _NUMBERED_START_COMMAND.fullmatch(first):
+        return "st"
+    if _NUMBERED_END_COMMAND.fullmatch(first):
+        return "et"
+    return first
 
 
 def clear():
@@ -40,12 +52,13 @@ def _dispatch_line(line: str, dispatch: dict) -> None:
     """
     parts = line.split()
     first = parts[0].lower()
+    dispatch_key = _dispatch_key(first)
 
-    if first in dispatch and _wants_help(parts):
-        show_command_help(first)
+    if dispatch_key in dispatch and _wants_help(parts):
+        show_command_help(dispatch_key)
         return
 
-    handler = dispatch.get(first)
+    handler = dispatch.get(dispatch_key)
     try:
         if handler:
             result = handler(line)
@@ -64,7 +77,8 @@ def _submit_multiline(lines: list[str]) -> None:
     first_parts = first_line.split(maxsplit=1)
     command = first_parts[0].lower() if first_parts else ""
 
-    if command not in ("ln", "ee", "ege"):
+    is_numbered_end = _NUMBERED_END_COMMAND.fullmatch(command) is not None
+    if command not in ("ln", "ee", "ege") and not is_numbered_end:
         log_free_text(full_text)
         return
 
@@ -80,6 +94,10 @@ def _submit_multiline(lines: list[str]) -> None:
         from dailydriver.cli.commands.events import end_great_event_cmd
 
         end_great_event_cmd(f"ege {description}")
+    elif is_numbered_end:
+        from dailydriver.cli.commands.states import end_numbered_states_cmd
+
+        end_numbered_states_cmd(f"{command} {description}")
     else:
         from dailydriver.cli.commands.events import log_event_end
 
@@ -91,7 +109,7 @@ def repl():
     collecting = False
 
     dispatch = make_dispatch()
-    command_names = sorted(dispatch.keys())
+    command_names = sorted(set(dispatch) | {f"st{state_id}" for state_id in range(1, 10)})
 
     try:
         while True:
