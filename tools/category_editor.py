@@ -7,12 +7,12 @@ All write operations are transactional: conn.commit() only on success.
 
 Safety notes
 ------------
-* Renaming a category is NOT a pure cosmetic change.  Category *paths* are
-  also persisted as strings in ``meta.great_event_categories`` (space
-  joined), and the hygiene feature matches history with
-  ``categories.path LIKE '%/' + item``.  A rename therefore:
-    - rewrites the old path to the new one inside the great-event meta
-      value so entries keep being tagged correctly, and
+* Renaming a category is NOT a pure cosmetic change. Category *paths* are
+  also persisted as strings in ``meta.great_event_categories`` and the
+  numbered-state category values (space joined), and the hygiene feature
+  matches history with ``categories.path LIKE '%/' + item``. A rename therefore:
+    - rewrites active event/state metadata so later entries keep being tagged
+      correctly, and
     - returns a ``warnings`` list if a hygiene item matched the old path
       but no longer matches the new one (its history lookup would break).
 * Delete is only allowed when no entry references the category.
@@ -206,24 +206,41 @@ def get_suggestions(only_path=None, limit=SUGGESTION_LIMIT):
 # ---------------------------------------------------------------------------
 
 
-def _sync_great_event_meta(conn, old_path, new_path):
-    """Keep meta.great_event_categories consistent with a rename/delete.
-
-    The value is space-joined (see core/state/events.py), so paths cannot
-    contain spaces and word-level replacement is exact.
-    """
-    row = conn.execute("SELECT value FROM meta WHERE key = ?", (GREAT_EVENT_CATEGORIES_KEY,)).fetchone()
+def _sync_category_meta_value(conn, key, old_paths, new_path):
+    """Rewrite space-joined category paths stored in active-event metadata."""
+    row = conn.execute("SELECT value FROM meta WHERE key = ?", (key,)).fetchone()
     if not row or not row["value"]:
         return
-    parts = row["value"].split()
-    if old_path not in parts:
-        return
-    parts[parts.index(old_path)] = new_path if new_path else None
-    new_value = " ".join(p for p in parts if p is not None)
-    conn.execute(
-        "INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)",
-        (GREAT_EVENT_CATEGORIES_KEY, new_value),
-    )
+
+    parts = []
+    seen = set()
+    for part in row["value"].split():
+        if part in old_paths:
+            if not new_path:
+                continue
+            part = new_path
+        if part not in seen:
+            parts.append(part)
+            seen.add(part)
+
+    new_value = " ".join(parts)
+    if new_value != row["value"]:
+        conn.execute(
+            "INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)",
+            (key, new_value),
+        )
+
+
+def _sync_great_event_meta(conn, old_path, new_path):
+    """Keep the legacy great-event category list consistent with edits."""
+    _sync_category_meta_value(conn, GREAT_EVENT_CATEGORIES_KEY, {old_path}, new_path)
+
+
+def _sync_numbered_state_meta(conn, old_paths, new_path):
+    """Keep active numbered-state category lists consistent with edits."""
+    rows = conn.execute("SELECT key FROM meta WHERE key GLOB 'numbered_state_[1-9]_categories'").fetchall()
+    for row in rows:
+        _sync_category_meta_value(conn, row["key"], set(old_paths), new_path)
 
 
 def _hygiene_warnings(conn, old_path, new_path):
@@ -278,6 +295,7 @@ def rename_category(category_id, new_path):
             # path != old_path here (also covers case-only changes)
             conn.execute("UPDATE categories SET path = ? WHERE id = ?", (path, category_id))
             _sync_great_event_meta(conn, old_path, path)
+            _sync_numbered_state_meta(conn, {old_path}, path)
             warnings = _hygiene_warnings(conn, old_path, path)
         return {"message": "Renamed.", "warnings": warnings}
     finally:
@@ -364,6 +382,11 @@ def merge_categories(source_id, target_id, new_name):
                     "UPDATE categories SET path = ? WHERE id = ?",
                     (result_path, target_id),
                 )
+            # Both old paths now resolve to the merged result. Keep any active
+            # event/state metadata pointed at that surviving category.
+            old_paths = {src["path"], tgt["path"]}
+            _sync_category_meta_value(conn, GREAT_EVENT_CATEGORIES_KEY, old_paths, result_path)
+            _sync_numbered_state_meta(conn, old_paths, result_path)
         return {
             "message": (
                 f"Merged '{src['path']}' into '{result_path}'."
@@ -397,6 +420,7 @@ def delete_category(category_id):
             conn.execute("DELETE FROM keywords WHERE category_id = ?", (category_id,))
             conn.execute("DELETE FROM categories WHERE id = ?", (category_id,))
             _sync_great_event_meta(conn, cat["path"], None)
+            _sync_numbered_state_meta(conn, {cat["path"]}, None)
         return {"message": f"Deleted '{cat['path']}'."}
     finally:
         conn.close()

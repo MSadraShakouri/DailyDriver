@@ -370,3 +370,47 @@ def test_delete_removes_empty_category_keywords_and_meta(db_path):
     assert _row(conn, "SELECT COUNT(*) AS n FROM keywords WHERE word = 'ghost'")["n"] == 0
     assert _row(conn, "SELECT value FROM meta WHERE key = 'great_event_categories'")["value"] == "other"
     conn.close()
+
+
+def test_merge_syncs_legacy_and_numbered_state_categories(db_path):
+    db = str(db_path)
+    conn = _conn(db)
+    _seed(
+        conn,
+        categories=["src", "tgt", "other"],
+        meta=[
+            ("great_event_categories", "src tgt other"),
+            ("numbered_state_1_categories", "src tgt other"),
+        ],
+    )
+    conn.commit()
+    conn.close()
+
+    ce.merge_categories(_cat_id(_conn(db), "src"), _cat_id(_conn(db), "tgt"), "merged")
+
+    conn = _conn(db)
+    assert _row(conn, "SELECT value FROM meta WHERE key = 'great_event_categories'")["value"] == "merged other"
+    assert _row(conn, "SELECT value FROM meta WHERE key = 'numbered_state_1_categories'")["value"] == "merged other"
+    conn.close()
+
+
+def test_rename_and_delete_sync_numbered_state_categories(db_path):
+    db = str(db_path)
+    conn = _conn(db)
+    _seed(
+        conn,
+        categories=["old", "unused"],
+        meta=[("numbered_state_2_categories", "old unused")],
+    )
+    conn.commit()
+    conn.close()
+
+    ce.rename_category(_cat_id(_conn(db), "old"), "renamed")
+    conn = _conn(db)
+    assert _row(conn, "SELECT value FROM meta WHERE key = 'numbered_state_2_categories'")["value"] == "renamed unused"
+    conn.close()
+
+    ce.delete_category(_cat_id(_conn(db), "unused"))
+    conn = _conn(db)
+    assert _row(conn, "SELECT value FROM meta WHERE key = 'numbered_state_2_categories'")["value"] == "renamed"
+    conn.close()

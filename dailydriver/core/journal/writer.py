@@ -3,16 +3,16 @@
 from __future__ import annotations
 
 import time
-from datetime import datetime
 
 from dailydriver.core.export_utils import format_time_range
-from dailydriver.core.state import get_active_great_event
+from dailydriver.core.state import get_active_injected_categories
 
 from .keywords import learn_keywords
 
 
 def save_entry(conn, cmd: str, started_at: int | None, duration: int | None, selected_paths: list[str]) -> str:
     """Insert a journal entry and all category associations."""
+    selected_paths = list(dict.fromkeys(selected_paths))
     cur = conn.cursor()
     now_ts = int(time.time())
     cur.execute(
@@ -24,11 +24,17 @@ def save_entry(conn, cmd: str, started_at: int | None, duration: int | None, sel
 
     for path in selected_paths:
         row = cur.execute("SELECT id FROM categories WHERE path=?", (path,)).fetchone()
-        if row:
-            cur.execute(
-                "INSERT INTO entry_categories (entry_id, category_id) VALUES (?,?)",
-                (entry_id, row["id"]),
-            )
+        if not row:
+            # Defend against stale active-event metadata as well as future
+            # callers that provide a fresh category path directly.
+            cur.execute("INSERT INTO categories (path) VALUES (?)", (path,))
+            category_id = cur.lastrowid
+        else:
+            category_id = row["id"]
+        cur.execute(
+            "INSERT INTO entry_categories (entry_id, category_id) VALUES (?,?)",
+            (entry_id, category_id),
+        )
 
     learn_keywords(cmd, selected_paths, conn=conn)
 
@@ -43,11 +49,11 @@ def save_entry(conn, cmd: str, started_at: int | None, duration: int | None, sel
 
 
 def inject_great_categories(selected_paths: list[str]) -> None:
-    """Append the active great event's categories without duplicating paths."""
-    active = get_active_great_event()
-    if active is None:
-        return
-    _, categories = active
-    for category in categories:
+    """Append categories from all active injectors without duplicates.
+
+    The historic function name remains for compatibility with the old great
+    event command; numbered states now contribute to the same injected set.
+    """
+    for category in get_active_injected_categories():
         if category not in selected_paths:
             selected_paths.append(category)

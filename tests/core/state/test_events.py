@@ -57,6 +57,11 @@ def test_great_event_lifecycle(db_path):
     timestamp = events.start_great_event(["work", "focus"])
     assert events.get_active_great_event() == (timestamp, ["work", "focus"])
     assert activity.get_last_action_time() == timestamp
+    from dailydriver.core.database import get_connection_cm
+
+    with get_connection_cm(auto=False) as conn:
+        paths = {row["path"] for row in conn.execute("SELECT path FROM categories")}
+    assert paths == {"work", "focus"}
     with pytest.raises(RuntimeError, match="already active"):
         events.start_great_event(["other"])
 

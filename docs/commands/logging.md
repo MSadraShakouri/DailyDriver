@@ -16,11 +16,11 @@ Anything not recognized as a command is a journal entry. The flow is:
 > last Thursday visited grandmother
 ```
 
-If a great event is active and suggestions are shown, the picker also offers `0 = Great Event only`.
+If great-event or numbered-state categories are already being injected, the picker displays them as `Already injected`, removes them from suggestions and the live dropdown, and offers `0 = already injected only` when other suggestions are available.
 
 ### Category selection
 
-When suggestions exist, a short numbered list is shown in ranked order (best match first). In an interactive terminal the picker also autocompletes as you type, with a live dropdown that drops categories you've already picked (by name or by number). Press Tab to complete, space-separate to choose several, or type a brand-new path. Press **Enter alone to accept suggestion #1**; type `0` for "Great Event only" when a great event is active. See [Categories & Keyword Learning](../concepts/categories.md) for how the ranking and selection work.
+When suggestions exist, a short numbered list is shown in ranked order (best match first). In an interactive terminal the picker also autocompletes as you type, with a live dropdown that drops categories you've already picked (by name or by number) and categories already injected by active events/states. Press Tab to complete, space-separate to choose several, or type a brand-new path. Press **Enter alone to accept suggestion #1**; type `0` for "already injected only" when active injection is present. See [Categories & Keyword Learning](../concepts/categories.md) for how the ranking and selection work.
 
 ## Sleep — `s` (alias `sleep`)
 

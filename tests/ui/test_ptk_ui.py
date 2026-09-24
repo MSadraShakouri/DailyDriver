@@ -20,8 +20,8 @@ class TestResolveSelection:
     def test_empty_picks_first(self):
         assert PromptToolkitUI._resolve_selection("", ["a/b", "c/d"], False) == ["a/b"]
 
-    def test_empty_never_picks_great_only_even_when_offered(self):
-        # Enter on empty always means #1, regardless of great-event state.
+    def test_empty_never_picks_injected_only_even_when_offered(self):
+        # Enter on empty always means #1, regardless of injected-category state.
         assert PromptToolkitUI._resolve_selection("", ["a/b", "c/d"], True) == ["a/b"]
 
     def test_empty_with_no_matches_returns_empty(self):
@@ -41,10 +41,10 @@ class TestResolveSelection:
         # Typing both "1" and its path must not add it twice.
         assert PromptToolkitUI._resolve_selection("1 a/b", ["a/b", "c/d"], False) == ["a/b"]
 
-    def test_zero_selects_great_only_when_offered(self):
+    def test_zero_selects_injected_only_when_offered(self):
         assert PromptToolkitUI._resolve_selection("0", ["a/b"], True) == []
 
-    def test_zero_is_literal_when_great_not_offered(self):
+    def test_zero_is_ignored_when_injected_option_not_offered(self):
         assert PromptToolkitUI._resolve_selection("0", ["a/b"], False) == []
 
     def test_out_of_range_number_ignored(self):

@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- **Numbered category states**: `st1`–`st9` start independent category-injecting intervals; `et...` ends one or more slots, with the first slot anchoring an optional final log. `-u` / `--update-last` opts into moving the chaining timestamp when a state starts.
+- Active injected categories are identified in the category picker and removed from its suggestions and Prompt Toolkit dropdown.
+
+### Fixed
+
+- Starting a great event or numbered state now creates missing category rows before later injection; ignored duplicate inserts are avoided so they do not consume category AUTOINCREMENT values.
+- Category rename, merge, and delete keep active great-event and numbered-state category metadata in sync.
+
 ## 2.3.0 (2026-09-23)
 
 ### Added

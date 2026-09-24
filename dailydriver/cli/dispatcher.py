@@ -14,6 +14,7 @@ from dailydriver.cli.commands.export_cmd import export
 from dailydriver.cli.commands.help_cmd import show_help
 from dailydriver.cli.commands.hygiene_cmd import manage_hygiene
 from dailydriver.cli.commands.search import search
+from dailydriver.cli.commands.states import end_numbered_states_cmd, start_numbered_state_cmd
 from dailydriver.cli.commands.stats_cmd import show_stats
 from dailydriver.cli.commands.viewing import show_day, show_last, view_entries
 from dailydriver.core.state import discard_pending_start
@@ -40,6 +41,8 @@ def make_dispatch():
         "sge": start_great_event_cmd,
         "ege": end_great_event_cmd,
         "cge": cancel_great_event_cmd,
+        "st": start_numbered_state_cmd,
+        "et": end_numbered_states_cmd,
         "u": lambda _: update_last_action(),
         "update": lambda _: update_last_action(),
         "export": export,
