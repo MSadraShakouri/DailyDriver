@@ -5,7 +5,13 @@
 ### Added
 
 - **Numbered category states**: `st1`–`st9` start independent category-injecting intervals; `et...` ends one or more slots, with the first slot anchoring an optional final log. `-u` / `--update-last` opts into moving the chaining timestamp when a state starts.
+- **Numbered chaining**: `ln4 <text>` chains from `last_action` to now *and* ends state 4, with extra digits closing extra slots (`ln1352`). Unlike `et4`, the entry keeps `ln` timing instead of the state's own start. Text is required, states stay active if the confirmation is cancelled, and out-of-range digits (`ln0`, `ln10`) print usage instead of silently dropping the numbers. `ln...` also works through the `:m` multiline flow and appears in REPL completion alongside `st1`–`st9` and `et1`–`et9`.
 - Active injected categories are identified in the category picker and removed from its suggestions and Prompt Toolkit dropdown.
+
+### Changed
+
+- **Numbered-state header**: each active state now renders on its own compact line (`⏱ 3 friends/b food/lunch · 15:30`) instead of one pipe-joined `⏱ States:` row, which hard-truncated at the terminal width and hid every slot after the first on 50-column screens. Categories wrap under a hanging indent with the `· HH:MM` tail kept as one unit, so the separator never dangles at the end of a wrapped row. Formatting moved from `core/state/numbered.py` to `display/header/events.py`, keeping width-aware layout out of core.
+- **Hygiene header** shows up to three nudges instead of two.
 
 ### Fixed
 

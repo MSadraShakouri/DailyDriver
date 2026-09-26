@@ -65,10 +65,10 @@ def compute_hygiene_nudges(conn, relative_to=None):
 
 
 def get_hygiene_lines(conn, target_date, is_today):
-    """Return a list of hygiene nudge strings (up to 2)."""
+    """Return a list of hygiene nudge strings (up to 3)."""
     if is_today:
         # Use shifted today for nudges (day starts at day_start_hour)
         nudge_lines = compute_hygiene_nudges(conn, relative_to=get_shifted_today())
     else:
         nudge_lines = []
-    return nudge_lines[:2]
+    return nudge_lines[:3]

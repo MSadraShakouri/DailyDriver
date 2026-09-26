@@ -15,7 +15,7 @@ Every command, grouped by area. In the app, add `-h` or `--help` after any comma
 - [Logging](commands/logging.md) — journal, sleep, naps, void
 - [Prayer](commands/prayer.md) — `p`, qada backlog
 - [Qada & Fasting](commands/qada.md)
-- [Events & Chaining](commands/events.md) — numbered states (`st1`–`st9`, `et...`), `se`/`ee`/`ce`, `ln`, great events, `u`
+- [Events & Chaining](commands/events.md) — numbered states (`st1`–`st9`, `et...`, `ln...`), `se`/`ee`/`ce`, `ln`, great events, `u`
 - [Targets](commands/targets.md) — nazr and habits
 - [Viewing & Summaries](commands/viewing.md) — `day`, `view`, `search`, `recent`, `stats`
 - [Calendar](commands/calendar.md) — `cal`, `year`, `hijri`

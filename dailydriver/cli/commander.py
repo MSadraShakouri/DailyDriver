@@ -5,6 +5,7 @@ import sys
 from dailydriver.cli.dispatcher import make_dispatch
 from dailydriver.cli.help import show_command_help
 from dailydriver.core.journal import log_free_text
+from dailydriver.core.state import STATE_IDS
 from dailydriver.display.header import build_header_data
 from dailydriver.display.header_renderer import print_header
 from dailydriver.ui.terminal_ui import current_ui
@@ -12,6 +13,9 @@ from dailydriver.ui.terminal_ui import current_ui
 HELP_FLAGS = ("-h", "--help")
 _NUMBERED_START_COMMAND = re.compile(r"^st\d+$")
 _NUMBERED_END_COMMAND = re.compile(r"^et\d+$")
+_NUMBERED_CHAIN_COMMAND = re.compile(r"^ln\d+$")
+# Commands that take a numbered state suffix, used for REPL completion.
+_NUMBERED_COMMAND_PREFIXES = ("st", "et", "ln")
 
 
 def _dispatch_key(first: str) -> str:
@@ -20,7 +24,14 @@ def _dispatch_key(first: str) -> str:
         return "st"
     if _NUMBERED_END_COMMAND.fullmatch(first):
         return "et"
+    if _NUMBERED_CHAIN_COMMAND.fullmatch(first):
+        return "ln"
     return first
+
+
+def _numbered_command_names() -> set[str]:
+    """Per-slot spellings (``st1``…``ln9``) offered by the REPL completer."""
+    return {f"{prefix}{state_id}" for prefix in _NUMBERED_COMMAND_PREFIXES for state_id in STATE_IDS}
 
 
 def clear():
@@ -78,7 +89,10 @@ def _submit_multiline(lines: list[str]) -> None:
     command = first_parts[0].lower() if first_parts else ""
 
     is_numbered_end = _NUMBERED_END_COMMAND.fullmatch(command) is not None
-    if command not in ("ln", "ee", "ege") and not is_numbered_end:
+    # ``ln`` keeps its numbered spelling (``ln4``) so a chained multiline entry
+    # can close the states it names in the same submit.
+    is_numbered_chain = _NUMBERED_CHAIN_COMMAND.fullmatch(command) is not None
+    if command not in ("ln", "ee", "ege") and not (is_numbered_end or is_numbered_chain):
         log_free_text(full_text)
         return
 
@@ -86,10 +100,10 @@ def _submit_multiline(lines: list[str]) -> None:
     description_lines = ([first_description] if first_description else []) + lines[1:]
     description = "\n".join(description_lines)
 
-    if command == "ln":
+    if command == "ln" or is_numbered_chain:
         from dailydriver.cli.commands.events import log_chain_now
 
-        log_chain_now(f"ln {description}")
+        log_chain_now(f"{command} {description}")
     elif command == "ege":
         from dailydriver.cli.commands.events import end_great_event_cmd
 
@@ -109,7 +123,7 @@ def repl():
     collecting = False
 
     dispatch = make_dispatch()
-    command_names = sorted(set(dispatch) | {f"st{state_id}" for state_id in range(1, 10)})
+    command_names = sorted(set(dispatch) | _numbered_command_names())
 
     try:
         while True:

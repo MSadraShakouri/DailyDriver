@@ -12,6 +12,7 @@ A numbered state is a timed, category-injecting context. Slots 1–9 can run ind
 | `st1 <category...> -u` | Also set `last_action` to the state start time |
 | `et1 [text]` | End state 1; with text, log its timed entry |
 | `et31 [text]` | End states 3 and 1 together |
+| `ln4 <text>` | Chain from `last_action` to now, then end state 4 |
 
 Examples:
 
@@ -26,6 +27,8 @@ Examples:
 State categories are created when the state starts. State starts do not update `last_action` by default; `-u` (or `--update-last`, anywhere after the command) opts in. The state’s own start time is always recorded.
 
 For an `et` command with text, **the first state number is the time anchor** for its single journal entry. For example, `et21 arrived` uses state 2’s start time, logs one entry with categories that are active at that moment, and then ends states 2 and 1. If the time confirmation is cancelled, all selected states remain active. Without text, `et` only stops the selected states: it creates no entry and does not update `last_action`.
+
+Each active state also gets **its own header line** — `⏱ 3 friends/b food/lunch · 15:30` — so a long category name wraps instead of pushing later slots off a narrow screen.
 
 When injected categories are active, the category picker lists them as **Already injected** and omits them from both the numbered suggestions and the Prompt Toolkit dropdown. When additional suggestions are available, `0` means “already injected only” (no additional categories).
 
@@ -52,10 +55,17 @@ Log an entry spanning from your **last action** until now, without having starte
 | Command | Meaning |
 |---------|---------|
 | `ln [text]` | Log from `last_action` to now |
+| `ln4 <text>` | Log from `last_action` to now, then end state 4 |
+| `ln1352 <text>` | Same, ending states 1, 3, 5 and 2 |
 
 ```
 > ln replied to emails
+> st4 friends/b
+  ... (chat; log other things meanwhile, each picking up friends/b) ...
+> ln4 said goodbye
 ```
+
+The numbered form keeps **`ln` timing**: the entry spans `last_action` → now, *not* the state's own start — that is what `et4 <text>` does. It is the fast way to close a state whose categories were being injected into everything you logged while it ran. Text is required, so a bare `ln4` changes nothing, and the listed states stay active if you cancel the time confirmation. Only slots 1–9 exist; `ln0` and `ln10` print usage rather than silently dropping the digits.
 
 The `last_action` timestamp is updated whenever you log something. You can also refresh it manually — see [`u` / `update`](#manual-chaining-update--u-alias-update).
 
@@ -84,7 +94,7 @@ Refresh the `last_action` timestamp to now. Handy when you did something but did
 
 ## Multi-line input
 
-For entries that span several lines, and for `ln`/`ee`/`ege`/`et...`:
+For entries that span several lines, and for `ln`/`ln...`/`ee`/`ege`/`et...`:
 
 1. Type `:m` and press Enter.
 2. Enter each line; they are collected.

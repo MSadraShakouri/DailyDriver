@@ -88,3 +88,41 @@ def test_invalid_numeric_state_ids_are_rejected_by_state_handlers_not_logged(mon
     commander._dispatch_line("st10 work", {"st": lambda line: called.append(("st", line))})
     commander._dispatch_line("et10 done", {"et": lambda line: called.append(("et", line))})
     assert called == [("st", "st0 work"), ("st", "st10 work"), ("et", "et10 done")]
+
+
+def test_compact_numbered_chain_routes_through_the_ln_handler(monkeypatch):
+    called = []
+    monkeypatch.setattr(commander, "_show_result", lambda result: None)
+    commander._dispatch_line("ln4 arrived", {"ln": lambda line: called.append(("ln", line))})
+    commander._dispatch_line("ln1352 commute", {"ln": lambda line: called.append(("ln", line))})
+    assert called == [("ln", "ln4 arrived"), ("ln", "ln1352 commute")]
+
+
+def test_invalid_numbered_chain_still_reaches_the_handler(monkeypatch):
+    """``ln0``/``ln10`` must be rejected with usage, never logged as journal text."""
+    called = []
+    monkeypatch.setattr(commander, "_show_result", lambda result: None)
+    commander._dispatch_line("ln10 done", {"ln": lambda line: called.append(line)})
+    commander._dispatch_line("ln0 done", {"ln": lambda line: called.append(line)})
+    assert called == ["ln10 done", "ln0 done"]
+
+
+def test_numbered_chain_help_uses_generic_ln_help(monkeypatch):
+    shown = []
+    monkeypatch.setattr(commander, "show_command_help", shown.append)
+    commander._dispatch_line("ln4 -h", {"ln": lambda line: None})
+    assert shown == ["ln"]
+
+
+def test_multiline_numbered_chain_uses_chain_handler():
+    from unittest.mock import patch
+
+    with patch("dailydriver.cli.commands.events.log_chain_now") as handler:
+        commander._submit_multiline(["ln4 arrived", "together"])
+    handler.assert_called_once_with("ln4 arrived\ntogether")
+
+
+def test_completion_list_covers_every_numbered_slot():
+    names = commander._numbered_command_names()
+    assert {"st1", "st9", "et1", "et9", "ln1", "ln9"} <= names
+    assert len(names) == 27

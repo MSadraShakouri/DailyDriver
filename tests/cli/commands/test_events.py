@@ -44,6 +44,97 @@ def test_chain_requires_previous_action(monkeypatch):
     assert events.log_chain_now("ln follow-up") == "No previous action to chain from."
 
 
+def _stub_states(monkeypatch, states):
+    """Resolve digit runs against *states* without touching the database."""
+    by_id = {state["id"]: state for state in states}
+
+    def resolve(digits):
+        ids = [int(character) for character in digits]
+        missing = [state_id for state_id in ids if state_id not in by_id]
+        if missing:
+            return [], f"State(s) {', '.join(map(str, missing))} are not active."
+        return [by_id[state_id] for state_id in ids], None
+
+    monkeypatch.setattr(events, "resolve_state_numbers", resolve)
+
+
+def test_numbered_chain_keeps_ln_timing_and_closes_the_named_states(monkeypatch):
+    """``ln41`` anchors at last_action (not the state start) and closes 4 then 1."""
+    log = Mock(return_value="logged")
+    clear = Mock()
+    _stub_states(monkeypatch, [{"id": 4, "started_at": 100}, {"id": 1, "started_at": 200}])
+    monkeypatch.setattr(events, "get_last_action_time", lambda: 456)
+    monkeypatch.setattr(events, "log_free_text", log)
+    monkeypatch.setattr(events, "clear_numbered_states", clear)
+
+    assert events.log_chain_now("ln41 arrived") == "logged"
+    log.assert_called_once_with("arrived", started_at=456)
+    clear.assert_called_once_with([4, 1])
+
+
+def test_numbered_chain_without_text_changes_nothing(monkeypatch):
+    log = Mock()
+    clear = Mock()
+    _stub_states(monkeypatch, [{"id": 4, "started_at": 100}])
+    monkeypatch.setattr(events, "get_last_action_time", lambda: 456)
+    monkeypatch.setattr(events, "log_free_text", log)
+    monkeypatch.setattr(events, "clear_numbered_states", clear)
+
+    assert events.log_chain_now("ln4") == "Usage: ln4 <text> (for example: ln4 arrived)"
+    log.assert_not_called()
+    clear.assert_not_called()
+
+
+def test_numbered_chain_reports_inactive_slots_and_bad_digits(monkeypatch):
+    clear = Mock()
+    _stub_states(monkeypatch, [{"id": 4, "started_at": 100}])
+    monkeypatch.setattr(events, "get_last_action_time", lambda: 456)
+    monkeypatch.setattr(events, "log_free_text", Mock())
+    monkeypatch.setattr(events, "clear_numbered_states", clear)
+
+    assert events.log_chain_now("ln7 arrived") == "State(s) 7 are not active."
+    # Digits outside 1-9 still route here; they must not silently drop the numbers.
+    assert events.log_chain_now("ln10 arrived") == "Usage: ln<state numbers> <text> (state numbers are 1-9)"
+    assert events.log_chain_now("ln0 arrived") == "Usage: ln<state numbers> <text> (state numbers are 1-9)"
+    clear.assert_not_called()
+
+
+def test_numbered_chain_still_requires_a_previous_action(monkeypatch):
+    """The state is active, but with no last_action there is nothing to chain from."""
+    clear = Mock()
+    _stub_states(monkeypatch, [{"id": 4, "started_at": 100}])
+    monkeypatch.setattr(events, "get_last_action_time", lambda: None)
+    monkeypatch.setattr(events, "log_free_text", Mock())
+    monkeypatch.setattr(events, "clear_numbered_states", clear)
+
+    assert events.log_chain_now("ln4 arrived") == "No previous action to chain from."
+    clear.assert_not_called()
+
+
+def test_cancelled_numbered_chain_keeps_every_state_active(ui, monkeypatch):
+    # Regression parity with et: declining the confirmation must leave the slots
+    # running and say so, instead of closing them without an entry.
+    clear = Mock()
+    _stub_states(monkeypatch, [{"id": 1, "started_at": 100}, {"id": 4, "started_at": 200}])
+    monkeypatch.setattr(events, "get_last_action_time", lambda: 456)
+    monkeypatch.setattr(events, "log_free_text", lambda *a, **k: None)
+    monkeypatch.setattr(events, "clear_numbered_states", clear)
+
+    assert events.log_chain_now("ln14 arrived") is None
+    clear.assert_not_called()
+    assert any("still active" in line for line in ui.lines)
+
+
+def test_plain_chain_never_touches_states(monkeypatch):
+    clear = Mock()
+    monkeypatch.setattr(events, "get_last_action_time", lambda: 456)
+    monkeypatch.setattr(events, "log_free_text", Mock(return_value="logged"))
+    monkeypatch.setattr(events, "clear_numbered_states", clear)
+
+    assert events.log_chain_now("ln follow-up") == "logged"
+    clear.assert_not_called()
+
+
 def test_start_great_event_uses_inline_or_interactive_categories(ui, monkeypatch):
     monkeypatch.setattr(events, "get_active_great_event", lambda: None)
     monkeypatch.setattr(events, "start_great_event", lambda categories: 0)
