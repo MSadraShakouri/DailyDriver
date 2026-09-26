@@ -6,7 +6,7 @@ Every screen opens with the daily header — a compact dashboard of the current 
 
 - **Date block** — a centered header with the Jalali weekday and date, a thin separator, and the Gregorian and Hijri dates.
 - **Prayers** — the five daily prayers with status, color-coded overdue and pre-alert nudges (red = overdue, yellow = pre-alert).
-- **Events** — when active (today only), a `⏱ Great Event` or `⏱ Event running` line with the start time.
+- **States & events** — when active (today only), **one line per numbered state** (`⏱ 3 friends/b food/lunch · 15:30`), then a `⏱ Great Event` or `⏱ Event running` line with the start time. A state whose categories cannot fit wraps under a hanging indent with the `· HH:MM` tail kept whole, so narrow screens never hide a running slot.
 - **Sleep & naps** — total sleep duration and ranges, plus total nap time.
 - **Weather** — Tehran conditions with an emoji (IRIMO, cached hourly); suppressed in travel mode.
 - **Birthdays** — upcoming birthdays with age and a countdown.

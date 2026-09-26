@@ -13,6 +13,24 @@ _START_RE = re.compile(r"^st([1-9])$", re.IGNORECASE)
 _END_RE = re.compile(r"^et([1-9]+)$", re.IGNORECASE)
 
 
+def resolve_state_numbers(digits: str) -> tuple[list[dict], str | None]:
+    """Resolve a digit run (``et``/``ln`` suffix) to the matching active slots.
+
+    Returns the active states in the order typed — the first anchors any log —
+    plus ``None``, or an empty list plus a message when a slot repeats or is not
+    running. Shared by ``et...`` and ``ln...`` so both reject input identically.
+    """
+    state_ids = [int(character) for character in digits]
+    if len(set(state_ids)) != len(state_ids):
+        return [], "Each state number may appear only once."
+
+    active_by_id = {state["id"]: state for state in get_active_numbered_states()}
+    inactive = [state_id for state_id in state_ids if state_id not in active_by_id]
+    if inactive:
+        return [], f"State(s) {', '.join(map(str, inactive))} are not active."
+    return [active_by_id[state_id] for state_id in state_ids], None
+
+
 def _extract_update_last(parts: list[str]) -> tuple[list[str], bool]:
     """Remove the opt-in last-action flags, mirroring targets' ``-n`` helper."""
     update_last = False
@@ -60,14 +78,10 @@ def end_numbered_states_cmd(line: str):
     if not match:
         return "Usage: et<state numbers> [text] (state numbers are 1-9)"
 
-    state_ids = [int(char) for char in match.group(1)]
-    if len(set(state_ids)) != len(state_ids):
-        return "Each state number may appear only once."
-
-    active_by_id = {state["id"]: state for state in get_active_numbered_states()}
-    inactive = [state_id for state_id in state_ids if state_id not in active_by_id]
-    if inactive:
-        return f"State(s) {', '.join(map(str, inactive))} are not active."
+    states, error = resolve_state_numbers(match.group(1))
+    if error is not None:
+        return error
+    state_ids = [state["id"] for state in states]
 
     text = parts[1].strip() if len(parts) > 1 else ""
     if not text:
@@ -76,7 +90,7 @@ def end_numbered_states_cmd(line: str):
 
     # A single journal row has one start time. The first number is deliberately
     # the anchor; the remaining numbers identify other states to close.
-    started_at = active_by_id[state_ids[0]]["started_at"]
+    started_at = states[0]["started_at"]
     result = log_free_text(text, started_at=started_at)
     if result is None:
         current_ui.print_line(f"Log cancelled — state(s) {', '.join(map(str, state_ids))} are still active.")

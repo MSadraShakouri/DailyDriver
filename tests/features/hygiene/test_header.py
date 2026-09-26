@@ -51,7 +51,7 @@ def test_item_without_history_has_no_nudge(db_connection, monkeypatch):
 
 def test_header_hook_hides_non_today_and_limits_lines(db_connection, monkeypatch):
     monkeypatch.setattr(header, "get_shifted_today", lambda: jdatetime.date(1405, 6, 1))
-    monkeypatch.setattr(header, "compute_hygiene_nudges", lambda *args, **kwargs: ["one", "two", "three"])
+    monkeypatch.setattr(header, "compute_hygiene_nudges", lambda *args, **kwargs: ["one", "two", "three", "four"])
     date = jdatetime.date(1405, 6, 1)
     assert header.get_hygiene_lines(db_connection, date, False) == []
-    assert header.get_hygiene_lines(db_connection, date, True) == ["one", "two"]
+    assert header.get_hygiene_lines(db_connection, date, True) == ["one", "two", "three"]

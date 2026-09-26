@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import re
 import time
-from datetime import datetime
 
 from dailydriver.core.database import get_connection_cm
 
@@ -146,13 +145,3 @@ def get_active_injected_categories() -> list[str]:
             result.append(path)
             seen.add(path)
     return result
-
-
-def format_numbered_states() -> str:
-    """Format active state slots for the daily header."""
-    pieces = []
-    for state in get_active_numbered_states():
-        started = datetime.fromtimestamp(state["started_at"]).strftime("%H:%M")
-        categories = ", ".join(state["categories"])
-        pieces.append(f"{state['id']} [{categories}] since {started}")
-    return "⏱ States: " + " | ".join(pieces) if pieces else ""

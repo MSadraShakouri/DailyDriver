@@ -70,3 +70,41 @@ def test_end_rejects_duplicate_or_inactive_slots_without_partial_changes(db_path
     assert "only once" in states.end_numbered_states_cmd("et11")
     assert "not active" in states.end_numbered_states_cmd("et12")
     assert [state["id"] for state in get_active_numbered_states()] == [1]
+
+
+def test_numbered_chain_closes_real_slots_after_saving_the_entry(db_path, monkeypatch):
+    """End-to-end: ``ln41`` chains from last_action and clears both slots."""
+    from dailydriver.cli.commands import events
+    from dailydriver.core.state import touch_last_action
+
+    start_numbered_state(4, ["friends/b"])
+    start_numbered_state(1, ["transport/metro"])
+    touch_last_action(456)
+
+    logged = []
+
+    def fake_log(text, started_at=None):
+        logged.append((text, started_at))
+        # The slots must still be running while the entry is written so their
+        # categories are injected into it.
+        assert {state["id"] for state in get_active_numbered_states()} == {1, 4}
+        return "logged"
+
+    monkeypatch.setattr(events, "log_free_text", fake_log)
+
+    assert events.log_chain_now("ln41 arrived") == "logged"
+    assert logged == [("arrived", 456)]
+    assert get_active_numbered_states() == []
+
+
+def test_shared_digit_resolution_rejects_repeats_before_touching_the_database(db_path):
+    start_numbered_state(1, ["one"])
+    start_numbered_state(2, ["two"])
+
+    resolved, error = states.resolve_state_numbers("11")
+    assert resolved == [] and "only once" in error
+
+    resolved, error = states.resolve_state_numbers("21")
+    assert error is None
+    assert [state["id"] for state in resolved] == [2, 1]
+    assert resolved[0]["started_at"] == get_active_numbered_states()[1]["started_at"]

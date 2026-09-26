@@ -89,3 +89,31 @@ def test_each_enabled_header_hook_returns_valid_sections(db_connection):
             continue
         returned = hook(db_connection, date_string, today, True)
         assert validate_header_sections(feature, returned) == returned
+
+
+def test_each_numbered_state_gets_its_own_header_line(db_path):
+    """Regression: the slots used to share one pipe-joined line, so a 50-column
+    terminal truncated everything after the first state and hid the rest."""
+    import re
+
+    from dailydriver.core.state import start_great_event, start_numbered_state
+
+    set_travel_mode(True)
+    start_numbered_state(1, ["transport/metro"])
+    start_numbered_state(3, ["friends/b", "food/lunch"])
+    start_great_event(["work"])
+
+    lines = [line for line in build_header_data()["feature_lines"] if isinstance(line, str)]
+    state_lines = [line for line in lines if re.fullmatch(r"⏱ [0-9] .* · \d\d:\d\d", line)]
+
+    assert len(state_lines) == 2
+    assert state_lines[0].startswith("⏱ 1 transport/metro · ")
+    assert state_lines[1].startswith("⏱ 3 friends/b food/lunch · ")
+
+    # Slot order survives the priority sort, and the block keeps its historic
+    # place: after prayer, before the great event.
+    great_i = next(i for i, line in enumerate(lines) if "Great Event" in line)
+    prayer_i = next((i for i, line in enumerate(lines) if "🕌" in line), None)
+    assert lines.index(state_lines[0]) < lines.index(state_lines[1]) < great_i
+    if prayer_i is not None:
+        assert prayer_i < lines.index(state_lines[0])

@@ -25,7 +25,7 @@ Dependency direction:
 - `cli/` and `display/` discover feature capabilities through the hooks.
 - Cross-feature calls go through a deliberately named module/export, never a generic private module.
 
-Events & chaining (`se`/`ee`/`ce`, `ln`, great events) are deliberately **not** a feature package: state lives in `core/state/events.py`, commands in `cli/commands/events.py`, and the header status lines are injected into the priority-ordered stream by `display/header/events.py`.
+Events & chaining (`se`/`ee`/`ce`, `ln`/`ln...`, great events) and numbered states (`st1`–`st9`, `et...`) are deliberately **not** a feature package: state lives in `core/state/events.py` and `core/state/numbered.py`, commands in `cli/commands/events.py` and `cli/commands/states.py`, and the header status lines are injected into the priority-ordered stream by `display/header/events.py`.
 
 Location (cities) follows the same precedent: `core/location/` holds the registry, weekly rules, override state, and the pure `resolve_city()`; the interactive manager lives in `cli/commands/city.py`; and the prayer and weather features consume `CityInfo` without any feature-to-feature hop.
 

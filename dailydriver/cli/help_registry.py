@@ -97,7 +97,15 @@ HELP: dict[str, HelpEntry] = {
     "ln": HelpEntry(
         summary="Log an entry from the last action to now",
         group="Events & Chaining",
-        usage=["ln [text]      chain: last action -> now"],
+        usage=[
+            "ln [text]      chain: last action -> now",
+            "ln4 <text>     chain, then end state 4 (extra digits end more: ln1352)",
+        ],
+        notes=(
+            "The numbered form keeps ln timing — it measures from last_action, not from the "
+            "state's own start like et4 does — and requires text, so a bare ln4 changes nothing. "
+            "Listed states stay active if the time confirmation is cancelled."
+        ),
     ),
     "sge": HelpEntry(
         summary="Start a great event",
@@ -132,7 +140,8 @@ HELP: dict[str, HelpEntry] = {
         ],
         notes=(
             "Without text, states stop without a journal entry or last_action update. "
-            "A cancelled time confirmation leaves all selected states active."
+            "A cancelled time confirmation leaves all selected states active. "
+            "The entry is anchored at the state's start; use ln<N> <text> to chain from last_action instead."
         ),
     ),
     "u": HelpEntry(

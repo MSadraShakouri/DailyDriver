@@ -23,7 +23,6 @@ from .events import (
 from .numbered import (
     STATE_IDS,
     clear_numbered_states,
-    format_numbered_states,
     get_active_injected_categories,
     get_active_numbered_categories,
     get_active_numbered_states,
@@ -40,7 +39,6 @@ __all__ = [
     "clear_numbered_states",
     "clear_pending_start",
     "discard_pending_start",
-    "format_numbered_states",
     "get_active_great_event",
     "get_active_injected_categories",
     "get_active_numbered_categories",
