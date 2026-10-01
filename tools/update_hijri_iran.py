@@ -18,7 +18,7 @@ from pathlib import Path
 
 SOURCE_URL = (
     "https://raw.githubusercontent.com/persian-calendar/calendar/main/"
-    "src/main/kotlin/io/github/persiancalendar/calendar/islamic/"
+    "src/commonMain/kotlin/io/github/persiancalendar/calendar/islamic/"
     "IranianIslamicDateConverter.kt"
 )
 OUTPUT_FILE = Path(__file__).resolve().parents[1] / "data" / "hijri_iran.json"

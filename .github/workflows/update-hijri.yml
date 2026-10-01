@@ -3,8 +3,8 @@ name: Refresh Iranian Hijri table
 on:
   schedule:
     # The upstream table is maintained separately from the application.  A
-    # weekly check is enough; the runtime remains completely offline.
-    - cron: "17 3 * * 1"
+    # monthly check (03:17 UTC on the 1st) is enough; the runtime remains offline.
+    - cron: "17 3 1 * *"
   workflow_dispatch:
 
 permissions:
