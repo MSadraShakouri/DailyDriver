@@ -6,6 +6,12 @@ This page tracks where DailyDriver has been and where it might go. The **Shipped
 
 > Release tags are created manually; the package version is defined in `dailydriver.__version__` and exposed through `pyproject.toml` package metadata. Release notes are kept in `CHANGELOG.md` alongside the version history.
 
+### ✅ v2.4.0 — 2026-10-16
+- **Numbered category states**: `st1`–`st9` start independent category-injecting intervals; `et...` ends one or more slots with the first slot anchoring an optional final log.
+- **Numbered chaining**: `ln4 <text>` chains from `last_action` to now and ends state 4, with extra digits closing extra slots; active states render on compact per-state header lines.
+- **Full-line tab completion**: context-aware REPL engine (subcommands, flags, live target/qada/category values) plus bash/zsh/fish scripts for the `da` CLI via a fast `main.py --complete` hook.
+- **`cal` argument fix**: month/year arguments are honored, English month names accepted, and invalid months reported instead of silently showing the current month.
+
 ### ✅ v2.3.0 — 2026-09-23
 - **Prayer windows & fiqh deadlines**: three-band state machine (fadilat, normal, late) with city-specific offline solar calculations and fiqh deadlines (sunrise, sunset, midnight).
 - **Two-row prayer nudges**: open window nudges render across two rows with explicit band names (`fadilat`, `normal`, `late`), fitting narrow 48-column mobile screens without clipping.

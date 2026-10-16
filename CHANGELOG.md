@@ -1,9 +1,12 @@
 # Changelog
 
-## Unreleased
+## 2.4.0 (2026-10-16)
 
 ### Added
 
+- **Full-line tab completion (REPL)**: a context-aware engine completes the whole command line — subcommands, flags, and live database values (target names, qada entries, category paths, active state slots). Every command offers `-h` / `--help`, `et` / `ln` digit runs extend with active-state digits only, and the REPL-only `:m` / `---` tokens are discoverable via Tab.
+- **Shell completion for the `da` CLI**: a `main.py --complete` hook reuses the REPL engine through stdlib-only imports (~26ms per Tab) with install scripts for bash, zsh, and fish in `completions/`.
+- **Inner-prompt completion**: a multi-entry category completer for bare `sge`, plus navigation wordlists for the day view, the entry/search browsers, and the travel-mode prayer slot selector.
 - **Numbered category states**: `st1`–`st9` start independent category-injecting intervals; `et...` ends one or more slots, with the first slot anchoring an optional final log. `-u` / `--update-last` opts into moving the chaining timestamp when a state starts.
 - **Numbered chaining**: `ln4 <text>` chains from `last_action` to now *and* ends state 4, with extra digits closing extra slots (`ln1352`). Unlike `et4`, the entry keeps `ln` timing instead of the state's own start. Text is required, states stay active if the confirmation is cancelled, and out-of-range digits (`ln0`, `ln10`) print usage instead of silently dropping the numbers. `ln...` also works through the `:m` multiline flow and appears in REPL completion alongside `st1`–`st9` and `et1`–`et9`.
 - Active injected categories are identified in the category picker and removed from its suggestions and Prompt Toolkit dropdown.
@@ -15,8 +18,13 @@
 
 ### Fixed
 
+- `cal 6 [year]` arguments were silently ignored (the dispatcher passes a command string, the handler expected a list); the command now parses both forms plus English month names and reports invalid months instead of showing the wrong month.
 - Starting a great event or numbered state now creates missing category rows before later injection; ignored duplicate inserts are avoided so they do not consume category AUTOINCREMENT values.
 - Category rename, merge, and delete keep active great-event and numbered-state category metadata in sync.
+
+### Tests
+
+- Full suite passes: **775 tests** with `pytest -q`, including 82 new completion, shell-hook, and calendar tests.
 
 ## 2.3.0 (2026-09-23)
 
