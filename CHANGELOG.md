@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **State-aware numbered-command completion**: `stN` suggestions now appear only for available slots, while `etN` and `lnN` appear only for active slots. Multi-slot endings extend only with distinct active slots, and availability refreshes immediately after states start or end.
+- **Ending-state text completion**: `et...` suggestions are limited to categories from active numbered states instead of the full saved category catalog.
+
+### Tests
+
+- Added coverage for live slot-availability updates and active-state category completion; the full suite passes **776 tests**.
+
 ## 2.4.0 (2026-10-16)
 
 ### Added

@@ -3,7 +3,9 @@
 The REPL used to complete only the first word (command names). This module
 completes the *whole* line: subcommands, flags, and database-backed values
 (category paths, target names, qada entries, active state slots) based on the
-token position.
+token position. The optional text on ``et...`` is the exception to free-text
+completion: it can suggest only categories from currently running numbered
+states, never the full category catalog.
 
 Matching is case-insensitive substring, mirroring the category picker's
 ``_RankedCompleter`` so ``code`` finds ``work/code``. An empty word matches
@@ -16,8 +18,9 @@ Performance notes (every shell Tab spawns a fresh interpreter):
   pays for that import.
 - Providers query SQLite directly instead of going through feature modules:
   importing any feature submodule would run the whole feature-package
-  ``__init__`` chain. Results are cached briefly (keyed by database path so
-  tests with isolated databases never see stale entries).
+  ``__init__`` chain. Most results are cached briefly (keyed by database path
+  so tests with isolated databases never see stale entries); active state
+  status is read fresh so numbered command availability updates immediately.
 - Dynamic providers are defensive: any database error yields no candidates
   rather than breaking the prompt.
 
@@ -162,15 +165,15 @@ _COMMAND_DASH_FLAGS: dict[str, tuple[str, ...]] = {
 }
 
 _NUMBERED_COMMAND_RE = re.compile(r"^(st|et|ln)(\d+)$", re.IGNORECASE)
-_ACTIVE_STATE_KEY_RE = re.compile(r"^numbered_state_([1-9])_start$")
+_END_STATE_COMMAND_RE = re.compile(r"^et([1-9]+)$", re.IGNORECASE)
+_ACTIVE_STATE_METADATA_KEY_RE = re.compile(r"^numbered_state_([1-9])_(start|categories)$")
 
 # ── Dynamic providers (cached, failure-safe) ─────────────────────────────
 
 _CACHE: dict[tuple[str, str], tuple[float, list]] = {}
-# Short TTL: collapses the burst of queries from rapid REPL keystrokes while
-# staying fresh enough that a just-started state appears almost immediately.
-# (Shell Tab presses are separate processes, so they always query fresh —
-# the queries below are single indexed SELECTs, measured in milliseconds.)
+# Short TTL: collapses bursts of catalog queries from rapid REPL keystrokes.
+# Active numbered-state data is deliberately not cached, so slots can become
+# unavailable/available as soon as a state starts or ends.
 _CACHE_TTL_SECONDS = 2.0
 
 
@@ -255,24 +258,69 @@ def qada_names() -> list[str]:
     return _cached("qada", load)
 
 
+def _active_numbered_state_data() -> dict[int, list[str]]:
+    """Return live numbered-state categories, keyed by active slot id."""
+    try:
+        rows = _query_column("SELECT key, value FROM meta WHERE key GLOB 'numbered_state_[1-9]_*'")
+    except Exception:  # noqa: BLE001 - completion must never break the prompt
+        return {}
+
+    stored: dict[int, dict[str, str]] = {}
+    for row in rows:
+        match = _ACTIVE_STATE_METADATA_KEY_RE.fullmatch(row["key"])
+        if match is None:
+            continue
+        state_id = int(match.group(1))
+        stored.setdefault(state_id, {})[match.group(2)] = str(row["value"] or "")
+
+    active: dict[int, list[str]] = {}
+    for state_id, state in stored.items():
+        try:
+            int(state.get("start", ""))
+        except (TypeError, ValueError):
+            continue
+        active[state_id] = state.get("categories", "").split()
+    return active
+
+
 def active_state_ids() -> list[int]:
     """Ids of currently active numbered states (for et/ln digit runs)."""
+    return sorted(_active_numbered_state_data())
 
-    def load():
-        ids: list[int] = []
-        rows = _query_column("SELECT key, value FROM meta WHERE key GLOB 'numbered_state_[1-9]_start'")
-        for row in rows:
-            match = _ACTIVE_STATE_KEY_RE.fullmatch(row["key"])
-            if match is None:
-                continue
-            try:
-                int(row["value"])
-            except (TypeError, ValueError):
-                continue
-            ids.append(int(match.group(1)))
-        return sorted(ids)
 
-    return _cached("active_states", load)
+def active_numbered_state_categories() -> list[str]:
+    """Deduplicated categories injected by currently active numbered states."""
+    return _dedupe_state_categories(_active_numbered_state_data())
+
+
+def _end_state_categories(command: str) -> list[str]:
+    """Categories from running states, but only for a valid active ``et...``."""
+    match = _END_STATE_COMMAND_RE.fullmatch(command.lower())
+    if match is None:
+        return []
+
+    digits = match.group(1)
+    state_ids = [int(digit) for digit in digits]
+    if len(set(state_ids)) != len(state_ids):
+        return []
+
+    active_states = _active_numbered_state_data()
+    if not set(state_ids).issubset(active_states):
+        return []
+    return _dedupe_state_categories(active_states)
+
+
+def _dedupe_state_categories(active_states: dict[int, list[str]]) -> list[str]:
+    """Return unique paths from a live numbered-state snapshot."""
+    paths: list[str] = []
+    seen: set[str] = set()
+    for state_id in sorted(active_states):
+        for path in active_states[state_id]:
+            lowered = path.lower()
+            if lowered not in seen:
+                paths.append(path)
+                seen.add(lowered)
+    return paths
 
 
 def jalali_years() -> list[str]:
@@ -336,31 +384,63 @@ def _base_command(first: str, command_names: set[str] | list[str]) -> str | None
 # ── First-token (command) candidates ─────────────────────────────────────
 
 
-def _numbered_extensions(word: str) -> list[str]:
-    """One-digit extensions for a partial ``et``/``ln`` digit run.
+def _numbered_extensions(word: str, active_ids: set[int] | None = None) -> list[str]:
+    """One-digit extensions for a valid active ``et``/``ln`` digit run.
 
-    Only digits of *active* states are offered, excluding digits already in
-    the run: with states 1, 3, 4 active, ``et3`` suggests ``et31``/``et34``.
-    Runs are capped at 4 digits to bound the noise.
+    Existing digits must all refer to distinct active slots before another can
+    be appended: with states 1, 3, 4 active, ``et3`` suggests ``et31``/``et34``
+    but ``et5`` and ``et11`` do not grow into invalid command names. Runs are
+    capped at 4 digits to bound the noise.
     """
     match = re.fullmatch(r"(et|ln)([1-9]+)", word.lower())
     if match is None or len(match.group(2)) >= 4:
         return []
+
     prefix, digits = match.group(1), match.group(2)
-    used = set(digits)
-    return [f"{prefix}{digits}{state_id}" for state_id in active_state_ids() if str(state_id) not in used]
+    used = {int(digit) for digit in digits}
+    if len(used) != len(digits):
+        return []
+    if active_ids is None:
+        active_ids = set(active_state_ids())
+    if not used.issubset(active_ids):
+        return []
+    return [f"{prefix}{digits}{state_id}" for state_id in sorted(active_ids) if state_id not in used]
+
+
+def _numbered_command_is_available(command: str, active_ids: set[int]) -> bool:
+    """Whether a compact numbered command is meaningful in the live state."""
+    match = _NUMBERED_COMMAND_RE.fullmatch(command.lower())
+    if match is None:
+        return True
+
+    prefix, digits = match.groups()
+    state_ids = [int(digit) for digit in digits]
+    if prefix == "st":
+        return len(state_ids) == 1 and state_ids[0] not in active_ids
+    return len(set(state_ids)) == len(state_ids) and set(state_ids).issubset(active_ids)
+
+
+def _start_command_is_available(command: str) -> bool:
+    """A compact ``stN`` is available only when its slot is not running."""
+    match = re.fullmatch(r"st([1-9])", command.lower())
+    return match is not None and int(match.group(1)) not in set(active_state_ids())
 
 
 def _first_token_candidates(word: str, command_names: list[str], include_repl_extra: bool = True) -> list[str]:
+    active_ids: set[int] | None = None
     if word == "":
         # Bare Tab shows base commands only: the 27 numbered singletons would
         # triple the listing's noise. They still appear once you type a letter.
         names = [name for name in command_names if _NUMBERED_COMMAND_RE.fullmatch(name) is None]
     else:
         names = list(command_names)
+        numbered_names = [name for name in names if _NUMBERED_COMMAND_RE.fullmatch(name) is not None]
+        if any(word.lower() in name.lower() for name in numbered_names):
+            active_ids = set(active_state_ids())
+            names = [name for name in names if _numbered_command_is_available(name, active_ids)]
     if include_repl_extra:
         names = names + list(REPL_EXTRA_COMMANDS)
-    return names + _numbered_extensions(word)
+    return names + _numbered_extensions(word, active_ids)
 
 
 # ── Per-command argument candidates ──────────────────────────────────────
@@ -379,9 +459,15 @@ def _duration_already_present(args: list[str]) -> bool:
     return any(_DURATION_ARG_RE.fullmatch(arg.strip().lower()) for arg in args)
 
 
-def _arg_candidates(base: str, args: list[str]) -> list[str]:
-    """Positional candidates for *base* given the committed *args*."""
+def _arg_candidates(base: str, args: list[str], command: str = "") -> list[str]:
+    """Positional candidates for *base* given the command and committed *args*."""
     lowered_args = [arg.lower() for arg in args]
+
+    if base == "et":
+        # The optional text is free-form, but its completion can still surface
+        # the categories currently injected by active numbered states. Keep
+        # this narrow and require the slots named by the et command to be live.
+        return _end_state_categories(command)
 
     if base == "travel":
         return list(TRAVEL_ARGS) if not args else []
@@ -448,7 +534,7 @@ def _arg_candidates(base: str, args: list[str]) -> list[str]:
         typed = set(lowered_args)
         return [path for path in category_paths() if path.lower() not in typed]
 
-    # Free-text commands (ee/ege/et/ln/v/t/...) and bare managers take no
+    # Other free-text commands (ee/ege/ln/v/t/...) and bare managers take no
     # completable positionals; universal flags are appended by suggest().
     return []
 
@@ -466,8 +552,17 @@ def suggest(
     base = _base_command(tokens[0], set(names))
     if base is None:
         return []
-    candidates = _arg_candidates(base, tokens[1:])
-    for flag in _COMMAND_DASH_FLAGS.get(base, ()):
+
+    invalid_start_slot = base == "st" and re.fullmatch(r"st\d+", tokens[0].lower()) is not None
+    if invalid_start_slot and not _start_command_is_available(tokens[0]):
+        # An occupied or out-of-range slot cannot take categories or update
+        # flags; leave only the universal help flags below.
+        candidates = []
+        command_flags = ()
+    else:
+        candidates = _arg_candidates(base, tokens[1:], tokens[0])
+        command_flags = _COMMAND_DASH_FLAGS.get(base, ())
+    for flag in command_flags:
         if flag not in candidates:
             candidates.append(flag)
     for flag in HELP_FLAGS:
