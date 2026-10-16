@@ -34,6 +34,13 @@ def _numbered_command_names() -> set[str]:
     return {f"{prefix}{state_id}" for prefix in _NUMBERED_COMMAND_PREFIXES for state_id in STATE_IDS}
 
 
+def command_names_for_completion(dispatch: dict | None = None) -> list[str]:
+    """All first-word tokens the REPL/shell completers should offer."""
+    if dispatch is None:
+        dispatch = make_dispatch()
+    return sorted(set(dispatch) | _numbered_command_names())
+
+
 def clear():
     current_ui.clear()
 
@@ -125,8 +132,7 @@ def repl():
     from dailydriver.ui.completion import ReplCompleter
 
     dispatch = make_dispatch()
-    command_names = sorted(set(dispatch) | _numbered_command_names())
-    repl_completer = ReplCompleter(command_names)
+    repl_completer = ReplCompleter(command_names_for_completion(dispatch))
 
     try:
         while True:

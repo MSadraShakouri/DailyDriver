@@ -31,10 +31,25 @@ def _termux_dialog() -> str | None:
 
 
 if __name__ == "__main__":
+    args = sys.argv[1:]
+
+    # Shell completion hook (see completions/): print candidates for the
+    # partial command line, one per line. Runs before migrations so every
+    # Tab press stays fast; never fails visibly.
+    if args and args[0] == "--complete":
+        try:
+            from dailydriver.cli.commander import command_names_for_completion
+            from dailydriver.ui.completion import suggest_for_text
+
+            for candidate in suggest_for_text(" ".join(args[1:]), command_names_for_completion()):
+                print(candidate)
+        except Exception:
+            pass
+        sys.exit(0)
+
     run_migrations()
 
     # Check for Termux dialog mode
-    args = sys.argv[1:]
     if args and args[0] in ("-md", "--termux-dialog"):
         text = _termux_dialog()
         if text:

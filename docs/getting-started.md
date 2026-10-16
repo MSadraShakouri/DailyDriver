@@ -59,6 +59,23 @@ Anything you pass as arguments is run as one command, then the app exits. This i
 
 > The rich interactive prompt (history + autocompletion) only activates in the full REPL on an interactive terminal. Single-shot `da` calls and piped input fall back to plain prompts automatically, so nothing slows down or breaks.
 
+## Tab completion
+
+Both the REPL and the `da` CLI complete with `Tab`: subcommands (`qada log`,
+`nazr counter_reset`), flags (`-h`, `--txt`, `-n`), and live database values
+(target names, qada entries, category paths, active state slots).
+
+- **REPL**: built in — just press `Tab` at the `>` prompt.
+- **CLI**: install a script from [`completions/`](../completions/README.md)
+  (bash, zsh, fish supported), e.g. for bash add to `~/.bashrc`:
+
+```bash
+source /path/to/DailyDriver/completions/daily.bash
+```
+
+Then `da qada log <TAB>` offers prayer slots and backlog names, and
+`da travel <TAB>` offers `on` / `off` / `status`.
+
 ## Termux quick-entry dialog (Android)
 
 On Termux you can pop a native Android text dialog for a fast journal entry:
