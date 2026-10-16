@@ -11,11 +11,9 @@ Matching is case-insensitive and comes in two flavours:
 - **Command words** (the first token) use a plain substring filter that keeps
   the declared order, so ``tr`` finds ``travel`` without surprises.
 - **Argument values** (categories, target and qada names, flags, ...) use
-  :func:`dailydriver.ui.fuzzy.rank_matches`, a port of fzf's matcher: any
-  in-order subsequence matches, best score first, with fzf's ``'`` ``^`` ``$``
-  ``!`` operators. ``alex``, ``rel/ale`` and ``alemor`` all find
-  ``relatives/alex_morgan``. Staying in lock-step with fzf matters because
-  fzf-tab only re-filters what this engine returns.
+  :func:`rank_matches`, a fuzzy matcher: prefix, then word-start, then
+  substring, then in-order subsequence, best match first. ``alex`` and
+  ``rel/ale`` both find ``relatives/alex_morgan``, and so does ``alemor``.
 
 An empty word matches everything, so Tab on ``travel `` lists
 ``on/off/status`` plus the flags.
@@ -41,8 +39,6 @@ from __future__ import annotations
 
 import re
 import time
-
-from dailydriver.ui.fuzzy import rank_matches
 
 # ── Static candidate tables ──────────────────────────────────────────────
 
@@ -341,6 +337,83 @@ def _match(candidates: list[str], word: str) -> list[str]:
         if lowered in candidate.lower():
             matched.append(candidate)
     return matched
+
+
+_WORD_SEPARATORS = "/_-. :"
+
+
+def _subsequence_gaps(candidate: str, word: str) -> int | None:
+    """Fewest skipped characters for *word* as an in-order subsequence of *candidate*.
+
+    Tries every occurrence of the first letter as the start and matches the
+    rest greedily, so ``alemor`` binds to ``alex_morgan`` (2 skipped) rather
+    than to a scattered match starting earlier. Returns ``None`` when the
+    letters do not appear in order, or when the match is so spread out that it
+    would just be noise (more than twice the query length skipped).
+    """
+    best: int | None = None
+    start = candidate.find(word[0])
+    while start != -1:
+        position = start
+        for letter in word[1:]:
+            position = candidate.find(letter, position + 1)
+            if position == -1:
+                break
+        else:
+            gaps = position - start + 1 - len(word)
+            if best is None or gaps < best:
+                best = gaps
+        start = candidate.find(word[0], start + 1)
+    if best is None or best > 2 * len(word):
+        return None
+    return best
+
+
+def fuzzy_score(candidate: str, word: str) -> tuple[int, int, int] | None:
+    """Rank how well *word* matches *candidate*; lower is better, ``None`` is no match.
+
+    Tiers, best first: prefix, start of a ``/ _ - .`` separated word,
+    substring, then in-order subsequence (``rel/ale`` or ``alemor`` against
+    ``relatives/alex_morgan``). Within a tier, earlier and tighter matches
+    win. Case-insensitive; an empty *word* matches everything equally.
+    """
+    if word == "":
+        return (0, 0, 0)
+    text = candidate.lower()
+    needle = word.lower()
+    if text.startswith(needle):
+        return (0, 0, 0)
+    index = text.find(needle)
+    if index != -1:
+        # Prefer a hit that begins a word (after ``/`` or ``_``) over a mid-word one.
+        while index != -1:
+            if text[index - 1] in _WORD_SEPARATORS:
+                return (1, index, 0)
+            index = text.find(needle, index + 1)
+        return (2, text.find(needle), 0)
+    gaps = _subsequence_gaps(text, needle)
+    if gaps is None:
+        return None
+    return (3, gaps, text.find(needle[0]))
+
+
+def rank_matches(candidates: list[str] | tuple[str, ...], word: str) -> list[str]:
+    """Fuzzy-filter *candidates* by *word*, best match first, deduplicated.
+
+    Ties keep the incoming order (alphabetical for catalogs, importance order
+    for ranked lists), and an empty word returns everything unchanged.
+    """
+    scored: list[tuple[tuple[int, int, int], int, str]] = []
+    seen: set[str] = set()
+    for index, candidate in enumerate(candidates):
+        if candidate in seen:
+            continue
+        seen.add(candidate)
+        score = fuzzy_score(candidate, word)
+        if score is not None:
+            scored.append((score, index, candidate))
+    scored.sort(key=lambda item: (item[0], item[1]))
+    return [candidate for _, _, candidate in scored]
 
 
 def _base_command(first: str, command_names: set[str] | list[str]) -> str | None:
