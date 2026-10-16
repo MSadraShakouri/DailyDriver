@@ -355,6 +355,53 @@ def suggest_for_text(text: str, command_names: list[str] | set[str]) -> list[str
     return suggest(tokens, word, command_names)
 
 
+# ── Inner-prompt completion ────────────────────────────────────────────
+# Structured prompts *inside* commands (viewers, selectors) get small static
+# wordlists or the multi-entry category completer below. Call sites import
+# these lazily (function level) so non-interactive runs never pay for
+# prompt_toolkit.
+
+# Day view loop: ``\d*[np]`` navigation, ``m`` mode toggle, ``q`` quit
+# (dates are free text and intentionally not completed).
+DAY_VIEW_NAV = ("n", "p", "5n", "5p", "m", "q")
+
+# Entry/search browsers: paging, ``d`` day-jump, ``q`` quit
+# (numeric ids are values, completed by the eye from the listing).
+BROWSER_NAV = ("n", "p", "5n", "5p", "d", "q")
+
+# Travel-mode prayer slot selector (numbers, letters, names, cancel).
+PRAYER_SLOT_CHOICES = ("1", "2", "3", "f", "d", "m", "fajr", "dhuhr", "maghrib", "n")
+
+
+class CategoryCompleter(Completer):
+    """Space-separated multi-entry category completer.
+
+    Each word completes against the category catalog (substring match) while
+    already-committed paths are dropped live. Used by prompts that collect
+    several categories on one line (e.g. bare ``sge``). Database access is
+    deferred until completion actually runs, so plain backends pay nothing.
+    """
+
+    def get_completions(self, document, complete_event):
+        text = document.text_before_cursor
+        if text.strip() == "":
+            committed: list[str] = []
+            word = ""
+        elif text[-1].isspace():
+            committed = text.split()
+            word = ""
+        else:
+            tokens = text.split()
+            committed, word = tokens[:-1], tokens[-1]
+        chosen = {token.lower() for token in committed}
+        lowered = word.lower()
+        for path in category_paths():
+            if path.lower() in chosen:
+                continue
+            if lowered in path.lower():
+                yield Completion(path, start_position=-len(word))
+
+
 # ── prompt_toolkit integration ───────────────────────────────────────────
 
 

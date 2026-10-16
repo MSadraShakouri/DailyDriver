@@ -42,7 +42,9 @@ def _travel_mode_select_slot(conn, today):
     current_ui.print_line("  [n] Cancel")
     current_ui.print_line(f"\nEnter = {SLOT_LABELS[suggested]} (smart guess)")
 
-    choice = current_ui.prompt("> ").strip().lower()
+    from dailydriver.ui.completion import PRAYER_SLOT_CHOICES
+
+    choice = current_ui.prompt("> ", completions=list(PRAYER_SLOT_CHOICES)).strip().lower()
 
     if choice == "":
         return suggested
