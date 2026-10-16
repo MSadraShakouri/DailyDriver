@@ -9,7 +9,8 @@ from __future__ import annotations
 
 from prompt_toolkit.completion import Completer, Completion
 
-from dailydriver.ui.completion import category_paths, rank_matches, split_completion_line, suggest
+from dailydriver.ui.completion import category_paths, split_completion_line, suggest
+from dailydriver.ui.fuzzy import rank_matches
 
 
 class ReplCompleter(Completer):

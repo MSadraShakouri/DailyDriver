@@ -16,7 +16,6 @@ from dailydriver.ui.completion import (
     STATIC_COMMAND_NAMES,
     _duration_already_present,
     clear_completion_cache,
-    rank_matches,
     split_completion_line,
     suggest,
     suggest_for_text,
@@ -416,39 +415,26 @@ def test_suggest_for_text_matches_split_suggest(command_names):
 # ── Fuzzy matching ─────────────────────────────────────────────────────
 
 
-def test_fuzzy_finds_substring_inside_segment():
-    assert rank_matches(["relatives/alex_morgan"], "alex") == ["relatives/alex_morgan"]
-
-
-@pytest.mark.parametrize("query", ["alex", "alemor", "amorg", "rel/ale", "relale", "ALEX", "morgan"])
-def test_fuzzy_finds_relative_path(query):
-    assert rank_matches(["work/code", "relatives/alex_morgan"], query) == ["relatives/alex_morgan"]
-
-
-@pytest.mark.parametrize("query", ["zzz", "alexx", "morale", "xyz"])
-def test_fuzzy_rejects_non_matches(query):
-    assert rank_matches(["work/code", "relatives/alex_morgan"], query) == []
-
-
-def test_fuzzy_ranks_prefix_then_word_start_then_substring_then_subsequence():
-    candidates = ["misc/bcode", "work/code", "codec", "c_o_d_e_x", "other"]
-    assert rank_matches(candidates, "code") == ["codec", "work/code", "misc/bcode", "c_o_d_e_x"]
-
-
-def test_fuzzy_ties_keep_incoming_order_and_empty_word_keeps_everything():
-    assert rank_matches(["b/x", "a/x", "b/x"], "x") == ["b/x", "a/x"]
-    assert rank_matches(["b", "a", "b"], "") == ["b", "a"]
-
-
-def test_fuzzy_subsequence_must_not_scatter_across_a_long_path():
-    assert rank_matches(["a" + "_" * 40 + "b" + "_" * 40 + "c"], "abc") == []
-
-
 def test_argument_completion_is_fuzzy(command_names, db_path):
     _seed_categories("relatives/alex_morgan", "work/code")
     assert suggest(["st1"], "alex", command_names) == ["relatives/alex_morgan"]
     assert suggest(["sge"], "relale", command_names) == ["relatives/alex_morgan"]
     assert suggest(["view"], "alemor", command_names) == ["relatives/alex_morgan"]
+
+
+def test_scattered_query_still_reaches_the_shell_hook(command_names, db_path):
+    # Regression: ``da st1 rss<TAB>`` returned nothing because this engine
+    # pre-filtered more strictly than fzf-tab, which then had nothing to show.
+    _seed_categories("relatives/sam_sutherland", "work/code")
+    assert suggest(["st1"], "rss", command_names) == ["relatives/sam_sutherland"]
+
+
+def test_argument_completion_understands_fzf_operators(command_names, db_path):
+    _seed_categories("relatives/alex_morgan", "work/code", "work/email")
+    assert suggest(["view"], "^work", command_names) == ["work/code", "work/email"]
+    assert suggest(["view"], "code$", command_names) == ["work/code"]
+    excluded = suggest(["view"], "!work", command_names)
+    assert "relatives/alex_morgan" in excluded and "work/code" not in excluded
 
 
 def test_target_names_complete_fuzzily(command_names, db_path):
