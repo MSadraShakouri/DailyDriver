@@ -4,14 +4,22 @@
 #   mkdir -p ~/.config/fish/completions
 #   ln -s /path/to/DailyDriver/completions/daily.fish ~/.config/fish/completions/da.fish
 #
-# It locates main.py relative to this file. Override with:
-#   set -Ux DAILYDRIVER_MAIN /path/to/DailyDriver/main.py
+# Candidates come from `main.py --complete`, resolved in this order:
+#   1. $DAILYDRIVER_MAIN (explicit override),
+#   2. main.py next to this script's checkout (if readable),
+#   3. `da` on PATH (`da --complete`).
+# NOTE: a symlinked install cannot resolve relatively (the link lives in
+# ~/.config/fish/completions), so fish relies on 1 or 3 in practice — keep
+# `da` on PATH or export DAILYDRIVER_MAIN.
 
 function __dailydriver_main
     if test -n "$DAILYDRIVER_MAIN"
         echo "$DAILYDRIVER_MAIN"
-    else
-        echo (dirname (status --current-filename))/../main.py
+        return
+    end
+    set -l rel (dirname (status --current-filename))/../main.py
+    if test -r "$rel"
+        echo "$rel"
     end
 end
 
@@ -24,7 +32,12 @@ function __dailydriver_candidates
     if test "$line" = "$cl"
         set line ""
     end
-    python3 (__dailydriver_main) --complete "$line" 2>/dev/null
+    set -l main (__dailydriver_main)
+    if test -n "$main"
+        python3 "$main" --complete "$line" 2>/dev/null
+    else if command -q da
+        da --complete "$line" 2>/dev/null
+    end
 end
 
 complete -c da -f -a '(__dailydriver_candidates)'
