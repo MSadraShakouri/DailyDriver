@@ -48,13 +48,9 @@ has a different name, add it: `complete -F _dailydriver_complete myalias`
 
 ## Notes
 
-- Values are matched the way fzf matches them and ordered best-first by the
-  engine (`alex` or `rss` find `relatives/sam_sutherland`; `^`, `'`, `$` and `!`
-  operators work inside a word). The zsh script adds the matches unfiltered
+- Values are matched fuzzily and ordered best-first by the engine (`alex` finds
+  `relatives/alex_morgan`). The zsh script adds the matches unfiltered
   (`compadd -U`) so zsh does not drop non-prefix hits and keeps the engine's order.
-- With the [fzf-tab](https://github.com/Aloxaf/fzf-tab) zsh plugin, the engine
-  hands fzf every candidate real fzf would accept (the engine's matcher is a port
-  of fzf's), so `da st1 rss<TAB>` and `da st1 <TAB>` then `rss` agree.
 
 - Names containing spaces complete only up to the first space (shell
   word-splitting). Prefer dash/underscore names for targets and qada entries.
