@@ -8,14 +8,13 @@ from dailydriver.core.journal import log_free_text
 from dailydriver.core.state import STATE_IDS
 from dailydriver.display.header import build_header_data
 from dailydriver.display.header_renderer import print_header
+from dailydriver.ui.completion import NUMBERED_ONLY_PREFIXES, NUMBERED_PREFIXES
 from dailydriver.ui.terminal_ui import current_ui
 
 HELP_FLAGS = ("-h", "--help")
 _NUMBERED_START_COMMAND = re.compile(r"^st\d+$")
 _NUMBERED_END_COMMAND = re.compile(r"^et\d+$")
 _NUMBERED_CHAIN_COMMAND = re.compile(r"^ln\d+$")
-# Commands that take a numbered state suffix, used for REPL completion.
-_NUMBERED_COMMAND_PREFIXES = ("st", "et", "ln")
 
 
 def _dispatch_key(first: str) -> str:
@@ -31,14 +30,19 @@ def _dispatch_key(first: str) -> str:
 
 def _numbered_command_names() -> set[str]:
     """Per-slot spellings (``st1``…``ln9``) offered by the REPL completer."""
-    return {f"{prefix}{state_id}" for prefix in _NUMBERED_COMMAND_PREFIXES for state_id in STATE_IDS}
+    return {f"{prefix}{state_id}" for prefix in NUMBERED_PREFIXES for state_id in STATE_IDS}
 
 
 def command_names_for_completion(dispatch: dict | None = None) -> list[str]:
-    """All first-word tokens the REPL/shell completers should offer."""
+    """All first-word tokens the REPL/shell completers should offer.
+
+    The bare ``st`` / ``et`` dispatch keys are internal routing targets for
+    ``st1``-``st9`` / ``et<digits>``, not commands anyone should type, so they
+    are left out (``ln`` is a real command and stays).
+    """
     if dispatch is None:
         dispatch = make_dispatch()
-    return sorted(set(dispatch) | _numbered_command_names())
+    return sorted((set(dispatch) - set(NUMBERED_ONLY_PREFIXES)) | _numbered_command_names())
 
 
 def clear():

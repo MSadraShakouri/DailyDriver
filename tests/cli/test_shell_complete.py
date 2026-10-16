@@ -31,8 +31,10 @@ def _complete(line, db_path):
 
 def test_command_names_cover_dispatch_and_numbered_slots():
     names = command_names_for_completion()
-    assert set(make_dispatch()) <= set(names)
-    assert {"st1", "et1", "ln1"} <= set(names)
+    # The bare ``st`` / ``et`` dispatch keys are internal routing, not commands.
+    assert set(make_dispatch()) - {"st", "et"} <= set(names)
+    assert not {"st", "et"} & set(names)
+    assert {"st1", "et1", "ln1", "ln"} <= set(names)
 
 
 def test_complete_subcommands(db_path):
@@ -49,7 +51,8 @@ def test_complete_hides_repl_only_tokens_and_numbered_singletons(db_path):
     matched = _complete("", db_path)
     assert ":m" not in matched and "---" not in matched
     assert "st1" not in matched and "ln9" not in matched
-    assert "st" in matched and "travel" in matched
+    assert "st" not in matched and "et" not in matched
+    assert "ln" in matched and "travel" in matched
 
 
 def test_complete_dynamic_target_names(db_path):

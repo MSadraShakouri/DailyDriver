@@ -56,7 +56,9 @@ _dailydriver_complete() {
     fi
     if [ -n "$output" ]; then
         candidates=("${(@f)output}")
-        compadd -a candidates
+        # -U: the engine already filtered (fuzzily); don't let zsh re-filter by prefix.
+        # -V: keep the engine's best-first order instead of sorting alphabetically.
+        compadd -U -V dailydriver -a candidates
     fi
 }
 

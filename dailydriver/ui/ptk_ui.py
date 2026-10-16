@@ -19,6 +19,7 @@ from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import Completer, Completion, FuzzyCompleter, WordCompleter
 from prompt_toolkit.history import FileHistory, InMemoryHistory
 
+from dailydriver.ui.completion import rank_matches
 from dailydriver.ui.terminal_ui import TerminalUI
 
 # How many lines to reserve below the prompt for the completion dropdown.
@@ -50,7 +51,9 @@ class _RankedCompleter(Completer):
 
     The order of ``ranked`` is preserved (it already reflects the keyword
     system's TF-IDF + exact-boost ordering); remaining catalog entries follow.
-    Only entries containing the current word (case-insensitive) are offered.
+    Only entries that fuzzy-match the current word (case-insensitive) are
+    offered, best match first; entries that match equally well keep the ranked
+    order, so the keyword system's ordering still breaks ties.
 
     Completions already committed on the line are dropped live: a fully typed
     path is excluded, and a fully typed number (e.g. ``3``) resolves through the
@@ -85,13 +88,10 @@ class _RankedCompleter(Completer):
 
     def get_completions(self, document, complete_event):
         word = document.get_word_before_cursor(WORD=True)
-        lowered = word.lower()
         chosen = self._already_chosen(document)
-        for item in self.ranked + self.rest:
-            if item.lower() in chosen:
-                continue
-            if lowered in item.lower():
-                yield Completion(item, start_position=-len(word))
+        available = [item for item in self.ranked + self.rest if item.lower() not in chosen]
+        for item in rank_matches(available, word):
+            yield Completion(item, start_position=-len(word))
 
 
 class PromptToolkitUI(TerminalUI):

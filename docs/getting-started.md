@@ -73,6 +73,9 @@ Both the REPL and the `da` CLI complete with `Tab`: subcommands (`qada log`,
 source /path/to/DailyDriver/completions/daily.bash
 ```
 
+Values match fuzzily and best-first: `alex`, `rel/ale`, or `alemor` all find the
+category `relatives/alex_morgan`. Command names stay plain substring matches.
+
 Then `da qada log <TAB>` offers prayer slots and backlog names, and
 `da travel <TAB>` offers `on` / `off` / `status`.
 

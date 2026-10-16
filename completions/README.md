@@ -48,6 +48,10 @@ has a different name, add it: `complete -F _dailydriver_complete myalias`
 
 ## Notes
 
+- Values are matched fuzzily and ordered best-first by the engine (`alex` finds
+  `relatives/alex_morgan`). The zsh script adds the matches unfiltered
+  (`compadd -U`) so zsh does not drop non-prefix hits and keeps the engine's order.
+
 - Names containing spaces complete only up to the first space (shell
   word-splitting). Prefer dash/underscore names for targets and qada entries.
 - Free-text commands (`v`, `ee`, journal lines, …) intentionally offer no

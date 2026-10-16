@@ -3,13 +3,20 @@
 The REPL used to complete only the first word (command names). This module
 completes the *whole* line: subcommands, flags, and database-backed values
 (category paths, target names, qada entries, active state slots) based on the
-token position. The optional text on ``et...`` is the exception to free-text
-completion: it can suggest only categories from currently running numbered
-states, never the full category catalog.
+token position. Free text (journal lines, the optional text after ``et1`` /
+``ln1`` / ``ee`` / ...) is never completed.
 
-Matching is case-insensitive substring, mirroring the category picker's
-``_RankedCompleter`` so ``code`` finds ``work/code``. An empty word matches
-everything, so Tab on ``travel `` lists ``on/off/status`` plus the flags.
+Matching is case-insensitive and comes in two flavours:
+
+- **Command words** (the first token) use a plain substring filter that keeps
+  the declared order, so ``tr`` finds ``travel`` without surprises.
+- **Argument values** (categories, target and qada names, flags, ...) use
+  :func:`rank_matches`, a fuzzy matcher: prefix, then word-start, then
+  substring, then in-order subsequence, best match first. ``alex`` and
+  ``rel/ale`` both find ``relatives/alex_morgan``, and so does ``alemor``.
+
+An empty word matches everything, so Tab on ``travel `` lists
+``on/off/status`` plus the flags.
 
 Performance notes (every shell Tab spawns a fresh interpreter):
 
@@ -86,7 +93,6 @@ STATIC_COMMAND_NAMES = (
     "daystart",
     "ee",
     "ege",
-    "et",
     "et1",
     "et2",
     "et3",
@@ -123,7 +129,6 @@ STATIC_COMMAND_NAMES = (
     "search",
     "sge",
     "sleep",
-    "st",
     "st1",
     "st2",
     "st3",
@@ -147,6 +152,13 @@ STATIC_COMMAND_NAMES = (
     "year",
 )
 
+# Compact numbered commands. ``st`` and ``et`` only exist as dispatcher keys
+# (``st1``-``st9`` / ``et<digits>`` are routed to them); typed on their own
+# they just print usage, so they are never offered as completions. ``ln`` is a
+# real command by itself (chain from last_action) and stays.
+NUMBERED_ONLY_PREFIXES = ("st", "et")
+NUMBERED_PREFIXES = ("st", "et", "ln")
+
 # Aliases resolve to their canonical command for argument specs.
 _COMMAND_ALIASES = {
     "pray": "p",
@@ -165,8 +177,7 @@ _COMMAND_DASH_FLAGS: dict[str, tuple[str, ...]] = {
 }
 
 _NUMBERED_COMMAND_RE = re.compile(r"^(st|et|ln)(\d+)$", re.IGNORECASE)
-_END_STATE_COMMAND_RE = re.compile(r"^et([1-9]+)$", re.IGNORECASE)
-_ACTIVE_STATE_METADATA_KEY_RE = re.compile(r"^numbered_state_([1-9])_(start|categories)$")
+_ACTIVE_STATE_START_KEY_RE = re.compile(r"^numbered_state_([1-9])_start$")
 
 # ── Dynamic providers (cached, failure-safe) ─────────────────────────────
 
@@ -258,69 +269,29 @@ def qada_names() -> list[str]:
     return _cached("qada", load)
 
 
-def _active_numbered_state_data() -> dict[int, list[str]]:
-    """Return live numbered-state categories, keyed by active slot id."""
-    try:
-        rows = _query_column("SELECT key, value FROM meta WHERE key GLOB 'numbered_state_[1-9]_*'")
-    except Exception:  # noqa: BLE001 - completion must never break the prompt
-        return {}
+def active_state_ids() -> list[int]:
+    """Ids of currently active numbered states (read fresh, never cached).
 
-    stored: dict[int, dict[str, str]] = {}
+    A slot is active when its ``numbered_state_<N>_start`` metadata row holds
+    an integer timestamp. Read live so ``stN`` / ``etN`` availability flips the
+    moment a state starts or ends.
+    """
+    try:
+        rows = _query_column("SELECT key, value FROM meta WHERE key GLOB 'numbered_state_[1-9]_start'")
+    except Exception:  # noqa: BLE001 - completion must never break the prompt
+        return []
+
+    active: set[int] = set()
     for row in rows:
-        match = _ACTIVE_STATE_METADATA_KEY_RE.fullmatch(row["key"])
+        match = _ACTIVE_STATE_START_KEY_RE.fullmatch(row["key"])
         if match is None:
             continue
-        state_id = int(match.group(1))
-        stored.setdefault(state_id, {})[match.group(2)] = str(row["value"] or "")
-
-    active: dict[int, list[str]] = {}
-    for state_id, state in stored.items():
         try:
-            int(state.get("start", ""))
+            int(row["value"])
         except (TypeError, ValueError):
             continue
-        active[state_id] = state.get("categories", "").split()
-    return active
-
-
-def active_state_ids() -> list[int]:
-    """Ids of currently active numbered states (for et/ln digit runs)."""
-    return sorted(_active_numbered_state_data())
-
-
-def active_numbered_state_categories() -> list[str]:
-    """Deduplicated categories injected by currently active numbered states."""
-    return _dedupe_state_categories(_active_numbered_state_data())
-
-
-def _end_state_categories(command: str) -> list[str]:
-    """Categories from running states, but only for a valid active ``et...``."""
-    match = _END_STATE_COMMAND_RE.fullmatch(command.lower())
-    if match is None:
-        return []
-
-    digits = match.group(1)
-    state_ids = [int(digit) for digit in digits]
-    if len(set(state_ids)) != len(state_ids):
-        return []
-
-    active_states = _active_numbered_state_data()
-    if not set(state_ids).issubset(active_states):
-        return []
-    return _dedupe_state_categories(active_states)
-
-
-def _dedupe_state_categories(active_states: dict[int, list[str]]) -> list[str]:
-    """Return unique paths from a live numbered-state snapshot."""
-    paths: list[str] = []
-    seen: set[str] = set()
-    for state_id in sorted(active_states):
-        for path in active_states[state_id]:
-            lowered = path.lower()
-            if lowered not in seen:
-                paths.append(path)
-                seen.add(lowered)
-    return paths
+        active.add(int(match.group(1)))
+    return sorted(active)
 
 
 def jalali_years() -> list[str]:
@@ -352,7 +323,10 @@ def split_completion_line(text: str) -> tuple[list[str], str]:
 
 
 def _match(candidates: list[str], word: str) -> list[str]:
-    """Case-insensitive substring filter, order-preserving, deduplicated."""
+    """Case-insensitive substring filter, order-preserving, deduplicated.
+
+    Used for command words, where the declared order is the useful one.
+    """
     lowered = word.lower()
     seen: set[str] = set()
     matched: list[str] = []
@@ -365,6 +339,83 @@ def _match(candidates: list[str], word: str) -> list[str]:
     return matched
 
 
+_WORD_SEPARATORS = "/_-. :"
+
+
+def _subsequence_gaps(candidate: str, word: str) -> int | None:
+    """Fewest skipped characters for *word* as an in-order subsequence of *candidate*.
+
+    Tries every occurrence of the first letter as the start and matches the
+    rest greedily, so ``alemor`` binds to ``alex_morgan`` (2 skipped) rather
+    than to a scattered match starting earlier. Returns ``None`` when the
+    letters do not appear in order, or when the match is so spread out that it
+    would just be noise (more than twice the query length skipped).
+    """
+    best: int | None = None
+    start = candidate.find(word[0])
+    while start != -1:
+        position = start
+        for letter in word[1:]:
+            position = candidate.find(letter, position + 1)
+            if position == -1:
+                break
+        else:
+            gaps = position - start + 1 - len(word)
+            if best is None or gaps < best:
+                best = gaps
+        start = candidate.find(word[0], start + 1)
+    if best is None or best > 2 * len(word):
+        return None
+    return best
+
+
+def fuzzy_score(candidate: str, word: str) -> tuple[int, int, int] | None:
+    """Rank how well *word* matches *candidate*; lower is better, ``None`` is no match.
+
+    Tiers, best first: prefix, start of a ``/ _ - .`` separated word,
+    substring, then in-order subsequence (``rel/ale`` or ``alemor`` against
+    ``relatives/alex_morgan``). Within a tier, earlier and tighter matches
+    win. Case-insensitive; an empty *word* matches everything equally.
+    """
+    if word == "":
+        return (0, 0, 0)
+    text = candidate.lower()
+    needle = word.lower()
+    if text.startswith(needle):
+        return (0, 0, 0)
+    index = text.find(needle)
+    if index != -1:
+        # Prefer a hit that begins a word (after ``/`` or ``_``) over a mid-word one.
+        while index != -1:
+            if text[index - 1] in _WORD_SEPARATORS:
+                return (1, index, 0)
+            index = text.find(needle, index + 1)
+        return (2, text.find(needle), 0)
+    gaps = _subsequence_gaps(text, needle)
+    if gaps is None:
+        return None
+    return (3, gaps, text.find(needle[0]))
+
+
+def rank_matches(candidates: list[str] | tuple[str, ...], word: str) -> list[str]:
+    """Fuzzy-filter *candidates* by *word*, best match first, deduplicated.
+
+    Ties keep the incoming order (alphabetical for catalogs, importance order
+    for ranked lists), and an empty word returns everything unchanged.
+    """
+    scored: list[tuple[tuple[int, int, int], int, str]] = []
+    seen: set[str] = set()
+    for index, candidate in enumerate(candidates):
+        if candidate in seen:
+            continue
+        seen.add(candidate)
+        score = fuzzy_score(candidate, word)
+        if score is not None:
+            scored.append((score, index, candidate))
+    scored.sort(key=lambda item: (item[0], item[1]))
+    return [candidate for _, _, candidate in scored]
+
+
 def _base_command(first: str, command_names: set[str] | list[str]) -> str | None:
     """Resolve the first token to a canonical command, or None if unknown.
 
@@ -374,8 +425,9 @@ def _base_command(first: str, command_names: set[str] | list[str]) -> str | None
     lowered = first.lower()
     numbered = _NUMBERED_COMMAND_RE.fullmatch(lowered)
     if numbered is not None:
-        base = numbered.group(1)
-        return base if base in command_names else None
+        # ``st``/``et`` are not offered as commands themselves, so the numbered
+        # family is recognised by its prefix rather than by ``command_names``.
+        return numbered.group(1)
     if lowered not in command_names:
         return None
     return _COMMAND_ALIASES.get(lowered, lowered)
@@ -459,15 +511,9 @@ def _duration_already_present(args: list[str]) -> bool:
     return any(_DURATION_ARG_RE.fullmatch(arg.strip().lower()) for arg in args)
 
 
-def _arg_candidates(base: str, args: list[str], command: str = "") -> list[str]:
+def _arg_candidates(base: str, args: list[str]) -> list[str]:
     """Positional candidates for *base* given the command and committed *args*."""
     lowered_args = [arg.lower() for arg in args]
-
-    if base == "et":
-        # The optional text is free-form, but its completion can still surface
-        # the categories currently injected by active numbered states. Keep
-        # this narrow and require the slots named by the et command to be live.
-        return _end_state_categories(command)
 
     if base == "travel":
         return list(TRAVEL_ARGS) if not args else []
@@ -534,7 +580,7 @@ def _arg_candidates(base: str, args: list[str], command: str = "") -> list[str]:
         typed = set(lowered_args)
         return [path for path in category_paths() if path.lower() not in typed]
 
-    # Other free-text commands (ee/ege/ln/v/t/...) and bare managers take no
+    # Other free-text commands (ee/ege/et/ln/v/t/...) and bare managers take no
     # completable positionals; universal flags are appended by suggest().
     return []
 
@@ -560,7 +606,7 @@ def suggest(
         candidates = []
         command_flags = ()
     else:
-        candidates = _arg_candidates(base, tokens[1:], tokens[0])
+        candidates = _arg_candidates(base, tokens[1:])
         command_flags = _COMMAND_DASH_FLAGS.get(base, ())
     for flag in command_flags:
         if flag not in candidates:
@@ -568,7 +614,7 @@ def suggest(
     for flag in HELP_FLAGS:
         if flag not in candidates:
             candidates.append(flag)
-    return _match(candidates, word)
+    return rank_matches(candidates, word)
 
 
 def suggest_for_text(

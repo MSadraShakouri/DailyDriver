@@ -24,11 +24,11 @@ Examples:
 > et31 arrived together
 ```
 
-State categories are created when the state starts. State starts do not update `last_action` by default; `-u` (or `--update-last`, anywhere after the command) opts in. The state’s own start time is always recorded. Tab completion offers `stN` only for available slots, and `etN`/`lnN` only for active slots.
+State categories are created when the state starts. State starts do not update `last_action` by default; `-u` (or `--update-last`, anywhere after the command) opts in. The state’s own start time is always recorded. Tab completion offers `stN` only for available slots, and `etN`/`lnN` only for active slots; the bare `st` / `et` are never offered because they are not commands.
 
 For an `et` command with text, **the first state number is the time anchor** for its single journal entry. For example, `et21 arrived` uses state 2’s start time, logs one entry with categories that are active at that moment, and then ends states 2 and 1. If the time confirmation is cancelled, all selected states remain active. Without text, `et` only stops the selected states: it creates no entry and does not update `last_action`.
 
-While typing the optional text, Tab completion offers categories from active numbered states only, rather than every saved category.
+The optional text is free-form, so Tab completes nothing after `et1` — it has no completable values.
 
 Each active state also gets **its own header line** — `⏱ 3 friends/b food/lunch · 15:30` — so a long category name wraps instead of pushing later slots off a narrow screen.
 
