@@ -6,6 +6,11 @@ This page tracks where DailyDriver has been and where it might go. The **Shipped
 
 > Release tags are created manually; the package version is defined in `dailydriver.__version__` and exposed through `pyproject.toml` package metadata. Release notes are kept in `CHANGELOG.md` alongside the version history.
 
+### ✅ v2.5.0 — 2026-10-16
+- **Fuzzy value completion**: category paths, target and qada names, flags, and search words match fuzzily and are ordered best-first in the REPL, bash, and fish (`alemor` finds `relatives/alex_morgan`).
+- **fzf-tab support in zsh**: when the fzf-tab plugin is active, the zsh script asks a new `main.py --complete-unfiltered` hook for every candidate at the cursor and lets fzf do the matching. Plain zsh keeps prefix completion.
+- **Completion cleanup**: bare `st` / `et` are no longer offered, `stN` appears for free slots and `etN` / `lnN` for active ones, and the free-form text after `et1` is never completed.
+
 ### ✅ v2.4.0 — 2026-10-16
 - **Numbered category states**: `st1`–`st9` start independent category-injecting intervals; `et...` ends one or more slots with the first slot anchoring an optional final log.
 - **Numbered chaining**: `ln4 <text>` chains from `last_action` to now and ends state 4, with extra digits closing extra slots; active states render on compact per-state header lines.

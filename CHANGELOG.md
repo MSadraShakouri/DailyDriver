@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 2.5.0 (2026-10-16)
+
 ### Added
 
 - **Fuzzy completion for values**: category paths, target and qada names, flags, and search words now match fuzzily and are ordered best-first — prefix, then word start, then substring, then in-order subsequence. `alex`, `rel/ale`, and `alemor` all find `relatives/alex_morgan`. The REPL, the multi-category prompt, the category picker dropdown (ties keep the keyword ranking), and the shell `--complete` hook share one matcher. Command names stay plain substring matches so short queries don't drown in noise. Plain zsh keeps ordinary prefix completion.

@@ -4,7 +4,8 @@ The REPL completes commands inline (via `prompt_toolkit`). These scripts bring
 the same engine — subcommands, flags, target names, qada entries, categories —
 to single-shot CLI calls (`da qada log <TAB>`).
 
-All three scripts call `main.py --complete "<partial line>"`, which shares the
+All three scripts call `main.py --complete "<partial line>"` (zsh under fzf-tab
+uses `--complete-unfiltered`, see Notes), which shares the
 REPL's completion engine (`dailydriver/ui/completion.py`), so the two never
 drift. Database-backed candidates (target names, categories, …) are read from
 your usual database (`data/daily.db`, or `$DAILYDRIVER_DB`).
