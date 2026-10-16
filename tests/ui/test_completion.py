@@ -111,7 +111,6 @@ def test_numbered_extensions_cover_ln_too(command_names, db_path):
     start_numbered_state(2, ["work/code"])
     assert "ln21" not in suggest([], "ln2", command_names)  # 1 inactive
     start_numbered_state(1, ["rest/nap"])
-    clear_completion_cache()  # providers cache briefly; drop it after mutating
     assert "ln21" in suggest([], "ln2", command_names)
 
 
@@ -261,6 +260,22 @@ def test_st_completes_categories_and_update_flags(command_names, db_path):
     assert "-u" in flags and "--update-last" in flags
 
 
+def test_et_completes_only_categories_from_running_states(command_names, db_path):
+    _seed_categories("unrelated/catalog-path")
+    start_numbered_state(1, ["work/code"])
+    start_numbered_state(3, ["rest/nap", "work/code"])
+
+    # Any active numbered state injects its categories into the final et log;
+    # unrelated paths from the full catalog stay out of the dropdown.
+    matched = suggest(["et1"], "", command_names)
+    assert {"work/code", "rest/nap"} <= set(matched)
+    assert "unrelated/catalog-path" not in matched
+    assert suggest(["et1"], "nap", command_names) == ["rest/nap"]
+
+    # Don't offer running categories for a command that cannot end an active slot.
+    assert "work/code" not in suggest(["et2"], "", command_names)
+
+
 def test_view_completes_category_filter(command_names, db_path):
     _seed_categories("work/code", "rest/nap")
     assert suggest(["view"], "cod", command_names) == ["work/code"]
@@ -311,9 +326,27 @@ def test_bare_tab_hides_numbered_singletons():
     assert "st1" not in matched and "et1" not in matched and "ln1" not in matched
 
 
-def test_typing_reveals_numbered_singletons():
-    assert "st1" in suggest([], "st", STATIC_COMMAND_NAMES)
-    assert "et1" in suggest([], "et", STATIC_COMMAND_NAMES)
+def test_numbered_command_candidates_reflect_live_slots(db_path):
+    before_start = suggest([], "st", STATIC_COMMAND_NAMES)
+    before_end = suggest([], "et", STATIC_COMMAND_NAMES)
+    assert "st5" in before_start
+    assert "et5" not in before_end
+
+    # Availability updates immediately: start slot 5, and its start/end/chain
+    # suggestions flip without waiting for the completion cache TTL.
+    start_numbered_state(5, ["work/focus"])
+    after_start = suggest([], "st", STATIC_COMMAND_NAMES)
+    after_end = suggest([], "et", STATIC_COMMAND_NAMES)
+    after_chain = suggest([], "ln", STATIC_COMMAND_NAMES)
+    assert "st5" not in after_start
+    assert "et5" in after_end and "et1" not in after_end
+    assert "ln5" in after_chain and "ln1" not in after_chain
+    assert suggest(["st5"], "", STATIC_COMMAND_NAMES) == ["-h", "--help"]
+
+    # Invalid existing digits don't produce bogus multi-slot endings.
+    assert "et1" not in suggest([], "et1", STATIC_COMMAND_NAMES)
+    assert "et15" not in suggest([], "et1", STATIC_COMMAND_NAMES)
+    assert "et51" not in suggest([], "et5", STATIC_COMMAND_NAMES)
 
 
 def test_repl_extras_excluded_on_request(command_names):
