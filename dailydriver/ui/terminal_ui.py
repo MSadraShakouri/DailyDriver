@@ -1,6 +1,12 @@
 # DailyDriver/ui/terminal_ui.py
+from __future__ import annotations
+
 import os
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from prompt_toolkit.completion import Completer
 
 
 class UI(ABC):
@@ -20,7 +26,12 @@ class UI(ABC):
     def print_line(self, text: str = ""): ...
 
     @abstractmethod
-    def prompt(self, text: str, completions: list[str] | None = None, history_key: str | None = None) -> str: ...
+    def prompt(
+        self,
+        text: str,
+        completions: list[str] | Completer | None = None,
+        history_key: str | None = None,
+    ) -> str: ...
 
     @abstractmethod
     def confirm(self, message: str, default_yes: bool = True) -> bool:
@@ -75,7 +86,12 @@ class TerminalUI(UI):
     def print_line(self, text: str = ""):
         print(text)
 
-    def prompt(self, text: str, completions: list[str] | None = None, history_key: str | None = None) -> str:
+    def prompt(
+        self,
+        text: str,
+        completions: list[str] | Completer | None = None,
+        history_key: str | None = None,
+    ) -> str:
         # completions/history_key are ignored by the plain backend.
         return input(text).strip()
 

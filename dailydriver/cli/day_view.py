@@ -60,6 +60,7 @@ def show_day(cmd=None):
 
     is_today = target == today
     mode = get_day_view_mode()
+    from dailydriver.ui.completion import DAY_VIEW_NAV
 
     # Day view loop
     while True:
@@ -77,7 +78,7 @@ def show_day(cmd=None):
         current_ui.print_line(f"\033[1m(p)rev  (n)ext  (m)ode [{mode_label}]  (q)uit  or YYYY-MM-DD\033[0m")
         current_ui.print_line("\033[1mn/p = next/prev day, 5n = 5 days\033[0m")
         current_ui.print_line()
-        choice = current_ui.prompt("> ").strip().lower()
+        choice = current_ui.prompt("> ", completions=list(DAY_VIEW_NAV)).strip().lower()
 
         if choice == "q":
             break

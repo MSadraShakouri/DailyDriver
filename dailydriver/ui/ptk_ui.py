@@ -117,10 +117,20 @@ class PromptToolkitUI(TerminalUI):
             self._sessions[key] = session
         return session
 
-    def prompt(self, text: str, completions: list[str] | None = None, history_key: str | None = None) -> str:
+    def prompt(
+        self,
+        text: str,
+        completions: list[str] | Completer | None = None,
+        history_key: str | None = None,
+    ) -> str:
         try:
             completer = None
-            if completions:
+            if isinstance(completions, Completer):
+                # Context-aware completers (e.g. ReplCompleter) are used as-is:
+                # they already filter by token position, so fuzzy wrapping
+                # would only scramble their results.
+                completer = completions
+            elif completions:
                 completer = FuzzyCompleter(WordCompleter(completions, ignore_case=True, sentence=False))
             session = self._session(history_key)
             # Reserve only a few lines for the completion menu so it can show

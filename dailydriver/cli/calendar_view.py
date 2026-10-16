@@ -3,8 +3,11 @@
 
 import jdatetime
 
-from dailydriver.features.calendar.catalog import get_events, get_upcoming_events
 from dailydriver.ui.terminal_ui import current_ui
+
+# NOTE: ``features.calendar.catalog`` is imported lazily inside
+# :func:`show_calendar` because ``features.calendar.commands`` re-exports this
+# module — a top-level import would be circular.
 
 _JALALI_MONTHS_EN = [
     "Farvardin",
@@ -22,21 +25,53 @@ _JALALI_MONTHS_EN = [
 ]
 
 
-def show_calendar(args=None):
-    if args is None:
-        args = []
+def _normalize_args(line=None) -> list[str]:
+    """Normalize dispatcher input to an argument list.
+
+    The dispatcher calls handlers with the full command line string
+    (e.g. ``\"cal 6 1405\"``), while older callers/tests may pass a list
+    of arguments directly. Both forms are accepted here.
+    """
+    if line is None:
+        return []
+    if isinstance(line, str):
+        parts = line.strip().split()
+        # Drop the command token itself when present (``cal 6`` -> ``[6]``),
+        # but tolerate a bare argument string (``6`` -> ``[6]``).
+        if parts and parts[0].lower() == "cal":
+            return parts[1:]
+        return parts
+    return [str(part) for part in line]
+
+
+def _parse_month(token: str) -> int | None:
+    """Parse a month number (1-12) or English month name/abbreviation."""
+    token = token.strip().lower()
+    if token.isdigit():
+        month = int(token)
+        return month if 1 <= month <= 12 else None
+    for index, name in enumerate(_JALALI_MONTHS_EN, 1):
+        if token == name.lower() or token == name.lower()[:3]:
+            return index
+    return None
+
+
+def show_calendar(line=None):
+    args = _normalize_args(line)
     year = None
     month = None
     if len(args) >= 1:
-        try:
-            month = int(args[0])
-        except ValueError:
-            month = None
+        month = _parse_month(args[0])
     if len(args) >= 2:
         try:
             year = int(args[1])
         except ValueError:
             year = None
+    if month is None and args:
+        # A present-but-unparseable month (e.g. ``cal 13`` or ``cal foo``)
+        # is an error, while a bare ``cal`` falls back to the current month.
+        current_ui.print_line("Invalid month (1-12).")
+        return
     if month is None:
         today = jdatetime.date.today()
         month = today.month
@@ -49,6 +84,8 @@ def show_calendar(args=None):
         return
 
     _print_month_grid(year, month)
+
+    from dailydriver.features.calendar.catalog import get_events, get_upcoming_events
 
     events = get_events()
     upcoming = get_upcoming_events(events, days=15)
