@@ -122,8 +122,11 @@ def repl():
     multi_buf = []
     collecting = False
 
+    from dailydriver.ui.completion import ReplCompleter
+
     dispatch = make_dispatch()
     command_names = sorted(set(dispatch) | _numbered_command_names())
+    repl_completer = ReplCompleter(command_names)
 
     try:
         while True:
@@ -136,7 +139,7 @@ def repl():
                     current_ui.print_line(f"... {line}")
                 line = current_ui.prompt("... ").strip()
             else:
-                line = current_ui.prompt("> ", completions=command_names, history_key="repl").strip()
+                line = current_ui.prompt("> ", completions=repl_completer, history_key="repl").strip()
 
             if line == "":
                 continue
