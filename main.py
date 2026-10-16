@@ -43,7 +43,7 @@ if __name__ == "__main__":
 
             for candidate in suggest_for_text(" ".join(args[1:]), command_names_for_completion()):
                 print(candidate)
-        except Exception:
+        except Exception:  # noqa: BLE001, S110 - shell hook must never fail visibly
             pass
         sys.exit(0)
 

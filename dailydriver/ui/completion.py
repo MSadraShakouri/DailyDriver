@@ -94,7 +94,7 @@ def _cached(key: str, loader):
         from dailydriver.core.database import get_db_path
 
         db_path = get_db_path()
-    except Exception:
+    except Exception:  # noqa: BLE001 - completion must never break the prompt
         db_path = ""
     cache_key = (db_path, key)
     now = time.monotonic()
@@ -103,7 +103,7 @@ def _cached(key: str, loader):
         return hit[1]
     try:
         value = list(loader())
-    except Exception:
+    except Exception:  # noqa: BLE001 - completion must never break the prompt
         value = []
     _CACHE[cache_key] = (now, value)
     return value
@@ -174,7 +174,7 @@ def jalali_years() -> list[str]:
         import jdatetime
 
         year = jdatetime.date.today().year
-    except Exception:
+    except Exception:  # noqa: BLE001 - completion must never break the prompt
         return []
     return [str(year - 1), str(year), str(year + 1)]
 

@@ -22,6 +22,7 @@ def _complete(line, db_path):
         text=True,
         env=env,
         timeout=60,
+        check=False,
     )
     assert result.returncode == 0, result.stderr
     assert result.stderr == ""
@@ -78,6 +79,6 @@ def test_bash_completion_function_returns_candidates(db_path):
         'printf "%s\\n" "${COMPREPLY[@]}"\n'
     )
     env = dict(os.environ, DAILYDRIVER_DB=str(db_path), DAILYDRIVER_MAIN=MAIN_PY)
-    result = subprocess.run(["bash", "-c", script], capture_output=True, text=True, env=env, timeout=60)
+    result = subprocess.run(["bash", "-c", script], capture_output=True, text=True, env=env, timeout=60, check=False)
     assert result.returncode == 0, result.stderr
     assert {"on", "off", "status"} <= set(result.stdout.split())
