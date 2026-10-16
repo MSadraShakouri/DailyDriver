@@ -4,7 +4,8 @@ The REPL completes commands inline (via `prompt_toolkit`). These scripts bring
 the same engine — subcommands, flags, target names, qada entries, categories —
 to single-shot CLI calls (`da qada log <TAB>`).
 
-All three scripts call `main.py --complete "<partial line>"`, which shares the
+All three scripts call `main.py --complete "<partial line>"` (zsh under fzf-tab
+uses `--complete-unfiltered`, see Notes), which shares the
 REPL's completion engine (`dailydriver/ui/completion.py`), so the two never
 drift. Database-backed candidates (target names, categories, …) are read from
 your usual database (`data/daily.db`, or `$DAILYDRIVER_DB`).
@@ -47,6 +48,18 @@ has a different name, add it: `complete -F _dailydriver_complete myalias`
 (bash) or `compdef _dailydriver_complete myalias` (zsh).
 
 ## Notes
+
+- Values are matched fuzzily and ordered best-first by the engine (`alex` finds
+  `relatives/alex_morgan`) in the REPL, bash, and fish.
+- **zsh** completes by prefix, like every other zsh command, so `alex` will not
+  find `relatives/alex_morgan` there. With the
+  [fzf-tab](https://github.com/Aloxaf/fzf-tab) plugin the script detects it and
+  asks the engine for *every* candidate valid at the cursor
+  (`main.py --complete-unfiltered`), adds them with `compadd -U` so zsh does
+  not drop non-prefix hits, and lets fzf do all the matching with its own rules
+  (`'exact`, `^prefix`, `suffix$`, `!not`, initialisms like `rss`, …).
+- zsh functions are not refreshed by `source ~/.zshrc`; open a new terminal
+  after updating `daily.zsh`.
 
 - Names containing spaces complete only up to the first space (shell
   word-splitting). Prefer dash/underscore names for targets and qada entries.

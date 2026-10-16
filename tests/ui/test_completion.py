@@ -16,6 +16,7 @@ from dailydriver.ui.completion import (
     STATIC_COMMAND_NAMES,
     _duration_already_present,
     clear_completion_cache,
+    rank_matches,
     split_completion_line,
     suggest,
     suggest_for_text,
@@ -25,7 +26,7 @@ from dailydriver.ui.completion_ptk import ReplCompleter
 
 @pytest.fixture
 def command_names():
-    return sorted(make_dispatch().keys()) + [f"st{i}" for i in range(1, 10)]
+    return command_names_for_completion()
 
 
 @pytest.fixture(autouse=True)
@@ -260,20 +261,16 @@ def test_st_completes_categories_and_update_flags(command_names, db_path):
     assert "-u" in flags and "--update-last" in flags
 
 
-def test_et_completes_only_categories_from_running_states(command_names, db_path):
-    _seed_categories("unrelated/catalog-path")
+def test_et_text_is_never_completed(command_names, db_path):
+    # The text after ``et1`` is a free-form log line. Not even categories from
+    # the running states are suggested there: it has no use and is just noise.
+    _seed_categories("work/code", "rest/nap")
     start_numbered_state(1, ["work/code"])
-    start_numbered_state(3, ["rest/nap", "work/code"])
-
-    # Any active numbered state injects its categories into the final et log;
-    # unrelated paths from the full catalog stay out of the dropdown.
-    matched = suggest(["et1"], "", command_names)
-    assert {"work/code", "rest/nap"} <= set(matched)
-    assert "unrelated/catalog-path" not in matched
-    assert suggest(["et1"], "nap", command_names) == ["rest/nap"]
-
-    # Don't offer running categories for a command that cannot end an active slot.
-    assert "work/code" not in suggest(["et2"], "", command_names)
+    start_numbered_state(3, ["rest/nap"])
+    for command in ("et1", "et31", "et2"):
+        assert suggest([command], "", command_names) == ["-h", "--help"]
+        assert suggest([command], "nap", command_names) == []
+    assert suggest(["et1", "arrived"], "", command_names) == ["-h", "--help"]
 
 
 def test_view_completes_category_filter(command_names, db_path):
@@ -322,8 +319,23 @@ def test_static_command_names_match_live_dispatch():
 
 def test_bare_tab_hides_numbered_singletons():
     matched = suggest([], "", STATIC_COMMAND_NAMES)
-    assert "st" in matched and "et" in matched and "ln" in matched
+    assert "ln" in matched
     assert "st1" not in matched and "et1" not in matched and "ln1" not in matched
+
+
+def test_bare_st_and_et_are_not_commands(command_names):
+    # ``st`` / ``et`` are internal dispatcher keys; only ``st1``-``et9`` are
+    # real spellings, so the bare words must never be offered (``ln`` is real).
+    for names in (command_names, STATIC_COMMAND_NAMES):
+        assert "st" not in names and "et" not in names
+        assert "ln" in names
+        assert "st" not in suggest([], "", names)
+        assert "et" not in suggest([], "e", names)
+        assert "st" not in suggest([], "st", names)
+        assert "et" not in suggest([], "et", names)
+    # Typing the bare word completes nothing, not even flags.
+    assert suggest(["st"], "", command_names) == []
+    assert suggest(["et"], "", command_names) == []
 
 
 def test_numbered_command_candidates_reflect_live_slots(db_path):
@@ -399,3 +411,83 @@ def test_repl_completer_completes_subcommands(command_names):
 def test_suggest_for_text_matches_split_suggest(command_names):
     assert suggest_for_text("qada ", command_names) == suggest(["qada"], "", command_names)
     assert suggest_for_text("tr", command_names) == suggest([], "tr", command_names)
+
+
+# ── Fuzzy matching ─────────────────────────────────────────────────────
+
+
+def test_fuzzy_finds_substring_inside_segment():
+    assert rank_matches(["relatives/alex_morgan"], "alex") == ["relatives/alex_morgan"]
+
+
+@pytest.mark.parametrize("query", ["alex", "alemor", "amorg", "rel/ale", "relale", "ALEX", "morgan"])
+def test_fuzzy_finds_relative_path(query):
+    assert rank_matches(["work/code", "relatives/alex_morgan"], query) == ["relatives/alex_morgan"]
+
+
+@pytest.mark.parametrize("query", ["zzz", "alexx", "morale", "xyz"])
+def test_fuzzy_rejects_non_matches(query):
+    assert rank_matches(["work/code", "relatives/alex_morgan"], query) == []
+
+
+def test_fuzzy_ranks_prefix_then_word_start_then_substring_then_subsequence():
+    candidates = ["misc/bcode", "work/code", "codec", "c_o_d_e_x", "other"]
+    assert rank_matches(candidates, "code") == ["codec", "work/code", "misc/bcode", "c_o_d_e_x"]
+
+
+def test_fuzzy_ties_keep_incoming_order_and_empty_word_keeps_everything():
+    assert rank_matches(["b/x", "a/x", "b/x"], "x") == ["b/x", "a/x"]
+    assert rank_matches(["b", "a", "b"], "") == ["b", "a"]
+
+
+def test_fuzzy_subsequence_must_not_scatter_across_a_long_path():
+    assert rank_matches(["a" + "_" * 40 + "b" + "_" * 40 + "c"], "abc") == []
+
+
+def test_argument_completion_is_fuzzy(command_names, db_path):
+    _seed_categories("relatives/alex_morgan", "work/code")
+    assert suggest(["st1"], "alex", command_names) == ["relatives/alex_morgan"]
+    assert suggest(["sge"], "relale", command_names) == ["relatives/alex_morgan"]
+    assert suggest(["view"], "alemor", command_names) == ["relatives/alex_morgan"]
+
+
+def test_target_names_complete_fuzzily(command_names, db_path):
+    add_target("nazr", "quran-pages")
+    assert suggest(["nazr", "log"], "qpg", command_names) == ["quran-pages"]
+
+
+def test_command_words_stay_substring_only(command_names):
+    # Fuzzy subsequence on the first word would drown a short query in noise.
+    assert "travel" not in suggest([], "tvl", command_names)
+
+
+# ── Unfiltered mode (for plugins that do their own matching, e.g. fzf-tab) ──
+
+
+def test_unfiltered_returns_every_candidate_at_the_position(command_names, db_path):
+    _seed_categories("relatives/alex_morgan", "work/code", "food/lunch")
+    everything = suggest(["st1"], "", command_names)
+    assert suggest(["st1"], "alex", command_names, filtered=False) == everything
+    assert suggest(["st1"], "zzzz", command_names, filtered=False) == everything
+    # The filtered list narrows, the unfiltered one does not.
+    assert suggest(["st1"], "alex", command_names) == ["relatives/alex_morgan"]
+    assert {"relatives/alex_morgan", "work/code", "food/lunch", "-u", "--update-last", "-h", "--help"} <= set(
+        everything
+    )
+
+
+def test_unfiltered_keeps_the_numbered_command_logic(command_names, db_path):
+    # The typed word still decides *which* candidates exist: ``st`` reveals
+    # st1..st9 (hidden on a bare Tab) even though nothing is filtered.
+    with_word = suggest([], "st", command_names, filtered=False)
+    assert {"st1", "st9"} <= set(with_word)
+    assert "travel" in with_word  # not narrowed to the word
+    assert "st1" not in suggest([], "", command_names, filtered=False)
+
+
+def test_unfiltered_still_deduplicates_and_respects_context(command_names, db_path):
+    start_numbered_state(1, ["work/code"])
+    # An occupied slot offers only the help flags, filtered or not.
+    assert suggest(["st1"], "x", command_names, filtered=False) == ["-h", "--help"]
+    assert suggest(["breakfast"], "x", command_names, filtered=False) == []
+    assert suggest_for_text("travel o", command_names, filtered=False) == suggest(["travel"], "", command_names)

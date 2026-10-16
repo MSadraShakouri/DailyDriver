@@ -2,14 +2,22 @@
 
 ## Unreleased
 
+## 2.5.0 (2026-10-16)
+
+### Added
+
+- **Fuzzy completion for values**: category paths, target and qada names, flags, and search words now match fuzzily and are ordered best-first — prefix, then word start, then substring, then in-order subsequence. `alex`, `rel/ale`, and `alemor` all find `relatives/alex_morgan`. The REPL, the multi-category prompt, the category picker dropdown (ties keep the keyword ranking), and the shell `--complete` hook share one matcher. Command names stay plain substring matches so short queries don't drown in noise. Plain zsh keeps ordinary prefix completion.
+- **fzf-tab support in zsh**: when the fzf-tab plugin is driving completion, `completions/daily.zsh` asks the engine for every candidate at the cursor (new `main.py --complete-unfiltered` hook, `suggest(..., filtered=False)`) and adds them with `compadd -U`, so fzf does all the matching with its own rules instead of zsh prefix-filtering first.
+
 ### Changed
 
 - **State-aware numbered-command completion**: `stN` suggestions now appear only for available slots, while `etN` and `lnN` appear only for active slots. Multi-slot endings extend only with distinct active slots, and availability refreshes immediately after states start or end.
-- **Ending-state text completion**: `et...` suggestions are limited to categories from active numbered states instead of the full saved category catalog.
+- **Bare `st` / `et` are no longer completion candidates**: they are internal dispatcher keys that only print usage when typed alone. Only `st1`–`st9`, `et<digits>`, and the real `ln` command are offered.
+- The text after `et1` / `ln1` is free-form and is never completed (no category suggestions).
 
 ### Tests
 
-- Added coverage for live slot-availability updates and active-state category completion; the full suite passes **776 tests**.
+- Added coverage for fuzzy matching and ranking, bare `st`/`et` exclusion, live slot availability, and the absence of `et` text completion; unfiltered completion for fzf-tab; the full suite passes **800 tests**.
 
 ## 2.4.0 (2026-10-16)
 

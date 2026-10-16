@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
-"""DailyDriver entry point: REPL, single command, Termux dialog, or --complete."""
+"""DailyDriver entry point: REPL, single command, Termux dialog, or --complete / --complete-unfiltered."""
 
 import sys
 
 
-def _run_shell_completion(args: list[str]) -> None:
+def _run_shell_completion(args: list[str], filtered: bool = True) -> None:
     """Print candidates for a partial line (shell Tab hook; must stay fast).
+
+    With ``filtered=False`` (``--complete-unfiltered``) every candidate valid at
+    the cursor is printed, without narrowing by the word being typed. Shells
+    whose completion plugin does its own matching (fzf-tab) ask for this.
 
     Only the stdlib-only completion engine is imported here — the heavy
     application imports below run afterwards for every other mode.
@@ -13,7 +17,9 @@ def _run_shell_completion(args: list[str]) -> None:
     try:
         from dailydriver.ui.completion import STATIC_COMMAND_NAMES, suggest_for_text
 
-        for candidate in suggest_for_text(" ".join(args), STATIC_COMMAND_NAMES, include_repl_extra=False):
+        for candidate in suggest_for_text(
+            " ".join(args), STATIC_COMMAND_NAMES, include_repl_extra=False, filtered=filtered
+        ):
             print(candidate)
     except Exception:  # noqa: BLE001, S110 - shell hook must never fail visibly
         pass
@@ -54,8 +60,8 @@ if __name__ == "__main__":
     # Shell completion hook (see completions/): print candidates for the
     # partial command line, one per line. Runs before everything else —
     # including migrations and feature imports — so every Tab stays fast.
-    if args and args[0] == "--complete":
-        _run_shell_completion(args[1:])
+    if args and args[0] in ("--complete", "--complete-unfiltered"):
+        _run_shell_completion(args[1:], filtered=args[0] == "--complete")
         sys.exit(0)
 
     from dailydriver.cli.commander import repl, run_single_command

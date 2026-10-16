@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from prompt_toolkit.completion import Completer, Completion
 
-from dailydriver.ui.completion import category_paths, split_completion_line, suggest
+from dailydriver.ui.completion import category_paths, rank_matches, split_completion_line, suggest
 
 
 class ReplCompleter(Completer):
@@ -28,7 +28,7 @@ class ReplCompleter(Completer):
 class CategoryCompleter(Completer):
     """Space-separated multi-entry category completer.
 
-    Each word completes against the category catalog (substring match) while
+    Each word completes against the category catalog (fuzzy match, best first) while
     already-committed paths are dropped live. Used by prompts that collect
     several categories on one line (e.g. bare ``sge``). Database access is
     deferred until completion actually runs, so plain backends pay nothing.
@@ -46,9 +46,6 @@ class CategoryCompleter(Completer):
             tokens = text.split()
             committed, word = tokens[:-1], tokens[-1]
         chosen = {token.lower() for token in committed}
-        lowered = word.lower()
-        for path in category_paths():
-            if path.lower() in chosen:
-                continue
-            if lowered in path.lower():
-                yield Completion(path, start_position=-len(word))
+        available = [path for path in category_paths() if path.lower() not in chosen]
+        for path in rank_matches(available, word):
+            yield Completion(path, start_position=-len(word))

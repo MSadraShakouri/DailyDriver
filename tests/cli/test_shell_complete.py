@@ -7,17 +7,17 @@ import sys
 
 from dailydriver.cli.commander import command_names_for_completion
 from dailydriver.cli.dispatcher import make_dispatch
-from dailydriver.core.database import PROJECT_ROOT
+from dailydriver.core.database import PROJECT_ROOT, get_connection_cm
 from dailydriver.features.targets.entries import add_entry as add_target
 
 MAIN_PY = os.path.join(PROJECT_ROOT, "main.py")
 COMPLETIONS_DIR = os.path.join(PROJECT_ROOT, "completions")
 
 
-def _complete(line, db_path):
+def _complete(line, db_path, flag="--complete"):
     env = dict(os.environ, DAILYDRIVER_DB=str(db_path))
     result = subprocess.run(
-        [sys.executable, MAIN_PY, "--complete", line],
+        [sys.executable, MAIN_PY, flag, line],
         capture_output=True,
         text=True,
         env=env,
@@ -31,8 +31,10 @@ def _complete(line, db_path):
 
 def test_command_names_cover_dispatch_and_numbered_slots():
     names = command_names_for_completion()
-    assert set(make_dispatch()) <= set(names)
-    assert {"st1", "et1", "ln1"} <= set(names)
+    # The bare ``st`` / ``et`` dispatch keys are internal routing, not commands.
+    assert set(make_dispatch()) - {"st", "et"} <= set(names)
+    assert not {"st", "et"} & set(names)
+    assert {"st1", "et1", "ln1", "ln"} <= set(names)
 
 
 def test_complete_subcommands(db_path):
@@ -49,7 +51,8 @@ def test_complete_hides_repl_only_tokens_and_numbered_singletons(db_path):
     matched = _complete("", db_path)
     assert ":m" not in matched and "---" not in matched
     assert "st1" not in matched and "ln9" not in matched
-    assert "st" in matched and "travel" in matched
+    assert "st" not in matched and "et" not in matched
+    assert "ln" in matched and "travel" in matched
 
 
 def test_complete_dynamic_target_names(db_path):
@@ -161,3 +164,24 @@ def test_all_scripts_fall_back_to_da_on_path():
         with open(path, encoding="utf-8") as handle:
             content = handle.read()
         assert marker in content, filename
+
+
+def test_complete_unfiltered_hook_skips_the_word_filter(db_path):
+    with get_connection_cm(auto=False) as conn:
+        conn.execute("INSERT INTO categories (path) VALUES ('relatives/alex_morgan')")
+        conn.execute("INSERT INTO categories (path) VALUES ('work/code')")
+        conn.commit()
+    assert _complete("st1 alex", db_path) == ["relatives/alex_morgan"]
+    unfiltered = _complete("st1 alex", db_path, flag="--complete-unfiltered")
+    assert {"relatives/alex_morgan", "work/code", "-h", "--help"} <= set(unfiltered)
+    assert unfiltered == _complete("st1 ", db_path)
+
+
+def test_zsh_script_uses_unfiltered_mode_only_inside_fzf_tab():
+    with open(os.path.join(COMPLETIONS_DIR, "daily.zsh"), encoding="utf-8") as handle:
+        content = handle.read()
+    assert "--complete-unfiltered" in content
+    # fzf-tab is detected through its own flag; everything else keeps the plain behaviour.
+    assert 'IN_FZF_TAB:-0}" = 1' in content
+    assert "compadd -U -V dailydriver -a candidates" in content
+    assert content.count("compadd -a candidates") == 1
