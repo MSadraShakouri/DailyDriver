@@ -4,7 +4,8 @@
 
 ### Added
 
-- **Fuzzy completion for values**: category paths, target and qada names, flags, and search words now match fuzzily and are ordered best-first — prefix, then word start, then substring, then in-order subsequence. `alex`, `rel/ale`, and `alemor` all find `relatives/alex_morgan`. The REPL, the multi-category prompt, the category picker dropdown (ties keep the keyword ranking), and the shell `--complete` hook share one matcher. Command names stay plain substring matches so short queries don't drown in noise. The zsh script now adds matches unfiltered (`compadd -U -V`) so zsh doesn't drop non-prefix hits.
+- **fzf-compatible fuzzy completion for values**: category paths, target and qada names, flags, and search words are matched with a stdlib-only port of fzf's matching (`dailydriver/ui/fuzzy.py`). Any in-order subsequence matches (`alex`, `rel/ale` and `alemor` find `relatives/alex_morgan`; `rss` finds `relatives/sam_sutherland`), ranked best-first with fzf's scoring: word-start, camelCase, and consecutive-run bonuses, gap penalties, then shorter name, then original order. The `'exact`, `'exact'`, `^prefix`, `suffix$`, `^equal$` and `!exclude` operators work inside a word. Accents in candidates fold for plain ASCII queries, as in fzf. Matching stays case-insensitive (fzf's smart-case is deliberately not copied). Command names stay plain substring matches. The REPL, the multi-category prompt, the category picker dropdown (equal scores keep the keyword ranking, like `--tiebreak=index`), and the shell `--complete` hook share one matcher.
+- **fzf-tab parity**: the shell hook used to pre-filter more strictly than fzf, so `da st1 rss<TAB>` returned nothing for fzf-tab while `da st1 <TAB>` then `rss` worked. Both now agree because the engine's filter matches fzf's. The zsh script adds matches unfiltered (`compadd -U -V`) so zsh doesn't drop non-prefix hits or re-sort them.
 
 ### Changed
 
@@ -14,7 +15,7 @@
 
 ### Tests
 
-- Added coverage for fuzzy matching and ranking, bare `st`/`et` exclusion, live slot availability, and the absence of `et` text completion; the full suite passes **795 tests**.
+- Added coverage for bare `st`/`et` exclusion, live slot availability, the absence of `et` text completion, the fzf matcher (scoring examples, operators, accents, tiebreaks, the `da st1 rss` regression), and a conformance test that compares ordering against a real `fzf -f` over seeded random corpora (skipped when `fzf` is not installed; also run locally against fzf 0.74.5 over ~17,000 queries with no differences); the full suite passes **824 tests**.
 
 ## 2.4.0 (2026-10-16)
 

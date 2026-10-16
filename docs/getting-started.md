@@ -73,8 +73,24 @@ Both the REPL and the `da` CLI complete with `Tab`: subcommands (`qada log`,
 source /path/to/DailyDriver/completions/daily.bash
 ```
 
-Values match fuzzily and best-first: `alex`, `rel/ale`, or `alemor` all find the
-category `relatives/alex_morgan`. Command names stay plain substring matches.
+Values are matched the way [fzf](https://github.com/junegunn/fzf) matches them:
+any in-order subset of letters works (`alex`, `rel/ale`, `alemor`, even `rss` for
+`relatives/sam_sutherland`), and the best match comes first — word starts, letters
+that sit together, and shorter names score higher. A few fzf operators work inside
+a word:
+
+| Type | Matches |
+| --- | --- |
+| `'code` | the exact text `code` somewhere in the name |
+| `'code'` | `code` as a whole word |
+| `^work` | names starting with `work` |
+| `code$` | names ending with `code` |
+| `!work` | names that don't contain `work` |
+
+Matching ignores case (unlike fzf's smart-case), and command names stay plain
+substring matches. If you use the [fzf-tab](https://github.com/Aloxaf/fzf-tab) zsh
+plugin, it filters our candidates with real fzf, and typing the query *before*
+pressing Tab (`da st1 rss<TAB>`) now behaves the same as pressing Tab first.
 
 Then `da qada log <TAB>` offers prayer slots and backlog names, and
 `da travel <TAB>` offers `on` / `off` / `status`.
