@@ -4,7 +4,8 @@
 
 ### Added
 
-- **Fuzzy completion for values**: category paths, target and qada names, flags, and search words now match fuzzily and are ordered best-first — prefix, then word start, then substring, then in-order subsequence. `alex`, `rel/ale`, and `alemor` all find `relatives/alex_morgan`. The REPL, the multi-category prompt, the category picker dropdown (ties keep the keyword ranking), and the shell `--complete` hook share one matcher. Command names stay plain substring matches so short queries don't drown in noise. The zsh script now adds matches unfiltered (`compadd -U -V`) so zsh doesn't drop non-prefix hits.
+- **Fuzzy completion for values**: category paths, target and qada names, flags, and search words now match fuzzily and are ordered best-first — prefix, then word start, then substring, then in-order subsequence. `alex`, `rel/ale`, and `alemor` all find `relatives/alex_morgan`. The REPL, the multi-category prompt, the category picker dropdown (ties keep the keyword ranking), and the shell `--complete` hook share one matcher. Command names stay plain substring matches so short queries don't drown in noise. Plain zsh keeps ordinary prefix completion.
+- **fzf-tab support in zsh**: when the fzf-tab plugin is driving completion, `completions/daily.zsh` asks the engine for every candidate at the cursor (new `main.py --complete-unfiltered` hook, `suggest(..., filtered=False)`) and adds them with `compadd -U`, so fzf does all the matching with its own rules instead of zsh prefix-filtering first.
 
 ### Changed
 
@@ -14,7 +15,7 @@
 
 ### Tests
 
-- Added coverage for fuzzy matching and ranking, bare `st`/`et` exclusion, live slot availability, and the absence of `et` text completion; the full suite passes **795 tests**.
+- Added coverage for fuzzy matching and ranking, bare `st`/`et` exclusion, live slot availability, and the absence of `et` text completion; unfiltered completion for fzf-tab; the full suite passes **800 tests**.
 
 ## 2.4.0 (2026-10-16)
 

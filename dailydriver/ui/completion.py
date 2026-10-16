@@ -590,11 +590,21 @@ def suggest(
     word: str,
     command_names: list[str] | set[str] | tuple[str, ...],
     include_repl_extra: bool = True,
+    filtered: bool = True,
 ) -> list[str]:
-    """Return completion candidates for a split line (see split_completion_line)."""
+    """Return completion candidates for a split line (see split_completion_line).
+
+    With ``filtered=False`` the final matching step against *word* is skipped:
+    the result is every candidate valid at this position (deduplicated, in
+    declared order). Callers that bring their own matcher — the fzf-tab zsh
+    plugin filters with real fzf — use it so the engine never hides something
+    their matcher would have accepted. *word* still shapes which candidates
+    exist (``st`` reveals ``st1``…``st9``), it just no longer narrows them.
+    """
     names = list(command_names)
     if not tokens:
-        return _match(_first_token_candidates(word, names, include_repl_extra), word)
+        candidates = _first_token_candidates(word, names, include_repl_extra)
+        return _match(candidates, word) if filtered else list(dict.fromkeys(candidates))
     base = _base_command(tokens[0], set(names))
     if base is None:
         return []
@@ -614,17 +624,18 @@ def suggest(
     for flag in HELP_FLAGS:
         if flag not in candidates:
             candidates.append(flag)
-    return rank_matches(candidates, word)
+    return rank_matches(candidates, word) if filtered else list(dict.fromkeys(candidates))
 
 
 def suggest_for_text(
     text: str,
     command_names: list[str] | set[str] | tuple[str, ...],
     include_repl_extra: bool = True,
+    filtered: bool = True,
 ) -> list[str]:
     """Convenience wrapper: split *text* (cursor at end) and suggest."""
     tokens, word = split_completion_line(text)
-    return suggest(tokens, word, command_names, include_repl_extra)
+    return suggest(tokens, word, command_names, include_repl_extra, filtered)
 
 
 # ── Inner-prompt completion ──────────────────────────────────────────────

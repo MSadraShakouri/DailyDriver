@@ -49,8 +49,16 @@ has a different name, add it: `complete -F _dailydriver_complete myalias`
 ## Notes
 
 - Values are matched fuzzily and ordered best-first by the engine (`alex` finds
-  `relatives/alex_morgan`). The zsh script adds the matches unfiltered
-  (`compadd -U`) so zsh does not drop non-prefix hits and keeps the engine's order.
+  `relatives/alex_morgan`) in the REPL, bash, and fish.
+- **zsh** completes by prefix, like every other zsh command, so `alex` will not
+  find `relatives/alex_morgan` there. With the
+  [fzf-tab](https://github.com/Aloxaf/fzf-tab) plugin the script detects it and
+  asks the engine for *every* candidate valid at the cursor
+  (`main.py --complete-unfiltered`), adds them with `compadd -U` so zsh does
+  not drop non-prefix hits, and lets fzf do all the matching with its own rules
+  (`'exact`, `^prefix`, `suffix$`, `!not`, initialisms like `rss`, …).
+- zsh functions are not refreshed by `source ~/.zshrc`; open a new terminal
+  after updating `daily.zsh`.
 
 - Names containing spaces complete only up to the first space (shell
   word-splitting). Prefer dash/underscore names for targets and qada entries.

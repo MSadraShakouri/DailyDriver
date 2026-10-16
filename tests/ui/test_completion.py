@@ -459,3 +459,35 @@ def test_target_names_complete_fuzzily(command_names, db_path):
 def test_command_words_stay_substring_only(command_names):
     # Fuzzy subsequence on the first word would drown a short query in noise.
     assert "travel" not in suggest([], "tvl", command_names)
+
+
+# ── Unfiltered mode (for plugins that do their own matching, e.g. fzf-tab) ──
+
+
+def test_unfiltered_returns_every_candidate_at_the_position(command_names, db_path):
+    _seed_categories("relatives/alex_morgan", "work/code", "food/lunch")
+    everything = suggest(["st1"], "", command_names)
+    assert suggest(["st1"], "alex", command_names, filtered=False) == everything
+    assert suggest(["st1"], "zzzz", command_names, filtered=False) == everything
+    # The filtered list narrows, the unfiltered one does not.
+    assert suggest(["st1"], "alex", command_names) == ["relatives/alex_morgan"]
+    assert {"relatives/alex_morgan", "work/code", "food/lunch", "-u", "--update-last", "-h", "--help"} <= set(
+        everything
+    )
+
+
+def test_unfiltered_keeps_the_numbered_command_logic(command_names, db_path):
+    # The typed word still decides *which* candidates exist: ``st`` reveals
+    # st1..st9 (hidden on a bare Tab) even though nothing is filtered.
+    with_word = suggest([], "st", command_names, filtered=False)
+    assert {"st1", "st9"} <= set(with_word)
+    assert "travel" in with_word  # not narrowed to the word
+    assert "st1" not in suggest([], "", command_names, filtered=False)
+
+
+def test_unfiltered_still_deduplicates_and_respects_context(command_names, db_path):
+    start_numbered_state(1, ["work/code"])
+    # An occupied slot offers only the help flags, filtered or not.
+    assert suggest(["st1"], "x", command_names, filtered=False) == ["-h", "--help"]
+    assert suggest(["breakfast"], "x", command_names, filtered=False) == []
+    assert suggest_for_text("travel o", command_names, filtered=False) == suggest(["travel"], "", command_names)

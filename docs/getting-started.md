@@ -76,6 +76,12 @@ source /path/to/DailyDriver/completions/daily.bash
 Values match fuzzily and best-first: `alex`, `rel/ale`, or `alemor` all find the
 category `relatives/alex_morgan`. Command names stay plain substring matches.
 
+In plain zsh, completion is prefix-based as usual. With the
+[fzf-tab](https://github.com/Aloxaf/fzf-tab) plugin, zsh hands every candidate
+to fzf, so fzf's own search rules apply (see
+[`completions/`](../completions/README.md)). Open a new terminal after
+updating the zsh script.
+
 Then `da qada log <TAB>` offers prayer slots and backlog names, and
 `da travel <TAB>` offers `on` / `off` / `status`.
 

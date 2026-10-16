@@ -48,17 +48,35 @@ _dailydriver_complete() {
         # space is preserved — the engine needs it to tell "qada " from "qada".
         line="${before[*]} $cur"
     fi
+
+    # fzf-tab (https://github.com/Aloxaf/fzf-tab) sets IN_FZF_TAB while it
+    # drives completion and filters the candidates itself with real fzf. zsh
+    # would otherwise discard anything that doesn't start with what you typed
+    # (so `sadra` could never find `relatives/sadra_shakouri`), and our own
+    # filtering would only hide matches fzf accepts. In that mode ask for every
+    # candidate valid at this position and add them with -U (no prefix check);
+    # fzf starts with your typed text as its query.
+    local hook=--complete
+    local fzf_tab=0
+    if [ "${IN_FZF_TAB:-0}" = 1 ]; then
+        fzf_tab=1
+        hook=--complete-unfiltered
+    fi
+
     local output=""
     if [ -n "$_dailydriver_main" ]; then
-        output="$(python3 "$_dailydriver_main" --complete "$line" 2>/dev/null)"
+        output="$(python3 "$_dailydriver_main" "$hook" "$line" 2>/dev/null)"
     elif command -v da >/dev/null 2>&1; then
-        output="$(da --complete "$line" 2>/dev/null)"
+        output="$(da "$hook" "$line" 2>/dev/null)"
     fi
     if [ -n "$output" ]; then
         candidates=("${(@f)output}")
-        # -U: the engine already filtered (fuzzily); don't let zsh re-filter by prefix.
-        # -V: keep the engine's best-first order instead of sorting alphabetically.
-        compadd -U -V dailydriver -a candidates
+        if [ "$fzf_tab" = 1 ]; then
+            # -V keeps the engine's order instead of sorting alphabetically.
+            compadd -U -V dailydriver -a candidates
+        else
+            compadd -a candidates
+        fi
     fi
 }
 
