@@ -45,6 +45,13 @@ def test_complete_first_token(db_path):
     assert "qada" in _complete("", db_path)
 
 
+def test_complete_hides_repl_only_tokens_and_numbered_singletons(db_path):
+    matched = _complete("", db_path)
+    assert ":m" not in matched and "---" not in matched
+    assert "st1" not in matched and "ln9" not in matched
+    assert "st" in matched and "travel" in matched
+
+
 def test_complete_dynamic_target_names(db_path):
     add_target("nazr", "quran-pages")
     assert "quran-pages" in _complete("nazr log ", db_path)
@@ -110,7 +117,7 @@ def test_bash_completion_resolves_main_relative_to_script(db_path, tmp_path):
 def test_bash_completion_falls_back_to_da_on_path(db_path, tmp_path):
     """With no resolvable main.py, completion shells out to `da --complete`."""
     fake_da = tmp_path / "da"
-    fake_da.write_text('#!/bin/sh\necho fallback-candidate\n')
+    fake_da.write_text("#!/bin/sh\necho fallback-candidate\n")
     fake_da.chmod(0o755)
     bash = os.path.join(COMPLETIONS_DIR, "daily.bash")
     script = (
@@ -138,7 +145,7 @@ def test_zsh_script_uses_valid_dirname_idiom():
     with open(path, encoding="utf-8") as handle:
         content = handle.read()
     assert "%N:h" not in content
-    assert '${src%/*}' in content or "${src%/*}" in content
+    assert "${src%/*}" in content
     assert "compdef not found" in content
 
 

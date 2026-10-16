@@ -1,4 +1,4 @@
-"""Context-aware tab completion for the REPL (and shell ``--complete`` hooks).
+"""Context-aware tab completion engine (REPL + shell ``--complete`` hook).
 
 The REPL used to complete only the first word (command names). This module
 completes the *whole* line: subcommands, flags, and database-backed values
@@ -9,9 +9,20 @@ Matching is case-insensitive substring, mirroring the category picker's
 ``_RankedCompleter`` so ``code`` finds ``work/code``. An empty word matches
 everything, so Tab on ``travel `` lists ``on/off/status`` plus the flags.
 
-Dynamic providers are defensive: any database error yields no candidates
-rather than breaking the prompt, and results are cached briefly (keyed by
-database path so tests with isolated databases never see stale entries).
+Performance notes (every shell Tab spawns a fresh interpreter):
+
+- This module imports **stdlib only**. The prompt_toolkit completer classes
+  live in :mod:`dailydriver.ui.completion_ptk` so ``main.py --complete`` never
+  pays for that import.
+- Providers query SQLite directly instead of going through feature modules:
+  importing any feature submodule would run the whole feature-package
+  ``__init__`` chain. Results are cached briefly (keyed by database path so
+  tests with isolated databases never see stale entries).
+- Dynamic providers are defensive: any database error yields no candidates
+  rather than breaking the prompt.
+
+Free-text commands (journal lines, ``v``, ``ee``, …) intentionally return no
+positional candidates; every known command still offers ``-h``/``--help``.
 """
 
 from __future__ import annotations
@@ -19,12 +30,11 @@ from __future__ import annotations
 import re
 import time
 
-from prompt_toolkit.completion import Completer, Completion
-
 # ── Static candidate tables ──────────────────────────────────────────────
 
 TARGET_SUBCOMMANDS = ("log", "daily_total", "counter_total", "counter_reset")
 TARGET_FLAGS = ("-n", "--no-last")
+TARGET_KINDS = ("nazr", "habit")
 QADA_SUBCOMMANDS = ("log", "fasting")
 QADA_SLOTS = ("fajr", "dhuhr_asr", "maghrib_isha")
 QADA_FASTING_ANSWERS = ("yes", "no")
@@ -53,8 +63,86 @@ JALALI_MONTHS = (
 )
 CAL_MONTHS = tuple(str(month) for month in range(1, 13)) + JALALI_MONTHS
 
-# REPL-only tokens that are not dispatcher commands but deserve completion.
+# REPL-only tokens that are not dispatcher commands but deserve completion
+# in the REPL. Excluded from shell completion (see ``include_repl_extra``).
 REPL_EXTRA_COMMANDS = (":m", "---")
+
+# Static snapshot of every first-word token (dispatcher keys plus the
+# single-slot ``st1``…``ln9`` spellings) for the ``--complete`` hook, which
+# must not import the dispatcher (that pulls in every feature package).
+# Guarded by a parity test — update it when commands change.
+STATIC_COMMAND_NAMES = (
+    "?",
+    "bd",
+    "birthdays",
+    "cal",
+    "ce",
+    "cge",
+    "city",
+    "day",
+    "daystart",
+    "ee",
+    "ege",
+    "et",
+    "et1",
+    "et2",
+    "et3",
+    "et4",
+    "et5",
+    "et6",
+    "et7",
+    "et8",
+    "et9",
+    "export",
+    "h",
+    "habit",
+    "hijri",
+    "hygiene",
+    "ln",
+    "ln1",
+    "ln2",
+    "ln3",
+    "ln4",
+    "ln5",
+    "ln6",
+    "ln7",
+    "ln8",
+    "ln9",
+    "nap",
+    "nazr",
+    "p",
+    "pray",
+    "q",
+    "qada",
+    "recent",
+    "s",
+    "se",
+    "search",
+    "sge",
+    "sleep",
+    "st",
+    "st1",
+    "st2",
+    "st3",
+    "st4",
+    "st5",
+    "st6",
+    "st7",
+    "st8",
+    "st9",
+    "stats",
+    "t",
+    "targets",
+    "today",
+    "travel",
+    "u",
+    "update",
+    "v",
+    "vexport",
+    "view",
+    "void",
+    "year",
+)
 
 # Aliases resolve to their canonical command for argument specs.
 _COMMAND_ALIASES = {
@@ -74,12 +162,15 @@ _COMMAND_DASH_FLAGS: dict[str, tuple[str, ...]] = {
 }
 
 _NUMBERED_COMMAND_RE = re.compile(r"^(st|et|ln)(\d+)$", re.IGNORECASE)
+_ACTIVE_STATE_KEY_RE = re.compile(r"^numbered_state_([1-9])_start$")
 
 # ── Dynamic providers (cached, failure-safe) ─────────────────────────────
 
 _CACHE: dict[tuple[str, str], tuple[float, list]] = {}
-# Short TTL: collapses the burst of queries from rapid keystrokes while
+# Short TTL: collapses the burst of queries from rapid REPL keystrokes while
 # staying fresh enough that a just-started state appears almost immediately.
+# (Shell Tab presses are separate processes, so they always query fresh —
+# the queries below are single indexed SELECTs, measured in milliseconds.)
 _CACHE_TTL_SECONDS = 2.0
 
 
@@ -109,14 +200,19 @@ def _cached(key: str, loader):
     return value
 
 
+def _query_column(sql: str, params: tuple = ()) -> list:
+    """Run a read-only query and return its rows (direct SQL, no features)."""
+    from dailydriver.core.database import get_connection_cm
+
+    with get_connection_cm(auto=False) as conn:
+        return conn.execute(sql, params).fetchall()
+
+
 def category_paths() -> list[str]:
     """All known category paths, alphabetically (for sge/st/view)."""
 
     def load():
-        from dailydriver.core.database import get_connection_cm
-
-        with get_connection_cm(auto=False) as conn:
-            return [row["path"] for row in conn.execute("SELECT path FROM categories ORDER BY path")]
+        return [row["path"] for row in _query_column("SELECT path FROM categories ORDER BY path")]
 
     return _cached("categories", load)
 
@@ -135,9 +231,13 @@ def target_names(kind: str | None = None) -> list[str]:
     """Target entry names, optionally filtered by kind (nazr/habit)."""
 
     def load():
-        from dailydriver.features.targets.entries import get_all_entries
-
-        return [entry["name"] for entry in get_all_entries(kind=kind)]
+        if kind is not None and kind not in TARGET_KINDS:
+            return []
+        if kind is None:
+            rows = _query_column("SELECT name FROM target_entries ORDER BY name")
+        else:
+            rows = _query_column("SELECT name FROM target_entries WHERE kind = ? ORDER BY name", (kind,))
+        return [row["name"] for row in rows]
 
     return _cached(f"targets:{kind or 'all'}", load)
 
@@ -146,12 +246,10 @@ def qada_names() -> list[str]:
     """Qada entry names plus ids (``qada log`` accepts slot, name, or id)."""
 
     def load():
-        from dailydriver.features.qada.entries import list_entries
-
         candidates: list[str] = []
-        for entry in list_entries():
-            candidates.append(str(entry["name"]))
-            candidates.append(str(entry["id"]))
+        for row in _query_column("SELECT id, name FROM qada_entries ORDER BY name"):
+            candidates.append(str(row["name"]))
+            candidates.append(str(row["id"]))
         return candidates
 
     return _cached("qada", load)
@@ -161,9 +259,18 @@ def active_state_ids() -> list[int]:
     """Ids of currently active numbered states (for et/ln digit runs)."""
 
     def load():
-        from dailydriver.core.state import get_active_numbered_states
-
-        return [state["id"] for state in get_active_numbered_states()]
+        ids: list[int] = []
+        rows = _query_column("SELECT key, value FROM meta WHERE key GLOB 'numbered_state_[1-9]_start'")
+        for row in rows:
+            match = _ACTIVE_STATE_KEY_RE.fullmatch(row["key"])
+            if match is None:
+                continue
+            try:
+                int(row["value"])
+            except (TypeError, ValueError):
+                continue
+            ids.append(int(match.group(1)))
+        return sorted(ids)
 
     return _cached("active_states", load)
 
@@ -244,17 +351,32 @@ def _numbered_extensions(word: str) -> list[str]:
     return [f"{prefix}{digits}{state_id}" for state_id in active_state_ids() if str(state_id) not in used]
 
 
-def _first_token_candidates(word: str, command_names: list[str]) -> list[str]:
-    return list(command_names) + list(REPL_EXTRA_COMMANDS) + _numbered_extensions(word)
+def _first_token_candidates(word: str, command_names: list[str], include_repl_extra: bool = True) -> list[str]:
+    if word == "":
+        # Bare Tab shows base commands only: the 27 numbered singletons would
+        # triple the listing's noise. They still appear once you type a letter.
+        names = [name for name in command_names if _NUMBERED_COMMAND_RE.fullmatch(name) is None]
+    else:
+        names = list(command_names)
+    if include_repl_extra:
+        names = names + list(REPL_EXTRA_COMMANDS)
+    return names + _numbered_extensions(word)
 
 
 # ── Per-command argument candidates ──────────────────────────────────────
 
 
-def _duration_already_present(args: list[str]) -> bool:
-    from dailydriver.core.export_utils import parse_duration_arg
+_DURATION_ARG_RE = re.compile(r"^(all|\d+[dwmy]?)$")
 
-    return any(parse_duration_arg(arg) is not None for arg in args)
+
+def _duration_already_present(args: list[str]) -> bool:
+    """True when any arg parses as an export duration (mirrors parse_duration_arg).
+
+    Implemented as a regex rather than importing ``export_utils`` because that
+    module imports jdatetime — too heavy for a per-Tab check. Parity with the
+    real parser is covered by a test.
+    """
+    return any(_DURATION_ARG_RE.fullmatch(arg.strip().lower()) for arg in args)
 
 
 def _arg_candidates(base: str, args: list[str]) -> list[str]:
@@ -331,11 +453,16 @@ def _arg_candidates(base: str, args: list[str]) -> list[str]:
     return []
 
 
-def suggest(tokens: list[str], word: str, command_names: list[str] | set[str]) -> list[str]:
+def suggest(
+    tokens: list[str],
+    word: str,
+    command_names: list[str] | set[str] | tuple[str, ...],
+    include_repl_extra: bool = True,
+) -> list[str]:
     """Return completion candidates for a split line (see split_completion_line)."""
     names = list(command_names)
     if not tokens:
-        return _match(_first_token_candidates(word, names), word)
+        return _match(_first_token_candidates(word, names, include_repl_extra), word)
     base = _base_command(tokens[0], set(names))
     if base is None:
         return []
@@ -349,17 +476,20 @@ def suggest(tokens: list[str], word: str, command_names: list[str] | set[str]) -
     return _match(candidates, word)
 
 
-def suggest_for_text(text: str, command_names: list[str] | set[str]) -> list[str]:
+def suggest_for_text(
+    text: str,
+    command_names: list[str] | set[str] | tuple[str, ...],
+    include_repl_extra: bool = True,
+) -> list[str]:
     """Convenience wrapper: split *text* (cursor at end) and suggest."""
     tokens, word = split_completion_line(text)
-    return suggest(tokens, word, command_names)
+    return suggest(tokens, word, command_names, include_repl_extra)
 
 
-# ── Inner-prompt completion ────────────────────────────────────────────
+# ── Inner-prompt completion ──────────────────────────────────────────────
 # Structured prompts *inside* commands (viewers, selectors) get small static
-# wordlists or the multi-entry category completer below. Call sites import
-# these lazily (function level) so non-interactive runs never pay for
-# prompt_toolkit.
+# wordlists. Call sites import these lazily (function level) so
+# non-interactive runs never pay for prompt_toolkit.
 
 # Day view loop: ``\d*[np]`` navigation, ``m`` mode toggle, ``q`` quit
 # (dates are free text and intentionally not completed).
@@ -371,47 +501,3 @@ BROWSER_NAV = ("n", "p", "5n", "5p", "d", "q")
 
 # Travel-mode prayer slot selector (numbers, letters, names, cancel).
 PRAYER_SLOT_CHOICES = ("1", "2", "3", "f", "d", "m", "fajr", "dhuhr", "maghrib", "n")
-
-
-class CategoryCompleter(Completer):
-    """Space-separated multi-entry category completer.
-
-    Each word completes against the category catalog (substring match) while
-    already-committed paths are dropped live. Used by prompts that collect
-    several categories on one line (e.g. bare ``sge``). Database access is
-    deferred until completion actually runs, so plain backends pay nothing.
-    """
-
-    def get_completions(self, document, complete_event):
-        text = document.text_before_cursor
-        if text.strip() == "":
-            committed: list[str] = []
-            word = ""
-        elif text[-1].isspace():
-            committed = text.split()
-            word = ""
-        else:
-            tokens = text.split()
-            committed, word = tokens[:-1], tokens[-1]
-        chosen = {token.lower() for token in committed}
-        lowered = word.lower()
-        for path in category_paths():
-            if path.lower() in chosen:
-                continue
-            if lowered in path.lower():
-                yield Completion(path, start_position=-len(word))
-
-
-# ── prompt_toolkit integration ───────────────────────────────────────────
-
-
-class ReplCompleter(Completer):
-    """Whole-line completer for the REPL prompt."""
-
-    def __init__(self, command_names: list[str] | set[str]):
-        self.command_names = sorted(set(command_names))
-
-    def get_completions(self, document, complete_event):
-        tokens, word = split_completion_line(document.text_before_cursor)
-        for candidate in suggest(tokens, word, self.command_names):
-            yield Completion(candidate, start_position=-len(word))

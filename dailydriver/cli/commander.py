@@ -129,7 +129,7 @@ def repl():
     multi_buf = []
     collecting = False
 
-    from dailydriver.ui.completion import ReplCompleter
+    from dailydriver.ui.completion_ptk import ReplCompleter
 
     dispatch = make_dispatch()
     repl_completer = ReplCompleter(command_names_for_completion(dispatch))

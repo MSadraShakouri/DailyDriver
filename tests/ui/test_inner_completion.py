@@ -11,9 +11,9 @@ from dailydriver.ui.completion import (
     BROWSER_NAV,
     DAY_VIEW_NAV,
     PRAYER_SLOT_CHOICES,
-    CategoryCompleter,
     clear_completion_cache,
 )
+from dailydriver.ui.completion_ptk import CategoryCompleter
 from dailydriver.ui.terminal_ui import current_ui
 
 

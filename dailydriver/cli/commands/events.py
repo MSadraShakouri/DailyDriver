@@ -98,7 +98,7 @@ def start_great_event_cmd(line: str):
     if len(parts) > 1:
         cats = parts[1].strip().split()
     else:
-        from dailydriver.ui.completion import CategoryCompleter
+        from dailydriver.ui.completion_ptk import CategoryCompleter
 
         cats = (
             current_ui.prompt("Great event categories (space‑separated): ", completions=CategoryCompleter())

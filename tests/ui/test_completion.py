@@ -5,18 +5,22 @@ import jdatetime
 import pytest
 from prompt_toolkit.document import Document
 
+from dailydriver.cli.commander import command_names_for_completion
 from dailydriver.cli.dispatcher import make_dispatch
 from dailydriver.core.database import get_connection_cm
+from dailydriver.core.export_utils import parse_duration_arg
 from dailydriver.core.state import start_numbered_state
 from dailydriver.features.qada.entries import add_entry as add_qada
 from dailydriver.features.targets.entries import add_entry as add_target
 from dailydriver.ui.completion import (
-    ReplCompleter,
+    STATIC_COMMAND_NAMES,
+    _duration_already_present,
     clear_completion_cache,
     split_completion_line,
     suggest,
     suggest_for_text,
 )
+from dailydriver.ui.completion_ptk import ReplCompleter
 
 
 @pytest.fixture
@@ -292,6 +296,53 @@ def test_dynamic_providers_survive_missing_tables(command_names, tmp_path, monke
     clear_completion_cache()
     matched = suggest(["sge"], "", command_names)
     assert matched == ["-h", "--help"]
+
+
+# ── Static command list & first-token noise ────────────────────────────
+
+
+def test_static_command_names_match_live_dispatch():
+    assert sorted(STATIC_COMMAND_NAMES) == command_names_for_completion()
+
+
+def test_bare_tab_hides_numbered_singletons():
+    matched = suggest([], "", STATIC_COMMAND_NAMES)
+    assert "st" in matched and "et" in matched and "ln" in matched
+    assert "st1" not in matched and "et1" not in matched and "ln1" not in matched
+
+
+def test_typing_reveals_numbered_singletons():
+    assert "st1" in suggest([], "st", STATIC_COMMAND_NAMES)
+    assert "et1" in suggest([], "et", STATIC_COMMAND_NAMES)
+
+
+def test_repl_extras_excluded_on_request(command_names):
+    assert ":m" in suggest([], "", command_names)
+    shell = suggest([], "", command_names, include_repl_extra=False)
+    assert ":m" not in shell and "---" not in shell
+    assert "travel" in shell
+
+
+def test_duration_check_matches_real_parser():
+    samples = ["all", "ALL", "7d", "2w", "3m", "1y", "5", "0", "", "d", "-h", "--txt", "foo", "1h"]
+    for sample in samples:
+        expected = parse_duration_arg(sample) is not None
+        assert _duration_already_present([sample]) is expected, sample
+
+
+def test_completion_engine_imports_no_heavy_dependencies():
+    """ui.completion must stay stdlib-only so --complete stays fast."""
+    import subprocess
+    import sys
+
+    script = (
+        "import sys, dailydriver.ui.completion; "
+        "heavy = [m for m in ('prompt_toolkit', 'jdatetime', 'dailydriver.features', "
+        "'dailydriver.cli', 'dailydriver.display') if m in sys.modules]; "
+        "sys.exit(1 if heavy else 0)"
+    )
+    result = subprocess.run([sys.executable, "-c", script], capture_output=True, timeout=60, check=False)
+    assert result.returncode == 0
 
 
 # ── prompt_toolkit integration ─────────────────────────────────────────

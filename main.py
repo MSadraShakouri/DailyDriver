@@ -1,16 +1,34 @@
 #!/usr/bin/env python3
-import json
-import shutil
-import subprocess
+"""DailyDriver entry point: REPL, single command, Termux dialog, or --complete."""
+
 import sys
 
-from dailydriver.cli.commander import repl, run_single_command
-from dailydriver.core.migration import run_migrations
+
+def _run_shell_completion(args: list[str]) -> None:
+    """Print candidates for a partial line (shell Tab hook; must stay fast).
+
+    Only the stdlib-only completion engine is imported here — the heavy
+    application imports below run afterwards for every other mode.
+    """
+    try:
+        from dailydriver.ui.completion import STATIC_COMMAND_NAMES, suggest_for_text
+
+        for candidate in suggest_for_text(" ".join(args), STATIC_COMMAND_NAMES, include_repl_extra=False):
+            print(candidate)
+    except Exception:  # noqa: BLE001, S110 - shell hook must never fail visibly
+        pass
 
 
 def _termux_dialog() -> str | None:
     """Open a Termux text dialog and return the user's input.
-    Returns None if the dialog was cancelled or Termux is unavailable."""
+
+    Returns None if the dialog was cancelled or Termux is unavailable.
+    Imports are local so `--complete` never pays for them.
+    """
+    import json
+    import shutil
+    import subprocess
+
     dialog_path = shutil.which("termux-dialog")
     if not dialog_path:
         print("Termux dialog is only available on Termux.")
@@ -34,18 +52,14 @@ if __name__ == "__main__":
     args = sys.argv[1:]
 
     # Shell completion hook (see completions/): print candidates for the
-    # partial command line, one per line. Runs before migrations so every
-    # Tab press stays fast; never fails visibly.
+    # partial command line, one per line. Runs before everything else —
+    # including migrations and feature imports — so every Tab stays fast.
     if args and args[0] == "--complete":
-        try:
-            from dailydriver.cli.commander import command_names_for_completion
-            from dailydriver.ui.completion import suggest_for_text
-
-            for candidate in suggest_for_text(" ".join(args[1:]), command_names_for_completion()):
-                print(candidate)
-        except Exception:  # noqa: BLE001, S110 - shell hook must never fail visibly
-            pass
+        _run_shell_completion(args[1:])
         sys.exit(0)
+
+    from dailydriver.cli.commander import repl, run_single_command
+    from dailydriver.core.migration import run_migrations
 
     run_migrations()
 
