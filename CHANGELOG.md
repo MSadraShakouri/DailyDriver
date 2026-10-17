@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixed
+
+- Journal-entry category completion preserves the learned keyword ranking while typing instead of overriding it with fuzzy-match strength. Fuzzy matching still filters suggestions and orders unranked catalog entries; command completion (including `st1`) is unchanged.
+
 ## 2.5.0 (2026-10-16)
 
 ### Added

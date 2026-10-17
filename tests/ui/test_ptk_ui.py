@@ -56,6 +56,32 @@ class TestRankedCompleter:
         c = _completer(["work/code", "work/email"], ["work/code", "work/email"], ["work/code", "work/email", "misc/x"])
         assert _complete(c, "work") == ["work/code", "work/email"]
 
+    def test_keyword_ranking_wins_over_fuzzy_match_strength(self):
+        ranked = ["projects/codec", "work/code", "codec"]
+        c = _completer(ranked[:1], ranked, ranked)
+        # Earlier substring positions and prefix matches must not displace
+        # categories that the journal's keyword system ranked higher.
+        assert _complete(c, "code") == ranked
+
+    def test_unranked_prefix_cannot_displace_ranked_subsequence(self):
+        ranked = ["relatives/alex_morgan"]
+        c = _completer(ranked, ranked, ["relale", *ranked])
+        assert _complete(c, "relale") == [*ranked, "relale"]
+
+    def test_unranked_matches_still_use_fuzzy_order(self):
+        c = _completer([], [], ["misc/bcode", "work/code", "codec", "unrelated"])
+        assert _complete(c, "code") == ["codec", "work/code", "misc/bcode"]
+
+    def test_empty_word_preserves_ranking_and_catalog_order(self):
+        ranked = ["work/code", "projects/codec"]
+        c = _completer(ranked[:1], ranked, ["alpha", "projects/codec", "work/code", "zeta"])
+        assert _complete(c, "") == [*ranked, "alpha", "zeta"]
+
+    def test_committed_selection_keeps_remaining_keyword_order(self):
+        ranked = ["misc/code", "projects/codec", "work/code", "codec"]
+        c = _completer(ranked[:1], ranked, ranked)
+        assert _complete(c, "1 code") == ranked[1:]
+
     def test_filters_by_current_word(self):
         c = _completer(["work/code"], ["work/code"], ["work/code", "misc/note"])
         assert _complete(c, "misc") == ["misc/note"]
