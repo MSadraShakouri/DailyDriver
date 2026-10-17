@@ -19,7 +19,7 @@ from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import Completer, Completion, FuzzyCompleter, WordCompleter
 from prompt_toolkit.history import FileHistory, InMemoryHistory
 
-from dailydriver.ui.completion import rank_matches
+from dailydriver.ui.completion import fuzzy_score, rank_matches
 from dailydriver.ui.terminal_ui import TerminalUI
 
 # How many lines to reserve below the prompt for the completion dropdown.
@@ -52,8 +52,8 @@ class _RankedCompleter(Completer):
     The order of ``ranked`` is preserved (it already reflects the keyword
     system's TF-IDF + exact-boost ordering); remaining catalog entries follow.
     Only entries that fuzzy-match the current word (case-insensitive) are
-    offered, best match first; entries that match equally well keep the ranked
-    order, so the keyword system's ordering still breaks ties.
+    offered. Fuzzy matching filters the ranked entries without reordering them;
+    it orders only the remaining catalog entries, after all ranked matches.
 
     Completions already committed on the line are dropped live: a fully typed
     path is excluded, and a fully typed number (e.g. ``3``) resolves through the
@@ -89,8 +89,14 @@ class _RankedCompleter(Completer):
     def get_completions(self, document, complete_event):
         word = document.get_word_before_cursor(WORD=True)
         chosen = self._already_chosen(document)
-        available = [item for item in self.ranked + self.rest if item.lower() not in chosen]
-        for item in rank_matches(available, word):
+        # Journal relevance is authoritative: typing narrows the suggestions,
+        # but must not promote a weaker keyword match just because its path
+        # has a better fuzzy score. Only the unranked catalog is fuzzy-sorted.
+        for item in dict.fromkeys(self.ranked):
+            if item.lower() not in chosen and fuzzy_score(item, word) is not None:
+                yield Completion(item, start_position=-len(word))
+        remaining = [item for item in self.rest if item.lower() not in chosen]
+        for item in rank_matches(remaining, word):
             yield Completion(item, start_position=-len(word))
 
 
